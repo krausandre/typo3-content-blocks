@@ -19,7 +19,7 @@ import Icons from './icons';
 
 type SlideCallback = ($slide: JQuery, settings: MultiStepWizardSettings, identifier: string) => void;
 
-interface MultiStepWizardSettings {
+export interface MultiStepWizardSettings {
   [key: string]: any;
 }
 

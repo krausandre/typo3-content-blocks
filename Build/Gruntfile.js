@@ -113,6 +113,7 @@ module.exports = function (grunt) {
       install: '<%= paths.sysext %>install/Resources/',
       linkvalidator: '<%= paths.sysext %>linkvalidator/Resources/',
       backend: '<%= paths.sysext %>backend/Resources/',
+      content_blocks: '<%= paths.sysext %>content_blocks/Resources/',
       t3editor: '<%= paths.sysext %>t3editor/Resources/',
       workspaces: '<%= paths.sysext %>workspaces/Resources/',
       ckeditor: '<%= paths.sysext %>rte_ckeditor/Resources/',
@@ -171,6 +172,11 @@ module.exports = function (grunt) {
       backend: {
         files: {
           '<%= paths.backend %>Public/Css/backend.css': '<%= paths.sass %>backend.scss'
+        }
+      },
+      content_blocks: {
+        files: {
+          "<%= paths.content_blocks %>Public/Css/content_blocks.css": "<%= paths.sass %>content_blocks.scss"
         }
       },
       form: {
@@ -238,6 +244,9 @@ module.exports = function (grunt) {
       },
       backend: {
         src: '<%= paths.backend %>Public/Css/*.css'
+      },
+      content_blocks: {
+        src: '<%= paths.content_blocks %>Public/Css/*.css'
       },
       core: {
         src: '<%= paths.core %>Public/Css/*.css'
