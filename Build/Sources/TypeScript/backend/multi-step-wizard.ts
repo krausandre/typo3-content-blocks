@@ -18,7 +18,7 @@ import Severity from './severity';
 import Icons from './icons';
 
 
-interface MultiStepWizardSettings {
+export interface MultiStepWizardSettings {
   [key: string]: any;
 }
 

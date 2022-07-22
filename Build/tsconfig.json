@@ -30,6 +30,9 @@
             "@typo3/beuser/*": [
                 "beuser/*"
             ],
+            "@typo3/content-blocks/*": [
+                "content_blocks/*"
+            ],
             "@typo3/core/*": [
                 "core/*"
             ],
