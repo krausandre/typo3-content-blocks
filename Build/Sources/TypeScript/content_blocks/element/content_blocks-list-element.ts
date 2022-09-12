@@ -71,8 +71,10 @@ export class ContentBlocksListElement extends LitElement {
               </span>
           </td>
           <td class="col-title">
-            <a href="${MainController.urls.contentBlocks.edit}&amp;cType=${contentBlock.CType}" title="${TYPO3.lang['contentblocks.action.edit']}">
-              ${contentBlock.key}
+            <a href="${MainController.urls.contentBlocks.edit}&amp;cType=${contentBlock.static.cType}"
+              title="${TYPO3.lang['contentblocks.action.edit']}">
+              ${contentBlock.static.title}<br>
+              ${contentBlock.static.cType}<br>
             </a>
           </td>
           <td>
@@ -87,7 +89,7 @@ export class ContentBlocksListElement extends LitElement {
           </td>
           <td>
             <div class="btn-group" role="group">
-              <a href=""
+              <a href="${MainController.urls.contentBlocks.edit}&amp;cType=${contentBlock.static.cType}"
                 title="${TYPO3.lang['contentblocks.action.edit']}"
                 class="btn btn-default form-record-open">
                 <typo3-backend-icon identifier="actions-open" size="small"></typo3-backend-icon>

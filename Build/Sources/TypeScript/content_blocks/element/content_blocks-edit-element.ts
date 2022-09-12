@@ -66,15 +66,19 @@ ${
   }
 
   private async _contentBlockFields(): Promise<TemplateResult> {
-    const contentBlock: IContentBlock = await this._controller.currentContentBlock
+    const contentBlock: IContentBlock = this._controller.currentContentBlock
+
+    if (!contentBlock)  {
+      return html``
+    }
 
     return html`
-      <h2>${contentBlock.key}</h2>
+      <h2>${contentBlock.static.title}</h2>
       <p>
         Path: <code>${contentBlock.path}</code>
       </p>
       <p>
-        cType: <code>${contentBlock.CType}</code>
+        cType: <code>${contentBlock.static.cType}</code>
       </p>
       <fieldset>
         <legend>Fields</legend>

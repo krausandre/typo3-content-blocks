@@ -43,7 +43,6 @@ export class MainController implements ReactiveController {
   private static _instance?: MainController
   private _hosts: ReactiveControllerHost[] = []
   private _contentBlocks: Promise<IContentBlocksDictionary>;
-  private _contentBlock: IContentBlockPromisesDictionary = {};
 
   static instance(
     host?: ReactiveControllerHost

@@ -1,9 +1,11 @@
 // @todo complete interface or add class
 export interface IContentBlock extends Object {
-  key: string
   path: string
-  CType: string
   fields: IContentBlockFieldsDictionary;
+  static: {
+    title: string;
+    cType: string
+  }
 }
 
 export interface IContentBlockFieldsDictionary {
