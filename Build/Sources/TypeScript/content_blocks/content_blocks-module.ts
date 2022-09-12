@@ -45,12 +45,13 @@ class ContentBlocksModule {
       (slide: JQuery, settings: any, identifier: string) => {
         // TYPO3.MultiStepWizard.lockNextStep();
         TYPO3.MultiStepWizard.lockPrevStep();
+        alert(TYPO3.settings.urls['EXT:content_blocks/Resources/Public/JavaScript/element/choose-name-element.js'])
         slide.html(
-          // This wizard is part of the "top" frame - thus we need to import the LitElement here.
+          // This wizard is part of the "top" frame – thus we need to import our used components here (for not having to load them globally).
           // @todo: properly generate this asset path
           `
           <script type="module"
-            src="/typo3/sysext/content_blocks/Resources/Public/JavaScript/element/content_blocks-choose-name-element.js"></script>
+            src="${TYPO3.settings['EXT:content_blocks/Resources/Public/JavaScript/element/choose-name-element.js']}"></script>
           `
           // ... and for the same reason we are passing TYPO3.lang entries into the "top" context here.
           // (I am unsure if this is less workaroundy than loading it globally in the backend)
