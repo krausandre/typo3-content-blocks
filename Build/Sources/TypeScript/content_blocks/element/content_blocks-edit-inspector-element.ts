@@ -35,7 +35,7 @@ export class ContentBlocksEditInspectorElement extends LitElement {
   }
 
   protected render(): TemplateResult {
-    const field = this._controller.currentContentBlock.fields[this.fieldIdentifier] ?? null;
+    const field = this._controller.currentContentBlock?.fields[this.fieldIdentifier] ?? null;
     if (!field) {
       return html`
         <typo3-content_blocks-choose-name
