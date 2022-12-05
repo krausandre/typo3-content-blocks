@@ -541,7 +541,7 @@ class MultiStepWizard {
   }
 }
 
-let multistepWizardObject;
+let multistepWizardObject: MultiStepWizard = null;
 try {
   // fetch from opening window
   if (window.opener && window.opener.TYPO3 && window.opener.TYPO3.MultiStepWizard) {

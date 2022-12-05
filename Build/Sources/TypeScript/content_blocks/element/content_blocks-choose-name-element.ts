@@ -28,11 +28,11 @@ export class ContentBlocksChooseNameElement extends LitElement {
   @property({attribute: 'typo3-lang-vendor'}) typo3LangVendor: string
     = TYPO3.lang['contentblocks.contentblock.vendor'] ?? undefined;
   @property({attribute: 'typo3-lang-vendor-description'}) typo3LangVendorDescription: string
-    = TYPO3.lang['contentblocks.contentblock.vendor.description'];
+    = TYPO3.lang['contentblocks.contentblock.vendor.description'] ?? undefined;
   @property({attribute: 'typo3-lang-packagename'}) typo3LangPackagename: string
-    = TYPO3.lang['contentblocks.contentblock.packagename'];
+    = TYPO3.lang['contentblocks.contentblock.packagename'] ?? undefined;
   @property({attribute: 'typo3-lang-packagename-description'}) typo3LangPackagenameDescription: string
-    = TYPO3.lang['contentblocks.contentblock.packagename.description'];
+    = TYPO3.lang['contentblocks.contentblock.packagename.description'] ?? undefined;
   name: string;
   vendor: string;
   packageName: string;
@@ -104,13 +104,15 @@ export class ContentBlocksChooseNameElement extends LitElement {
       // @todo: also make sure it is a valid composer package name (not starting or ending with "-" etc.)
       .replace(/\W+/g, '-')
 
-    this._packageNameInputRef.value!.value = proposedPackagename
+    if (this._packageNameInputRef.value) {
+      this._packageNameInputRef.value!.value = proposedPackagename
+    }
   };
 
   private updateProperties(ev: Event) {
-    this.title = this._titleInputRef.value!.value
-    this.vendor = this._vendorInputRef.value!.value
-    this.packageName = this._packageNameInputRef.value!.value
+    this.title = this._titleInputRef.value?.value
+    this.vendor = this._vendorInputRef.value?.value
+    this.packageName = this._packageNameInputRef.value?.value
   }
 }
 

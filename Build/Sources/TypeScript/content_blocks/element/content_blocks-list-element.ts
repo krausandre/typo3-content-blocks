@@ -18,6 +18,7 @@ import {until} from 'lit/directives/until.js';
 import '@typo3/backend/element/spinner-element';
 import '@typo3/backend/element/icon-element';
 import {IContentBlocksDictionary} from '@typo3/content-blocks/types';
+import {ContentBlocksChooseNameElement} from '@typo3/content-blocks/element/content_blocks-choose-name-element';
 
 @customElement('typo3-content_blocks-list')
 export class ContentBlocksListElement extends LitElement {
@@ -60,7 +61,7 @@ export class ContentBlocksListElement extends LitElement {
   }
 
   private async _contentBlocksTableRows(): Promise<TemplateResult[]> {
-    const contentBlocks: IContentBlocksDictionary = await this._controller.contentBlocks()
+    const contentBlocks: IContentBlocksDictionary = await this._controller.contentBlocks();
 
     return Object.entries(contentBlocks).map(
       ([k, contentBlock]): TemplateResult => html`
@@ -133,6 +134,6 @@ export class ContentBlocksListElement extends LitElement {
           <td></td>
         </tr>
       `
-    )
+    );
   }
 }

@@ -14,9 +14,12 @@
 import {MainController} from '@typo3/content-blocks/controller/main-controller';
 import '@typo3/content-blocks/element/content_blocks-edit-element';
 import '@typo3/content-blocks/element/content_blocks-list-element';
-import '@typo3/content-blocks/element/content_blocks-choose-name-element';
-import '@typo3/backend/multi-step-wizard';
+//import '@typo3/backend/multi-step-wizard';
 import Severity from '@typo3/backend/severity';
+import {ContentBlocksChooseNameElement} from '@typo3/content-blocks/element/content_blocks-choose-name-element';
+import {html} from 'lit';
+import {default as Modal, ModalElement} from '@typo3/backend/modal';
+import {default as MultiStepWizard} from '@typo3/backend/multi-step-wizard';
 
 /**
  * Module: @typo3/content-blocks/content_blocks-module
@@ -35,28 +38,33 @@ class ContentBlocksModule {
 
   private onCreateNewContentBlockClicked(ev: Event) {
     ev.preventDefault()
-
-    TYPO3.MultiStepWizard.addSlide(
+    console.log(1, document)
+    let a = new ContentBlocksChooseNameElement();
+    MultiStepWizard.addSlide(
       'new-1',
+      // @todo import {lll} from '@typo3/core/lit-helper';
       TYPO3.lang['contentblocks.wizard.new.slide1.title'],
-      '',
+      '', //a.outerHTML,
       Severity.info,
       TYPO3.lang['contentblocks.wizard.new.slide1.progressLabel'],
       (slide: JQuery, settings: any, identifier: string) => {
-        // TYPO3.MultiStepWizard.lockNextStep();
-        TYPO3.MultiStepWizard.lockPrevStep();
-        alert(TYPO3.settings.urls['EXT:content_blocks/Resources/Public/JavaScript/element/choose-name-element.js'])
+        console.log(2, document)
+        console.log(3, slide)
+        // let a = new ContentBlocksChooseNameElement();
+        // MultiStepWizard.lockNextStep();
+        MultiStepWizard.lockPrevStep();
         slide.html(
           // This wizard is part of the "top" frame – thus we need to import our used components here (for not having to load them globally).
-          // @todo: properly generate this asset path
-          `
-          <script type="module"
-            src="${TYPO3.settings['EXT:content_blocks/Resources/Public/JavaScript/element/choose-name-element.js']}"></script>
-          `
+          // `
+          // <script type="module"
+          //   src="${TYPO3.settings.urls['EXT:content_blocks/Resources/Public/JavaScript/element/choose-name-element.js']}"></script>
+          // ` +
           // ... and for the same reason we are passing TYPO3.lang entries into the "top" context here.
           // (I am unsure if this is less workaroundy than loading it globally in the backend)
-          + `
-          <div class="mb-3">
+          `
+          <div class="mb-3">` +
+          `
+            <script type="module" src="@typo3/content-blocks/element/content_blocks-choose-name-element.js"></script>
             <typo3-content_blocks-choose-name
                 typo3-lang-title="${TYPO3.lang['contentblocks.contentblock.title']}"
                 typo3-lang-title-description="${TYPO3.lang['contentblocks.contentblock.title.description']}"
@@ -66,44 +74,49 @@ class ContentBlocksModule {
                 typo3-lang-packagename="${TYPO3.lang['contentblocks.contentblock.packagename']}"
                 typo3-lang-packagename-description="${TYPO3.lang['contentblocks.contentblock.packagename.description']}"
             ></typo3-content_blocks-choose-name>
+            ` +
+             `
           </div>
           `
         )
+        // slide.get(0).appendChild(a)
       }
     )
 
-    TYPO3.MultiStepWizard.addSlide(
-      'new-2',
-      TYPO3.lang['contentblocks.wizard.new.slide2.title'],
-      '',
-      Severity.info,
-      TYPO3.lang['contentblocks.wizard.new.slide2.progressLabel'],
-      (slide: any) => {
-        TYPO3.MultiStepWizard.unlockNextStep();
-        // TYPO3.MultiStepWizard.lockPrevStep();
-        slide.html(
-          `
-          <label for="t3-contentblocks-description" class="form-label">
-            ${TYPO3.lang['contentblocks.contentblock.description']}
-          </label>
-          <textarea class="form-control" id="t3-contentblocks-description" rows="3"
-            aria-describedby="t3-contentblocks-help-description"
-          ></textarea>
-          <div id="t3-contentblocks-help-packagename" class="form-text">
-            ${TYPO3.lang['contentblocks.contentblock.description.description']}
-          </div>
-          `
-        )
-      },
-    )
+    // MultiStepWizard.addSlide(
+    //   'new-2',
+    //   TYPO3.lang['contentblocks.wizard.new.slide2.title'],
+    //   '',
+    //   Severity.info,
+    //   TYPO3.lang['contentblocks.wizard.new.slide2.progressLabel'],
+    //   (slide: any) => {
+    //     MultiStepWizard.unlockNextStep();
+    //     // MultiStepWizard.lockPrevStep();
+    //     slide.html(
+    //       `
+    //       <label for="t3-contentblocks-description" class="form-label">
+    //         ${TYPO3.lang['contentblocks.contentblock.description']}
+    //       </label>
+    //       <textarea class="form-control" id="t3-contentblocks-description" rows="3"
+    //         aria-describedby="t3-contentblocks-help-description"
+    //       ></textarea>
+    //       <div id="t3-contentblocks-help-packagename" class="form-text">
+    //         ${TYPO3.lang['contentblocks.contentblock.description.description']}
+    //       </div>
+    //       `
+    //     )
+    //   },
+    // )
 
-    TYPO3.MultiStepWizard.addFinalProcessingSlide(
+    MultiStepWizard.addFinalProcessingSlide(
       () => {
         // @todo: There's probably an API to navigate
-        top.location = MainController.urls.contentBlocks.edit
+        // top.location = MainController.urls.contentBlocks.edit
+        const router = document.querySelector('typo3-backend-module-router');
+        router.setAttribute('endpoint', MainController.urls.contentBlocks.edit)
       }
     ).then(
-      () => TYPO3.MultiStepWizard.show()
+      () => MultiStepWizard.show()
     )
   }
 }

@@ -3,6 +3,7 @@
     data-namespace-typo3-fluid="true"
 >
 
+<f:comment>@todo - having content_blocks here is not ok. But I need this module in global scope?!</f:comment>
 <f:be.pageRenderer
     includeJavaScriptModules="{
         0: 'bootstrap',
@@ -20,7 +21,8 @@
         12: '@typo3/backend/action-dispatcher.js',
         13: '@typo3/backend/element/immediate-action-element.js',
         14: '@typo3/backend/toolbar/live-search.js',
-        15: '@typo3/backend/live-search/element/backend-search.js'
+        15: '@typo3/backend/live-search/element/backend-search.js',
+        16: '@typo3/content-blocks/element/content_blocks-choose-name-element.js'
     }"
 />
 

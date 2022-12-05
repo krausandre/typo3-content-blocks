@@ -11,7 +11,7 @@
  * The TYPO3 project - inspiring people to share!
  */
 
-import {ReactiveController, ReactiveControllerHost} from 'lit'
+import {html, ReactiveController, ReactiveControllerHost} from 'lit';
 import AjaxRequest from '@typo3/core/ajax/ajax-request';
 import {
   IContentBlock, IContentBlockField,
@@ -72,6 +72,8 @@ export class MainController implements ReactiveController {
       return this._contentBlocks
     } catch {
       throw new Error(`todo:: fetch errör ${url}`)
+      // @todo
+      // this.templateResultContent = html`<p><strong>Oops, received a ${response.response.status} response from </strong> <span class="text-break">${this.content}</span>.</p>`;
     }
   }
 
