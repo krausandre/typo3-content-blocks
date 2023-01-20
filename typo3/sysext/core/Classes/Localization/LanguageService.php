@@ -179,14 +179,18 @@ class LanguageService
         }
         // Remove the LLL: prefix
         $restStr = substr(trim($input), 4);
-        $extensionPrefix = '';
+        $packagePrefix = '';
         // ll-file referred to is found in an extension
         if (PathUtility::isExtensionPath(trim($restStr))) {
             $restStr = substr(trim($restStr), 4);
-            $extensionPrefix = 'EXT:';
+            $packagePrefix = 'EXT:';
+        }
+        if (PathUtility::isContentBlockPath(trim($restStr))) {
+            $restStr = substr(trim($restStr), 3);
+            $packagePrefix = 'CB:';
         }
         $parts = explode(':', trim($restStr));
-        $parts[0] = $extensionPrefix . $parts[0];
+        $parts[0] = $packagePrefix . $parts[0];
         $labelsFromFile = $this->readLLfile($parts[0]);
         if (is_array($this->overrideLabels[$parts[0]] ?? null)) {
             $labelsFromFile = array_replace_recursive($labelsFromFile, $this->overrideLabels[$parts[0]]);

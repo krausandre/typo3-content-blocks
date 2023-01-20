@@ -120,6 +120,14 @@ class PathUtility
     }
 
     /**
+     * Checks whether the given path is a content block resource
+     */
+    public static function isContentBlockPath(string $path): bool
+    {
+        return str_starts_with($path, 'CB:');
+    }
+
+    /**
      * Gets the relative path from a source directory to a target directory.
      * The allowed TYPO3 path is checked as well, thus it's not possible to go to upper levels.
      *

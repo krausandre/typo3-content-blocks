@@ -173,6 +173,18 @@ class LanguageStore implements SingletonInterface
                 $fileName
             );
         }
+        if (PathUtility::isContentBlockPath($fileReference)) {
+            [$vendor, $package] = explode('/', substr($fileReference, 3));
+            $relativeFileName = substr($fileReference, strlen($vendor . $package) + 5);
+            $directory = dirname($relativeFileName);
+            $fileName = basename($relativeFileName);
+            $this->configuration[$fileReference]['localizedLabelsPathPattern'] = sprintf(
+                '/%%1$s/%s/%s%%1$s.%s',
+                $vendor . '/' . $package,
+                ($directory ? $directory . '/' : ''),
+                $fileName
+            );
+        }
         $fileWithoutExtension = GeneralUtility::getFileAbsFileName($this->getFileReferenceWithoutExtension($fileReference));
         foreach ($this->supportedExtensions as $extension) {
             if (@is_file($fileWithoutExtension . '.' . $extension)) {
