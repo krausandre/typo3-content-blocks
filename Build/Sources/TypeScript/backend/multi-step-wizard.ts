@@ -19,7 +19,7 @@ import Icons from './icons';
 
 type SlideCallback = ($slide: JQuery, settings: MultiStepWizardSettings, identifier: string) => void;
 
-export interface MultiStepWizardSettings {
+interface MultiStepWizardSettings {
   [key: string]: any;
 }
 
@@ -541,7 +541,7 @@ class MultiStepWizard {
   }
 }
 
-let multistepWizardObject: MultiStepWizard = null;
+let multistepWizardObject;
 try {
   // fetch from opening window
   if (window.opener && window.opener.TYPO3 && window.opener.TYPO3.MultiStepWizard) {
