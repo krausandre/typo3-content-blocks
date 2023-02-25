@@ -3261,8 +3261,10 @@ class GeneralUtilityTest extends UnitTestCase
             ->willReturn(['foo' => $package]);
         $packageManager
             ->method('isPackageActive')
-            ->with(self::equalTo('foo'))
-            ->willReturn(true);
+            ->willReturnMap([
+                ['foo', true],
+                ['content_blocks', false],
+            ]);
         $packageManager
             ->method('getPackage')
             ->with('foo')
