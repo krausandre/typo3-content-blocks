@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Core\Composer;
 
+use Composer\InstalledVersions;
 use Composer\Package\PackageInterface;
 use Composer\Repository\PlatformRepository;
 use Composer\Script\Event;
@@ -207,7 +208,17 @@ class PackageArtifactBuilder extends PackageManager implements InstallerScript
             )
         );
 
-        $this->publishResources($installedTypo3Packages);
+        foreach ($installedTypo3Packages as [$composerPackage, $path, $extensionKey]) {
+            $fileSystemResourcesPath = $path . '/Resources/Public';
+            if (str_contains($path, 'ext/' . $extensionKey) || !file_exists($fileSystemResourcesPath)) {
+                continue;
+            }
+            $this->publishResources($path);
+        }
+        foreach (array_unique(InstalledVersions::getInstalledPackagesByType('typo3-content-block')) as $contentBlock) {
+            $path = realpath(InstalledVersions::getInstallPath($contentBlock));
+            $this->publishResources($path);
+        }
 
         return $installedTypo3Packages;
     }
@@ -255,22 +266,17 @@ class PackageArtifactBuilder extends PackageManager implements InstallerScript
         return [$rootPackage, $typo3ExtensionInstallPath, $extensionKey];
     }
 
-    private function publishResources(array $installedTypo3Packages): void
+    private function publishResources(string $path): void
     {
         $fileSystem = new Filesystem();
         $baseDir = $this->config->get('base-dir');
-        foreach ($installedTypo3Packages as [$composerPackage, $path, $extensionKey]) {
-            $fileSystemResourcesPath = $path . '/Resources/Public';
-            if (str_contains($path, 'ext/' . $extensionKey) || !file_exists($fileSystemResourcesPath)) {
-                continue;
-            }
-            $relativePath = substr($fileSystemResourcesPath, strlen($baseDir));
-            [$relativePrefix] = explode('Resources/Public', $relativePath);
-            $publicResourcesPath = $fileSystem->normalizePath($this->config->get('web-dir') . '/_assets/' . md5($relativePrefix));
-            $fileSystem->ensureDirectoryExists(dirname($publicResourcesPath));
-            if (!$fileSystem->isSymlinkedDirectory($publicResourcesPath)) {
-                $fileSystem->relativeSymlink($fileSystemResourcesPath, $publicResourcesPath);
-            }
+        $fileSystemResourcesPath = $path . '/Resources/Public';
+        $relativePath = substr($fileSystemResourcesPath, strlen($baseDir));
+        [$relativePrefix] = explode('Resources/Public', $relativePath);
+        $publicResourcesPath = $fileSystem->normalizePath($this->config->get('web-dir') . '/_assets/' . md5($relativePrefix));
+        $fileSystem->ensureDirectoryExists(dirname($publicResourcesPath));
+        if (!$fileSystem->isSymlinkedDirectory($publicResourcesPath)) {
+            $fileSystem->relativeSymlink($fileSystemResourcesPath, $publicResourcesPath);
         }
     }
 }
