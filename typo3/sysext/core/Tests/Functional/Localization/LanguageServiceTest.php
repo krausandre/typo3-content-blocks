@@ -47,7 +47,7 @@ class LanguageServiceTest extends FunctionalTestCase
     ];
 
     protected array $pathsToProvideInTestInstance = [
-        'typo3/sysext/core/Tests/Functional/Fixtures/ContentBlocks/' => 'typo3conf/content-blocks/'
+        'typo3/sysext/core/Tests/Functional/Fixtures/ContentBlocks/' => 'typo3conf/content-blocks/',
     ];
 
     // Constants to access the various language files

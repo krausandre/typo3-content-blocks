@@ -30,7 +30,7 @@ class GeneralUtilityTest extends FunctionalTestCase
     protected bool $initializeDatabase = false;
 
     protected array $pathsToProvideInTestInstance = [
-        'typo3/sysext/core/Tests/Functional/Fixtures/ContentBlocks/' => 'typo3conf/content-blocks/'
+        'typo3/sysext/core/Tests/Functional/Fixtures/ContentBlocks/' => 'typo3conf/content-blocks/',
     ];
 
     /**
