@@ -15,8 +15,10 @@
 
 namespace TYPO3\CMS\Core\Localization;
 
+use TYPO3\CMS\ContentBlocks\Utility\ContentBlockPathUtility;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
@@ -184,8 +186,7 @@ class LanguageService
         if (PathUtility::isExtensionPath(trim($restStr))) {
             $restStr = substr(trim($restStr), 4);
             $packagePrefix = 'EXT:';
-        }
-        if (PathUtility::isContentBlockPath(trim($restStr))) {
+        } elseif (ExtensionManagementUtility::isLoaded('content_blocks') && ContentBlockPathUtility::isContentBlockPath(trim($restStr))) {
             $restStr = substr(trim($restStr), 3);
             $packagePrefix = 'CB:';
         }
