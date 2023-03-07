@@ -23,10 +23,6 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 class LanguageServiceTest extends FunctionalTestCase
 {
-    protected array $coreExtensionsToLoad = [
-        'content_blocks',
-    ];
-
     protected array $testExtensionsToLoad = [
         'typo3/sysext/core/Tests/Functional/Fixtures/Extensions/test_localization',
     ];
@@ -44,10 +40,6 @@ class LanguageServiceTest extends FunctionalTestCase
             ],
             'locallangXMLOverride' => [],
         ],
-    ];
-
-    protected array $pathsToProvideInTestInstance = [
-        'typo3/sysext/core/Tests/Functional/Fixtures/ContentBlocks/' => 'typo3conf/content-blocks/',
     ];
 
     // Constants to access the various language files
@@ -126,10 +118,6 @@ class LanguageServiceTest extends FunctionalTestCase
         yield 'Locallang label with inner and outer whitespace' => [
             '    LLL:    EXT:    core/Resources/Private/Language/locallang_core.xlf:cm.editcontent    ',
             'Edit content',
-        ];
-        yield 'Content block label' => [
-            'LLL:CB:bar/foo/Resources/Private/Language/Labels.xlf:bar.foo.title',
-            'Content Block title',
         ];
     }
 

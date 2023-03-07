@@ -15,10 +15,8 @@
 
 namespace TYPO3\CMS\Core\Localization;
 
-use TYPO3\CMS\ContentBlocks\Utility\ContentBlockPathUtility;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
@@ -181,17 +179,14 @@ class LanguageService
         }
         // Remove the LLL: prefix
         $restStr = substr(trim($input), 4);
-        $packagePrefix = '';
+        $extensionPrefix = '';
         // ll-file referred to is found in an extension
         if (PathUtility::isExtensionPath(trim($restStr))) {
             $restStr = substr(trim($restStr), 4);
-            $packagePrefix = 'EXT:';
-        } elseif (ExtensionManagementUtility::isLoaded('content_blocks') && ContentBlockPathUtility::isContentBlockPath(trim($restStr))) {
-            $restStr = substr(trim($restStr), 3);
-            $packagePrefix = 'CB:';
+            $extensionPrefix = 'EXT:';
         }
         $parts = explode(':', trim($restStr));
-        $parts[0] = $packagePrefix . $parts[0];
+        $parts[0] = $extensionPrefix . $parts[0];
         $labelsFromFile = $this->readLLfile($parts[0]);
         if (is_array($this->overrideLabels[$parts[0]] ?? null)) {
             $labelsFromFile = array_replace_recursive($labelsFromFile, $this->overrideLabels[$parts[0]]);

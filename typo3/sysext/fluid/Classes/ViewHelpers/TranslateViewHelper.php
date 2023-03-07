@@ -157,7 +157,7 @@ final class TranslateViewHelper extends AbstractViewHelper
 
         if (!$request instanceof ExtbaseRequestInterface) {
             // Straight resolving via core LanguageService in non-extbase context
-            if (!str_starts_with($id, 'LLL:EXT:') && !str_starts_with($id, 'LLL:CB:') && empty($default)) {
+            if (!str_starts_with($id, 'LLL:EXT:') && empty($default)) {
                 // Resolve "short key" without LLL:EXT: syntax given, if an extension name is given.
                 // @todo: We could consider to deprecate this case. It is mostly implemented for a more
                 //        smooth transition when (backend) controllers no longer feed an extbase request.

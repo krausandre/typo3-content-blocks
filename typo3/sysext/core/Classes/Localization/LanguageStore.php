@@ -15,12 +15,10 @@
 
 namespace TYPO3\CMS\Core\Localization;
 
-use TYPO3\CMS\ContentBlocks\Utility\ContentBlockPathUtility;
 use TYPO3\CMS\Core\Localization\Exception\FileNotFoundException;
 use TYPO3\CMS\Core\Localization\Exception\InvalidParserException;
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
@@ -171,17 +169,6 @@ class LanguageStore implements SingletonInterface
             $this->configuration[$fileReference]['localizedLabelsPathPattern'] = sprintf(
                 '/%%1$s/%s/%s%%1$s.%s',
                 $packageKey,
-                ($directory ? $directory . '/' : ''),
-                $fileName
-            );
-        } elseif (ExtensionManagementUtility::isLoaded('content_blocks') && ContentBlockPathUtility::isContentBlockPath($fileReference)) {
-            [$vendor, $package] = explode('/', substr($fileReference, 3));
-            $relativeFileName = substr($fileReference, strlen($vendor . $package) + 5);
-            $directory = dirname($relativeFileName);
-            $fileName = basename($relativeFileName);
-            $this->configuration[$fileReference]['localizedLabelsPathPattern'] = sprintf(
-                '/%%1$s/%s/%s%%1$s.%s',
-                $vendor . '/' . $package,
                 ($directory ? $directory . '/' : ''),
                 $fileName
             );
