@@ -56,7 +56,7 @@ A Content Block consists of this directory structure:
                 Labels.xlf (required)
             EditorInterface.yaml (required)
             EditorPreview.html
-            Frontend.html (required for Frontend rendering)
+            Frontend.html (only required for Frontend rendering)
         Public
             ContentBlockIcon.svg
             EditorPreview.css
