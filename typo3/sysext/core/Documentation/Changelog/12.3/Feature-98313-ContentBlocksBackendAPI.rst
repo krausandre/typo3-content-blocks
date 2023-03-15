@@ -118,6 +118,7 @@ inside the well-known :html:`data` variable, this is just for convenience:
 
     <cb:asset.css identifier="content-block-foo" name="vendor/package" file="Frontend.css"/>
     <cb:asset.script identifier="content-block-foo" name="vendor/package" file="Frontend.js"/>
+    <cb:translate name="vendor/package" key="my-key"/>
 
     My header: {cb.header}
     My textfield: {cb.my_text_field}
@@ -127,6 +128,12 @@ Content Blocks provide their own asset view helpers :html:`<cb:asset.css>` and
 :html:`name` (vendor/package) and :html:`file` (relative to Resources/Public
 inside the Content Block). Be aware: the core asset view helpers won't work for
 content blocks.
+
+For frontend translations Content Blocks also provides its own translation
+view helper. This can be seen as a simplified :html:`f:translate` view helper.
+Required arguments are :html:`name` (The name of the Content Block) and
+:html:`key`. The view helper will automatically resolve the path to the
+`Labels.xlf` of the requested content block.
 
 For reference type of fields like `File`, `Reference` or `Category`, the
 relations are resolved automatically. This means data processing is already
