@@ -50,14 +50,16 @@ A Content Block consists of this directory structure:
 
 ::
 
-    Assets
+    Assets/
         ContentBlockIcon.svg (optional custom icon)
         EditorPreview.css (suggestion)
         Frontend.css (suggestion)
         Frontend.js (suggestion)
-    Source
-        Language
+    Source/
+        Language/
             Labels.xlf (required)
+        Layouts/ (optional layouts for backend and frontend)
+        Partials/ (optional partials for backend and frontend)
         EditorPreview.html (optional custom backend preview)
         Frontend.html (only required for Frontend rendering)
     EditorInterface.yaml (required)
