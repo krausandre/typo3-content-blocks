@@ -118,7 +118,7 @@ inside the well-known :html:`data` variable, this is just for convenience:
 
     <cb:asset.css identifier="content-block-foo" file="Frontend.css"/>
     <cb:asset.script identifier="content-block-foo" file="Frontend.js"/>
-    <cb:translate name="vendor/package" key="my-key"/>
+    <cb:translate key="my-key"/>
 
     My header: {cb.header}
     My textfield: {cb.my_text_field}
