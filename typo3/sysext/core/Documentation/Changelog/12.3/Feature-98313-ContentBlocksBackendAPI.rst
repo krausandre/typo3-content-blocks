@@ -129,11 +129,10 @@ and :html:`file` (relative to the "Assets" folder inside the Content Block).
 Be aware: the core asset view helpers won't work for content blocks in composer
 mode.
 
-For frontend translations Content Blocks also provides its own translation
+For frontend translations Content Blocks also provides their own translation
 view helper. This can be seen as a simplified :html:`f:translate` view helper.
-Required arguments are :html:`name` (The name of the Content Block) and
-:html:`key`. The view helper will automatically resolve the path to the
-`Labels.xlf` of the requested content block.
+The only required argument is :html:`key`. The view helper will automatically
+resolve the path to the `Labels.xlf` file of the current content block.
 
 For reference type of fields like `File`, `Reference` or `Category`, the
 relations are resolved automatically. This means data processing is already
