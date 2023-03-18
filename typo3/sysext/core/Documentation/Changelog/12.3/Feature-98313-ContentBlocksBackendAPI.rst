@@ -125,7 +125,7 @@ inside the well-known :html:`data` variable, this is just for convenience:
 
 Content Blocks provide their own asset view helpers :html:`<cb:asset.css>` and
 :html:`<cb:asset.script>`. Required arguments are :html:`identifier`,
-and :html:`file` (relative to Resources/Public inside the Content Block).
+and :html:`file` (relative to the "Assets" folder inside the Content Block).
 Be aware: the core asset view helpers won't work for content blocks in composer
 mode.
 
