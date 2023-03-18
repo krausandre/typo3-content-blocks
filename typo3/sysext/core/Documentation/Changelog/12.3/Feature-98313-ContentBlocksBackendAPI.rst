@@ -116,8 +116,8 @@ inside the well-known :html:`data` variable, this is just for convenience:
 
 .. code-block:: html
 
-    <cb:asset.css identifier="content-block-foo" name="vendor/package" file="Frontend.css"/>
-    <cb:asset.script identifier="content-block-foo" name="vendor/package" file="Frontend.js"/>
+    <cb:asset.css identifier="content-block-foo" file="Frontend.css"/>
+    <cb:asset.script identifier="content-block-foo" file="Frontend.js"/>
     <cb:translate name="vendor/package" key="my-key"/>
 
     My header: {cb.header}
@@ -125,9 +125,9 @@ inside the well-known :html:`data` variable, this is just for convenience:
 
 Content Blocks provide their own asset view helpers :html:`<cb:asset.css>` and
 :html:`<cb:asset.script>`. Required arguments are :html:`identifier`,
-:html:`name` (vendor/package) and :html:`file` (relative to Resources/Public
-inside the Content Block). Be aware: the core asset view helpers won't work for
-content blocks.
+and :html:`file` (relative to Resources/Public inside the Content Block).
+Be aware: the core asset view helpers won't work for content blocks in composer
+mode.
 
 For frontend translations Content Blocks also provides its own translation
 view helper. This can be seen as a simplified :html:`f:translate` view helper.
