@@ -77,7 +77,6 @@ defines both the available fields and the structure of the Content Element:
     group: common
     fields:
       - identifier: header
-        type: Text
         useExistingField: true
       - identifier: my_text_field
         type: Text
