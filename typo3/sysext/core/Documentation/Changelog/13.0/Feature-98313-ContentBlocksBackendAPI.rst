@@ -36,7 +36,7 @@ of combining everything listed above into one definition.
 Content Blocks are not there (and not able) to replace the current system, but
 adds another abstraction layer to a complicated API. They can still be extended
 the traditional way. For TCA there is a dedicated PSR-14 event
-:php:`\TYPO3\CMS\ContentBlocks\Event/AfterContentBlocksTcaCompilationEvent` to
+:php:`\TYPO3\CMS\ContentBlocks\Event\AfterContentBlocksTcaCompilationEvent` to
 manipulate the generated TCA.
 
 To create a new content block, a folder `ContentBlocks` has to be created
