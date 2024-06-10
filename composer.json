@@ -123,8 +123,16 @@
 		"sokil/php-isocodes-db-i18n": "^4.0.22",
 		"symfony/translation": "^7.0",
 		"typo3/testing-framework": "dev-main",
-		"webmozart/assert": "^1.11.0"
+		"webmozart/assert": "^1.11.0",
+
+		"contentblocks/samples": "^1.0"
 	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "packages/*"
+		}
+	],
 	"suggest": {
 		"ext-apcu": "Needed when non-default APCU based cache backends are used",
 		"ext-exif": "Used to extract exif metadata (orientation) of uploaded images",

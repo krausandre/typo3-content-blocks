@@ -16,35 +16,36 @@ class AjaxRequestTest {
       }
    }
   sendAjaxRequest() {
-    return new AjaxRequest(TYPO3.settings.ajaxUrls['content_blocks_gui_save_content_type'])
+    return new AjaxRequest(TYPO3.settings.ajaxUrls['content_blocks_gui_list_cb'])
       .post(
-        // {
-        //   name: "example/tabs",
-        // }
-
-        // save content block with content type "Content Element" and mode "edit"
-        {
-          extension: "samples",
-          contentType: "content-element",
-          mode: "edit",
-          contentBlock: {
-            name: "test-99/test-99",
-            fields: [
-              {
-                identifier: 'header',
-                useExistingField: true,
-              },
-              {
-                identifier: 'bodytext',
-                type: 'Text',
-              }
-            ],
-            basics: [
-              'TYPO3/Appearance',
-              'TYPO3/Links',
-            ],
-          },
-        }
+        {}
+      //   // {
+      //   //   name: "example/tabs",
+      //   // }
+      //
+      //   // save content block with content type "Content Element" and mode "edit"
+      //   {
+      //     extension: "samples",
+      //     contentType: "content-element",
+      //     mode: "edit",
+      //     contentBlock: {
+      //       name: "test-99/test-99",
+      //       fields: [
+      //         {
+      //           identifier: 'header',
+      //           useExistingField: true,
+      //         },
+      //         {
+      //           identifier: 'bodytext',
+      //           type: 'Text',
+      //         }
+      //       ],
+      //       basics: [
+      //         'TYPO3/Appearance',
+      //         'TYPO3/Links',
+      //       ],
+      //     },
+      //   }
 
         /*
         // save content block with content type "Page Type"

@@ -1,0 +1,57 @@
+{
+	"CONTENT_ELEMENT": {
+		"test-123/test-12-bck": {
+			"name": "test-123/test-12-bck",
+			"label": "Content Element: test-12/test-12",
+			"extension": "samples",
+			"editable": true,
+			"deletable": true,
+			"usages": 0
+		},
+		"test-123/test-12": {
+			"name": "test-123/test-12",
+			"label": "Content Element: test-12/test-12",
+			"extension": "samples",
+			"editable": true,
+			"deletable": true,
+			"usages": 0
+		}
+	},
+	"BASICS": {
+		"TYPO3/Links": {
+			"name": "TYPO3/Links",
+			"label": "TYPO3/Links",
+			"extension": "content_blocks",
+			"editable": true,
+			"deletable": true
+		},
+		"TYPO3/Header": {
+			"name": "TYPO3/Header",
+			"label": "TYPO3/Header",
+			"extension": "content_blocks",
+			"editable": true,
+			"deletable": true
+		},
+		"TYPO3/Appearance": {
+			"name": "TYPO3/Appearance",
+			"label": "TYPO3/Appearance",
+			"extension": "content_blocks",
+			"editable": true,
+			"deletable": true
+		},
+		"TYPO3/Categories": {
+			"name": "TYPO3/Categories",
+			"label": "TYPO3/Categories",
+			"extension": "content_blocks",
+			"editable": true,
+			"deletable": true
+		},
+		"basic-99/basic-99": {
+			"name": "basic-99/basic-99",
+			"label": "basic-99/basic-99",
+			"extension": "samples",
+			"editable": true,
+			"deletable": true
+		}
+	}
+}

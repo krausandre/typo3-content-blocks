@@ -21,9 +21,11 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Attribute\Controller;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Make\Answer\DataAnswer;
 use TYPO3\CMS\Make\Utility\ContentBlocksUtility;
 use TYPO3\CMS\Make\Utility\ExtensionUtility;
 
@@ -40,7 +42,16 @@ final class AjaxController
 
     public function listCbAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->contentBlocksUtility->getAvailableContentBlocks()->getResponse();
+        $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/listCbAction.json');
+        $sampleData = json_decode($sampleJson, true);
+        return new JsonResponse([
+            'body' => [
+                'list' => $sampleData,
+            ],
+            'success' => 'success',
+            'message' => '',
+        ]);
+        // return $this->contentBlocksUtility->getAvailableContentBlocks()->getResponse();
     }
 
     public function getCbAction(ServerRequestInterface $request): ResponseInterface
