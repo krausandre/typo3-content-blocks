@@ -14,7 +14,6 @@
  */
 
 use TYPO3\CMS\Make\Controller\Backend\ContentBlocksGuiController;
-use TYPO3\CMS\Make\Controller\Backend\AjaxController;
 
 $_LLL_mod = 'LLL:EXT:make/Resources/Private/Language/locallang_mod.xlf:';
 return [
@@ -23,7 +22,7 @@ return [
         'position' => ['after' => 'web_info'],
         'access' => 'admin',
         'workspaces' => 'live',
-        'icon' => 'EXT:content_blocks_gui/Resources/Public/Icons/Extension.svg',
+        'icon' => 'EXT:make/Resources/Public/Icons/Extension.svg',
         'path' => '/module/web/ContentBlocksGui',
         'labels' =>  [
             'title' => $_LLL_mod . 'content-blocks-gui'
@@ -33,22 +32,5 @@ return [
                 'target' => ContentBlocksGuiController::class . '::indexAction',
             ],
         ],
-//        'controllerActions' => [
-//            ContentBlocksGuiController::class => [
-//                'list',
-//            ],
-//            AjaxController::class => [
-//                'listCb',
-//                'createCb',
-//                'getCb',
-//                'deleteCb',
-//                'getCb',
-//                'translateCb',
-//                'saveCb',
-//                'downloadCb',
-//                'copyCb',
-//                'listExt',
-//            ]
-//        ],
     ],
 ];

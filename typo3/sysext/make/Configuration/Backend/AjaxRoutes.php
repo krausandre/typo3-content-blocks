@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Definitions for routes provided by EXT:content_blocks_gui
+ * Definitions for routes provided by EXT:make
  */
 return [
     'content_blocks_gui_list_cb' => [
