@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" datatype="plaintext" original="EXT:make/Resources/Private/Language/locallang_mod.xlf" date="2023-03-29T10:11:32Z" product-name="make">
+		<header/>
+		<body>
+			<trans-unit id="content-blocks-gui" resname="content-blocks-gui">
+				<source>Content Blocks</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
