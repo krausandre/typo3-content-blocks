@@ -17,15 +17,15 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Make\Controller\Backend;
 
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Attribute\Controller;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
 #[Controller]
-final class ContentBlocksGuiController extends ActionController
+final class ContentBlocksGuiController
 {
     protected ModuleTemplate $moduleTemplate;
 
@@ -35,18 +35,14 @@ final class ContentBlocksGuiController extends ActionController
     ) {
     }
 
-    public function initializeAction(): void
+    public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
-        $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
 
-        $this->pageRenderer->addCssFile('EXT:content_blocks_gui/Resources/Public/dist/index.css');
+        $this->pageRenderer->addCssFile('EXT:make/Resources/Public/dist/index.css');
 
-        $this->pageRenderer->loadJavaScriptModule('@contentblocks/content-blocks-gui/index.js');
-        $this->pageRenderer->loadJavaScriptModule('@contentblocks/content-blocks-gui-testfiles/ajax-request-test.js');
-    }
-
-    public function listAction(): ResponseInterface
-    {
+        $this->pageRenderer->loadJavaScriptModule('@typo3/make/index.js');
+        $this->pageRenderer->loadJavaScriptModule('@typo3/make-testfiles/ajax-request-test.js');
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
     }
 }

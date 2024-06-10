@@ -25,24 +25,30 @@ return [
         'workspaces' => 'live',
         'icon' => 'EXT:content_blocks_gui/Resources/Public/Icons/Extension.svg',
         'path' => '/module/web/ContentBlocksGui',
-        'labels' => $_LLL_mod . 'content-blocks-gui',
-        'extensionName' => 'make',
-        'controllerActions' => [
-            ContentBlocksGuiController::class => [
-                'list',
-            ],
-            AjaxController::class => [
-                'listCb',
-                'createCb',
-                'getCb',
-                'deleteCb',
-                'getCb',
-                'translateCb',
-                'saveCb',
-                'downloadCb',
-                'copyCb',
-                'listExt',
-            ]
+        'labels' =>  [
+            'title' => $_LLL_mod . 'content-blocks-gui'
         ],
+        'routes' => [
+            '_default' => [
+                'target' => ContentBlocksGuiController::class . '::indexAction',
+            ],
+        ],
+//        'controllerActions' => [
+//            ContentBlocksGuiController::class => [
+//                'list',
+//            ],
+//            AjaxController::class => [
+//                'listCb',
+//                'createCb',
+//                'getCb',
+//                'deleteCb',
+//                'getCb',
+//                'translateCb',
+//                'saveCb',
+//                'downloadCb',
+//                'copyCb',
+//                'listExt',
+//            ]
+//        ],
     ],
 ];
