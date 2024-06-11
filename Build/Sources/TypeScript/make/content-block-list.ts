@@ -136,8 +136,6 @@ export class ContentBlockList extends LitElement {
   }
 
   protected _downloadAction(name: string): void {
-    console.log('downloadAction');
-    console.log(name);
     new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_download_cb)
       .post({ name: name }, {
         headers: {
@@ -146,7 +144,8 @@ export class ContentBlockList extends LitElement {
         }
       })
       .then(async (response) => {
-        const responseData = await response.dereference();
+        const responseData = response.raw();
+        const blob = await responseData.blob();
         const contentDisposition = responseData.headers.get('content-disposition');
         let filename = name + '.zip';
         if (contentDisposition) {
@@ -160,8 +159,7 @@ export class ContentBlockList extends LitElement {
         filename = filename.replace(/"+$/, '');
 
         // Erstelle eine URL für den Blob und triggere den Download
-        // @ts-expect-error unknown type
-        const url = window.URL.createObjectURL(new Blob(responseData.body, { type: 'application/zip' }));
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.setAttribute('download', filename); // Setze den ursprünglichen Dateinamen
