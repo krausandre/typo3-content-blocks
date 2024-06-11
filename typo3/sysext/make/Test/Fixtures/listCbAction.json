@@ -12,8 +12,8 @@
 			"name": "test-123/test-12",
 			"label": "Content Element: test-12/test-12",
 			"extension": "samples",
-			"editable": true,
-			"deletable": true,
+			"editable": false,
+			"deletable": false,
 			"usages": 0
 		}
 	},

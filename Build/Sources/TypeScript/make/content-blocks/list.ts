@@ -16,15 +16,6 @@ import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
 import AjaxRequest from '@typo3/core/ajax/ajax-request';
 
-
-
-export enum ContentBlockListActionEvent {
-  contentBlockDownload = 'typo3:make:content-block:download',
-  contentBlockEdit = 'typo3:make:content-block:edit',
-  contentBlockCopy = 'typo3:make:content-block:copy',
-  contentBlockDelete = 'typo3:make:content-block:delete',
-}
-
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
@@ -39,6 +30,7 @@ export class ContentBlockList extends LitElement {
   basics: any[] = [];
   icon: string = 'actions-question-circle';
   loading?: boolean;
+  contentBlockData?: any;
 
   constructor() {
     super();
@@ -48,7 +40,6 @@ export class ContentBlockList extends LitElement {
   protected render(): TemplateResult {
     return html`
       <div class="list-table-container props.title">
-        <h2>{{ getTableTitle }}</h2>
         <input
           type="text"
           class="form-control mb-1"
@@ -80,6 +71,7 @@ export class ContentBlockList extends LitElement {
                   <button
                     type="button"
                     class="btn btn-default me-2"
+                    ?disabled="${!item.editable}"
                     @click="${() => { this._dispatchEditEvent(item.name); }}"
                   >
                     <typo3-backend-icon identifier="actions-open" size="medium"></typo3-backend-icon>
@@ -88,6 +80,7 @@ export class ContentBlockList extends LitElement {
                   <button
                     type="button"
                     class="btn btn-default me-2"
+                    @click="${() => { this._dispatchCopyEvent(item.name); }}"
                   >
                     <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
                     Duplicate
@@ -103,8 +96,8 @@ export class ContentBlockList extends LitElement {
                   <button
                     type="button"
                     class="btn btn-danger me-2"
+                    ?disabled="${!item.editable}"
                     @click="showDeleteConfirmation(item.name)"
-                    data-if="item.deletable AND item.usages grater 1"
                   >
                     <typo3-backend-icon identifier="actions-delete" size="medium"></typo3-backend-icon>
                     Delete
@@ -130,6 +123,22 @@ export class ContentBlockList extends LitElement {
       .catch((error) => {
         console.error(error);
         this.loading = false;
+      });
+  }
+
+  protected async _loadContentBlockData(name: string) {
+    this.loading = true;
+    await new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_get_cb).post({
+      name: name
+    })
+      .then(async (response) => {
+        const data = await response.resolve();
+        // this.contentBlockData = data.body;
+        return data.body;
+      })
+      .catch((error) => {
+        console.error(error);
+        return null;
       });
   }
 
@@ -170,10 +179,22 @@ export class ContentBlockList extends LitElement {
       });
   }
 
-  protected _dispatchEditEvent(contentBlockName: string): void {
-    this.dispatchEvent(new CustomEvent('contentBlockEdit', {
+  protected _dispatchEditEvent(name: string): void {
+    this._loadContentBlockData(name).then(res => {
+      console.log(res);
+      this.dispatchEvent(new CustomEvent('contentBlockEdit', {
+        detail: {
+          name: name,
+          data: this.contentBlockData
+        }
+      }));
+    });
+  }
+
+  protected _dispatchCopyEvent(name: string): void {
+    this.dispatchEvent(new CustomEvent('contentBlockCopy', {
       detail: {
-        contentBlockName: contentBlockName
+        name: name
       }
     }));
   }
