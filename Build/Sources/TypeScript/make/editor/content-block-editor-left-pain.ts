@@ -14,28 +14,23 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import '@typo3/make/editor/content-block-editor-left-pain';
-import '@typo3/make/editor/content-block-editor-middle-pain';
-import '@typo3/make/editor/content-block-editor-right-pain';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
  * @example
- * <content-block-editor></content-block-editor>
+ * <content-block-editor-left-pain></content-block-editor-left-pain>
  */
-@customElement('content-block-editor')
-export class ContentBlockEditor extends LitElement {
+@customElement('content-block-editor-left-pain')
+export class ContentBlockEditorLeftPain extends LitElement {
 
   @property()
     name?: string;
 
   protected render(): TemplateResult {
     return html`
-      <p>I am the Editor</p>
-      <content-block-editor-left-pain></content-block-editor-left-pain>
-      <content-block-editor-middle-pain></content-block-editor-middle-pain>
-      <content-block-editor-right-pain></content-block-editor-right-pain>
+      <p>I am the Left Pain</p>
+
     `;
   }
   protected createRenderRoot(): HTMLElement | ShadowRoot {
