@@ -1,0 +1,30 @@
+{
+	"name": "test-123\/test-12-bck",
+	"yaml": {
+		"name": "test-123\/test-12-bck",
+		"group": "common",
+		"prefixFields": true,
+		"prefixType": "full",
+		"fields": [
+			{
+				"identifier": "header",
+				"useExistingField": true
+			}
+		],
+		"table": "tt_content",
+		"typeField": "CType",
+		"typeName": "test123_test12bck"
+	},
+	"icon": {
+		"iconPath": "_assets\/f83bda502413b52d51e1184baf73e9ae\/Icon.svg",
+		"iconProvider": "TYPO3\\CMS\\Core\\Imaging\\IconProvider\\SvgIconProvider",
+		"iconIdentifier": "tt_content-test123_test12bck-116cf86"
+	},
+	"iconHideInMenu": {
+		"iconPath": "",
+		"iconProvider": "",
+		"iconIdentifier": ""
+	},
+	"hostExtension": "samples",
+	"extPath": "EXT:samples\/ContentBlocks\/ContentElements\/test-12_bck"
+}

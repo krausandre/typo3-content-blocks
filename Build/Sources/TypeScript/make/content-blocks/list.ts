@@ -80,8 +80,7 @@ export class ContentBlockList extends LitElement {
                   <button
                     type="button"
                     class="btn btn-default me-2"
-                    @click="edit(item.name)"
-                    data-if="item.editable"
+                    @click="${() => { this._dispatchEditEvent(item.name); }}"
                   >
                     <typo3-backend-icon identifier="actions-open" size="medium"></typo3-backend-icon>
                     Edit
@@ -89,7 +88,6 @@ export class ContentBlockList extends LitElement {
                   <button
                     type="button"
                     class="btn btn-default me-2"
-                    @click="${this._dispatchEditEvent}"
                   >
                     <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
                     Duplicate
@@ -172,14 +170,10 @@ export class ContentBlockList extends LitElement {
       });
   }
 
-  protected _dispatchEditEvent(name: string): void {
-    console.log('dispatchEditEvent');
-    console.log(name);
+  protected _dispatchEditEvent(contentBlockName: string): void {
     this.dispatchEvent(new CustomEvent('contentBlockEdit', {
-      // bubbles: true,
-      // composed: true,
       detail: {
-        name: name
+        contentBlockName: contentBlockName
       }
     }));
   }

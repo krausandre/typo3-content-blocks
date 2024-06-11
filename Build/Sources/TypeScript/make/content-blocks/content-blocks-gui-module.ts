@@ -31,6 +31,7 @@ export class ContentBlockGuiModule extends LitElement {
 
   @property()
     status?: string;
+  contentBlockName: string = '';
 
   protected render(): TemplateResult {
     if (this.status === 'list') {
@@ -44,19 +45,26 @@ export class ContentBlockGuiModule extends LitElement {
           Content Block hinzufügen
         </button>
         Test
-        <content-block-list></content-block-list>
+        <content-block-list @contentBlockEdit="${this._contentBlockEditListener}"></content-block-list>
       `;
     } else if (this.status === 'editor') {
-      return html`<content-block-editor></content-block-editor>`;
+      return html`<content-block-editor
+        name="${this.contentBlockName}"
+        @contentBlockBack="${() => { this.status = 'list'; this.contentBlockName = '';}}"
+      ></content-block-editor>`;
     } else {
       return html`<spinner-element></spinner-element>`;
     }
-
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;
+  }
+
+  private _contentBlockEditListener(e: CustomEvent) {
+    this.contentBlockName = e.detail.contentBlockName;
+    this.status = 'editor';
   }
 }

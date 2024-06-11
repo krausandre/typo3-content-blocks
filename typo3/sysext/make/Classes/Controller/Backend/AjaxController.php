@@ -49,17 +49,20 @@ final class AjaxController
                 'contentBlocks' => $sampleData['contentBlocks'],
                 'basics' => $sampleData['basics'],
             ],
-            'success' => 'success',
-            'message' => '',
         ]);
         // return $this->contentBlocksUtility->getAvailableContentBlocks()->getResponse();
     }
 
     public function getCbAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->contentBlocksUtility->getContentBlockByName(
-            $request->getParsedBody()
-        )->getResponse();
+        $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
+        $sampleData = json_decode($sampleJson, true);
+        return new JsonResponse([
+            'body' => $sampleData,
+        ]);
+//        return $this->contentBlocksUtility->getContentBlockByName(
+//            $request->getParsedBody()
+//        )->getResponse();
     }
 
     public function deleteCbAction(ServerRequestInterface $request): ResponseInterface

@@ -43,8 +43,7 @@ var __decorate=function(t,e,o,n){var c,i=arguments.length,s=i<3?e:null===n?n=Obj
                   <button
                     type="button"
                     class="btn btn-default me-2"
-                    @click="edit(item.name)"
-                    data-if="item.editable"
+                    @click="${()=>{this._dispatchEditEvent(t.name)}}"
                   >
                     <typo3-backend-icon identifier="actions-open" size="medium"></typo3-backend-icon>
                     Edit
@@ -52,7 +51,6 @@ var __decorate=function(t,e,o,n){var c,i=arguments.length,s=i<3?e:null===n?n=Obj
                   <button
                     type="button"
                     class="btn btn-default me-2"
-                    @click="${this._dispatchEditEvent}"
                   >
                     <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
                     Duplicate
@@ -79,4 +77,4 @@ var __decorate=function(t,e,o,n){var c,i=arguments.length,s=i<3?e:null===n?n=Obj
             `))}
         </table>
       </div>
-    `}loadContentBlocks(){this.loading=!0,new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_list_cb).post({}).then((async t=>{const e=await t.resolve();this.contentBlocks=Object.keys(e.body.contentBlocks).map((t=>e.body.contentBlocks[t])),this.basics=Object.keys(e.body.basics).map((t=>e.body.basics[t])),this.loading=!1})).catch((t=>{console.error(t),this.loading=!1}))}_downloadAction(t){new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_download_cb).post({name:t},{headers:{"Content-Type":"application/json",Accept:"application/zip"}}).then((async e=>{const o=e.raw(),n=await o.blob(),c=o.headers.get("content-disposition");let i=t+".zip";if(c){const t=c.match(/filename="?([^"]+)"?/);t&&t.length>1&&(i=t[1])}i=i.replace(/"+$/,"");const s=window.URL.createObjectURL(n),a=document.createElement("a");a.href=s,a.setAttribute("download",i),document.body.appendChild(a),a.click()})).catch((t=>{console.error(t)}))}_dispatchEditEvent(t){console.log("dispatchEditEvent"),console.log(t),this.dispatchEvent(new CustomEvent("contentBlockEdit",{detail:{name:t}}))}createRenderRoot(){return this}};__decorate([property()],ContentBlockList.prototype,"contentBlocks",void 0),ContentBlockList=__decorate([customElement("content-block-list")],ContentBlockList);export{ContentBlockList};
+    `}loadContentBlocks(){this.loading=!0,new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_list_cb).post({}).then((async t=>{const e=await t.resolve();this.contentBlocks=Object.keys(e.body.contentBlocks).map((t=>e.body.contentBlocks[t])),this.basics=Object.keys(e.body.basics).map((t=>e.body.basics[t])),this.loading=!1})).catch((t=>{console.error(t),this.loading=!1}))}_downloadAction(t){new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_download_cb).post({name:t},{headers:{"Content-Type":"application/json",Accept:"application/zip"}}).then((async e=>{const o=e.raw(),n=await o.blob(),c=o.headers.get("content-disposition");let i=t+".zip";if(c){const t=c.match(/filename="?([^"]+)"?/);t&&t.length>1&&(i=t[1])}i=i.replace(/"+$/,"");const s=window.URL.createObjectURL(n),a=document.createElement("a");a.href=s,a.setAttribute("download",i),document.body.appendChild(a),a.click()})).catch((t=>{console.error(t)}))}_dispatchEditEvent(t){this.dispatchEvent(new CustomEvent("contentBlockEdit",{detail:{contentBlockName:t}}))}createRenderRoot(){return this}};__decorate([property()],ContentBlockList.prototype,"contentBlocks",void 0),ContentBlockList=__decorate([customElement("content-block-list")],ContentBlockList);export{ContentBlockList};

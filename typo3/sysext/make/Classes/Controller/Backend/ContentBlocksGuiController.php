@@ -38,7 +38,6 @@ final class ContentBlocksGuiController
     public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $this->pageRenderer->loadJavaScriptModule('@typo3/make/ajax-request-test.js');
         $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/content-blocks-gui-module.js');
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
     }
