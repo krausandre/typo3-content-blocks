@@ -75,22 +75,22 @@ export class ContentBlockEditorLeftPane extends LitElement {
 
 
   protected render(): TemplateResult {
-    const showSettings = this.activeTab === 'settings';
-    const showComponents = this.activeTab === 'components';
-    const showBasics = this.activeTab === 'basics';
+    const isShowSettings = this.activeTab === 'settings';
+    const isShowComponents = this.activeTab === 'components';
+    const isShowBasics = this.activeTab === 'basics';
 
     return html`
       <p>I am the Left pane</p>
       <div class="left-pane-tabs-container">
         <div class="tabs-headers">
           <ul>
-            <li class="${showSettings ? html `active` : nothing}" @click="${() => { this.setActiveTab('settings'); }}">
+            <li class="${isShowSettings ? html `active` : nothing}" @click="${() => { this.setActiveTab('settings'); }}">
               Global settings
             </li>
-            <li class="${showComponents ? html `active` : nothing}" @click="${() => { this.setActiveTab('components'); }}">
+            <li class="${isShowComponents ? html `active` : nothing}" @click="${() => { this.setActiveTab('components'); }}">
               Components
             </li>
-            <li class="${showBasics ? html `active` : nothing}" @click=${() => {this.setActiveTab('basics')}}>
+            <li class="${isShowBasics ? html `active` : nothing}" @click=${() => {this.setActiveTab('basics')}}>
               Basics
             </li>
           </ul>

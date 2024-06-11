@@ -14,36 +14,39 @@
 import { html, LitElement, TemplateResult, css } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import '@typo3/make/content-blocks/editor/draggable-field-type';
 import { FieldTypeSetting } from '@typo3/make/content-blocks/interface/field-type-setting';
+
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
  * @example
- * <editor-left-pane-components></editor-left-pane-components>
+ * <draggable-field-type></draggable-field-type>
  */
-@customElement('editor-left-pane-components')
-export class EditorLeftPaneComponents extends LitElement {
-  static styles = css``;
+
+
+@customElement('draggable-field-type')
+export class DraggableFieldType extends LitElement {
+
+  static styles = css`  `;
 
   @property()
-    fieldTypes?: Array<FieldTypeSetting> = [
-      { icon: 'form-textarea', type: 'Textarea' },
-      { icon: 'actions-refresh', type: 'Collection' },
-      { icon: 'form-checkbox', type: 'Checkbox' },
-    ];
+    fieldTypeSetting?: FieldTypeSetting;
+
 
   protected render(): TemplateResult {
-    return html`
-      <p>Components...</p>
-      <ul>
-        ${this.fieldTypes.map( (item) => html`
-              <li>
-                <draggable-field-type fieldTypeSetting="${item}"></draggable-field-type>
-              </li>` )}
-      </ul>
-    `;
+    if (this.fieldTypeSetting) {
+      return html`
+        <div class="draggable-field-type" draggable="true" data-field-type="${this.fieldTypeSetting.type}">
+          <div class="icon-wrap">
+            <typo3-backend-icon identifier="${this.fieldTypeSetting.icon}" size="small"></typo3-backend-icon>
+          </div>
+          <span>${this.fieldTypeSetting.type}</span>
+        </div>
+      `;
+    } else {
+      return html `<p>No FieldTypeSetting</p>`;
+    }
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
@@ -51,4 +54,5 @@ export class EditorLeftPaneComponents extends LitElement {
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;
   }
+
 }
