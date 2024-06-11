@@ -81,7 +81,7 @@ final class AjaxController
     }
     public function downloadCbAction(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->contentBlocksUtility->downloadContentBlock($request->getParsedBody());
+        return $this->contentBlocksUtility->downloadContentBlock(json_decode($request->getBody()->getContents(), true));
     }
 
     public function listExtAction(ServerRequestInterface $request): ResponseInterface

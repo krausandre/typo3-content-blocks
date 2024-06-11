@@ -10,7 +10,7 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(t,e,o,c){var n,i=arguments.length,s=i<3?e:null===c?c=Object.getOwnPropertyDescriptor(e,o):c;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)s=Reflect.decorate(t,e,o,c);else for(var a=t.length-1;a>=0;a--)(n=t[a])&&(s=(i<3?n(s):i>3?n(e,o,s):n(e,o))||s);return i>3&&s&&Object.defineProperty(e,o,s),s};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import AjaxRequest from"@typo3/core/ajax/ajax-request.js";let ContentBlockList=class extends LitElement{constructor(){super(),this.contentBlocks=[],this.basics=[],this.icon="actions-question-circle",this.loadContentBlocks()}render(){return html`
+var __decorate=function(t,e,o,n){var c,i=arguments.length,s=i<3?e:null===n?n=Object.getOwnPropertyDescriptor(e,o):n;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)s=Reflect.decorate(t,e,o,n);else for(var l=t.length-1;l>=0;l--)(c=t[l])&&(s=(i<3?c(s):i>3?c(e,o,s):c(e,o))||s);return i>3&&s&&Object.defineProperty(e,o,s),s};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import AjaxRequest from"@typo3/core/ajax/ajax-request.js";export var ContentBlockListActionEvent;!function(t){t.contentBlockDownload="typo3:make:content-block:download",t.contentBlockEdit="typo3:make:content-block:edit",t.contentBlockCopy="typo3:make:content-block:copy",t.contentBlockDelete="typo3:make:content-block:delete"}(ContentBlockListActionEvent||(ContentBlockListActionEvent={}));let ContentBlockList=class extends LitElement{constructor(){super(),this.contentBlocks=[],this.basics=[],this.icon="actions-question-circle",this.loadContentBlocks()}render(){return html`
       <div class="list-table-container" :class="props.title">
         <h2>{{ getTableTitle }}</h2>
         <input
@@ -52,7 +52,7 @@ var __decorate=function(t,e,o,c){var n,i=arguments.length,s=i<3?e:null===c?c=Obj
                   <button
                     type="button"
                     class="btn btn-default me-2"
-                    @click="copy(item.name)"
+                    @click="${this._dispatchEditEvent}"
                   >
                     <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
                     Duplicate
@@ -60,7 +60,7 @@ var __decorate=function(t,e,o,c){var n,i=arguments.length,s=i<3?e:null===c?c=Obj
                   <button
                     type="button"
                     class="btn btn-info me-2"
-                    @click="download(item.name)"
+                    @click="${()=>{this._downloadAction(t.name)}}"
                   >
                     <typo3-backend-icon identifier="actions-download" size="medium"></typo3-backend-icon>
                     Download
@@ -79,4 +79,4 @@ var __decorate=function(t,e,o,c){var n,i=arguments.length,s=i<3?e:null===c?c=Obj
             `))}
         </table>
       </div>
-    `}loadContentBlocks(){this.loading=!0,new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_list_cb).post({}).then((async t=>{const e=await t.resolve();this.contentBlocks=Object.keys(e.body.contentBlocks).map((t=>e.body.contentBlocks[t])),this.basics=Object.keys(e.body.basics).map((t=>e.body.basics[t])),this.loading=!1})).catch((t=>{console.error(t),this.loading=!1}))}createRenderRoot(){return this}};__decorate([property()],ContentBlockList.prototype,"contentBlocks",void 0),ContentBlockList=__decorate([customElement("content-block-list")],ContentBlockList);export{ContentBlockList};
+    `}loadContentBlocks(){this.loading=!0,new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_list_cb).post({}).then((async t=>{const e=await t.resolve();this.contentBlocks=Object.keys(e.body.contentBlocks).map((t=>e.body.contentBlocks[t])),this.basics=Object.keys(e.body.basics).map((t=>e.body.basics[t])),this.loading=!1})).catch((t=>{console.error(t),this.loading=!1}))}_downloadAction(t){console.log("downloadAction"),console.log(t),new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_download_cb).post({name:t},{headers:{"Content-Type":"application/json",Accept:"application/zip"}}).then((async e=>{const o=await e.dereference();console.log(o);const n=o.headers.get("content-disposition");let c=t+".zip";if(n){const t=n.match(/filename="?([^"]+)"?/);t&&t.length>1&&(c=t[1])}c=c.replace(/"+$/,"");const i=window.URL.createObjectURL(new Blob(o.body,{type:"application/zip"})),s=document.createElement("a");s.href=i,s.setAttribute("download",c),document.body.appendChild(s),s.click()})).catch((t=>{console.error(t)}))}_dispatchEditEvent(t){console.log("dispatchEditEvent"),console.log(t),this.dispatchEvent(new CustomEvent("contentBlockEdit",{detail:{name:t}}))}createRenderRoot(){return this}};__decorate([property()],ContentBlockList.prototype,"contentBlocks",void 0),ContentBlockList=__decorate([customElement("content-block-list")],ContentBlockList);export{ContentBlockList};

@@ -180,13 +180,20 @@ class ContentBlocksUtility
      */
     public function createZipFileFromContentBlockPath(string $name): string
     {
-        $contentBlock = $this->contentBlockRegistry->getContentBlock($name);
-        $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath($contentBlock->getExtPath());
+        $contentBlock = null; // $this->contentBlockRegistry->getContentBlock($name);
+        // TODO: remove when content block registry can be used
+        if($contentBlock === null) {
+            $contentBlockPackagePath = 'test-12';
+            $absoluteContentBlockPath = '/var/www/html/packages/samples/ContentBlocks/ContentElements/test-12';
+        } else {
+            $contentBlockPackagePath = $contentBlock->getPackage();
+            $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath($contentBlock->getExtPath());
+        }
         $temporaryPath = Environment::getVarPath() . '/transient/';
         if (!@is_dir($temporaryPath)) {
             GeneralUtility::mkdir($temporaryPath);
         }
-        $fileName = $temporaryPath . $contentBlock->getPackage() . '_' . date('YmdHi', time()) . '.zip';
+        $fileName = $temporaryPath . $contentBlockPackagePath . '_' . date('YmdHi', time()) . '.zip';
 
         $zip = new \ZipArchive();
         $zip->open($fileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
@@ -207,9 +214,9 @@ class ContentBlocksUtility
             // Distinguish between files and directories, as creation of the archive
             // fails on Windows when trying to add a directory with "addFile".
             if (is_dir($fullPath)) {
-                $zip->addEmptyDir('/' . $contentBlock->getPackage() . $file);
+                $zip->addEmptyDir('/' . $contentBlockPackagePath . $file);
             } else {
-                $zip->addFile($fullPath, '/' . $contentBlock->getPackage() . $file);
+                $zip->addFile($fullPath, '/' . $contentBlockPackagePath . $file);
             }
         }
         $zip->close();

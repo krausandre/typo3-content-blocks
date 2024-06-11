@@ -17,6 +17,14 @@ import '@typo3/backend/element/icon-element';
 import AjaxRequest from '@typo3/core/ajax/ajax-request';
 /*import { customElement, property } from 'lit/decorators';*/
 
+
+export enum ContentBlockListActionEvent {
+  contentBlockDownload = 'typo3:make:content-block:download',
+  contentBlockEdit = 'typo3:make:content-block:edit',
+  contentBlockCopy = 'typo3:make:content-block:copy',
+  contentBlockDelete = 'typo3:make:content-block:delete',
+}
+
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
@@ -81,7 +89,7 @@ export class ContentBlockList extends LitElement {
                   <button
                     type="button"
                     class="btn btn-default me-2"
-                    @click="copy(item.name)"
+                    @click="${this._dispatchEditEvent}"
                   >
                     <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
                     Duplicate
@@ -89,7 +97,7 @@ export class ContentBlockList extends LitElement {
                   <button
                     type="button"
                     class="btn btn-info me-2"
-                    @click="download(item.name)"
+                    @click="${() => { this._downloadAction(item.name); }}"
                   >
                     <typo3-backend-icon identifier="actions-download" size="medium"></typo3-backend-icon>
                     Download
@@ -125,6 +133,57 @@ export class ContentBlockList extends LitElement {
         console.error(error);
         this.loading = false;
       });
+  }
+
+  protected _downloadAction(name: string): void {
+    console.log('downloadAction');
+    console.log(name);
+    new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_download_cb)
+      .post({ name: name }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/zip'
+        }
+      })
+      .then(async (response) => {
+        const responseData = await response.dereference();
+        const contentDisposition = responseData.headers.get('content-disposition');
+        let filename = name + '.zip';
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+          if (filenameMatch && filenameMatch.length > 1) {
+            filename = filenameMatch[1];
+          }
+        }
+
+        // Entferne mögliche Anführungszeichen am Ende des Dateinamens
+        filename = filename.replace(/"+$/, '');
+
+        // Erstelle eine URL für den Blob und triggere den Download
+        // @ts-expect-error unknown type
+        const url = window.URL.createObjectURL(new Blob(responseData.body, { type: 'application/zip' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename); // Setze den ursprünglichen Dateinamen
+
+        document.body.appendChild(link);
+        link.click();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  protected _dispatchEditEvent(name: string): void {
+    console.log('dispatchEditEvent');
+    console.log(name);
+    this.dispatchEvent(new CustomEvent('contentBlockEdit', {
+      // bubbles: true,
+      // composed: true,
+      detail: {
+        name: name
+      }
+    }));
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
