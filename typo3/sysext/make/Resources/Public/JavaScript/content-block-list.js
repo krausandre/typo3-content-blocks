@@ -10,7 +10,7 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(t,e,o,i){var n,c=arguments.length,a=c<3?e:null===i?i=Object.getOwnPropertyDescriptor(e,o):i;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(t,e,o,i);else for(var s=t.length-1;s>=0;s--)(n=t[s])&&(a=(c<3?n(a):c>3?n(e,o,a):n(e,o))||a);return c>3&&a&&Object.defineProperty(e,o,a),a};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlocksList=class extends LitElement{constructor(){super(...arguments),this.icon="actions-question-circle"}render(){return html`
+var __decorate=function(t,e,o,i){var n,c=arguments.length,a=c<3?e:null===i?i=Object.getOwnPropertyDescriptor(e,o):i;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(t,e,o,i);else for(var l=t.length-1;l>=0;l--)(n=t[l])&&(a=(c<3?n(a):c>3?n(e,o,a):n(e,o))||a);return c>3&&a&&Object.defineProperty(e,o,a),a};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockList=class extends LitElement{constructor(){super(...arguments),this.icon="actions-question-circle"}render(){return html`
       <p>I am the Lit: ${this.name}</p>
 
       <div class="list-table-container" :class="props.title">
@@ -83,4 +83,4 @@ var __decorate=function(t,e,o,i){var n,c=arguments.length,a=c<3?e:null===i?i=Obj
           </tr>
         </table>
       </div>
-    `}createRenderRoot(){return this}};__decorate([property()],ContentBlocksList.prototype,"name",void 0),ContentBlocksList=__decorate([customElement("content-block-list")],ContentBlocksList);export{ContentBlocksList};
+    `}createRenderRoot(){return this}};__decorate([property()],ContentBlockList.prototype,"name",void 0),ContentBlockList=__decorate([customElement("content-block-list")],ContentBlockList);export{ContentBlockList};

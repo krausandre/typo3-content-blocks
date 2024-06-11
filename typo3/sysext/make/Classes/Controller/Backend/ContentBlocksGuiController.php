@@ -39,7 +39,7 @@ final class ContentBlocksGuiController
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
         $this->pageRenderer->loadJavaScriptModule('@typo3/make/ajax-request-test.js');
-        $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-block-list.js');
+        $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-block-gui-module.js');
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
     }
 }

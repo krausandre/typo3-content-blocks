@@ -23,7 +23,7 @@ import '@typo3/backend/element/icon-element';
  * <content-block-list></content-block-list>
  */
 @customElement('content-block-list')
-export class ContentBlocksList extends LitElement {
+export class ContentBlockList extends LitElement {
 
   @property()
     name?: string;
