@@ -15,7 +15,7 @@ var __decorate=function(e,t,o,r){var n,i=arguments.length,p=i<3?t:null===r?r=Obj
       <ul>
         ${this.fieldTypes.map((e=>html`
               <li>
-                <draggable-field-type fieldTypeSetting="${e}"></draggable-field-type>
+                <draggable-field-type .fieldTypeSetting="${e}"></draggable-field-type>
               </li>`))}
       </ul>
     `}createRenderRoot(){return this}};EditorLeftPaneComponents.styles=css``,__decorate([property()],EditorLeftPaneComponents.prototype,"fieldTypes",void 0),EditorLeftPaneComponents=__decorate([customElement("editor-left-pane-components")],EditorLeftPaneComponents);export{EditorLeftPaneComponents};

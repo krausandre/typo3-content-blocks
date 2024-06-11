@@ -40,7 +40,7 @@ export class EditorLeftPaneComponents extends LitElement {
       <ul>
         ${this.fieldTypes.map( (item) => html`
               <li>
-                <draggable-field-type fieldTypeSetting="${item}"></draggable-field-type>
+                <draggable-field-type .fieldTypeSetting="${item}"></draggable-field-type>
               </li>` )}
       </ul>
     `;

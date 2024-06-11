@@ -33,7 +33,6 @@ export class DraggableFieldType extends LitElement {
   @property()
     fieldTypeSetting?: FieldTypeSetting;
 
-
   protected render(): TemplateResult {
     if (this.fieldTypeSetting) {
       return html`
