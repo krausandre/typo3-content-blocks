@@ -22,7 +22,7 @@ import '@typo3/backend/element/icon-element';
  * <content-block-editor-right-pane></content-block-editor-right-pane>
  */
 @customElement('content-block-editor-right-pane')
-export class ContentBlockEditorRightPane extends LitElement {
+export class RightPane extends LitElement {
 
   @property()
     name?: string;
