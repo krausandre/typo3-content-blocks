@@ -22,6 +22,6 @@ var __decorate=function(t,e,o,n){var c,i=arguments.length,l=i<3?e:null===n?n=Obj
         Test
         <content-block-list @contentBlockEdit="${this._contentBlockEditListener}"></content-block-list>
       `:"editor"===this.status?html`<content-block-editor
-        contentBlockName="${this.contentBlockName}"
-        @contentBlockBack="${()=>{this.status="list"}}"
+        name="${this.contentBlockName}"
+        @contentBlockBack="${()=>{this.status="list",this.contentBlockName=""}}"
       ></content-block-editor>`:html`<spinner-element></spinner-element>`}createRenderRoot(){return this}_contentBlockEditListener(t){this.contentBlockName=t.detail.contentBlockName,this.status="editor"}};__decorate([property()],ContentBlockGuiModule.prototype,"status",void 0),ContentBlockGuiModule=__decorate([customElement("content-block-gui-module")],ContentBlockGuiModule);export{ContentBlockGuiModule};

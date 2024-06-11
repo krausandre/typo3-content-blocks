@@ -49,13 +49,12 @@ export class ContentBlockGuiModule extends LitElement {
       `;
     } else if (this.status === 'editor') {
       return html`<content-block-editor
-        contentBlockName="${this.contentBlockName}"
-        @contentBlockBack="${() => { this.status = 'list'; }}"
+        name="${this.contentBlockName}"
+        @contentBlockBack="${() => { this.status = 'list'; this.contentBlockName = '';}}"
       ></content-block-editor>`;
     } else {
       return html`<spinner-element></spinner-element>`;
     }
-
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {

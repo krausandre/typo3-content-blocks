@@ -170,10 +170,10 @@ export class ContentBlockList extends LitElement {
       });
   }
 
-  protected _dispatchEditEvent(contentBlockData: []): void {
+  protected _dispatchEditEvent(contentBlockName: string): void {
     this.dispatchEvent(new CustomEvent('contentBlockEdit', {
       detail: {
-        contentBlockData: contentBlockData
+        contentBlockName: contentBlockName
       }
     }));
   }
