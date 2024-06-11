@@ -22,7 +22,7 @@ import '@typo3/backend/element/icon-element';
  * <content-block-editor-left-pain></content-block-editor-left-pain>
  */
 @customElement('content-block-editor-left-pane')
-export class ContentBlockEditorLeftPane extends LitElement {
+export class LeftPane extends LitElement {
 
   static styles = css`
     .left-pane-tabs-container {

@@ -32,7 +32,7 @@ export enum ContentBlockListActionEvent {
  * <content-block-list></content-block-list>
  */
 @customElement('content-block-list')
-export class ContentBlockList extends LitElement {
+export class List extends LitElement {
 
   @property()
     contentBlocks: any[] = [];

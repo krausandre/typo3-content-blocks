@@ -14,36 +14,24 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import '@typo3/make/editor/content-block-editor-left-pane';
-import '@typo3/make/editor/content-block-editor-middle-pane';
-import '@typo3/make/editor/content-block-editor-right-pane';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
  * @example
- * <content-block-editor></content-block-editor>
+ * <content-block-editor-middle-pane></content-block-editor-middle-pane>
  */
-@customElement('content-block-editor')
-export class ContentBlockEditor extends LitElement {
+@customElement('content-block-editor-middle-pane')
+export class MiddlePane extends LitElement {
 
   @property()
     name?: string;
 
+
   protected render(): TemplateResult {
     return html`
-      <p>I am the Editor</p>
-      <div class="row">
-        <div class="col-4">
-          <content-block-editor-left-pane></content-block-editor-left-pane>
-        </div>
-        <div class="col-4">
-          <content-block-editor-middle-pane></content-block-editor-middle-pane>
-        </div>
-        <div class="col-4">
-          <content-block-editor-right-pane></content-block-editor-right-pane>
-        </div>
-      </div>
+      <p>I am the Middle pane</p>
+
     `;
   }
   protected createRenderRoot(): HTMLElement | ShadowRoot {
