@@ -11,27 +11,26 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators';
+import { html, LitElement, TemplateResult, css } from 'lit';
+import { customElement } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
  * @example
- * <content-block-editor-right-pane></content-block-editor-right-pane>
+ * <editor-left-pane-components></editor-left-pane-components>
  */
-@customElement('content-block-editor-right-pane')
-export class ContentBlockEditorRightPane extends LitElement {
-
-  @property()
-    name?: string;
+@customElement('editor-left-pane-components')
+export class EditorLeftPaneComponents extends LitElement {
+  static styles = css``;
 
   protected render(): TemplateResult {
     return html`
-      <p>I am the Right pane...</p>
+      <p>Components...</p>
     `;
   }
+
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});

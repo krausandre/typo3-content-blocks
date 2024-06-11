@@ -14,8 +14,8 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import '@typo3/make/content-block-list';
-import '@typo3/make/content-block-editor';
+import '@typo3/make/content-blocks/list';
+import '@typo3/make/content-blocks/editor';
 import '@typo3/backend/element/icon-element';
 import '@typo3/backend/element/spinner-element';
 /*import { customElement, property } from 'lit/decorators';*/
@@ -43,6 +43,7 @@ export class ContentBlockGuiModule extends LitElement {
           <typo3-backend-icon identifier="actions-add" size="medium"></typo3-backend-icon>
           Content Block hinzufügen
         </button>
+        Test
         <content-block-list></content-block-list>
       `;
     } else if (this.status === 'editor') {
