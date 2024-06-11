@@ -32,8 +32,6 @@ export class ContentBlockList extends LitElement {
 
   protected render(): TemplateResult {
     return html`
-      <p>I am the Lit: ${ this.name }</p>
-
       <div class="list-table-container" :class="props.title">
         <h2>{{ getTableTitle }}</h2>
         <input

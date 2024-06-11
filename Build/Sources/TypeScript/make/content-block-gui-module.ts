@@ -16,6 +16,7 @@ import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
 import '@typo3/make/content-block-list';
 import '@typo3/make/content-block-editor';
+import '@typo3/backend/element/icon-element';
 import '@typo3/backend/element/spinner-element';
 /*import { customElement, property } from 'lit/decorators';*/
 
@@ -33,7 +34,17 @@ export class ContentBlockGuiModule extends LitElement {
 
   protected render(): TemplateResult {
     if (this.status === 'list') {
-      return html`<content-block-list></content-block-list>`;
+      return html`
+        <button
+          type="button"
+          class="btn btn-primary me-2"
+          @click="${() => { this.status = 'editor'; }}"
+        >
+          <typo3-backend-icon identifier="actions-add" size="medium"></typo3-backend-icon>
+          Content Block hinzufügen
+        </button>
+        <content-block-list></content-block-list>
+      `;
     } else if (this.status === 'editor') {
       return html`<content-block-editor></content-block-editor>`;
     } else {

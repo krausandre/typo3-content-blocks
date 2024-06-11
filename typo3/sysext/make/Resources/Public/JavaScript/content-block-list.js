@@ -10,9 +10,7 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(t,e,o,i){var n,c=arguments.length,a=c<3?e:null===i?i=Object.getOwnPropertyDescriptor(e,o):i;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(t,e,o,i);else for(var l=t.length-1;l>=0;l--)(n=t[l])&&(a=(c<3?n(a):c>3?n(e,o,a):n(e,o))||a);return c>3&&a&&Object.defineProperty(e,o,a),a};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockList=class extends LitElement{constructor(){super(...arguments),this.icon="actions-question-circle"}render(){return html`
-      <p>I am the Lit: ${this.name}</p>
-
+var __decorate=function(t,e,o,n){var i,c=arguments.length,a=c<3?e:null===n?n=Object.getOwnPropertyDescriptor(e,o):n;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(t,e,o,n);else for(var l=t.length-1;l>=0;l--)(i=t[l])&&(a=(c<3?i(a):c>3?i(e,o,a):i(e,o))||a);return c>3&&a&&Object.defineProperty(e,o,a),a};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockList=class extends LitElement{constructor(){super(...arguments),this.icon="actions-question-circle"}render(){return html`
       <div class="list-table-container" :class="props.title">
         <h2>{{ getTableTitle }}</h2>
         <input
