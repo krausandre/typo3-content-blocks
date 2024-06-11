@@ -28,7 +28,16 @@ import '@typo3/make/content-blocks/editor/right-pane';
 export class ContentBlockEditor extends LitElement {
 
   @property()
-    name?: string;
+    contentBlockName?: string;
+
+  constructor() {
+    super();
+    console.log('ContentBlockEditor constructor');
+    console.log(this.contentBlockName);
+    if(this.contentBlockName !== undefined && this.contentBlockName !== '') {
+      console.log('ContentBlockEditor contentBlockName is set');
+    }
+  }
 
   protected render(): TemplateResult {
     return html`
@@ -44,11 +53,16 @@ export class ContentBlockEditor extends LitElement {
           <content-block-editor-right-pane></content-block-editor-right-pane>
         </div>
       </div>
+      <button @click="${() => { this._dispatchBackEvent(); }}" type="button" class="btn btn-primary">Back</button>
     `;
   }
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;
+  }
+
+  private _dispatchBackEvent() {
+    this.dispatchEvent(new CustomEvent('contentBlockBack', {}));
   }
 }

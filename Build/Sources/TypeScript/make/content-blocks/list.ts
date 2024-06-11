@@ -171,10 +171,7 @@ export class ContentBlockList extends LitElement {
   }
 
   protected _dispatchEditEvent(contentBlockData: []): void {
-    console.log('dispatchEditEvent');
     this.dispatchEvent(new CustomEvent('contentBlockEdit', {
-      // bubbles: true,
-      // composed: true,
       detail: {
         contentBlockData: contentBlockData
       }
