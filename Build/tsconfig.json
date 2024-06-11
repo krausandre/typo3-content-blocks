@@ -71,6 +71,9 @@
             "@typo3/lowlevel/*": [
                 "lowlevel/*"
             ],
+            "@typo3/make/*": [
+                "make/*"
+            ],
             "@typo3/opendocs/*": [
                 "opendocs/*"
             ],
