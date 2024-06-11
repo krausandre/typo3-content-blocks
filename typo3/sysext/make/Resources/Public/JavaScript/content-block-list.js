@@ -10,7 +10,7 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(t,e,o,n){var i,c=arguments.length,a=c<3?e:null===n?n=Object.getOwnPropertyDescriptor(e,o):n;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(t,e,o,n);else for(var l=t.length-1;l>=0;l--)(i=t[l])&&(a=(c<3?i(a):c>3?i(e,o,a):i(e,o))||a);return c>3&&a&&Object.defineProperty(e,o,a),a};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockList=class extends LitElement{constructor(){super(...arguments),this.icon="actions-question-circle"}render(){return html`
+var __decorate=function(t,e,o,c){var n,i=arguments.length,s=i<3?e:null===c?c=Object.getOwnPropertyDescriptor(e,o):c;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)s=Reflect.decorate(t,e,o,c);else for(var a=t.length-1;a>=0;a--)(n=t[a])&&(s=(i<3?n(s):i>3?n(e,o,s):n(e,o))||s);return i>3&&s&&Object.defineProperty(e,o,s),s};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import AjaxRequest from"@typo3/core/ajax/ajax-request.js";let ContentBlockList=class extends LitElement{constructor(){super(),this.contentBlocks=[],this.basics=[],this.icon="actions-question-circle",this.loadContentBlocks()}render(){return html`
       <div class="list-table-container" :class="props.title">
         <h2>{{ getTableTitle }}</h2>
         <input
@@ -30,55 +30,53 @@ var __decorate=function(t,e,o,n){var i,c=arguments.length,a=c<3?e:null===n?n=Obj
             <th scope="col" class="col-4">Actions</th>
           </tr>
           </thead>
-          <tr
-            data-for="item in filteredItems"
-            data-key="item.name"
-          >
-            <td>
-              <typo3-backend-icon identifier="${this.icon}" size="medium"></typo3-backend-icon>
-              <!-- Icon :identifier="iconListStore.getIconByIdentifier(item.name)" size="medium" --->
-            </td>
-            <td>{{ item.name }}</td>
-            <td>{{ item.label }}</td>
-            <td>{{ item.extension }}</td>
-            <td>{{ item.usages }}</td>
-            <td>
-              <button
-                type="button"
-                class="btn btn-default me-2"
-                @click="edit(item.name)"
-                data-if="item.editable"
-              >
-                <typo3-backend-icon identifier="actions-open" size="medium"></typo3-backend-icon>
-                Edit
-              </button>
-              <button
-                type="button"
-                class="btn btn-default me-2"
-                @click="copy(item.name)"
-              >
-                <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
-                Duplicate
-              </button>
-              <button
-                type="button"
-                class="btn btn-info me-2"
-                @click="download(item.name)"
-              >
-                <typo3-backend-icon identifier="actions-download" size="medium"></typo3-backend-icon>
-                Download
-              </button>
-              <button
-                type="button"
-                class="btn btn-danger me-2"
-                @click="showDeleteConfirmation(item.name)"
-                data-if="item.deletable AND item.usages grater 1"
-              >
-                <typo3-backend-icon identifier="actions-delete" size="medium"></typo3-backend-icon>
-                Delete
-              </button>
-            </td>
-          </tr>
+          ${this.contentBlocks.map((t=>html`
+              <tr>
+                <td>
+                  <typo3-backend-icon identifier="${this.icon}" size="medium"></typo3-backend-icon>
+                </td>
+                <td>${t.name}</td>
+                <td>${t.label}</td>
+                <td>${t.extension}</td>
+                <td>${t.usages}</td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-default me-2"
+                    @click="edit(item.name)"
+                    data-if="item.editable"
+                  >
+                    <typo3-backend-icon identifier="actions-open" size="medium"></typo3-backend-icon>
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-default me-2"
+                    @click="copy(item.name)"
+                  >
+                    <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
+                    Duplicate
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-info me-2"
+                    @click="download(item.name)"
+                  >
+                    <typo3-backend-icon identifier="actions-download" size="medium"></typo3-backend-icon>
+                    Download
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger me-2"
+                    @click="showDeleteConfirmation(item.name)"
+                    data-if="item.deletable AND item.usages grater 1"
+                  >
+                    <typo3-backend-icon identifier="actions-delete" size="medium"></typo3-backend-icon>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            `))}
         </table>
       </div>
-    `}createRenderRoot(){return this}};__decorate([property()],ContentBlockList.prototype,"name",void 0),ContentBlockList=__decorate([customElement("content-block-list")],ContentBlockList);export{ContentBlockList};
+    `}loadContentBlocks(){this.loading=!0,new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_list_cb).post({}).then((async t=>{const e=await t.resolve();this.contentBlocks=Object.keys(e.body.contentBlocks).map((t=>e.body.contentBlocks[t])),this.basics=Object.keys(e.body.basics).map((t=>e.body.basics[t])),this.loading=!1})).catch((t=>{console.error(t),this.loading=!1}))}createRenderRoot(){return this}};__decorate([property()],ContentBlockList.prototype,"contentBlocks",void 0),ContentBlockList=__decorate([customElement("content-block-list")],ContentBlockList);export{ContentBlockList};

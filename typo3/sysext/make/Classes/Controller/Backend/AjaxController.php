@@ -46,7 +46,8 @@ final class AjaxController
         $sampleData = json_decode($sampleJson, true);
         return new JsonResponse([
             'body' => [
-                'list' => $sampleData,
+                'contentBlocks' => $sampleData['contentBlocks'],
+                'basics' => $sampleData['basics'],
             ],
             'success' => 'success',
             'message' => '',

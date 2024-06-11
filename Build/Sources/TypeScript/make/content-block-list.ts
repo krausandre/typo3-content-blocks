@@ -14,6 +14,7 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
+import AjaxRequest from '@typo3/core/ajax/ajax-request';
 /*import { customElement, property } from 'lit/decorators';*/
 
 /**
@@ -26,9 +27,15 @@ import '@typo3/backend/element/icon-element';
 export class ContentBlockList extends LitElement {
 
   @property()
-    name?: string;
-
+    contentBlocks: any[] = [];
+  basics: any[] = [];
   icon: string = 'actions-question-circle';
+  loading?: boolean;
+
+  constructor() {
+    super();
+    this.loadContentBlocks();
+  }
 
   protected render(): TemplateResult {
     return html`
@@ -51,59 +58,75 @@ export class ContentBlockList extends LitElement {
             <th scope="col" class="col-4">Actions</th>
           </tr>
           </thead>
-          <tr
-            data-for="item in filteredItems"
-            data-key="item.name"
-          >
-            <td>
-              <typo3-backend-icon identifier="${this.icon}" size="medium"></typo3-backend-icon>
-              <!-- Icon :identifier="iconListStore.getIconByIdentifier(item.name)" size="medium" --->
-            </td>
-            <td>{{ item.name }}</td>
-            <td>{{ item.label }}</td>
-            <td>{{ item.extension }}</td>
-            <td>{{ item.usages }}</td>
-            <td>
-              <button
-                type="button"
-                class="btn btn-default me-2"
-                @click="edit(item.name)"
-                data-if="item.editable"
-              >
-                <typo3-backend-icon identifier="actions-open" size="medium"></typo3-backend-icon>
-                Edit
-              </button>
-              <button
-                type="button"
-                class="btn btn-default me-2"
-                @click="copy(item.name)"
-              >
-                <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
-                Duplicate
-              </button>
-              <button
-                type="button"
-                class="btn btn-info me-2"
-                @click="download(item.name)"
-              >
-                <typo3-backend-icon identifier="actions-download" size="medium"></typo3-backend-icon>
-                Download
-              </button>
-              <button
-                type="button"
-                class="btn btn-danger me-2"
-                @click="showDeleteConfirmation(item.name)"
-                data-if="item.deletable AND item.usages grater 1"
-              >
-                <typo3-backend-icon identifier="actions-delete" size="medium"></typo3-backend-icon>
-                Delete
-              </button>
-            </td>
-          </tr>
+          ${this.contentBlocks.map((item) =>
+    html`
+              <tr>
+                <td>
+                  <typo3-backend-icon identifier="${this.icon}" size="medium"></typo3-backend-icon>
+                </td>
+                <td>${ item.name }</td>
+                <td>${ item.label }</td>
+                <td>${ item.extension }</td>
+                <td>${ item.usages }</td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-default me-2"
+                    @click="edit(item.name)"
+                    data-if="item.editable"
+                  >
+                    <typo3-backend-icon identifier="actions-open" size="medium"></typo3-backend-icon>
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-default me-2"
+                    @click="copy(item.name)"
+                  >
+                    <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
+                    Duplicate
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-info me-2"
+                    @click="download(item.name)"
+                  >
+                    <typo3-backend-icon identifier="actions-download" size="medium"></typo3-backend-icon>
+                    Download
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger me-2"
+                    @click="showDeleteConfirmation(item.name)"
+                    data-if="item.deletable AND item.usages grater 1"
+                  >
+                    <typo3-backend-icon identifier="actions-delete" size="medium"></typo3-backend-icon>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            `
+  )}
         </table>
       </div>
     `;
   }
+
+  protected loadContentBlocks(): void {
+    this.loading = true;
+    new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_list_cb).post({})
+      .then(async (response) => {
+        const data = await response.resolve();
+        this.contentBlocks = Object.keys(data.body.contentBlocks).map(key => data.body.contentBlocks[key])
+        this.basics = Object.keys(data.body.basics).map(key => data.body.basics[key])
+        this.loading = false;
+      })
+      .catch((error) => {
+        console.error(error);
+        this.loading = false;
+      });
+  }
+
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});

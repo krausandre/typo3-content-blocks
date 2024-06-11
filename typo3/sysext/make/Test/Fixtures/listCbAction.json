@@ -1,5 +1,5 @@
 {
-	"CONTENT_ELEMENT": {
+	"contentBlocks": {
 		"test-123/test-12-bck": {
 			"name": "test-123/test-12-bck",
 			"label": "Content Element: test-12/test-12",
@@ -17,7 +17,7 @@
 			"usages": 0
 		}
 	},
-	"BASICS": {
+	"basics": {
 		"TYPO3/Links": {
 			"name": "TYPO3/Links",
 			"label": "TYPO3/Links",
