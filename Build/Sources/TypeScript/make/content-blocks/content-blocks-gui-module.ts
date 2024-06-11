@@ -14,8 +14,8 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import '@typo3/make/content-block-list';
-import '@typo3/make/content-block-editor';
+import '@typo3/make/content-blocks/list';
+import '@typo3/make/content-blocks/editor';
 import '@typo3/backend/element/icon-element';
 import '@typo3/backend/element/spinner-element';
 /*import { customElement, property } from 'lit/decorators';*/
@@ -31,6 +31,7 @@ export class ContentBlockGuiModule extends LitElement {
 
   @property()
     status?: string;
+  contentBlockData: any[] = [];
 
   protected render(): TemplateResult {
     if (this.status === 'list') {
@@ -57,5 +58,11 @@ export class ContentBlockGuiModule extends LitElement {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;
+  }
+
+  private _contentBlockEditListener(e: CustomEvent) {
+    console.log('content-block-edit event', e.detail);
+    this.contentBlockData = e.detail.contentBlockData;
+    this.status = 'editor';
   }
 }

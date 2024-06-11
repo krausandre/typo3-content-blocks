@@ -170,14 +170,13 @@ export class List extends LitElement {
       });
   }
 
-  protected _dispatchEditEvent(name: string): void {
+  protected _dispatchEditEvent(contentBlockData: []): void {
     console.log('dispatchEditEvent');
-    console.log(name);
     this.dispatchEvent(new CustomEvent('contentBlockEdit', {
       // bubbles: true,
       // composed: true,
       detail: {
-        name: name
+        contentBlockData: contentBlockData
       }
     }));
   }
