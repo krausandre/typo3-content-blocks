@@ -19,17 +19,18 @@ import '@typo3/backend/element/icon-element';
  * Module: @typo3/module/web/ContentBlocksGui
  *
  * @example
- * <content-block-editor-right-pain></content-block-editor-right-pain>
+ * <content-block-editor-middle-pane></content-block-editor-middle-pane>
  */
-@customElement('content-block-editor-right-pain')
-export class ContentBlockEditorRightPain extends LitElement {
+@customElement('content-block-editor-middle-pane')
+export class ContentBlockEditorMiddlePane extends LitElement {
 
   @property()
     name?: string;
 
+
   protected render(): TemplateResult {
     return html`
-      <p>I am the Right Pain</p>
+      <p>I am the Middle pane</p>
 
     `;
   }
