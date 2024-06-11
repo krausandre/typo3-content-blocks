@@ -28,6 +28,57 @@ export class EditorLeftPaneGlobalSettings extends LitElement {
   protected render(): TemplateResult {
     return html`
       <p>Global Settings: this is the Lit Element.</p>
+      <div class="form-group">
+        <label for="extension">Extension</label>
+        <select class="form-control" id="extension">
+          <option value="0">Choose...</option>
+          <option value="1">Extension 1</option>
+          <option value="2">Extension 2</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="vendor">Vendor</label>
+        <input type="text" id="vendor" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" id="title" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="prefix">Prefix fields?</label>
+        <input type="checkbox" id="prefix" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="prefix-type">Prefix type</label>
+        <select class="form-control" id="prefix-type">
+          <option value="">Choose...</option>
+          <option value="full">Full</option>
+          <option value="vendor">Vendor</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="vendor-prefix">Vendor prefix</label>
+        <input type="text" id="vendor-prefix" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="priority">Priority</label>
+        <input type="number" id="priority" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="group">Group</label>
+        <select class="form-control" id="group">
+          <option value="">Choose...</option>
+          <option value="group1">Group 1</option>
+          <option value="group2">Group 2</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <button>Save</button>
+      </div>
     `;
   }
 

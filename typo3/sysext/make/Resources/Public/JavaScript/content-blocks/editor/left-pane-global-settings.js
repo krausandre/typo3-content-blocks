@@ -10,6 +10,57 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(e,t,o,r){var l,n=arguments.length,i=n<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)i=Reflect.decorate(e,t,o,r);else for(var s=e.length-1;s>=0;s--)(l=e[s])&&(i=(n<3?l(i):n>3?l(t,o,i):l(t,o))||i);return n>3&&i&&Object.defineProperty(t,o,i),i};import{html,LitElement,css}from"lit";import{customElement}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let EditorLeftPaneGlobalSettings=class extends LitElement{render(){return html`
+var __decorate=function(e,o,t,l){var r,i=arguments.length,n=i<3?o:null===l?l=Object.getOwnPropertyDescriptor(o,t):l;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)n=Reflect.decorate(e,o,t,l);else for(var s=e.length-1;s>=0;s--)(r=e[s])&&(n=(i<3?r(n):i>3?r(o,t,n):r(o,t))||n);return i>3&&n&&Object.defineProperty(o,t,n),n};import{html,LitElement,css}from"lit";import{customElement}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let EditorLeftPaneGlobalSettings=class extends LitElement{render(){return html`
       <p>Global Settings: this is the Lit Element.</p>
+      <div class="form-group">
+        <label for="extension">Extension</label>
+        <select class="form-control" id="extension">
+          <option value="0">Choose...</option>
+          <option value="1">Extension 1</option>
+          <option value="2">Extension 2</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="vendor">Vendor</label>
+        <input type="text" id="vendor" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" id="title" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="prefix">Prefix fields?</label>
+        <input type="checkbox" id="prefix" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="prefix-type">Prefix type</label>
+        <select class="form-control" id="prefix-type">
+          <option value="">Choose...</option>
+          <option value="full">Full</option>
+          <option value="vendor">Vendor</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="vendor-prefix">Vendor prefix</label>
+        <input type="text" id="vendor-prefix" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="priority">Priority</label>
+        <input type="number" id="priority" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="group">Group</label>
+        <select class="form-control" id="group">
+          <option value="">Choose...</option>
+          <option value="group1">Group 1</option>
+          <option value="group2">Group 2</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <button>Save</button>
+      </div>
     `}createRenderRoot(){return this}};EditorLeftPaneGlobalSettings.styles=css``,EditorLeftPaneGlobalSettings=__decorate([customElement("editor-left-pane-global-settings")],EditorLeftPaneGlobalSettings);export{EditorLeftPaneGlobalSettings};
