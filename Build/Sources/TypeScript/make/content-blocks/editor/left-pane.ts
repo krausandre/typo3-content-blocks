@@ -14,6 +14,9 @@
 import { html, LitElement, TemplateResult, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
+import '@typo3/make/content-blocks/editor/left-pane-global-settings';
+import '@typo3/make/content-blocks/editor/left-pane-components';
+import '@typo3/make/content-blocks/editor/left-pane-basics';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -22,7 +25,7 @@ import '@typo3/backend/element/icon-element';
  * <content-block-editor-left-pain></content-block-editor-left-pain>
  */
 @customElement('content-block-editor-left-pane')
-export class LeftPane extends LitElement {
+export class ContentBlockEditorLeftPane extends LitElement {
 
   static styles = css`
     .left-pane-tabs-container {
@@ -108,11 +111,11 @@ export class LeftPane extends LitElement {
   protected renderTab(): TemplateResult {
     switch (this.activeTab) {
       case 'settings':
-        return html`Todo: Implement settings tab`;
+        return html`<editor-left-pane-global-settings></editor-left-pane-global-settings>`;
       case 'components':
-        return html`Todo: Implement components tab`;
+        return html`<editor-left-pane-components></editor-left-pane-components>`;
       case 'basics':
-        return html`@todo: do we need basics?`;
+        return html`<editor-left-pane-basics></editor-left-pane-basics>`;
       default: return html`Unknown tab: ${this.activeTab}`;
     }
   }

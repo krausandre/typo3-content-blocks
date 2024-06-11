@@ -19,5 +19,6 @@ var __decorate=function(t,e,o,n){var i,r=arguments.length,c=r<3?e:null===n?n=Obj
           <typo3-backend-icon identifier="actions-add" size="medium"></typo3-backend-icon>
           Content Block hinzufügen
         </button>
+        Test
         <content-block-list></content-block-list>
       `:"editor"===this.status?html`<content-block-editor></content-block-editor>`:html`<spinner-element></spinner-element>`}createRenderRoot(){return this}};__decorate([property()],ContentBlockGuiModule.prototype,"status",void 0),ContentBlockGuiModule=__decorate([customElement("content-block-gui-module")],ContentBlockGuiModule);export{ContentBlockGuiModule};

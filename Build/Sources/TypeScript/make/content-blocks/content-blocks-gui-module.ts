@@ -44,6 +44,7 @@ export class ContentBlockGuiModule extends LitElement {
           <typo3-backend-icon identifier="actions-add" size="medium"></typo3-backend-icon>
           Content Block hinzufügen
         </button>
+        Test
         <content-block-list></content-block-list>
       `;
     } else if (this.status === 'editor') {

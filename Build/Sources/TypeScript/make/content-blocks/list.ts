@@ -15,7 +15,7 @@ import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
 import AjaxRequest from '@typo3/core/ajax/ajax-request';
-/*import { customElement, property } from 'lit/decorators';*/
+
 
 
 export enum ContentBlockListActionEvent {
@@ -32,7 +32,7 @@ export enum ContentBlockListActionEvent {
  * <content-block-list></content-block-list>
  */
 @customElement('content-block-list')
-export class List extends LitElement {
+export class ContentBlockList extends LitElement {
 
   @property()
     contentBlocks: any[] = [];
@@ -47,7 +47,7 @@ export class List extends LitElement {
 
   protected render(): TemplateResult {
     return html`
-      <div class="list-table-container" :class="props.title">
+      <div class="list-table-container props.title">
         <h2>{{ getTableTitle }}</h2>
         <input
           type="text"

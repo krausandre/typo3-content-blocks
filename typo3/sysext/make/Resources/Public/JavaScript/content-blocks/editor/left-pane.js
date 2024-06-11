@@ -10,7 +10,7 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(t,e,a,o){var i,n=arguments.length,s=n<3?e:null===o?o=Object.getOwnPropertyDescriptor(e,a):o;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)s=Reflect.decorate(t,e,a,o);else for(var c=t.length-1;c>=0;c--)(i=t[c])&&(s=(n<3?i(s):n>3?i(e,a,s):i(e,a))||s);return n>3&&s&&Object.defineProperty(e,a,s),s};import{html,LitElement,css,nothing}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let LeftPane=class extends LitElement{constructor(){super(...arguments),this.activeTab="settings"}render(){const t="settings"===this.activeTab,e="components"===this.activeTab,a="basics"===this.activeTab;return html`
+var __decorate=function(t,e,o,n){var i,a=arguments.length,s=a<3?e:null===n?n=Object.getOwnPropertyDescriptor(e,o):n;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)s=Reflect.decorate(t,e,o,n);else for(var c=t.length-1;c>=0;c--)(i=t[c])&&(s=(a<3?i(s):a>3?i(e,o,s):i(e,o))||s);return a>3&&s&&Object.defineProperty(e,o,s),s};import{html,LitElement,css,nothing}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import"@typo3/make/content-blocks/editor/left-pane-global-settings.js";import"@typo3/make/content-blocks/editor/left-pane-components.js";import"@typo3/make/content-blocks/editor/left-pane-basics.js";let ContentBlockEditorLeftPane=class extends LitElement{constructor(){super(...arguments),this.activeTab="settings"}render(){const t="settings"===this.activeTab,e="components"===this.activeTab,o="basics"===this.activeTab;return html`
       <p>I am the Left pane</p>
       <div class="left-pane-tabs-container">
         <div class="tabs-headers">
@@ -21,7 +21,7 @@ var __decorate=function(t,e,a,o){var i,n=arguments.length,s=n<3?e:null===o?o=Obj
             <li class="${e?html`active`:nothing}" @click="${()=>{this.setActiveTab("components")}}">
               Components
             </li>
-            <li class="${a?html`active`:nothing}" @click=${()=>{this.setActiveTab("basics")}}>
+            <li class="${o?html`active`:nothing}" @click=${()=>{this.setActiveTab("basics")}}>
               Basics
             </li>
           </ul>
@@ -30,7 +30,7 @@ var __decorate=function(t,e,a,o){var i,n=arguments.length,s=n<3?e:null===o?o=Obj
           ${this.renderTab()}
         </div>
       </div>
-    `}createRenderRoot(){return this}renderTab(){switch(this.activeTab){case"settings":return html`Todo: Implement settings tab`;case"components":return html`Todo: Implement components tab`;case"basics":return html`@todo: do we need basics?`;default:return html`Unknown tab: ${this.activeTab}`}}setActiveTab(t){this.activeTab=t}};LeftPane.styles=css`
+    `}createRenderRoot(){return this}renderTab(){switch(this.activeTab){case"settings":return html`<editor-left-pane-global-settings></editor-left-pane-global-settings>`;case"components":return html`<editor-left-pane-components></editor-left-pane-components>`;case"basics":return html`<editor-left-pane-basics></editor-left-pane-basics>`;default:return html`Unknown tab: ${this.activeTab}`}}setActiveTab(t){this.activeTab=t}};ContentBlockEditorLeftPane.styles=css`
     .left-pane-tabs-container {
       .tab-headers ul {
         margin: 0;
@@ -71,4 +71,4 @@ var __decorate=function(t,e,a,o){var i,n=arguments.length,s=n<3?e:null===o?o=Obj
       }
     }
 
-  `,__decorate([property()],LeftPane.prototype,"activeTab",void 0),LeftPane=__decorate([customElement("content-block-editor-left-pane")],LeftPane);export{LeftPane};
+  `,__decorate([property()],ContentBlockEditorLeftPane.prototype,"activeTab",void 0),ContentBlockEditorLeftPane=__decorate([customElement("content-block-editor-left-pane")],ContentBlockEditorLeftPane);export{ContentBlockEditorLeftPane};

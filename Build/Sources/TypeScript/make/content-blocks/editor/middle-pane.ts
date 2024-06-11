@@ -22,7 +22,7 @@ import '@typo3/backend/element/icon-element';
  * <content-block-editor-middle-pane></content-block-editor-middle-pane>
  */
 @customElement('content-block-editor-middle-pane')
-export class MiddlePane extends LitElement {
+export class ContentBlockEditorMiddlePane extends LitElement {
 
   @property()
     name?: string;
@@ -30,7 +30,7 @@ export class MiddlePane extends LitElement {
 
   protected render(): TemplateResult {
     return html`
-      <p>I am the Middle pane</p>
+      <p>I am the Middle pane...</p>
 
     `;
   }
