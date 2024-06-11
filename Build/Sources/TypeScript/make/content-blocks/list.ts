@@ -80,8 +80,7 @@ export class List extends LitElement {
                   <button
                     type="button"
                     class="btn btn-default me-2"
-                    @click="edit(item.name)"
-                    data-if="item.editable"
+                    @click="${() => { this._dispatchEditEvent(item.name); }}"
                   >
                     <typo3-backend-icon identifier="actions-open" size="medium"></typo3-backend-icon>
                     Edit
@@ -89,7 +88,6 @@ export class List extends LitElement {
                   <button
                     type="button"
                     class="btn btn-default me-2"
-                    @click="${this._dispatchEditEvent}"
                   >
                     <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
                     Duplicate
