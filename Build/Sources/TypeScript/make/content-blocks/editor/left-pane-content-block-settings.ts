@@ -31,6 +31,7 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
     contentBlockYaml: ContentBlocksYaml;
 
   protected render(): TemplateResult {
+    // console.log(this.contentBlockYaml);
     return html`
       <p>Content Block Settings</p>
       <div class="form-group">
@@ -43,11 +44,11 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
       </div>
       <div class="form-group">
         <label for="vendor">Vendor</label>
-        <input type="text" id="vendor" class="form-control" value="${this.contentBlockYaml.name}" />
+        <input type="text" id="vendor" class="form-control" value=${this.contentBlockYaml.name} />
       </div>
       <div class="form-group">
         <label for="name">Name</label>
-        <input type="text" id="name" class="form-control" value="${this.contentBlockYaml.name}" />
+        <input type="text" id="name" class="form-control" value=${this.contentBlockYaml.name} />
       </div>
       <div class="form-group">
         <label for="title">Title</label>

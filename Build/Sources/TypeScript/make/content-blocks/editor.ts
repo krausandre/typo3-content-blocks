@@ -37,6 +37,17 @@ export class ContentBlockEditor extends LitElement {
   @property()
     data?: any;
 
+  values = {
+    'identifier': 'text1',
+    'type': 'Textarea',
+    'default': 'default text',
+    'placeholder': 'placeholder text',
+    'required': false,
+    'enableRichtext': true,
+    'richtextConfiguration': 'full',
+    'rows': 5,
+  };
+
   constructor() {
     super();
     this.name = '';
@@ -55,17 +66,16 @@ export class ContentBlockEditor extends LitElement {
     if (this.mode === 'copy') {
       this._initMultiStepWizard();
     }
-    // console.log(this.data);
     return html`
       <div class="row">
         <div class="col-4">
-          <content-block-editor-left-pane .contentBlockConfig="${this.data.yaml}"></content-block-editor-left-pane>
+          <content-block-editor-left-pane .contentBlockYaml="${this.data.yaml}"></content-block-editor-left-pane>
         </div>
         <div class="col-4">
           <content-block-editor-middle-pane></content-block-editor-middle-pane>
         </div>
         <div class="col-4">
-          <content-block-editor-right-pane .values="${this.data.yaml.fields}"></content-block-editor-right-pane>
+          <content-block-editor-right-pane .values="${this.values}"></content-block-editor-right-pane>
         </div>
       </div>
       <button @click="${() => { this._dispatchBackEvent(); }}" type="button" class="btn btn-primary">Back

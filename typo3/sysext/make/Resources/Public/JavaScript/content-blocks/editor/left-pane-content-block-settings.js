@@ -22,11 +22,11 @@ var __decorate=function(e,t,o,l){var n,r=arguments.length,i=r<3?t:null===l?l=Obj
       </div>
       <div class="form-group">
         <label for="vendor">Vendor</label>
-        <input type="text" id="vendor" class="form-control" value="${this.contentBlockYaml.name}" />
+        <input type="text" id="vendor" class="form-control" value=${this.contentBlockYaml.name} />
       </div>
       <div class="form-group">
         <label for="name">Name</label>
-        <input type="text" id="name" class="form-control" value="${this.contentBlockYaml.name}" />
+        <input type="text" id="name" class="form-control" value=${this.contentBlockYaml.name} />
       </div>
       <div class="form-group">
         <label for="title">Title</label>
