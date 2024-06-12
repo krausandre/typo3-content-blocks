@@ -30,7 +30,7 @@ var __decorate=function(t,e,o,n){var i,a=arguments.length,c=a<3?e:null===n?n=Obj
           ${this.renderTab()}
         </div>
       </div>
-    `}createRenderRoot(){return this}renderTab(){switch(this.activeTab){case"settings":return html`<editor-left-pane-content-block-settings .contentBlockConfig="${this.contentBlockYaml}"></editor-left-pane-content-block-settings>`;case"components":return html`<editor-left-pane-components></editor-left-pane-components>`;case"basics":return html`<editor-left-pane-basics></editor-left-pane-basics>`;default:return html`Unknown tab: ${this.activeTab}`}}setActiveTab(t){this.activeTab=t}};ContentBlockEditorLeftPane.styles=css`
+    `}createRenderRoot(){return this}renderTab(){switch(console.log(this.contentBlockYaml),this.activeTab){case"settings":return html`<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}"></editor-left-pane-content-block-settings>`;case"components":return html`<editor-left-pane-components></editor-left-pane-components>`;case"basics":return html`<editor-left-pane-basics></editor-left-pane-basics>`;default:return html`Unknown tab: ${this.activeTab}`}}setActiveTab(t){this.activeTab=t}};ContentBlockEditorLeftPane.styles=css`
     .left-pane-tabs-container {
       .tab-headers ul {
         margin: 0;

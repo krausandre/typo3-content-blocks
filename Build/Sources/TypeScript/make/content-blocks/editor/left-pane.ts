@@ -74,7 +74,7 @@ export class ContentBlockEditorLeftPane extends LitElement {
   @property()
     activeTab: string = 'settings';
   @property()
-    contentBlockYaml?: ContentBlocksYaml;
+    contentBlockYaml: ContentBlocksYaml;
 
 
   protected render(): TemplateResult {
@@ -112,9 +112,10 @@ export class ContentBlockEditorLeftPane extends LitElement {
   }
 
   protected renderTab(): TemplateResult {
+    console.log(this.contentBlockYaml);
     switch (this.activeTab) {
       case 'settings':
-        return html`<editor-left-pane-content-block-settings .contentBlockConfig="${this.contentBlockYaml}"></editor-left-pane-content-block-settings>`;
+        return html`<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}"></editor-left-pane-content-block-settings>`;
       case 'components':
         return html`<editor-left-pane-components></editor-left-pane-components>`;
       case 'basics':

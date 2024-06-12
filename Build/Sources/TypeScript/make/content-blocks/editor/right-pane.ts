@@ -42,17 +42,18 @@ export class ContentBlockEditorRightPane extends LitElement {
     };
 
   // property values
-  values: Record<string, unknown> = {
-    'identifier': 'text1',
-    'type': 'Textarea',
-    'default': 'default text',
-    'placeholder': 'placeholder text',
-    'required': false,
-    'enableRichtext': true,
-    'richtextConfiguration': 'full',
-    'rows': 5,
-  };
-  // values: Record<string, unknown>;
+  // values: Record<string, unknown> = {
+  //   'identifier': 'text1',
+  //   'type': 'Textarea',
+  //   'default': 'default text',
+  //   'placeholder': 'placeholder text',
+  //   'required': false,
+  //   'enableRichtext': true,
+  //   'richtextConfiguration': 'full',
+  //   'rows': 5,
+  // };
+  @property()
+    values: Record<string, unknown>;
 
   protected render(): TemplateResult {
     if (this.schema) {
