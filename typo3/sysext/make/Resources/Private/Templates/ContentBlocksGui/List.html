@@ -7,7 +7,7 @@
 
 <f:section name="Content">
     <h1>Content Blocks GUI</h1>
-    <div class="list-table-container props.title">
+    <div class="list-table-container">
         <div class="table-fit">
             <table class="table table-striped table-hover" id="content-blocks">
                 <thead>
@@ -79,8 +79,11 @@
                                     </span>
                                 </a>
 
-                                <a class="btn btn-default content-block-download" href="#"
-                                   title="Download this content block">
+                                <a class="btn btn-default content-block-download"
+                                   href="#"
+                                   title="Download this content block"
+                                   data-name="{block.name}"
+                                >
                                     <span
                                         aria-hidden="true"
                                         class="t3js-icon icon icon-size-small"
