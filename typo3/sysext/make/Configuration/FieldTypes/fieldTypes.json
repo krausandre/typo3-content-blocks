@@ -1,32 +1,16 @@
-[
-	{
-		"name": "Textarea",
-		"label": "Textarea",
-		"description": "Textarea field type",
-		"icon": "EXT:make/Resources/Public/Icons/FieldTypes/Textarea.svg",
-		"type": "textarea",
-		"properties": [
-			{
-				"name": "placeholder",
-				"label": "Placeholder",
-				"description": "Placeholder text",
-				"type": "string"
-			}
-		]
-	},
-	{
-		"name": "Checkbox",
-		"label": "Checkbox",
-		"description": "Checkbox field type",
-		"icon": "EXT:make/Resources/Public/Icons/FieldTypes/Checkbox.svg",
-		"type": "checkbox",
-		"properties": [
-			{
-				"name": "label",
-				"label": "Label",
-				"description": "Label text",
-				"type": "string"
-			}
+{
+	"textarea": {
+		"icon": "form-textarea",
+		"type": "Textarea",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "default", "dataType": "text" },
+			{ "name": "placeholder", "dataType": "text" },
+			{ "name": "required", "dataType": "boolean" },
+			{ "name": "enableRichtext", "dataType": "boolean" },
+			{ "name": "richtextConfiguration", "dataType": "text", "default": "full" },
+			{ "name": "rows", "dataType": "number" }
 		]
 	}
-]
+}

@@ -17,7 +17,6 @@ import '@typo3/backend/element/icon-element';
 import '@typo3/make/content-blocks/editor/left-pane';
 import '@typo3/make/content-blocks/editor/middle-pane';
 import '@typo3/make/content-blocks/editor/right-pane';
-// import AjaxRequest from '@typo3/core/ajax/ajax-request';
 import MultiStepWizard from '@typo3/backend/multi-step-wizard';
 import Severity from '@typo3/backend/severity';
 
@@ -36,6 +35,12 @@ export class ContentBlockEditor extends LitElement {
     mode?: string;
   @property()
     data?: any;
+  @property()
+    extensions?: any;
+  @property()
+    groups?: any;
+  @property()
+    fieldconfig?: any;
 
   values = {
     'identifier': 'text1',
@@ -48,34 +53,23 @@ export class ContentBlockEditor extends LitElement {
     'rows': 5,
   };
 
-  constructor() {
-    super();
-    this.name = '';
-    this.mode = '';
-    // this.contentBlockData = {
-    //   name: '',
-    //   yaml: {},
-    //   icon: {},
-    //   iconHideInMenu: {},
-    //   hostExtension: '',
-    //   extPath: ''
-    // }
-  }
   protected render(): TemplateResult {
     this.data = JSON.parse(this.data);
+    this.fieldconfig = JSON.parse(this.fieldconfig);
+    const textarea = JSON.stringify(this.fieldconfig.textarea);
     if (this.mode === 'copy') {
       this._initMultiStepWizard();
     }
     return html`
       <div class="row">
         <div class="col-4">
-          <content-block-editor-left-pane .contentBlockYaml="${this.data.yaml}"></content-block-editor-left-pane>
+          <content-block-editor-left-pane .contentBlockYaml="${this.data.yaml}" groups="${this.groups}" extensions="${this.extensions}"></content-block-editor-left-pane>
         </div>
         <div class="col-4">
           <content-block-editor-middle-pane></content-block-editor-middle-pane>
         </div>
         <div class="col-4">
-          <content-block-editor-right-pane .values="${this.values}"></content-block-editor-right-pane>
+          <content-block-editor-right-pane .fieldconfig="${textarea}" .values="${this.values}"></content-block-editor-right-pane>
         </div>
       </div>
       <button @click="${() => { this._dispatchBackEvent(); }}" type="button" class="btn btn-primary">Back

@@ -26,37 +26,14 @@ import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@typo3/make
 export class ContentBlockEditorRightPane extends LitElement {
 
   @property()
-    schema?: FieldTypeSetting = {
-      icon: 'form-textarea',
-      type: 'Textarea',
-      properties : [
-        { name: 'identifier', dataType: 'text', required: true },
-        { name: 'type', dataType: 'text', required: true },
-        { name: 'default', dataType: 'text' },
-        { name: 'placeholder', dataType: 'text' },
-        { name: 'required', dataType: 'boolean' },
-        { name: 'enableRichtext', dataType: 'boolean' },
-        { name: 'richtextConfiguration', dataType: 'text', default: 'full' },
-        { name: 'rows', dataType: 'number' },
-      ]
-    };
-
-  // property values
-  // values: Record<string, unknown> = {
-  //   'identifier': 'text1',
-  //   'type': 'Textarea',
-  //   'default': 'default text',
-  //   'placeholder': 'placeholder text',
-  //   'required': false,
-  //   'enableRichtext': true,
-  //   'richtextConfiguration': 'full',
-  //   'rows': 5,
-  // };
+    fieldconfig?: any;
   @property()
     values: Record<string, unknown>;
+  schema?: FieldTypeSetting;
 
   protected render(): TemplateResult {
-    if (this.schema) {
+    if (this.fieldconfig) {
+      this.schema = JSON.parse(this.fieldconfig);
       return html `
         <p>Field settings: ${this.schema.type}</p>
         ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
