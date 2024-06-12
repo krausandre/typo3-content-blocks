@@ -122,26 +122,23 @@ class ContentBlocksUtility
         }
     }
 
-    public function deleteContentBlock(null|array|object $parsedBody): AnswerInterface
+    public function deleteContentBlock(string $name): array
     {
-        if (array_key_exists('name', $parsedBody)) {
-            try {
-                // $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath(
-                //     $this->contentBlockRegistry->getContentBlockExtPath($parsedBody['name'])
-                // );
-                $absoluteContentBlockPath = '/var/www/html/packages/samples/ContentBlocks/ContentElements/test-12';
-                $notDeletedFilePaths = $this->deleteDirectoryRecursively($absoluteContentBlockPath);
-                // $this->contentBlockLoader->loadUncached();
-                return new DataAnswer(
-                    'list',
-                    $notDeletedFilePaths
-                );
-            } catch (Exception $e) {
-                $this->logger->error($e->getMessage());
-                return new ErrorUnknownContentBlockPathAnswer($parsedBody['name']);
-            }
-        } else {
-            return new ErrorMissingContentBlockNameAnswer();
+        try {
+            // $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath(
+            //     $this->contentBlockRegistry->getContentBlockExtPath($name)
+            // );
+            $absoluteContentBlockPath = '/var/www/html/packages/samples/ContentBlocks/ContentElements/test-12';
+            // $this->contentBlockLoader->loadUncached();
+//                return new DataAnswer(
+//                    'list',
+//                    $notDeletedFilePaths
+//                );
+            return $this->deleteDirectoryRecursively($absoluteContentBlockPath);
+        } catch (Exception $e) {
+            $this->logger->error($e->getMessage());
+            //return new ErrorUnknownContentBlockPathAnswer($parsedBody['name']);
+            return [];
         }
     }
 

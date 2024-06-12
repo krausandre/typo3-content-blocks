@@ -25,8 +25,10 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Make\Utility\ContentBlocksUtility;
 
 #[AsController]
 final class ContentBlocksGuiController
@@ -36,7 +38,8 @@ final class ContentBlocksGuiController
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
         protected readonly UriBuilder $backendUriBuilder,
-        protected PageRenderer $pageRenderer
+        protected PageRenderer $pageRenderer,
+        protected ContentBlocksUtility $contentBlocksUtility,
     ) {
     }
 
@@ -51,6 +54,9 @@ final class ContentBlocksGuiController
             $contentBlocks[$key]['editUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_edit', [
                 'name' => $contentBlock['name'],
                 'mode' => 'edit',
+            ]);
+            $contentBlocks[$key]['deleteUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_delete', [
+                'name' => $contentBlock['name'],
             ]);
         }
         $this->moduleTemplate->assignMultiple([
@@ -86,6 +92,22 @@ final class ContentBlocksGuiController
             'contentBlockEditorData' => $contentBlockEditorData,
         ]);
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    public function deleteAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $queryParams = $request->getQueryParams();
+        if (empty($queryParams['name'])) {
+            throw new RouteNotFoundException('Missing required content block data');
+        }
+        $this->contentBlocksUtility->deleteContentBlock($queryParams['name']);
+        return new RedirectResponse(
+            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+            303
+        );
     }
 }
 
