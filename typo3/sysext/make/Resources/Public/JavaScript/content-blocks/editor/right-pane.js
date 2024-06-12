@@ -11,13 +11,8 @@
  * The TYPO3 project - inspiring people to share!
  */
 var __decorate=function(e,t,r,o){var n,a=arguments.length,l=a<3?t:null===o?o=Object.getOwnPropertyDescriptor(t,r):o;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)l=Reflect.decorate(e,t,r,o);else for(var i=e.length-1;i>=0;i--)(n=e[i])&&(l=(a<3?n(l):a>3?n(t,r,l):n(t,r))||l);return a>3&&l&&Object.defineProperty(t,r,l),l};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockEditorRightPane=class extends LitElement{constructor(){super(...arguments),this.setting={icon:"form-textarea",type:"Textarea",properties:[{name:"identifier",dataType:"text",required:!0},{name:"type",dataType:"text",required:!0},{name:"default",dataType:"text"},{name:"placeholder",dataType:"text"},{name:"required",dataType:"boolean"},{name:"enableRichtext",dataType:"boolean"},{name:"richtextConfiguration",dataType:"text",default:"full"},{name:"rows",dataType:"number"}]}}render(){return this.setting?html`
-        <p>Field settings:</p>
-        <ul>
-          ${this.setting.properties.map((e=>html`
-            <li>
-              ${this.renderFormFieldset(e)}
-            </li>`))}
-        </ul>
+        <p>Field settings: ${this.setting.type}</p>
+        ${this.setting.properties.map((e=>html` ${this.renderFormFieldset(e)}`))}
       `:html`<p>Field settings: Choose a Field.</p>`}renderFormFieldset(e){return html`
       <div class="form-group">
         <label for="vendor-prefix">${e.name}</label>

@@ -39,19 +39,13 @@ export class ContentBlockEditorRightPane extends LitElement {
         { name: 'richtextConfiguration', dataType: 'text', default: 'full' },
         { name: 'rows', dataType: 'number' },
       ]
-
     };
 
   protected render(): TemplateResult {
     if (this.setting) {
       return html `
-        <p>Field settings:</p>
-        <ul>
-          ${this.setting.properties.map( (item) => html`
-            <li>
-              ${this.renderFormFieldset(item)}
-            </li>` )}
-        </ul>
+        <p>Field settings: ${this.setting.type}</p>
+        ${this.setting.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
       `;
     }
     return html `<p>Field settings: Choose a Field.</p>`;
