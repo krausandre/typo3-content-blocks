@@ -19,6 +19,7 @@ namespace TYPO3\CMS\Make\Utility;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsLoader;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsRegistry;
@@ -31,6 +32,7 @@ use TYPO3\CMS\ContentBlocks\Registry\ContentBlockRegistry;
 use TYPO3\CMS\ContentBlocks\Registry\LanguageFileRegistry;
 use TYPO3\CMS\ContentBlocks\Service\PackageResolver;
 use TYPO3\CMS\ContentBlocks\Utility\ContentBlockPathUtility;
+use TYPO3\CMS\Core\Configuration\Loader\YamlFileLoader;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\ResponseFactory;
 use TYPO3\CMS\Core\Http\StreamFactory;
@@ -322,6 +324,12 @@ class ContentBlocksUtility
             $contentWizardGroups[$key] = $languageService->sL($value);
         }
         return $contentWizardGroups;
+    }
+
+    public function getFieldTypes(): array
+    {
+        $resource = ExtensionManagementUtility::extPath('make') . 'Configuration/FieldTypes/fieldTypes.json';
+        return json_decode(file_get_contents($resource), true);
     }
 
     public function getBasicList(): AnswerInterface

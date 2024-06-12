@@ -31,24 +31,21 @@ class ExtensionUtility
         protected PackageManager $packageResolver
     ) {
     }
-    public function getAvailableExtensions(): AnswerInterface
-    {
-        // TODO: test in legacy mode
-        return new DataAnswer(
-            'list',
-            $this->findAvailableExtensions()
-        );
-    }
+//    public function getAvailableExtensions(): AnswerInterface
+//    {
+//
+//        return new DataAnswer(
+//            'list',
+//            $this->findAvailableExtensions()
+//        );
+//    }
 
+    // TODO: test in legacy mode
     public function findAvailableExtensions(): array
     {
         $availablePackages = $this->packageResolver->getAvailablePackages();
         $availableExtensions = [];
         foreach ($availablePackages as $packageKey => $package) {
-
-            if($package->getValueFromComposerManifest('name') === 'contentblocks/content-blocks-gui') {
-                continue;
-            }
 
             $requiredPackages = $package->getValueFromComposerManifest('require');
             $requiredContentBlocksPackage = false;
@@ -57,7 +54,7 @@ class ExtensionUtility
                     $requiredContentBlocksPackage = true;
                 }
             }
-            // TODO: show sysext only for testing
+            // TODO: show system extensions only for testing
 //            if(!$requiredContentBlocksPackage) {
 //                continue;
 //            }
