@@ -1,8 +1,0 @@
-name: test-123/test-12-bck
-group: common
-prefixFields: true
-prefixType: full
-fields:
-  -
-    identifier: header
-    useExistingField: true
