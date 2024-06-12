@@ -26,6 +26,7 @@ use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 #[AsController]
 final class ContentBlocksGuiController
@@ -75,11 +76,14 @@ final class ContentBlocksGuiController
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
 
         $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
-        $sampleData = json_decode($sampleJson, true);
-
-//        $this->moduleTemplate->assignMultiple([
-//            'contentBlocks' => $contentBlocks,
-//        ]);
+        $contentBlocksData = json_decode($sampleJson, true);
+        $contentBlockEditorData = GeneralUtility::implodeAttributes([
+            'mode' => 'edit',
+            'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
+        ], true);
+        $this->moduleTemplate->assignMultiple([
+            'contentBlockEditorData' => $contentBlockEditorData,
+        ]);
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
     }
 }
