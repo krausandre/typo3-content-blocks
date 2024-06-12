@@ -58,7 +58,6 @@ final class ContentBlocksGuiController
         ]);
         // return $this->contentBlocksUtility->getAvailableContentBlocks();
         $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/content-blocks-gui-module.js');
-        $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/content-blocks-gui-module.js');
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:make/Resources/Private/Language/locallang.xlf');
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
     }
@@ -68,6 +67,7 @@ final class ContentBlocksGuiController
      */
     public function editAction(ServerRequestInterface $request): ResponseInterface
     {
+        $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/editor.js');
         $queryParams = $request->getQueryParams();
         if (empty($queryParams['name']) || empty($queryParams['mode'])) {
             throw new RouteNotFoundException('Missing required content block data');
