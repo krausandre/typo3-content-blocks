@@ -120,6 +120,17 @@ final class ContentBlocksGuiController
     public function editAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
+
+        $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
+        $addContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
+            ->setTag('a')
+            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_list'))
+            ->setTitle('Go back to the list')
+            ->setLabel('Go back')
+            ->setIcon($this->iconFactory->getIcon('actions-arrow-down-left'))
+            ->setShowLabelText(true);
+        $buttonBar->addButton($addContentElementButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
+
         $this->handleAction($request);
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
     }
