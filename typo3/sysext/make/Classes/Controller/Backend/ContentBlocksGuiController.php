@@ -48,9 +48,22 @@ final class ContentBlocksGuiController
             'basics' => $sampleData['basics'],
         ]);
         // return $this->contentBlocksUtility->getAvailableContentBlocks();
-//        $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/content-blocks-gui-module.js');
-//        $this->pageRenderer->addInlineLanguageLabelFile('EXT:make/Resources/Private/Language/locallang.xlf');
+        $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/content-blocks-gui-module.js');
+        $this->pageRenderer->addInlineLanguageLabelFile('EXT:make/Resources/Private/Language/locallang.xlf');
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
+    }
+
+    public function editAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
+
+        $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
+        $sampleData = json_decode($sampleJson, true);
+        $this->moduleTemplate->assignMultiple([
+            'contentBlockData' => $sampleData['contentBlock'],
+            'basics' => $sampleData['basics'],
+        ]);
+        return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
     }
 }
 
