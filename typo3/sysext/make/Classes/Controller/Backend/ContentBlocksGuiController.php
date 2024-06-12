@@ -124,7 +124,7 @@ final class ContentBlocksGuiController
         $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
         $addContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
-            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_list'))
+            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
             ->setTitle('Go back to the list')
             ->setLabel('Go back')
             ->setIcon($this->iconFactory->getIcon('actions-arrow-down-left'))
