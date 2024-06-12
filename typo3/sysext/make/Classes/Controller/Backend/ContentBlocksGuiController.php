@@ -22,10 +22,13 @@ use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Attribute\AsController;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\Components\ButtonBar;
+use TYPO3\CMS\Backend\Template\Components\Buttons\GenericButton;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\RedirectResponse;
+use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Make\Utility\ContentBlocksUtility;
@@ -42,6 +45,7 @@ final class ContentBlocksGuiController
         protected PageRenderer $pageRenderer,
         protected ContentBlocksUtility $contentBlocksUtility,
         protected ExtensionUtility $extensionUtility,
+        protected IconFactory $iconFactory
     ) {
     }
 
@@ -73,6 +77,40 @@ final class ContentBlocksGuiController
         $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/content-blocks-gui-module.js');
         $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/list.js');
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:make/Resources/Private/Language/locallang.xlf');
+
+        $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
+        $addContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
+            ->setTag('a')
+            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_new', [
+                'name' => '',
+                'mode' => 'new',
+            ]))
+            ->setIcon($this->iconFactory->getIcon('actions-add'))
+            ->setTitle('Add a new content element')
+            ->setLabel('Add content element')
+            ->setShowLabelText(true)
+            ->setAttributes(['data-action' => 'add-content-block']);
+        $buttonBar->addButton($addContentElementButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
+
+        $addRecordTypeButton = GeneralUtility::makeInstance(GenericButton::class)
+            ->setTag('a')
+            ->setHref('#')
+            ->setIcon($this->iconFactory->getIcon('actions-add'))
+            ->setTitle('Add a new record type')
+            ->setLabel('Add record type')
+            ->setShowLabelText(true)
+            ->setAttributes(['data-action' => 'add-record-type']);
+        $buttonBar->addButton($addRecordTypeButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
+
+        $addPageTypeButton = GeneralUtility::makeInstance(GenericButton::class)
+            ->setTag('a')
+            ->setHref('#')
+            ->setIcon($this->iconFactory->getIcon('actions-add'))
+            ->setTitle('Add a new page type')
+            ->setLabel('Add page type')
+            ->setShowLabelText(true);
+        $buttonBar->addButton($addPageTypeButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
+
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
     }
 
