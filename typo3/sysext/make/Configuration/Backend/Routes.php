@@ -13,4 +13,8 @@ return [
         'path' => '/make/content-blocks/gui/duplicate',
         'target' => TYPO3\CMS\Make\Controller\Backend\ContentBlocksGuiController::class . '::duplicateAction'
     ],
+    'make_content_block_delete' => [
+        'path' => '/make/content-blocks/gui/delete',
+        'target' => TYPO3\CMS\Make\Controller\Backend\ContentBlocksGuiController::class . '::deleteAction'
+    ],
 ];
