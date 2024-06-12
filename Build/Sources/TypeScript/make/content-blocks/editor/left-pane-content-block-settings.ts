@@ -40,9 +40,8 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
     this.extensions = JSON.parse(this.extensions);
     this.extensions = Object.keys(this.extensions).map(key => this.extensions[key]);
     return html`
-      <p>Content Block Settings</p>
       <div class="form-group">
-        <label for="extension">Extension</label>
+        <label for="extension" class="form-label">Extension</label>
         <select class="form-control" id="extension">
           <option value="0">Choose...</option>
           ${this.extensions.map((extension: any) => html`
@@ -51,23 +50,23 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
         </select>
       </div>
       <div class="form-group">
-        <label for="vendor">Vendor</label>
+        <label for="vendor" class="form-label">Vendor</label>
         <input type="text" id="vendor" class="form-control" value=${this.contentBlockYaml.name} />
       </div>
       <div class="form-group">
-        <label for="name">Name</label>
+        <label for="name" class="form-label">Name</label>
         <input type="text" id="name" class="form-control" value=${this.contentBlockYaml.name} />
       </div>
       <div class="form-group">
-        <label for="title">Title</label>
+        <label for="title" class="form-label">Title</label>
         <input type="text" id="title" class="form-control" value="${this.contentBlockYaml.title}" />
       </div>
       <div class="form-group">
-        <label for="prefix">Prefix fields?</label>
-        <input type="checkbox" id="prefix" class="form-control" ?checked=${this.contentBlockYaml.prefixFields} />
+        <input type="checkbox" id="prefix" class="form-check-input" ?checked=${this.contentBlockYaml.prefixFields} />
+        <label for="prefix" class="form-check-label">Prefix fields?</label>
       </div>
       <div class="form-group">
-        <label for="prefix-type">Prefix type</label>
+        <label for="prefix-type" class="form-label">Prefix type</label>
         <select class="form-control" id="prefix-type">
           <option value="">Choose...</option>
           <option value="full" ?selected="${this.contentBlockYaml.prefixType === 'full'}" >Full</option>
@@ -75,15 +74,15 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
         </select>
       </div>
       <div class="form-group">
-        <label for="vendor-prefix">Vendor prefix</label>
+        <label for="vendor-prefix" class="form-label">Vendor prefix</label>
         <input type="text" id="vendor-prefix" class="form-control" value="${this.contentBlockYaml.vendorPrefix}" />
       </div>
       <div class="form-group">
-        <label for="priority">Priority</label>
+        <label for="priority" class="form-label">Priority</label>
         <input type="number" id="priority" class="form-control" value="${this.contentBlockYaml.priority}" />
       </div>
       <div class="form-group">
-        <label for="group">Group</label>
+        <label for="group" class="form-label">Group</label>
         <select class="form-control" id="group">
           <option value="">Choose...</option>
           ${this.groups.map((group: any) => html`
@@ -92,7 +91,11 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
         </select>
       </div>
       <div class="form-group">
-        <button>Save</button>
+        <a href="#" class="btn btn-success">
+          <span class="t3js-icon icon icon-size-small icon-state-default icon-apps-filetree-folder-default" data-identifier="apps-filetree-folder-default" aria-hidden="true">
+            <typo3-backend-icon identifier="actions-save" size="small"></typo3-backend-icon>
+          </span>  Save
+        </a>
       </div>
     `;
   }
