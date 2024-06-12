@@ -39,6 +39,7 @@ final class ContentBlocksGuiController
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
         $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/content-blocks-gui-module.js');
+        $this->pageRenderer->addInlineLanguageLabelFile('EXT:make/Resources/Private/Language/locallang.xlf');
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
     }
 }

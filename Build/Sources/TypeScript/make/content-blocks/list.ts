@@ -15,15 +15,9 @@ import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
 import AjaxRequest from '@typo3/core/ajax/ajax-request';
-
-
-
-export enum ContentBlockListActionEvent {
-  contentBlockDownload = 'typo3:make:content-block:download',
-  contentBlockEdit = 'typo3:make:content-block:edit',
-  contentBlockCopy = 'typo3:make:content-block:copy',
-  contentBlockDelete = 'typo3:make:content-block:delete',
-}
+import { lll } from '@typo3/core/lit-helper';
+import Modal from '@typo3/backend/modal';
+import { SeverityEnum } from '@typo3/backend/enum/severity';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -39,6 +33,7 @@ export class ContentBlockList extends LitElement {
   basics: any[] = [];
   icon: string = 'actions-question-circle';
   loading?: boolean;
+  contentBlockData?: any;
 
   constructor() {
     super();
@@ -48,7 +43,6 @@ export class ContentBlockList extends LitElement {
   protected render(): TemplateResult {
     return html`
       <div class="list-table-container props.title">
-        <h2>{{ getTableTitle }}</h2>
         <input
           type="text"
           class="form-control mb-1"
@@ -80,6 +74,7 @@ export class ContentBlockList extends LitElement {
                   <button
                     type="button"
                     class="btn btn-default me-2"
+                    ?disabled="${!item.editable}"
                     @click="${() => { this._dispatchEditEvent(item.name); }}"
                   >
                     <typo3-backend-icon identifier="actions-open" size="medium"></typo3-backend-icon>
@@ -88,6 +83,7 @@ export class ContentBlockList extends LitElement {
                   <button
                     type="button"
                     class="btn btn-default me-2"
+                    @click="${() => { this._dispatchCopyEvent(item.name); }}"
                   >
                     <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
                     Duplicate
@@ -103,8 +99,8 @@ export class ContentBlockList extends LitElement {
                   <button
                     type="button"
                     class="btn btn-danger me-2"
-                    @click="showDeleteConfirmation(item.name)"
-                    data-if="item.deletable AND item.usages grater 1"
+                    ?disabled="${!item.deletable}"
+                    @click="${() => { this._handleRemove(item.name); }}"
                   >
                     <typo3-backend-icon identifier="actions-delete" size="medium"></typo3-backend-icon>
                     Delete
@@ -133,6 +129,21 @@ export class ContentBlockList extends LitElement {
       });
   }
 
+  protected async _loadContentBlockData(name: string) {
+    this.loading = true;
+    await new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_get_cb).post({
+      name: name
+    })
+      .then(async (response) => {
+        const data = await response.resolve();
+        this.contentBlockData = data.body;
+      })
+      .catch((error) => {
+        console.error(error);
+        return null;
+      });
+  }
+
   protected _downloadAction(name: string): void {
     new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_download_cb)
       .post({ name: name }, {
@@ -153,14 +164,12 @@ export class ContentBlockList extends LitElement {
           }
         }
 
-        // Entferne mögliche Anführungszeichen am Ende des Dateinamens
         filename = filename.replace(/"+$/, '');
 
-        // Erstelle eine URL für den Blob und triggere den Download
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', filename); // Setze den ursprünglichen Dateinamen
+        link.setAttribute('download', filename);
 
         document.body.appendChild(link);
         link.click();
@@ -170,12 +179,75 @@ export class ContentBlockList extends LitElement {
       });
   }
 
-  protected _dispatchEditEvent(contentBlockName: string): void {
-    this.dispatchEvent(new CustomEvent('contentBlockEdit', {
-      detail: {
-        contentBlockName: contentBlockName
+  protected _dispatchEditEvent(name: string): void {
+    this._loadContentBlockData(name)
+      .then(() => {
+        this.dispatchEvent(new CustomEvent('contentBlockEdit', {
+          detail: {
+            name: name,
+            data: this.contentBlockData
+          }
+        }));
+      }).catch(error => {
+        console.error(error);
+      });
+  }
+
+  protected _dispatchCopyEvent(name: string): void {
+    this._loadContentBlockData(name)
+      .then(() => {
+        this.dispatchEvent(new CustomEvent('contentBlockCopy', {
+          detail: {
+            name: name,
+            data: this.contentBlockData
+          }
+        }));
+      }).catch(error => {
+        console.error(error);
+      });
+  }
+  protected _deleteAction(name: string) {
+    new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_delete_cb)
+      .post({
+        name: name
+      })
+      .then(async (response) => {
+        const responseData = await response.resolve();
+        console.log(responseData);
+        this.contentBlocks = this.contentBlocks.filter(item => item.name !== name);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  protected _handleRemove(name: string)
+  {
+    const modal = Modal.confirm(
+      lll('make.remove.confirm.title'),
+      lll('make.remove.confirm.message'),
+      SeverityEnum.warning, [
+        {
+          text: lll('make.remove.button.close'),
+          active: true,
+          btnClass: 'btn-default',
+          name: 'cancel',
+        },
+        {
+          text: lll('make.remove.button.ok'),
+          btnClass: 'btn-warning',
+          name: 'delete',
+        },
+      ]
+    );
+
+    modal.addEventListener('button.clicked', (e: Event): void => {
+      const target = e.target as HTMLButtonElement;
+      if (target.getAttribute('name') === 'delete') {
+        this._deleteAction(name);
       }
-    }));
+      modal.hideModal();
+    });
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {

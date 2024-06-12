@@ -17,7 +17,9 @@ import '@typo3/backend/element/icon-element';
 import '@typo3/make/content-blocks/editor/left-pane';
 import '@typo3/make/content-blocks/editor/middle-pane';
 import '@typo3/make/content-blocks/editor/right-pane';
-import AjaxRequest from '@typo3/core/ajax/ajax-request';
+// import AjaxRequest from '@typo3/core/ajax/ajax-request';
+import MultiStepWizard from '@typo3/backend/multi-step-wizard';
+import Severity from '@typo3/backend/severity';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -29,27 +31,29 @@ import AjaxRequest from '@typo3/core/ajax/ajax-request';
 export class ContentBlockEditor extends LitElement {
 
   @property()
-    contentBlockData: any;
-  name?: string;
-  loading?: boolean;
-
+    name?: string;
+  @property()
+    mode?: string;
+  @property()
+    data?: any;
 
   constructor() {
     super();
     this.name = '';
-    this.loading = false;
-    this.contentBlockData = {
-      name: '',
-      yaml: {},
-      icon: {},
-      iconHideInMenu: {},
-      hostExtension: '',
-      extPath: ''
-    }
+    this.mode = '';
+    // this.contentBlockData = {
+    //   name: '',
+    //   yaml: {},
+    //   icon: {},
+    //   iconHideInMenu: {},
+    //   hostExtension: '',
+    //   extPath: ''
+    // }
   }
   protected render(): TemplateResult {
-    if (this.loading) {
-      return this.renderLoader();
+    this.data = JSON.parse(this.data);
+    if (this.mode === 'copy') {
+      this._initMultiStepWizard();
     }
     return html`
       <div class="row">
@@ -63,42 +67,33 @@ export class ContentBlockEditor extends LitElement {
           <content-block-editor-right-pane></content-block-editor-right-pane>
         </div>
       </div>
-      <button @click="${() => { this._dispatchBackEvent(); }}" type="button" class="btn btn-primary">Back</button>
+      <button @click="${() => { this._dispatchBackEvent(); }}" type="button" class="btn btn-primary">Back
+      </button>
     `;
   }
+
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
-    // @todo maybe create a reactive controller for this? (https://lit.dev/docs/composition/controllers/#using-a-controller)
-    this._fetchContentBlockData();
-
     return this;
   }
 
-  protected renderLoader(): TemplateResult
-  {
-    return html`
-      <div class="loader">
-          <typo3-backend-icon identifier="spinner-circle" size="medium"></typo3-backend-icon>
-      </div>
-      `;
+  private _initMultiStepWizard() {
+    const contentBlockData = this.data;
+    MultiStepWizard.addSlide('step-1', 'Step 1', '', Severity.notice, 'Step 1', async function (slide, settings) {
+      console.log(settings);
+      contentBlockData.name = 'Test';
+      MultiStepWizard.unlockNextStep();
+      slide.html('<h2>Select vendor</h2><p><select><option value="1">Sample</option></select></p>');
+    });
+    MultiStepWizard.addSlide('step-2', 'Step 2', '', Severity.notice, 'Step 2', async function (slide, settings) {
+      console.log(settings);
+      slide.html('Test 2');
+      MultiStepWizard.unlockPrevStep();
+    });
+    MultiStepWizard.show();
   }
 
-  private _fetchContentBlockData() {
-    this.loading = true;
-    new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_get_cb).post({
-      name: this.name
-    })
-      .then(async (response) => {
-        const data = await response.resolve();
-        this.contentBlockData = data.body;
-        this.loading = false;
-      })
-      .catch((error) => {
-        console.error(error);
-        this.loading = false;
-      });
-  }
   private _dispatchBackEvent() {
     this.dispatchEvent(new CustomEvent('contentBlockBack', {}));
   }

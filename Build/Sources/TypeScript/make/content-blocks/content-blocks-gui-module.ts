@@ -31,7 +31,9 @@ export class ContentBlockGuiModule extends LitElement {
 
   @property()
     status?: string;
-  contentBlockName: string = '';
+  mode?: string = 'new';
+  name: string;
+  data?: string = '';
 
   protected render(): TemplateResult {
     if (this.status === 'list') {
@@ -45,13 +47,16 @@ export class ContentBlockGuiModule extends LitElement {
           Content Block hinzufügen
         </button>
         Test
-        <content-block-list @contentBlockEdit="${this._contentBlockEditListener}"></content-block-list>
+        <content-block-list
+          @contentBlockEdit="${this._contentBlockEditListener}"
+          @contentBlockCopy="${this._contentBlockCopyListener}"
+        ></content-block-list>
       `;
     } else if (this.status === 'editor') {
       return html`<content-block-editor
-        name="${this.contentBlockName}"
-        @contentBlockBack="${() => { this.status = 'list'; this.contentBlockName = '';}}"
-      ></content-block-editor>`;
+        data="${this.data}"
+        mode="${this.mode}"
+        @contentBlockBack="${() => { this.status = 'list'; this.name = ''; this.mode = 'new'}}"></content-block-editor>`;
     } else {
       return html`<spinner-element></spinner-element>`;
     }
@@ -64,7 +69,15 @@ export class ContentBlockGuiModule extends LitElement {
   }
 
   private _contentBlockEditListener(e: CustomEvent) {
-    this.contentBlockName = e.detail.contentBlockName;
+    this.name = e.detail.name;
+    this.data = JSON.stringify(e.detail.data);
+    this.mode = 'edit';
+    this.status = 'editor';
+  }
+  private _contentBlockCopyListener(e: CustomEvent) {
+    this.name = e.detail.name;
+    this.data = JSON.stringify(e.detail.data);
+    this.mode = 'copy';
     this.status = 'editor';
   }
 }
