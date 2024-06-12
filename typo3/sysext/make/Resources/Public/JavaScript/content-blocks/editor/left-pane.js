@@ -10,13 +10,13 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(t,e,o,n){var i,a=arguments.length,s=a<3?e:null===n?n=Object.getOwnPropertyDescriptor(e,o):n;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)s=Reflect.decorate(t,e,o,n);else for(var c=t.length-1;c>=0;c--)(i=t[c])&&(s=(a<3?i(s):a>3?i(e,o,s):i(e,o))||s);return a>3&&s&&Object.defineProperty(e,o,s),s};import{html,LitElement,css,nothing}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import"@typo3/make/content-blocks/editor/left-pane-global-settings.js";import"@typo3/make/content-blocks/editor/left-pane-components.js";import"@typo3/make/content-blocks/editor/left-pane-basics.js";let ContentBlockEditorLeftPane=class extends LitElement{constructor(){super(...arguments),this.activeTab="settings"}render(){const t="settings"===this.activeTab,e="components"===this.activeTab,o="basics"===this.activeTab;return html`
+var __decorate=function(t,e,o,n){var i,a=arguments.length,c=a<3?e:null===n?n=Object.getOwnPropertyDescriptor(e,o):n;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)c=Reflect.decorate(t,e,o,n);else for(var s=t.length-1;s>=0;s--)(i=t[s])&&(c=(a<3?i(c):a>3?i(e,o,c):i(e,o))||c);return a>3&&c&&Object.defineProperty(e,o,c),c};import{html,LitElement,css,nothing}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import"@typo3/make/content-blocks/editor/left-pane-content-block-settings.js";import"@typo3/make/content-blocks/editor/left-pane-components.js";import"@typo3/make/content-blocks/editor/left-pane-basics.js";let ContentBlockEditorLeftPane=class extends LitElement{constructor(){super(...arguments),this.activeTab="settings"}render(){const t="settings"===this.activeTab,e="components"===this.activeTab,o="basics"===this.activeTab;return html`
       <p>I am the Left pane</p>
       <div class="left-pane-tabs-container">
         <div class="tabs-headers">
           <ul>
             <li class="${t?html`active`:nothing}" @click="${()=>{this.setActiveTab("settings")}}">
-              Global settings
+              Content Block settings
             </li>
             <li class="${e?html`active`:nothing}" @click="${()=>{this.setActiveTab("components")}}">
               Components
@@ -30,7 +30,7 @@ var __decorate=function(t,e,o,n){var i,a=arguments.length,s=a<3?e:null===n?n=Obj
           ${this.renderTab()}
         </div>
       </div>
-    `}createRenderRoot(){return this}renderTab(){switch(this.activeTab){case"settings":return html`<editor-left-pane-global-settings></editor-left-pane-global-settings>`;case"components":return html`<editor-left-pane-components></editor-left-pane-components>`;case"basics":return html`<editor-left-pane-basics></editor-left-pane-basics>`;default:return html`Unknown tab: ${this.activeTab}`}}setActiveTab(t){this.activeTab=t}};ContentBlockEditorLeftPane.styles=css`
+    `}createRenderRoot(){return this}renderTab(){switch(this.activeTab){case"settings":return html`<editor-left-pane-content-block-settings></editor-left-pane-content-block-settings>`;case"components":return html`<editor-left-pane-components></editor-left-pane-components>`;case"basics":return html`<editor-left-pane-basics></editor-left-pane-basics>`;default:return html`Unknown tab: ${this.activeTab}`}}setActiveTab(t){this.activeTab=t}};ContentBlockEditorLeftPane.styles=css`
     .left-pane-tabs-container {
       .tab-headers ul {
         margin: 0;
