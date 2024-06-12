@@ -126,11 +126,12 @@ class ContentBlocksUtility
     {
         if (array_key_exists('name', $parsedBody)) {
             try {
-                $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath(
-                    $this->contentBlockRegistry->getContentBlockExtPath($parsedBody['name'])
-                );
+                // $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath(
+                //     $this->contentBlockRegistry->getContentBlockExtPath($parsedBody['name'])
+                // );
+                $absoluteContentBlockPath = '/var/www/html/packages/samples/ContentBlocks/ContentElements/test-12';
                 $notDeletedFilePaths = $this->deleteDirectoryRecursively($absoluteContentBlockPath);
-                $this->contentBlockLoader->loadUncached();
+                // $this->contentBlockLoader->loadUncached();
                 return new DataAnswer(
                     'list',
                     $notDeletedFilePaths

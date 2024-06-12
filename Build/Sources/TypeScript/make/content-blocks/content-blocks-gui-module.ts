@@ -31,8 +31,9 @@ export class ContentBlockGuiModule extends LitElement {
 
   @property()
     status?: string;
-  mode?: string;
+  mode?: string = 'new';
   name: string;
+  data?: string = '';
 
   protected render(): TemplateResult {
     if (this.status === 'list') {
@@ -53,7 +54,7 @@ export class ContentBlockGuiModule extends LitElement {
       `;
     } else if (this.status === 'editor') {
       return html`<content-block-editor
-        name="${this.name}"
+        data="${this.data}"
         mode="${this.mode}"
         @contentBlockBack="${() => { this.status = 'list'; this.name = ''; this.mode = 'new'}}"></content-block-editor>`;
     } else {
@@ -69,11 +70,13 @@ export class ContentBlockGuiModule extends LitElement {
 
   private _contentBlockEditListener(e: CustomEvent) {
     this.name = e.detail.name;
+    this.data = JSON.stringify(e.detail.data);
     this.mode = 'edit';
     this.status = 'editor';
   }
   private _contentBlockCopyListener(e: CustomEvent) {
     this.name = e.detail.name;
+    this.data = JSON.stringify(e.detail.data);
     this.mode = 'copy';
     this.status = 'editor';
   }

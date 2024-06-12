@@ -15,6 +15,9 @@ import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
 import AjaxRequest from '@typo3/core/ajax/ajax-request';
+import { lll } from '@typo3/core/lit-helper';
+import Modal from '@typo3/backend/modal';
+import { SeverityEnum } from '@typo3/backend/enum/severity';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -96,8 +99,8 @@ export class ContentBlockList extends LitElement {
                   <button
                     type="button"
                     class="btn btn-danger me-2"
-                    ?disabled="${!item.editable}"
-                    @click="showDeleteConfirmation(item.name)"
+                    ?disabled="${!item.deletable}"
+                    @click="${() => { this._handleRemove(item.name); }}"
                   >
                     <typo3-backend-icon identifier="actions-delete" size="medium"></typo3-backend-icon>
                     Delete
@@ -133,8 +136,7 @@ export class ContentBlockList extends LitElement {
     })
       .then(async (response) => {
         const data = await response.resolve();
-        // this.contentBlockData = data.body;
-        return data.body;
+        this.contentBlockData = data.body;
       })
       .catch((error) => {
         console.error(error);
@@ -180,23 +182,74 @@ export class ContentBlockList extends LitElement {
   }
 
   protected _dispatchEditEvent(name: string): void {
-    this._loadContentBlockData(name).then(res => {
-      console.log(res);
-      this.dispatchEvent(new CustomEvent('contentBlockEdit', {
-        detail: {
-          name: name,
-          data: this.contentBlockData
-        }
-      }));
-    });
+    this._loadContentBlockData(name)
+      .then(() => {
+        this.dispatchEvent(new CustomEvent('contentBlockEdit', {
+          detail: {
+            name: name,
+            data: this.contentBlockData
+          }
+        }));
+      }).catch(error => {
+        console.error(error);
+      });
   }
 
   protected _dispatchCopyEvent(name: string): void {
-    this.dispatchEvent(new CustomEvent('contentBlockCopy', {
-      detail: {
+    this._loadContentBlockData(name)
+      .then(() => {
+        this.dispatchEvent(new CustomEvent('contentBlockCopy', {
+          detail: {
+            name: name,
+            data: this.contentBlockData
+          }
+        }));
+      }).catch(error => {
+        console.error(error);
+      });
+  }
+  protected _deleteAction(name: string) {
+    new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_delete_cb)
+      .post({
         name: name
+      })
+      .then(async (response) => {
+        const responseData = await response.resolve();
+        console.log(responseData);
+        this.contentBlocks = this.contentBlocks.filter(item => item.name !== name);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  protected _handleRemove(name: string)
+  {
+    const modal = Modal.confirm(
+      lll('make.remove.confirm.title'),
+      lll('make.remove.confirm.message'),
+      SeverityEnum.warning, [
+        {
+          text: lll('make.remove.button.close'),
+          active: true,
+          btnClass: 'btn-default',
+          name: 'cancel',
+        },
+        {
+          text: lll('make.remove.button.ok'),
+          btnClass: 'btn-warning',
+          name: 'delete',
+        },
+      ]
+    );
+
+    modal.addEventListener('button.clicked', (e: Event): void => {
+      const target = e.target as HTMLButtonElement;
+      if (target.getAttribute('name') === 'delete') {
+        this._deleteAction(name);
       }
-    }));
+      modal.hideModal();
+    });
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
