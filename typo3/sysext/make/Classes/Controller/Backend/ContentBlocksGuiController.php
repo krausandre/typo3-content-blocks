@@ -49,6 +49,9 @@ final class ContentBlocksGuiController
     ) {
     }
 
+    /**
+     * @throws RouteNotFoundException
+     */
     public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
@@ -111,6 +114,16 @@ final class ContentBlocksGuiController
             ->setShowLabelText(true);
         $buttonBar->addButton($addPageTypeButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
 
+        $reloadListButton = GeneralUtility::makeInstance(GenericButton::class)
+            ->setTag('a')
+            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
+            ->setIcon($this->iconFactory->getIcon('actions-refresh'))
+            ->setTitle('Reload list')
+            ->setLabel('Reload')
+            ->setShowLabelText(false);
+        $buttonBar->addButton($reloadListButton, ButtonBar::BUTTON_POSITION_RIGHT, 2);
+
+
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
     }
 
@@ -120,6 +133,17 @@ final class ContentBlocksGuiController
     public function editAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
+
+        $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
+        $addContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
+            ->setTag('a')
+            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
+            ->setTitle('Go back to the list')
+            ->setLabel('Go back')
+            ->setIcon($this->iconFactory->getIcon('actions-arrow-down-left'))
+            ->setShowLabelText(true);
+        $buttonBar->addButton($addContentElementButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
+
         $this->handleAction($request);
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
     }
@@ -168,6 +192,7 @@ final class ContentBlocksGuiController
             'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
             'host-extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
             'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),
+            'field-types' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getFieldTypes(), false),
         ], true);
         $this->moduleTemplate->assignMultiple([
             'contentBlockEditorData' => $contentBlockEditorData,
