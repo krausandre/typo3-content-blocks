@@ -13,7 +13,7 @@
 var __decorate=function(t,e,o,i){var n,r=arguments.length,c=r<3?e:null===i?i=Object.getOwnPropertyDescriptor(e,o):i;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)c=Reflect.decorate(t,e,o,i);else for(var l=t.length-1;l>=0;l--)(n=t[l])&&(c=(r<3?n(c):r>3?n(e,o,c):n(e,o))||c);return r>3&&c&&Object.defineProperty(e,o,c),c};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import"@typo3/make/content-blocks/editor/left-pane.js";import"@typo3/make/content-blocks/editor/middle-pane.js";import"@typo3/make/content-blocks/editor/right-pane.js";import MultiStepWizard from"@typo3/backend/multi-step-wizard.js";import Severity from"@typo3/backend/severity.js";let ContentBlockEditor=class extends LitElement{constructor(){super(),this.name="",this.mode=""}render(){return this.data=JSON.parse(this.data),"copy"===this.mode&&this._initMultiStepWizard(),html`
       <div class="row">
         <div class="col-4">
-          <content-block-editor-left-pane></content-block-editor-left-pane>
+          <content-block-editor-left-pane .contentBlockConfig="${this.data.yaml}"></content-block-editor-left-pane>
         </div>
         <div class="col-4">
           <content-block-editor-middle-pane></content-block-editor-middle-pane>
