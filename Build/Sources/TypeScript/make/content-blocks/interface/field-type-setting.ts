@@ -1,4 +1,4 @@
-export interface FieldTypeOption {
+export interface FieldTypeItems {
   value: string;
   label: string;
 }
@@ -8,7 +8,7 @@ export interface FieldTypeProperty {
   dataType: string;
   required?: boolean;
   default?: string;
-  options?: Array<FieldTypeOption>;
+  items?: Array<FieldTypeItems>;
 }
 
 export interface FieldTypeSetting {

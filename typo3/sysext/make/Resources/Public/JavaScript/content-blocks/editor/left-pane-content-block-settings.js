@@ -10,7 +10,7 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(e,o,t,r){var l,i=arguments.length,n=i<3?o:null===r?r=Object.getOwnPropertyDescriptor(o,t):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)n=Reflect.decorate(e,o,t,r);else for(var s=e.length-1;s>=0;s--)(l=e[s])&&(n=(i<3?l(n):i>3?l(o,t,n):l(o,t))||n);return i>3&&n&&Object.defineProperty(o,t,n),n};import{html,LitElement,css}from"lit";import{customElement}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let EditorLeftPaneContentBlockSettings=class extends LitElement{render(){return html`
+var __decorate=function(e,t,o,l){var n,r=arguments.length,i=r<3?t:null===l?l=Object.getOwnPropertyDescriptor(t,o):l;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)i=Reflect.decorate(e,t,o,l);else for(var c=e.length-1;c>=0;c--)(n=e[c])&&(i=(r<3?n(i):r>3?n(t,o,i):n(t,o))||i);return r>3&&i&&Object.defineProperty(t,o,i),i};import{html,LitElement,css}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let EditorLeftPaneContentBlockSettings=class extends LitElement{render(){return html`
       <p>Content Block Settings</p>
       <div class="form-group">
         <label for="extension">Extension</label>
@@ -22,35 +22,35 @@ var __decorate=function(e,o,t,r){var l,i=arguments.length,n=i<3?o:null===r?r=Obj
       </div>
       <div class="form-group">
         <label for="vendor">Vendor</label>
-        <input type="text" id="vendor" class="form-control" />
+        <input type="text" id="vendor" class="form-control" value="${this.contentBlockYaml.name}" />
       </div>
       <div class="form-group">
         <label for="name">Name</label>
-        <input type="text" id="name" class="form-control" />
+        <input type="text" id="name" class="form-control" value="${this.contentBlockYaml.name}" />
       </div>
       <div class="form-group">
         <label for="title">Title</label>
-        <input type="text" id="title" class="form-control" />
+        <input type="text" id="title" class="form-control" value="${this.contentBlockYaml.title}" />
       </div>
       <div class="form-group">
         <label for="prefix">Prefix fields?</label>
-        <input type="checkbox" id="prefix" class="form-control" />
+        <input type="checkbox" id="prefix" class="form-control" ?checked=${this.contentBlockYaml.prefixFields} />
       </div>
       <div class="form-group">
         <label for="prefix-type">Prefix type</label>
         <select class="form-control" id="prefix-type">
           <option value="">Choose...</option>
-          <option value="full">Full</option>
-          <option value="vendor">Vendor</option>
+          <option value="full" ?selected="${"full"===this.contentBlockYaml.prefixType}" >Full</option>
+          <option value="vendor" ?selected="${"vendor"===this.contentBlockYaml.prefixType}" >Vendor</option>
         </select>
       </div>
       <div class="form-group">
         <label for="vendor-prefix">Vendor prefix</label>
-        <input type="text" id="vendor-prefix" class="form-control" />
+        <input type="text" id="vendor-prefix" class="form-control" value="${this.contentBlockYaml.vendorPrefix}" />
       </div>
       <div class="form-group">
         <label for="priority">Priority</label>
-        <input type="number" id="priority" class="form-control" />
+        <input type="number" id="priority" class="form-control" value="${this.contentBlockYaml.priority}" />
       </div>
       <div class="form-group">
         <label for="group">Group</label>
@@ -63,4 +63,4 @@ var __decorate=function(e,o,t,r){var l,i=arguments.length,n=i<3?o:null===r?r=Obj
       <div class="form-group">
         <button>Save</button>
       </div>
-    `}createRenderRoot(){return this}};EditorLeftPaneContentBlockSettings.styles=css``,EditorLeftPaneContentBlockSettings=__decorate([customElement("editor-left-pane-content-block-settings")],EditorLeftPaneContentBlockSettings);export{EditorLeftPaneContentBlockSettings};
+    `}createRenderRoot(){return this}};EditorLeftPaneContentBlockSettings.styles=css``,__decorate([property()],EditorLeftPaneContentBlockSettings.prototype,"contentBlockYaml",void 0),EditorLeftPaneContentBlockSettings=__decorate([customElement("editor-left-pane-content-block-settings")],EditorLeftPaneContentBlockSettings);export{EditorLeftPaneContentBlockSettings};
