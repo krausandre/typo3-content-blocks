@@ -19,7 +19,7 @@ class ContentBlockList {
     this.init();
   }
   protected init() {
-    document.querySelectorAll('.cb-list-table .downloadBtn').forEach((downloadButton) => {
+    document.querySelectorAll('#content-blocks .content-block-download').forEach((downloadButton) => {
       downloadButton.addEventListener('click', (event) => {
         event.preventDefault();
         this.downloadAction(downloadButton.getAttribute('data-name'));
