@@ -164,14 +164,12 @@ export class ContentBlockList extends LitElement {
           }
         }
 
-        // Entferne mögliche Anführungszeichen am Ende des Dateinamens
         filename = filename.replace(/"+$/, '');
 
-        // Erstelle eine URL für den Blob und triggere den Download
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', filename); // Setze den ursprünglichen Dateinamen
+        link.setAttribute('download', filename);
 
         document.body.appendChild(link);
         link.click();
