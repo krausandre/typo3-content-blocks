@@ -36,6 +36,7 @@ use TYPO3\CMS\Core\Http\ResponseFactory;
 use TYPO3\CMS\Core\Http\StreamFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Package\Exception;
+use TYPO3\CMS\Core\Schema\Struct\SelectItem;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
@@ -312,20 +313,15 @@ class ContentBlocksUtility
         );
     }
 
-    public function getGroupsList(): AnswerInterface
+    public function getGroupsList(): array
     {
-        $result = [];
         $languageService = $this->getLanguageService();
-        $pageTsConfig = BackendUtility::getPagesTSconfig(0);
-        $contentWizardGroups = $pageTsConfig['mod.']['wizards.']['newContentElement.']['wizardItems.'] ?? [];
+        $fieldConfig = $GLOBALS['TCA']['tt_content']['columns']['CType'] ?? [];
+        $contentWizardGroups = $fieldConfig['config']['itemGroups'] ?? [];
         foreach ($contentWizardGroups as $key => $value) {
-            $result[str_replace('.', '', $key)] = $languageService->sL($value['header']);
+            $contentWizardGroups[$key] = $languageService->sL($value);
         }
-
-        return new DataAnswer(
-            'groupList',
-            $result
-        );
+        return $contentWizardGroups;
     }
 
     public function getBasicList(): AnswerInterface

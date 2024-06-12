@@ -29,6 +29,7 @@ use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Make\Utility\ContentBlocksUtility;
+use TYPO3\CMS\Make\Utility\ExtensionUtility;
 
 #[AsController]
 final class ContentBlocksGuiController
@@ -40,6 +41,7 @@ final class ContentBlocksGuiController
         protected readonly UriBuilder $backendUriBuilder,
         protected PageRenderer $pageRenderer,
         protected ContentBlocksUtility $contentBlocksUtility,
+        protected ExtensionUtility $extensionUtility,
     ) {
     }
 
@@ -54,6 +56,10 @@ final class ContentBlocksGuiController
             $contentBlocks[$key]['editUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_edit', [
                 'name' => $contentBlock['name'],
                 'mode' => 'edit',
+            ]);
+            $contentBlocks[$key]['duplicateUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_duplicate', [
+                'name' => $contentBlock['name'],
+                'mode' => 'duplicate',
             ]);
             $contentBlocks[$key]['deleteUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_delete', [
                 'name' => $contentBlock['name'],
@@ -75,26 +81,19 @@ final class ContentBlocksGuiController
      */
     public function editAction(ServerRequestInterface $request): ResponseInterface
     {
-        $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/editor.js');
-        $queryParams = $request->getQueryParams();
-        if (empty($queryParams['name']) || empty($queryParams['mode'])) {
-            throw new RouteNotFoundException('Missing required content block data');
-        }
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
-
-        $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
-        $contentBlocksData = json_decode($sampleJson, true);
-        // @todo: FieldTypesList needed
-        // @todo: HostExtensionList needed
-        // @todo: GroupList needed
-        $contentBlockEditorData = GeneralUtility::implodeAttributes([
-            'mode' => 'edit',
-            'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
-        ], true);
-        $this->moduleTemplate->assignMultiple([
-            'contentBlockEditorData' => $contentBlockEditorData,
-        ]);
+        $this->handleAction($request);
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    public function duplicateAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
+        $this->handleAction($request);
+        return $this->moduleTemplate->renderResponse('ContentBlocksGui/Duplicate');
     }
 
     /**
@@ -111,6 +110,30 @@ final class ContentBlocksGuiController
             (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
             303
         );
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    protected function handleAction(ServerRequestInterface $request): void
+    {
+        $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/editor.js');
+        $queryParams = $request->getQueryParams();
+        if (empty($queryParams['name']) || empty($queryParams['mode'])) {
+            throw new RouteNotFoundException('Missing required content block data');
+        }
+        $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
+        $contentBlocksData = json_decode($sampleJson, true);
+        // @todo: FieldTypesList needed
+        $contentBlockEditorData = GeneralUtility::implodeAttributes([
+            'mode' => $queryParams['mode'],
+            'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
+            'host-extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
+            'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),
+        ], true);
+        $this->moduleTemplate->assignMultiple([
+            'contentBlockEditorData' => $contentBlockEditorData,
+        ]);
     }
 }
 

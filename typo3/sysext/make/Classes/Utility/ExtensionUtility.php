@@ -17,7 +17,8 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Make\Utility;
 
-use TYPO3\CMS\ContentBlocks\Service\PackageResolver;
+//use TYPO3\CMS\ContentBlocks\Service\PackageResolver;
+use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Make\Answer\AnswerInterface;
@@ -27,6 +28,7 @@ class ExtensionUtility
 {
     public function __construct(
 //        protected PackageResolver $packageResolver
+        protected PackageManager $packageResolver
     ) {
     }
     public function getAvailableExtensions(): AnswerInterface
@@ -55,9 +57,10 @@ class ExtensionUtility
                     $requiredContentBlocksPackage = true;
                 }
             }
-            if(!$requiredContentBlocksPackage) {
-                // continue;
-            }
+            // TODO: show sysext only for testing
+//            if(!$requiredContentBlocksPackage) {
+//                continue;
+//            }
             $availableExtensions[$packageKey] = [
                 'vendor' => explode('/', $availablePackages[$packageKey]->getValueFromComposerManifest('name'))[0],
                 'package' => explode('/', $availablePackages[$packageKey]->getValueFromComposerManifest('name'))[1],
