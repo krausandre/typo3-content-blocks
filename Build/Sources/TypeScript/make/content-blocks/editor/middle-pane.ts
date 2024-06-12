@@ -31,7 +31,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
   protected render(): TemplateResult {
     return html`
       <p>I am the Middle pane...</p>
-
+      <div></div>
     `;
   }
   protected createRenderRoot(): HTMLElement | ShadowRoot {

@@ -10,8 +10,8 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(e,o,t,l){var r,i=arguments.length,n=i<3?o:null===l?l=Object.getOwnPropertyDescriptor(o,t):l;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)n=Reflect.decorate(e,o,t,l);else for(var s=e.length-1;s>=0;s--)(r=e[s])&&(n=(i<3?r(n):i>3?r(o,t,n):r(o,t))||n);return i>3&&n&&Object.defineProperty(o,t,n),n};import{html,LitElement,css}from"lit";import{customElement}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let EditorLeftPaneGlobalSettings=class extends LitElement{render(){return html`
-      <p>Global Settings: this is the Lit Element.</p>
+var __decorate=function(e,o,t,r){var l,i=arguments.length,n=i<3?o:null===r?r=Object.getOwnPropertyDescriptor(o,t):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)n=Reflect.decorate(e,o,t,r);else for(var s=e.length-1;s>=0;s--)(l=e[s])&&(n=(i<3?l(n):i>3?l(o,t,n):l(o,t))||n);return i>3&&n&&Object.defineProperty(o,t,n),n};import{html,LitElement,css}from"lit";import{customElement}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let EditorLeftPaneContentBlockSettings=class extends LitElement{render(){return html`
+      <p>Content Block Settings</p>
       <div class="form-group">
         <label for="extension">Extension</label>
         <select class="form-control" id="extension">
@@ -63,4 +63,4 @@ var __decorate=function(e,o,t,l){var r,i=arguments.length,n=i<3?o:null===l?l=Obj
       <div class="form-group">
         <button>Save</button>
       </div>
-    `}createRenderRoot(){return this}};EditorLeftPaneGlobalSettings.styles=css``,EditorLeftPaneGlobalSettings=__decorate([customElement("editor-left-pane-global-settings")],EditorLeftPaneGlobalSettings);export{EditorLeftPaneGlobalSettings};
+    `}createRenderRoot(){return this}};EditorLeftPaneContentBlockSettings.styles=css``,EditorLeftPaneContentBlockSettings=__decorate([customElement("editor-left-pane-content-block-settings")],EditorLeftPaneContentBlockSettings);export{EditorLeftPaneContentBlockSettings};

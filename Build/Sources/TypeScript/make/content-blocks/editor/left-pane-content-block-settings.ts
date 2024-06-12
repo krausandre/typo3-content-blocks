@@ -19,15 +19,15 @@ import '@typo3/backend/element/icon-element';
  * Module: @typo3/module/web/ContentBlocksGui
  *
  * @example
- * <editor-left-pane-global-settings></editor-left-pane-global-settings>
+ * <editor-left-pane-content-block-settings></editor-left-pane-content-block-settings>
  */
-@customElement('editor-left-pane-global-settings')
-export class EditorLeftPaneGlobalSettings extends LitElement {
+@customElement('editor-left-pane-content-block-settings')
+export class EditorLeftPaneContentBlockSettings extends LitElement {
   static styles = css``;
 
   protected render(): TemplateResult {
     return html`
-      <p>Global Settings: this is the Lit Element.</p>
+      <p>Content Block Settings</p>
       <div class="form-group">
         <label for="extension">Extension</label>
         <select class="form-control" id="extension">

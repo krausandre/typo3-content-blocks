@@ -14,7 +14,7 @@
 import { html, LitElement, TemplateResult, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import '@typo3/make/content-blocks/editor/left-pane-global-settings';
+import '@typo3/make/content-blocks/editor/left-pane-content-block-settings';
 import '@typo3/make/content-blocks/editor/left-pane-components';
 import '@typo3/make/content-blocks/editor/left-pane-basics';
 
@@ -85,7 +85,7 @@ export class ContentBlockEditorLeftPane extends LitElement {
         <div class="tabs-headers">
           <ul>
             <li class="${isShowSettings ? html `active` : nothing}" @click="${() => { this.setActiveTab('settings'); }}">
-              Global settings
+              Content Block settings
             </li>
             <li class="${isShowComponents ? html `active` : nothing}" @click="${() => { this.setActiveTab('components'); }}">
               Components
@@ -111,7 +111,7 @@ export class ContentBlockEditorLeftPane extends LitElement {
   protected renderTab(): TemplateResult {
     switch (this.activeTab) {
       case 'settings':
-        return html`<editor-left-pane-global-settings></editor-left-pane-global-settings>`;
+        return html`<editor-left-pane-content-block-settings></editor-left-pane-content-block-settings>`;
       case 'components':
         return html`<editor-left-pane-components></editor-left-pane-components>`;
       case 'basics':
