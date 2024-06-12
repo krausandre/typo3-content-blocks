@@ -6,8 +6,72 @@
 
 <f:section name="Content">
     <h1>Content Blocks GUI</h1>
-    <f:debug>{_all}</f:debug>
-    <content-block-gui-module status="list"></content-block-gui-module>
+    <div class="list-table-container props.title">
+        <input
+            type="text"
+            class="form-control mb-1"
+            placeholder="Search ..."
+            data-model="searchQuery"
+        />
+        <table class="cb-list-table">
+            <thead>
+                <tr>
+                    <th scope="col" class="col-1"></th>
+                    <th scope="col" class="col-2">Name</th>
+                    <th scope="col" class="col-2">Label</th>
+                    <th scope="col" class="col-2">Extension</th>
+                    <th scope="col" class="col-1">Usages</th>
+                    <th scope="col" class="col-4">Actions</th>
+                </tr>
+            </thead>
+            <f:for each="{contentBlocks}" as="contentBlock">
+                <f:debug>{contentBlock}</f:debug>
+                <tr>
+                    <td>
+                        <typo3-backend-icon identifier="{contentBlock.icon}" size="medium"></typo3-backend-icon>
+                    </td>
+                    <td>{contentBlock.name}</td>
+                    <td>{contentBlock.label}</td>
+                    <td>{contentBlock.extension}</td>
+                    <td>{contentBlock.usages}</td>
+                    <td>
+                        <f:if condition="{contentBlock.editable} === TRUE">
+                            <a
+                                class="btn btn-default me-2"
+                                href="{contentBlock.editUrl}"
+                            >
+                                <typo3-backend-icon identifier="actions-open" size="medium"></typo3-backend-icon>
+                                Edit
+                            </a>
+                        </f:if>
+                        <a
+                            type="button"
+                            class="btn btn-default me-2"
+                        >
+                            <typo3-backend-icon identifier="actions-duplicate" size="medium"></typo3-backend-icon>
+                            Duplicate
+                        </a>
+                        <button
+                            type="button"
+                            class="btn btn-info me-2"
+                        >
+                            <typo3-backend-icon identifier="actions-download" size="medium"></typo3-backend-icon>
+                            Download
+                        </button>
+                        <f:if condition="{contentBlock.deletable} === TRUE">
+                            <a
+                                class="btn btn-default me-2"
+                                href="{contentBlock.deleteUrl}"
+                            >
+                                <typo3-backend-icon identifier="actions-open" size="medium"></typo3-backend-icon>
+                                Delete
+                            </a>
+                        </f:if>
+                    </td>
+                </tr>
+            </f:for>
+        </table>
+    </div>
 </f:section>
 
 </html>

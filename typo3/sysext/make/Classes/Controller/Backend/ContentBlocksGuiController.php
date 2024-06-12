@@ -18,21 +18,23 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Make\Controller\Backend;
 
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Attribute\Controller;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Backend\Attribute\AsController;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
 
-#[Controller]
+#[AsController]
 final class ContentBlocksGuiController
 {
     protected ModuleTemplate $moduleTemplate;
 
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
+        protected readonly UriBuilder $backendUriBuilder,
         protected PageRenderer $pageRenderer
     ) {
     }
@@ -43,26 +45,41 @@ final class ContentBlocksGuiController
 
         $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/listCbAction.json');
         $sampleData = json_decode($sampleJson, true);
+        $contentBlocks = $sampleData['contentBlocks'];
+        foreach ($contentBlocks as $key => $contentBlock) {
+            $contentBlocks[$key]['editUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_edit', [
+                'name' => $contentBlock['name'],
+                'mode' => 'edit',
+            ]);
+        }
         $this->moduleTemplate->assignMultiple([
-            'contentBlocks' => $sampleData['contentBlocks'],
-            'basics' => $sampleData['basics'],
+            'contentBlocks' => $contentBlocks,
+//            'basics' => $sampleData['basics'],
         ]);
         // return $this->contentBlocksUtility->getAvailableContentBlocks();
+        $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/content-blocks-gui-module.js');
         $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/content-blocks-gui-module.js');
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:make/Resources/Private/Language/locallang.xlf');
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
     }
 
+    /**
+     * @throws RouteNotFoundException
+     */
     public function editAction(ServerRequestInterface $request): ResponseInterface
     {
+        $queryParams = $request->getQueryParams();
+        if (empty($queryParams['name']) || empty($queryParams['mode'])) {
+            throw new RouteNotFoundException('Missing required content block data');
+        }
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
 
         $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
         $sampleData = json_decode($sampleJson, true);
-        $this->moduleTemplate->assignMultiple([
-            'contentBlockData' => $sampleData['contentBlock'],
-            'basics' => $sampleData['basics'],
-        ]);
+
+//        $this->moduleTemplate->assignMultiple([
+//            'contentBlocks' => $contentBlocks,
+//        ]);
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
     }
 }
