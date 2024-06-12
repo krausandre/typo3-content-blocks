@@ -26,14 +26,13 @@ import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@typo3/make
 export class ContentBlockEditorRightPane extends LitElement {
 
   @property()
-    fieldconfig?: any;
-  @property()
     values: Record<string, unknown>;
-  schema?: FieldTypeSetting;
+
+  @property()
+    schema?: FieldTypeSetting;
 
   protected render(): TemplateResult {
-    if (this.fieldconfig) {
-      this.schema = JSON.parse(this.fieldconfig);
+    if (this.schema) {
       return html `
         <p>Field settings: ${this.schema.type}</p>
         ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}

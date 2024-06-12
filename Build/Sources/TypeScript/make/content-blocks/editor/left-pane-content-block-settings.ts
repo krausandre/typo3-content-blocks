@@ -15,6 +15,8 @@ import { html, LitElement, TemplateResult, css } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
 import { ContentBlocksYaml } from '@typo3/make/content-blocks/interface/content-block-definition';
+import { GroupDefinition } from '@typo3/make/content-blocks/interface/group-definition';
+import { ExtensionDefinition } from '@typo3/make/content-blocks/interface/extension-definition';
 
 
 /**
@@ -28,24 +30,20 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
   static styles = css``;
 
   @property()
-    groups: any;
+    groups: Array<GroupDefinition>;
   @property()
-    extensions: any;
+    extensions: Array<ExtensionDefinition>;
   @property()
     contentBlockYaml: ContentBlocksYaml;
 
   protected render(): TemplateResult {
-    this.groups = JSON.parse(this.groups);
-    this.groups = Object.keys(this.groups).map(key => this.groups[key]);
-    this.extensions = JSON.parse(this.extensions);
-    this.extensions = Object.keys(this.extensions).map(key => this.extensions[key]);
     return html`
       <p>Content Block Settings</p>
       <div class="form-group">
         <label for="extension">Extension</label>
         <select class="form-control" id="extension">
           <option value="0">Choose...</option>
-          ${this.extensions.map((extension: any) => html`
+          ${this.extensions.map((extension: ExtensionDefinition) => html`
             <option value="${extension.package}">${extension.extension}</option>
           `)}
         </select>
@@ -86,7 +84,7 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
         <label for="group">Group</label>
         <select class="form-control" id="group">
           <option value="">Choose...</option>
-          ${this.groups.map((group: any) => html`
+          ${this.groups.map((group: GroupDefinition) => html`
             <option value="${group.key}">${group.label}</option>
           `)}
         </select>

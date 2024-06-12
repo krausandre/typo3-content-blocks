@@ -19,6 +19,10 @@ import '@typo3/make/content-blocks/editor/middle-pane';
 import '@typo3/make/content-blocks/editor/right-pane';
 import MultiStepWizard from '@typo3/backend/multi-step-wizard';
 import Severity from '@typo3/backend/severity';
+import { FieldTypeSetting } from '@typo3/make/content-blocks/interface/field-type-setting';
+import { ContentBlockDefinition } from '@typo3/make/content-blocks/interface/content-block-definition';
+import { GroupDefinition } from '@typo3/make/content-blocks/interface/group-definition';
+import { ExtensionDefinition } from '@typo3/make/content-blocks/interface/extension-definition';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -34,13 +38,13 @@ export class ContentBlockEditor extends LitElement {
   @property()
     mode?: string;
   @property()
-    data?: any;
+    data?: string;
   @property()
-    extensions?: any;
+    extensions?: string;
   @property()
-    groups?: any;
+    groups?: string;
   @property()
-    fieldconfig?: any;
+    fieldconfig?: string;
 
   values = {
     'identifier': 'text1',
@@ -54,22 +58,28 @@ export class ContentBlockEditor extends LitElement {
   };
 
   protected render(): TemplateResult {
-    this.data = JSON.parse(this.data);
-    this.fieldconfig = JSON.parse(this.fieldconfig);
-    const textarea = JSON.stringify(this.fieldconfig.textarea);
+
+    const cbDefinition: ContentBlockDefinition = JSON.parse(this.data);
+
+    const fieldTypeList: Array<FieldTypeSetting> = JSON.parse(this.fieldconfig);
+    const textarea = fieldTypeList.filter((fieldType) => fieldType.type === 'Textarea')[0];
+    const groupList: Array<GroupDefinition> = JSON.parse(this.groups);
+    const extensionList: Array<ExtensionDefinition> = JSON.parse(this.extensions);
+
+
     if (this.mode === 'copy') {
       this._initMultiStepWizard();
     }
     return html`
       <div class="row">
         <div class="col-4">
-          <content-block-editor-left-pane .contentBlockYaml="${this.data.yaml}" groups="${this.groups}" extensions="${this.extensions}"></content-block-editor-left-pane>
+          <content-block-editor-left-pane .contentBlockYaml="${cbDefinition.yaml}" .groups="${groupList}" .extensions="${extensionList}"></content-block-editor-left-pane>
         </div>
         <div class="col-4">
           <content-block-editor-middle-pane></content-block-editor-middle-pane>
         </div>
         <div class="col-4">
-          <content-block-editor-right-pane .fieldconfig="${textarea}" .values="${this.values}"></content-block-editor-right-pane>
+          <content-block-editor-right-pane .schema="${textarea}" .values="${this.values}"></content-block-editor-right-pane>
         </div>
       </div>
       <button @click="${() => { this._dispatchBackEvent(); }}" type="button" class="btn btn-primary">Back
@@ -84,10 +94,10 @@ export class ContentBlockEditor extends LitElement {
   }
 
   private _initMultiStepWizard() {
-    const contentBlockData = this.data;
+    // const contentBlockData = this.data;
     MultiStepWizard.addSlide('step-1', 'Step 1', '', Severity.notice, 'Step 1', async function (slide, settings) {
       console.log(settings);
-      contentBlockData.name = 'Test';
+      // contentBlockData.name = 'Test';
       MultiStepWizard.unlockNextStep();
       slide.html('<h2>Select vendor</h2><p><select><option value="1">Sample</option></select></p>');
     });

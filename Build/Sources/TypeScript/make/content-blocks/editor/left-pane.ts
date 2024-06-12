@@ -18,6 +18,8 @@ import '@typo3/make/content-blocks/editor/left-pane-content-block-settings';
 import '@typo3/make/content-blocks/editor/left-pane-components';
 import '@typo3/make/content-blocks/editor/left-pane-basics';
 import { ContentBlocksYaml } from '@typo3/make/content-blocks/interface/content-block-definition';
+import { GroupDefinition } from '@typo3/make/content-blocks/interface/group-definition';
+import { ExtensionDefinition } from '@typo3/make/content-blocks/interface/extension-definition';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -74,9 +76,9 @@ export class ContentBlockEditorLeftPane extends LitElement {
   @property()
     activeTab: string = 'settings';
   @property()
-    groups: string;
+    groups: Array<GroupDefinition>;
   @property()
-    extensions: string;
+    extensions: Array<ExtensionDefinition>;
   @property()
     contentBlockYaml: ContentBlocksYaml;
 
@@ -117,7 +119,7 @@ export class ContentBlockEditorLeftPane extends LitElement {
   protected renderTab(): TemplateResult {
     switch (this.activeTab) {
       case 'settings':
-        return html`<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}" groups="${this.groups}" extensions="${this.extensions}"></editor-left-pane-content-block-settings>`;
+        return html`<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}" .groups="${this.groups}" .extensions="${this.extensions}"></editor-left-pane-content-block-settings>`;
       case 'components':
         return html`<editor-left-pane-components></editor-left-pane-components>`;
       case 'basics':

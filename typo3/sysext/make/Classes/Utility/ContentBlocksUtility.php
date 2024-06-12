@@ -321,10 +321,11 @@ class ContentBlocksUtility
         $fieldConfig = $GLOBALS['TCA']['tt_content']['columns']['CType'] ?? [];
         $contentWizardGroups = $fieldConfig['config']['itemGroups'] ?? [];
         foreach ($contentWizardGroups as $key => $value) {
-            $contentWizardGroups[$key] =  [
+            $contentWizardGroups[] =  [
                 'key' => $key,
                 'label' => $languageService->sL($value)
             ];
+            unset($contentWizardGroups[$key]);
         }
         return $contentWizardGroups;
     }

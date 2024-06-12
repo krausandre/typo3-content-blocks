@@ -1,5 +1,5 @@
-{
-	"textarea": {
+[
+	{
 		"icon": "form-textarea",
 		"type": "Textarea",
 		"properties" : [
@@ -13,4 +13,4 @@
 			{ "name": "rows", "dataType": "number" }
 		]
 	}
-}
+]
