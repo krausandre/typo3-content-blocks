@@ -12,6 +12,9 @@
 */
 
 import AjaxRequest from '@typo3/core/ajax/ajax-request';
+import Modal from '@typo3/backend/modal';
+import { lll } from '@typo3/core/lit-helper';
+import { SeverityEnum } from '@typo3/backend/enum/severity';
 
 class ContentBlockList {
 
@@ -23,6 +26,15 @@ class ContentBlockList {
       downloadButton.addEventListener('click', (event) => {
         event.preventDefault();
         this.downloadAction(downloadButton.getAttribute('data-name'));
+      });
+    });
+
+    // add delete event listener
+    document.querySelectorAll('#content-blocks .content-block-delete').forEach((deleteButton) => {
+      deleteButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        this.handleRemove(deleteButton.getAttribute('data-name'));
+        // alert('you shall not delete this')
       });
     });
   }
@@ -59,6 +71,37 @@ class ContentBlockList {
       .catch((error) => {
         console.error(error);
       });
+  }
+
+  protected handleRemove(name: string)
+  {
+    console.log(name);
+    const modal = Modal.confirm(
+      lll('make.remove.confirm.title'),
+      lll('make.remove.confirm.message'),
+      SeverityEnum.warning, [
+        {
+          text: lll('make.remove.button.close'),
+          active: true,
+          btnClass: 'btn-default',
+          name: 'cancel',
+        },
+        {
+          text: lll('make.remove.button.ok'),
+          btnClass: 'btn-warning remove-button',
+          name: 'delete',
+        },
+      ]
+    );
+
+    modal.addEventListener('button.clicked', (e: Event): void => {
+      const target = e.target as HTMLButtonElement;
+      if (target.getAttribute('name') === 'delete') {
+        // this._deleteAction(name);
+        alert('Please do not remove this, I would be very sad :-(')
+      }
+      modal.hideModal();
+    });
   }
 }
 

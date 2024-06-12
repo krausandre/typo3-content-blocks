@@ -84,6 +84,9 @@ final class ContentBlocksGuiController
 
         $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
         $contentBlocksData = json_decode($sampleJson, true);
+        // @todo: FieldTypesList needed
+        // @todo: HostExtensionList needed
+        // @todo: GroupList needed
         $contentBlockEditorData = GeneralUtility::implodeAttributes([
             'mode' => 'edit',
             'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
