@@ -36,7 +36,7 @@ export class DraggableFieldType extends LitElement {
   protected render(): TemplateResult {
     if (this.fieldTypeSetting) {
       return html`
-        <div class="draggable-field-type" draggable="true" data-field-type="${this.fieldTypeSetting.type}">
+        <div class="draggable-field-type" draggable="true"  data-field-type="${this.fieldTypeSetting.type}">
           <div class="icon-wrap">
             <typo3-backend-icon identifier="${this.fieldTypeSetting.icon}" size="small"></typo3-backend-icon>
           </div>

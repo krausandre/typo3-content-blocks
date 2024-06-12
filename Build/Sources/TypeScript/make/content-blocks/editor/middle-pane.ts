@@ -24,16 +24,40 @@ import '@typo3/backend/element/icon-element';
 @customElement('content-block-editor-middle-pane')
 export class ContentBlockEditorMiddlePane extends LitElement {
 
+
   @property()
     name?: string;
 
 
+
   protected render(): TemplateResult {
     return html`
+      <style>
+        #cb-drop-zone {
+          border: 1px dashed #ccc;
+          height: 100px;
+          margin: 10px 0;
+        }
+      </style>
+
       <p>I am the Middle pane...</p>
-      <div></div>
+      <div id="cb-drop-zone"
+            @dragover="${this.handleDragOver}"
+            @drop="${this.handleDrop}">
+          Drop here to add a new field
+      ></div>
     `;
   }
+
+  protected handleDragOver(event: DragEvent): void {
+    event.preventDefault();
+  }
+
+  protected handleDrop(event: DragEvent): void {
+    event.preventDefault();
+    console.log('Dropped');
+  }
+
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});

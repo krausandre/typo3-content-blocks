@@ -11,7 +11,7 @@
  * The TYPO3 project - inspiring people to share!
  */
 var __decorate=function(e,t,i,r){var l,a=arguments.length,o=a<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,i):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)o=Reflect.decorate(e,t,i,r);else for(var p=e.length-1;p>=0;p--)(l=e[p])&&(o=(a<3?l(o):a>3?l(t,i,o):l(t,i))||o);return a>3&&o&&Object.defineProperty(t,i,o),o};import{html,LitElement,css}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let DraggableFieldType=class extends LitElement{render(){return this.fieldTypeSetting?html`
-        <div class="draggable-field-type" draggable="true" data-field-type="${this.fieldTypeSetting.type}">
+        <div class="draggable-field-type" draggable="true"  data-field-type="${this.fieldTypeSetting.type}">
           <div class="icon-wrap">
             <typo3-backend-icon identifier="${this.fieldTypeSetting.icon}" size="small"></typo3-backend-icon>
           </div>
