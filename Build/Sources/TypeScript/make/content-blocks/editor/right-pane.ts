@@ -32,10 +32,8 @@ export class ContentBlockEditorRightPane extends LitElement {
   schema?: FieldTypeSetting;
 
   protected render(): TemplateResult {
-    console.log(this.fieldconfig);
     if (this.fieldconfig) {
       this.schema = JSON.parse(this.fieldconfig);
-      console.log(this.schema);
       return html `
         <p>Field settings: ${this.schema.type}</p>
         ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
