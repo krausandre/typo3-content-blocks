@@ -6,11 +6,7 @@
 
 <f:section name="Content">
     <h1>Content Blocks GUI - Edit</h1>
-    <f:debug>{_all}</f:debug>
-    <content-block-editor
-        data="{data: 'data'}"
-        mode="edit"
-        @contentBlockBack="${() => { this.status = 'list'; this.name = ''; this.mode = 'new'}}"></content-block-editor>`;
+    <content-block-editor {contentBlockEditorData -> f:format.raw()}></content-block-editor>
 </f:section>
 
 </html>
