@@ -186,13 +186,12 @@ final class ContentBlocksGuiController
         }
         $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
         $contentBlocksData = json_decode($sampleJson, true);
-        // @todo: FieldTypesList needed
         $contentBlockEditorData = GeneralUtility::implodeAttributes([
             'mode' => $queryParams['mode'],
             'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
-            'host-extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
+            'extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
             'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),
-            'field-types' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getFieldTypes(), false),
+            'fieldconfig' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getFieldTypes(), false),
         ], true);
         $this->moduleTemplate->assignMultiple([
             'contentBlockEditorData' => $contentBlockEditorData,

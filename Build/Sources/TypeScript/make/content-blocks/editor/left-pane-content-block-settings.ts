@@ -28,18 +28,26 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
   static styles = css``;
 
   @property()
+    groups: any;
+  @property()
+    extensions: any;
+  @property()
     contentBlockYaml: ContentBlocksYaml;
 
   protected render(): TemplateResult {
-    // console.log(this.contentBlockYaml);
+    this.groups = JSON.parse(this.groups);
+    this.groups = Object.keys(this.groups).map(key => this.groups[key]);
+    this.extensions = JSON.parse(this.extensions);
+    this.extensions = Object.keys(this.extensions).map(key => this.extensions[key]);
     return html`
       <p>Content Block Settings</p>
       <div class="form-group">
         <label for="extension">Extension</label>
         <select class="form-control" id="extension">
           <option value="0">Choose...</option>
-          <option value="1">Extension 1</option>
-          <option value="2">Extension 2</option>
+          ${this.extensions.map((extension: any) => html`
+            <option value="${extension.package}">${extension.extension}</option>
+          `)}
         </select>
       </div>
       <div class="form-group">
@@ -78,8 +86,9 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
         <label for="group">Group</label>
         <select class="form-control" id="group">
           <option value="">Choose...</option>
-          <option value="group1">Group 1</option>
-          <option value="group2">Group 2</option>
+          ${this.groups.map((group: any) => html`
+            <option value="${group.key}">${group.label}</option>
+          `)}
         </select>
       </div>
       <div class="form-group">

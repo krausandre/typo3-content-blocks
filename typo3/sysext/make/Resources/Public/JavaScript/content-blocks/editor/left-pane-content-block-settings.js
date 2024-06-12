@@ -10,14 +10,15 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(e,t,o,l){var n,r=arguments.length,i=r<3?t:null===l?l=Object.getOwnPropertyDescriptor(t,o):l;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)i=Reflect.decorate(e,t,o,l);else for(var c=e.length-1;c>=0;c--)(n=e[c])&&(i=(r<3?n(i):r>3?n(t,o,i):n(t,o))||i);return r>3&&i&&Object.defineProperty(t,o,i),i};import{html,LitElement,css}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let EditorLeftPaneContentBlockSettings=class extends LitElement{render(){return html`
+var __decorate=function(e,t,o,l){var n,r=arguments.length,i=r<3?t:null===l?l=Object.getOwnPropertyDescriptor(t,o):l;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)i=Reflect.decorate(e,t,o,l);else for(var s=e.length-1;s>=0;s--)(n=e[s])&&(i=(r<3?n(i):r>3?n(t,o,i):n(t,o))||i);return r>3&&i&&Object.defineProperty(t,o,i),i};import{html,LitElement,css}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let EditorLeftPaneContentBlockSettings=class extends LitElement{render(){return this.groups=JSON.parse(this.groups),this.groups=Object.keys(this.groups).map((e=>this.groups[e])),this.extensions=JSON.parse(this.extensions),this.extensions=Object.keys(this.extensions).map((e=>this.extensions[e])),html`
       <p>Content Block Settings</p>
       <div class="form-group">
         <label for="extension">Extension</label>
         <select class="form-control" id="extension">
           <option value="0">Choose...</option>
-          <option value="1">Extension 1</option>
-          <option value="2">Extension 2</option>
+          ${this.extensions.map((e=>html`
+            <option value="${e.package}">${e.extension}</option>
+          `))}
         </select>
       </div>
       <div class="form-group">
@@ -56,11 +57,12 @@ var __decorate=function(e,t,o,l){var n,r=arguments.length,i=r<3?t:null===l?l=Obj
         <label for="group">Group</label>
         <select class="form-control" id="group">
           <option value="">Choose...</option>
-          <option value="group1">Group 1</option>
-          <option value="group2">Group 2</option>
+          ${this.groups.map((e=>html`
+            <option value="${e.key}">${e.label}</option>
+          `))}
         </select>
       </div>
       <div class="form-group">
         <button>Save</button>
       </div>
-    `}createRenderRoot(){return this}};EditorLeftPaneContentBlockSettings.styles=css``,__decorate([property()],EditorLeftPaneContentBlockSettings.prototype,"contentBlockYaml",void 0),EditorLeftPaneContentBlockSettings=__decorate([customElement("editor-left-pane-content-block-settings")],EditorLeftPaneContentBlockSettings);export{EditorLeftPaneContentBlockSettings};
+    `}createRenderRoot(){return this}};EditorLeftPaneContentBlockSettings.styles=css``,__decorate([property()],EditorLeftPaneContentBlockSettings.prototype,"groups",void 0),__decorate([property()],EditorLeftPaneContentBlockSettings.prototype,"extensions",void 0),__decorate([property()],EditorLeftPaneContentBlockSettings.prototype,"contentBlockYaml",void 0),EditorLeftPaneContentBlockSettings=__decorate([customElement("editor-left-pane-content-block-settings")],EditorLeftPaneContentBlockSettings);export{EditorLeftPaneContentBlockSettings};
