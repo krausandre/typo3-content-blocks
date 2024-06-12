@@ -33,8 +33,7 @@ class ContentBlockList {
     document.querySelectorAll('#content-blocks .content-block-delete').forEach((deleteButton) => {
       deleteButton.addEventListener('click', (event) => {
         event.preventDefault();
-        this.handleRemove(deleteButton.getAttribute('data-name'));
-        // alert('you shall not delete this')
+        this.handleRemove(deleteButton.getAttribute('href'));
       });
     });
   }
@@ -73,9 +72,8 @@ class ContentBlockList {
       });
   }
 
-  protected handleRemove(name: string)
+  protected handleRemove(url: string)
   {
-    console.log(name);
     const modal = Modal.confirm(
       lll('make.remove.confirm.title'),
       lll('make.remove.confirm.message'),
@@ -97,8 +95,7 @@ class ContentBlockList {
     modal.addEventListener('button.clicked', (e: Event): void => {
       const target = e.target as HTMLButtonElement;
       if (target.getAttribute('name') === 'delete') {
-        // this._deleteAction(name);
-        alert('Please do not remove this, I would be very sad :-(')
+        window.location.href = url;
       }
       modal.hideModal();
     });
