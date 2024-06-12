@@ -26,7 +26,21 @@ import { FieldTypeSetting, FieldTypeProperty, FieldTypeOption } from '@typo3/mak
 export class ContentBlockEditorRightPane extends LitElement {
 
   @property()
-    setting?: FieldTypeSetting;
+    setting?: FieldTypeSetting = {
+      icon: 'form-textarea',
+      type: 'Textarea',
+      properties : [
+        { name: 'identifier', dataType: 'text', required: true },
+        { name: 'type', dataType: 'text', required: true },
+        { name: 'default', dataType: 'text' },
+        { name: 'placeholder', dataType: 'text' },
+        { name: 'required', dataType: 'boolean' },
+        { name: 'enableRichtext', dataType: 'boolean' },
+        { name: 'richtextConfiguration', dataType: 'text', default: 'full' },
+        { name: 'rows', dataType: 'number' },
+      ]
+
+    };
 
   protected render(): TemplateResult {
     if (this.setting) {
@@ -44,7 +58,7 @@ export class ContentBlockEditorRightPane extends LitElement {
   }
 
   protected renderFormFieldset(fieldTypeProperty: FieldTypeProperty): TemplateResult {
-    return html `${this.renderFormField(fieldTypeProperty)}
+    return html `
       <div class="form-group">
         <label for="vendor-prefix">${fieldTypeProperty.name}</label>
         ${this.renderFormField(fieldTypeProperty)}
@@ -54,17 +68,19 @@ export class ContentBlockEditorRightPane extends LitElement {
   protected renderFormField(fieldTypeProperty: FieldTypeProperty): TemplateResult {
     switch (fieldTypeProperty.dataType) {
       case 'text':
-        return html `<input type="text" id="${fieldTypeProperty.name}" class="form-control" />`;
+        return html `<input type="text" id="${fieldTypeProperty.name}" value="${fieldTypeProperty.default}" class="form-control" />`;
+      case 'number':
+        return html `<input type="number" id="${fieldTypeProperty.name}" value="${fieldTypeProperty.default}" class="form-control" />`;
       case 'select':
-        return html `<select class="form-control" id="${fieldTypeProperty.name}">
+        return html `<select class="form-control" id="${fieldTypeProperty.name}" >
           <option value="">Choose...</option>
           ${fieldTypeProperty.options.map( (option: FieldTypeOption) => html`
             <option value="${option.value}">${option.label}</option>` )}
         </select>`;
-      case 'checkbox':
-        return html `<input type="checkbox" id="${fieldTypeProperty.name}" class="form-control" />`;
+      case 'boolean':
+        return html `<input type="checkbox" id="${fieldTypeProperty.name}" value="${fieldTypeProperty.default}" class="form-control" />`;
       case 'textarea':
-        return html `<textarea id="${fieldTypeProperty.name}" class="form-control"></textarea>`;
+        return html `<textarea id="${fieldTypeProperty.name}" class="form-control">${fieldTypeProperty.default}</textarea>`;
       default:
         return html `Unknown field type property ${fieldTypeProperty.name}.`;
     }

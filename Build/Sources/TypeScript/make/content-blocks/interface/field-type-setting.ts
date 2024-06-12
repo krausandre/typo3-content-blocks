@@ -6,6 +6,8 @@ export interface FieldTypeOption {
 export interface FieldTypeProperty {
   name: string;
   dataType: string;
+  required?: boolean;
+  default?: string;
   options?: Array<FieldTypeOption>;
 }
 
