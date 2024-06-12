@@ -36,10 +36,10 @@ return [
         'path' => '/contentblocks/gui/icons/list',
         'target' => TYPO3\CMS\Make\Controller\Backend\AjaxController::class . '::listIconsAction',
     ],
-    'content_blocks_gui_list_groups' => [
-        'path' => '/contentblocks/gui/groups/list',
-        'target' => TYPO3\CMS\Make\Controller\Backend\AjaxController::class . '::listGroupsAction',
-    ],
+//    'content_blocks_gui_list_groups' => [
+//        'path' => '/contentblocks/gui/groups/list',
+//        'target' => TYPO3\CMS\Make\Controller\Backend\AjaxController::class . '::listGroupsAction',
+//    ],
     'content_blocks_gui_list_basics' => [
         'path' => '/contentblocks/gui/basics/list',
         'target' => TYPO3\CMS\Make\Controller\Backend\AjaxController::class . '::listBasicsAction',
