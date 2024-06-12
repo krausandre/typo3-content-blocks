@@ -22,6 +22,8 @@ use TYPO3\CMS\Backend\Attribute\Controller;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
 
 #[Controller]
@@ -38,8 +40,16 @@ final class ContentBlocksGuiController
     public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/content-blocks-gui-module.js');
-        $this->pageRenderer->addInlineLanguageLabelFile('EXT:make/Resources/Private/Language/locallang.xlf');
+
+        $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/listCbAction.json');
+        $sampleData = json_decode($sampleJson, true);
+        $this->moduleTemplate->assignMultiple([
+            'contentBlocks' => $sampleData['contentBlocks'],
+            'basics' => $sampleData['basics'],
+        ]);
+        // return $this->contentBlocksUtility->getAvailableContentBlocks();
+//        $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/content-blocks-gui-module.js');
+//        $this->pageRenderer->addInlineLanguageLabelFile('EXT:make/Resources/Private/Language/locallang.xlf');
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
     }
 }
