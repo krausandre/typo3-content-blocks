@@ -1,10 +1,6 @@
 <?php
 
 return [
-    'make_content_block_list' => [
-        'path' => '/make/content-blocks/gui/list',
-        'target' => TYPO3\CMS\Make\Controller\Backend\ContentBlocksGuiController::class . '::indexAction'
-    ],
     'make_content_block_new' => [
         'path' => '/make/content-blocks/gui/new',
         'target' => TYPO3\CMS\Make\Controller\Backend\ContentBlocksGuiController::class . '::newAction'

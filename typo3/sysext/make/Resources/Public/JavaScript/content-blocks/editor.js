@@ -19,7 +19,7 @@ var __decorate=function(t,e,o,i){var n,r=arguments.length,c=r<3?e:null===i?i=Obj
           <content-block-editor-middle-pane></content-block-editor-middle-pane>
         </div>
         <div class="col-4">
-          <content-block-editor-right-pane></content-block-editor-right-pane>
+          <content-block-editor-right-pane .values="${this.data.yaml.fields}"></content-block-editor-right-pane>
         </div>
       </div>
       <button @click="${()=>{this._dispatchBackEvent()}}" type="button" class="btn btn-primary">Back

@@ -14,7 +14,7 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import { FieldTypeSetting, FieldTypeProperty, FieldTypeOption } from '@typo3/make/content-blocks/interface/field-type-setting';
+import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@typo3/make/content-blocks/interface/field-type-setting';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -26,7 +26,7 @@ import { FieldTypeSetting, FieldTypeProperty, FieldTypeOption } from '@typo3/mak
 export class ContentBlockEditorRightPane extends LitElement {
 
   @property()
-    setting?: FieldTypeSetting = {
+    schema?: FieldTypeSetting = {
       icon: 'form-textarea',
       type: 'Textarea',
       properties : [
@@ -41,11 +41,24 @@ export class ContentBlockEditorRightPane extends LitElement {
       ]
     };
 
+  // property values
+  values: Record<string, unknown> = {
+    'identifier': 'text1',
+    'type': 'Textarea',
+    'default': 'default text',
+    'placeholder': 'placeholder text',
+    'required': false,
+    'enableRichtext': true,
+    'richtextConfiguration': 'full',
+    'rows': 5,
+  };
+  // values: Record<string, unknown>;
+
   protected render(): TemplateResult {
-    if (this.setting) {
+    if (this.schema) {
       return html `
-        <p>Field settings: ${this.setting.type}</p>
-        ${this.setting.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
+        <p>Field settings: ${this.schema.type}</p>
+        ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
       `;
     }
     return html `<p>Field settings: Choose a Field.</p>`;
@@ -54,7 +67,7 @@ export class ContentBlockEditorRightPane extends LitElement {
   protected renderFormFieldset(fieldTypeProperty: FieldTypeProperty): TemplateResult {
     return html `
       <div class="form-group">
-        <label for="vendor-prefix">${fieldTypeProperty.name}</label>
+        <label for="vendor-prefix">Property '${fieldTypeProperty.name}'</label>
         ${this.renderFormField(fieldTypeProperty)}
       </div>`;
   }
@@ -62,17 +75,17 @@ export class ContentBlockEditorRightPane extends LitElement {
   protected renderFormField(fieldTypeProperty: FieldTypeProperty): TemplateResult {
     switch (fieldTypeProperty.dataType) {
       case 'text':
-        return html `<input type="text" id="${fieldTypeProperty.name}" value="${fieldTypeProperty.default}" class="form-control" />`;
+        return html `<input type="text" id="${fieldTypeProperty.name}" value="${this.values[fieldTypeProperty.name] as string || fieldTypeProperty.default}" class="form-control" />`;
       case 'number':
-        return html `<input type="number" id="${fieldTypeProperty.name}" value="${fieldTypeProperty.default}" class="form-control" />`;
+        return html `<input type="number" id="${fieldTypeProperty.name}" value="${this.values[fieldTypeProperty.name] as number || fieldTypeProperty.default}" class="form-control" />`;
       case 'select':
         return html `<select class="form-control" id="${fieldTypeProperty.name}" >
           <option value="">Choose...</option>
-          ${fieldTypeProperty.options.map( (option: FieldTypeOption) => html`
+          ${fieldTypeProperty.items.map( (option: FieldTypeItems) => html`
             <option value="${option.value}">${option.label}</option>` )}
         </select>`;
       case 'boolean':
-        return html `<input type="checkbox" id="${fieldTypeProperty.name}" value="${fieldTypeProperty.default}" class="form-control" />`;
+        return html `<input type="checkbox" id="${fieldTypeProperty.name}" ?checked=${this.values[fieldTypeProperty.name] as boolean} value="${fieldTypeProperty.default}" class="form-control" />`;
       case 'textarea':
         return html `<textarea id="${fieldTypeProperty.name}" class="form-control">${fieldTypeProperty.default}</textarea>`;
       default:

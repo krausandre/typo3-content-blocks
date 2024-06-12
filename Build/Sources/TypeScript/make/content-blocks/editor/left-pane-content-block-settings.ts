@@ -12,8 +12,10 @@
 */
 
 import { html, LitElement, TemplateResult, css } from 'lit';
-import { customElement } from 'lit/decorators';
+import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
+import { ContentBlocksYaml } from '@typo3/make/content-blocks/interface/content-block-definition';
+
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -24,6 +26,9 @@ import '@typo3/backend/element/icon-element';
 @customElement('editor-left-pane-content-block-settings')
 export class EditorLeftPaneContentBlockSettings extends LitElement {
   static styles = css``;
+
+  @property()
+    contentBlockYaml: ContentBlocksYaml;
 
   protected render(): TemplateResult {
     return html`
@@ -38,35 +43,35 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
       </div>
       <div class="form-group">
         <label for="vendor">Vendor</label>
-        <input type="text" id="vendor" class="form-control" />
+        <input type="text" id="vendor" class="form-control" value="${this.contentBlockYaml.name}" />
       </div>
       <div class="form-group">
         <label for="name">Name</label>
-        <input type="text" id="name" class="form-control" />
+        <input type="text" id="name" class="form-control" value="${this.contentBlockYaml.name}" />
       </div>
       <div class="form-group">
         <label for="title">Title</label>
-        <input type="text" id="title" class="form-control" />
+        <input type="text" id="title" class="form-control" value="${this.contentBlockYaml.title}" />
       </div>
       <div class="form-group">
         <label for="prefix">Prefix fields?</label>
-        <input type="checkbox" id="prefix" class="form-control" />
+        <input type="checkbox" id="prefix" class="form-control" ?checked=${this.contentBlockYaml.prefixFields} />
       </div>
       <div class="form-group">
         <label for="prefix-type">Prefix type</label>
         <select class="form-control" id="prefix-type">
           <option value="">Choose...</option>
-          <option value="full">Full</option>
-          <option value="vendor">Vendor</option>
+          <option value="full" ?selected="${this.contentBlockYaml.prefixType === 'full'}" >Full</option>
+          <option value="vendor" ?selected="${this.contentBlockYaml.prefixType === 'vendor'}" >Vendor</option>
         </select>
       </div>
       <div class="form-group">
         <label for="vendor-prefix">Vendor prefix</label>
-        <input type="text" id="vendor-prefix" class="form-control" />
+        <input type="text" id="vendor-prefix" class="form-control" value="${this.contentBlockYaml.vendorPrefix}" />
       </div>
       <div class="form-group">
         <label for="priority">Priority</label>
-        <input type="number" id="priority" class="form-control" />
+        <input type="number" id="priority" class="form-control" value="${this.contentBlockYaml.priority}" />
       </div>
       <div class="form-group">
         <label for="group">Group</label>

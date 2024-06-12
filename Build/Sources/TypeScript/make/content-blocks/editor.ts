@@ -55,16 +55,17 @@ export class ContentBlockEditor extends LitElement {
     if (this.mode === 'copy') {
       this._initMultiStepWizard();
     }
+    // console.log(this.data);
     return html`
       <div class="row">
         <div class="col-4">
-          <content-block-editor-left-pane></content-block-editor-left-pane>
+          <content-block-editor-left-pane .contentBlockConfig="${this.data.yaml}"></content-block-editor-left-pane>
         </div>
         <div class="col-4">
           <content-block-editor-middle-pane></content-block-editor-middle-pane>
         </div>
         <div class="col-4">
-          <content-block-editor-right-pane></content-block-editor-right-pane>
+          <content-block-editor-right-pane .values="${this.data.yaml.fields}"></content-block-editor-right-pane>
         </div>
       </div>
       <button @click="${() => { this._dispatchBackEvent(); }}" type="button" class="btn btn-primary">Back

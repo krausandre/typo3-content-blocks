@@ -17,6 +17,7 @@ import '@typo3/backend/element/icon-element';
 import '@typo3/make/content-blocks/editor/left-pane-content-block-settings';
 import '@typo3/make/content-blocks/editor/left-pane-components';
 import '@typo3/make/content-blocks/editor/left-pane-basics';
+import { ContentBlocksYaml } from '@typo3/make/content-blocks/interface/content-block-definition';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -72,6 +73,8 @@ export class ContentBlockEditorLeftPane extends LitElement {
 
   @property()
     activeTab: string = 'settings';
+  @property()
+    contentBlockYaml?: ContentBlocksYaml;
 
 
   protected render(): TemplateResult {
@@ -111,7 +114,7 @@ export class ContentBlockEditorLeftPane extends LitElement {
   protected renderTab(): TemplateResult {
     switch (this.activeTab) {
       case 'settings':
-        return html`<editor-left-pane-content-block-settings></editor-left-pane-content-block-settings>`;
+        return html`<editor-left-pane-content-block-settings .contentBlockConfig="${this.contentBlockYaml}"></editor-left-pane-content-block-settings>`;
       case 'components':
         return html`<editor-left-pane-components></editor-left-pane-components>`;
       case 'basics':
