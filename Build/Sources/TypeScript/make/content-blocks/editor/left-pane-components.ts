@@ -29,9 +29,9 @@ export class EditorLeftPaneComponents extends LitElement {
 
   @property()
     fieldTypes?: Array<FieldTypeSetting> = [
-      { icon: 'form-textarea', type: 'Textarea' },
-      { icon: 'actions-refresh', type: 'Collection' },
-      { icon: 'form-checkbox', type: 'Checkbox' },
+      { icon: 'form-textarea', type: 'Textarea', properties : [ { name: 'test', dataType: 'text' } ] },
+      { icon: 'actions-refresh', type: 'Collection', properties : [ { name: 'test', dataType: 'text' } ] },
+      { icon: 'form-checkbox', type: 'Checkbox', properties : [ { name: 'test', dataType: 'text' } ] },
     ];
 
   protected render(): TemplateResult {

@@ -14,6 +14,7 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
+import { FieldTypeSetting, FieldTypeProperty, FieldTypeOption } from '@typo3/make/content-blocks/interface/field-type-setting';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -25,13 +26,51 @@ import '@typo3/backend/element/icon-element';
 export class ContentBlockEditorRightPane extends LitElement {
 
   @property()
-    name?: string;
+    setting?: FieldTypeSetting;
 
   protected render(): TemplateResult {
-    return html`
-      <p>I am the Right pane...</p>
-    `;
+    if (this.setting) {
+      return html `
+        <p>Field settings:</p>
+        <ul>
+          ${this.setting.properties.map( (item) => html`
+            <li>
+              ${this.renderFormFieldset(item)}
+            </li>` )}
+        </ul>
+      `;
+    }
+    return html `<p>Field settings: Choose a Field.</p>`;
   }
+
+  protected renderFormFieldset(fieldTypeProperty: FieldTypeProperty): TemplateResult {
+    return html `${this.renderFormField(fieldTypeProperty)}
+      <div class="form-group">
+        <label for="vendor-prefix">${fieldTypeProperty.name}</label>
+        ${this.renderFormField(fieldTypeProperty)}
+      </div>`;
+  }
+
+  protected renderFormField(fieldTypeProperty: FieldTypeProperty): TemplateResult {
+    switch (fieldTypeProperty.dataType) {
+      case 'text':
+        return html `<input type="text" id="${fieldTypeProperty.name}" class="form-control" />`;
+      case 'select':
+        return html `<select class="form-control" id="${fieldTypeProperty.name}">
+          <option value="">Choose...</option>
+          ${fieldTypeProperty.options.map( (option: FieldTypeOption) => html`
+            <option value="${option.value}">${option.label}</option>` )}
+        </select>`;
+      case 'checkbox':
+        return html `<input type="checkbox" id="${fieldTypeProperty.name}" class="form-control" />`;
+      case 'textarea':
+        return html `<textarea id="${fieldTypeProperty.name}" class="form-control"></textarea>`;
+      default:
+        return html `Unknown field type property ${fieldTypeProperty.name}.`;
+    }
+  }
+
+
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
