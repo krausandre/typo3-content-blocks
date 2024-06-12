@@ -49,6 +49,9 @@ final class ContentBlocksGuiController
     ) {
     }
 
+    /**
+     * @throws RouteNotFoundException
+     */
     public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
@@ -110,6 +113,16 @@ final class ContentBlocksGuiController
             ->setLabel('Add page type')
             ->setShowLabelText(true);
         $buttonBar->addButton($addPageTypeButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
+
+        $reloadListButton = GeneralUtility::makeInstance(GenericButton::class)
+            ->setTag('a')
+            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
+            ->setIcon($this->iconFactory->getIcon('actions-refresh'))
+            ->setTitle('Reload list')
+            ->setLabel('Reload')
+            ->setShowLabelText(false);
+        $buttonBar->addButton($reloadListButton, ButtonBar::BUTTON_POSITION_RIGHT, 2);
+
 
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
     }
