@@ -89,8 +89,6 @@ export class ContentBlockEditor extends LitElement {
           <content-block-editor-right-pane .schema="${textarea}" .values="${this.values}"></content-block-editor-right-pane>
         </div>
       </div>
-      <button @click="${() => { this._dispatchBackEvent(); }}" type="button" class="btn btn-primary">Back
-      </button>
     `;
   }
 

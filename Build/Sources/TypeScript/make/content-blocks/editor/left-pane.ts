@@ -32,45 +32,8 @@ export class ContentBlockEditorLeftPane extends LitElement {
 
   static styles = css`
     .left-pane-tabs-container {
-      .tab-headers ul {
-        margin: 0;
-        padding: 0;
-        display: flex;
-        border-bottom: 2px solid var(--typo3-component-border-color);
-      }
 
-      .tab-headers ul li {
-        list-style: none;
-        padding: 1rem 1.25rem;
-        position: relative;
-        cursor: pointer;
-      }
-
-      .tab-headers ul li.active {
-        color: var(--typo3-component-active-color);
-        background: var(--typo3-component-active-bg);
-        font-weight: bold;
-      }
-
-      .tab-headers ul li.active:after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        height: 2px;
-        width: 100%;
-        background: var(--typo3-component-active-border-color);
-      }
-
-      .active-tab, #tab-headers {
-        width: 100%;
-      }
-
-      .active-tab {
-        padding: 0.75rem;
-      }
     }
-
   `;
 
   @property()
@@ -88,23 +51,48 @@ export class ContentBlockEditorLeftPane extends LitElement {
     const isShowBasics = this.activeTab === 'basics';
 
     return html`
-      <p>I am the Left pane</p>
-      <div class="left-pane-tabs-container">
-        <div class="tabs-headers">
-          <ul>
-            <li class="${isShowSettings ? html `active` : nothing}" @click="${() => { this.setActiveTab('settings'); }}">
-              Content Block settings
-            </li>
-            <li class="${isShowComponents ? html `active` : nothing}" @click="${() => { this.setActiveTab('components'); }}">
+      <div role="tabpanel">
+        <ul class="nav nav-tabs t3js-tabs" role="tablist" id="tabs-content-elements" data-store-last-tab="1">
+          <li role="presentation" class="t3js-tabmenu-item">
+            <a href="#"
+               @click="${() => {this.setActiveTab('settings');}}"
+               title=""
+               aria-selected="${isShowSettings ? 'true' : 'false'}"
+               class="${isShowSettings ? 'active' : nothing}"
+            >
+              Settings
+            </a>
+          </li>
+          <li role="presentation" class="t3js-tabmenu-item ">
+            <a
+              href="#"
+              @click="${() => {this.setActiveTab('components');}}"
+              title=""
+              aria-selected="${isShowComponents ? 'true' : 'false'}"
+              class="${isShowComponents ? 'active' : nothing}"
+            >
               Components
-            </li>
-            <li class="${isShowBasics ? html `active` : nothing}" @click=${() => {this.setActiveTab('basics')}}>
+            </a>
+          </li>
+          <li role="presentation" class="t3js-tabmenu-item ">
+            <a href="#"
+               @click="${() => {this.setActiveTab('basics');}}"
+               title=""
+               aria-selected="${isShowBasics ? 'true' : 'false'}"
+               class="${isShowBasics ? 'active' : nothing}"
+            >
               Basics
-            </li>
-          </ul>
-        </div>
-        <div class="active-tab">
-          ${this.renderTab()}
+            </a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane active" id="content-elements-1">
+            <div class="panel panel-tab">
+              <div class="panel-body">
+                ${this.renderTab()}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -124,7 +112,8 @@ export class ContentBlockEditorLeftPane extends LitElement {
         return html`<editor-left-pane-components></editor-left-pane-components>`;
       case 'basics':
         return html`<editor-left-pane-basics></editor-left-pane-basics>`;
-      default: return html`Unknown tab: ${this.activeTab}`;
+      default:
+        return html`Unknown tab: ${this.activeTab}`;
     }
   }
 
