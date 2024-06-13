@@ -28,7 +28,7 @@ export class EditorLeftPaneBasics extends LitElement {
 
   protected render(): TemplateResult {
     return html`
-      <typo3-infobox severity="2" subject="Oooops an error occured!" content="No basics available"></typo3-infobox>
+      <typo3-infobox severity="2" subject="Oooops an error occured!" content="No basics are available"></typo3-infobox>
     `;
   }
 
