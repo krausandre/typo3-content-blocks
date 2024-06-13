@@ -12,5 +12,29 @@
 			{ "name": "richtextConfiguration", "dataType": "text", "default": "full" },
 			{ "name": "rows", "dataType": "number" }
 		]
+	},
+	{
+		"icon": "form-category",
+		"type": "Category",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "relationship", "dataType": "text" },
+			{ "name": "maxitems", "dataType": "integer", "default": 0 },
+			{ "name": "minitems", "dataType": "integer", "default": 0 },
+			{ "name": "treeConfig.startingPoints", "dataType": "text" }
+		]
+	},
+	{
+		"icon": "form-checkbox",
+		"type": "Checkbox",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "default", "dataType": "text" },
+			{ "name": "items", "dataType": "array" },
+			{ "name": "renderType", "dataType": "text", "default": "checkbox" },
+			{ "name": "allowedCustomProperties", "dataType": "array" }
+		]
 	}
 ]
