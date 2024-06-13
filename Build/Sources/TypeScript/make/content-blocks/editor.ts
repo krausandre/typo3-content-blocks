@@ -84,7 +84,7 @@ export class ContentBlockEditor extends LitElement {
           </content-block-editor-left-pane>
         </div>
         <div class="col-4">
-          <content-block-editor-middle-pane  @fetchDragEnd="${this.fetchDragEndListener}"></content-block-editor-middle-pane>
+          <content-block-editor-middle-pane  @fieldTypeDropped="${this.fieldTypeDroppedListener}"></content-block-editor-middle-pane>
         </div>
         <div class="col-4">
           <content-block-editor-right-pane .schema="${textarea}" .values="${this.values}"></content-block-editor-right-pane>
@@ -112,6 +112,10 @@ export class ContentBlockEditor extends LitElement {
 
   protected fetchDragEndListener(event: CustomEvent) {
     console.log(event.detail);
+  }
+  protected fieldTypeDroppedListener(event: CustomEvent) {
+    console.log('Field type dropped');
+    console.log(event.detail.data);
   }
 
   private _initMultiStepWizard() {

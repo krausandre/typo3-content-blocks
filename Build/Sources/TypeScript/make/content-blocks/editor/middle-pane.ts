@@ -58,12 +58,22 @@ export class ContentBlockEditorMiddlePane extends LitElement {
 
   protected handleDragOver(event: DragEvent): void {
     event.preventDefault();
+    console.log('Dragged over - ');
+    console.log(event);
   }
 
   protected handleDrop(event: DragEvent): void {
     event.preventDefault();
     console.log('Dropped - ');
     console.log(event);
+    this._dispatchFieldTypeDroppedEvent(event.dataTransfer);
+  }
+  protected _dispatchFieldTypeDroppedEvent(data: DataTransfer): void {
+    this.dispatchEvent(new CustomEvent('fieldTypeDropped', {
+      detail: {
+        data: data
+      }
+    }));
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {

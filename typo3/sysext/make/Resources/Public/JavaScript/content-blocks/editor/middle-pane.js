@@ -10,7 +10,7 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(e,t,o,r){var n,d=arguments.length,l=d<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)l=Reflect.decorate(e,t,o,r);else for(var i=e.length-1;i>=0;i--)(n=e[i])&&(l=(d<3?n(l):d>3?n(t,o,l):n(t,o))||l);return d>3&&l&&Object.defineProperty(t,o,l),l};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockEditorMiddlePane=class extends LitElement{render(){return html`
+var __decorate=function(e,t,o,r){var d,n=arguments.length,l=n<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)l=Reflect.decorate(e,t,o,r);else for(var i=e.length-1;i>=0;i--)(d=e[i])&&(l=(n<3?d(l):n>3?d(t,o,l):d(t,o))||l);return n>3&&l&&Object.defineProperty(t,o,l),l};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockEditorMiddlePane=class extends LitElement{render(){return html`
       <style>
         #cb-drop-zone {
           border: 1px dashed #ccc;
@@ -25,4 +25,4 @@ var __decorate=function(e,t,o,r){var n,d=arguments.length,l=d<3?t:null===r?r=Obj
             @drop="${this.handleDrop}">
           Drop here to add a new field
       ></div>
-    `}handleDragOver(e){e.preventDefault()}handleDrop(e){e.preventDefault(),console.log("Dropped - "),console.log(e)}createRenderRoot(){return this}};__decorate([property()],ContentBlockEditorMiddlePane.prototype,"name",void 0),ContentBlockEditorMiddlePane=__decorate([customElement("content-block-editor-middle-pane")],ContentBlockEditorMiddlePane);export{ContentBlockEditorMiddlePane};
+    `}handleDragOver(e){e.preventDefault(),console.log("Dragged over - "),console.log(e)}handleDrop(e){e.preventDefault(),console.log("Dropped - "),console.log(e),this._dispatchFieldTypeDroppedEvent(e.dataTransfer)}_dispatchFieldTypeDroppedEvent(e){this.dispatchEvent(new CustomEvent("fieldTypeDropped",{detail:{data:e}}))}createRenderRoot(){return this}};__decorate([property()],ContentBlockEditorMiddlePane.prototype,"name",void 0),ContentBlockEditorMiddlePane=__decorate([customElement("content-block-editor-middle-pane")],ContentBlockEditorMiddlePane);export{ContentBlockEditorMiddlePane};
