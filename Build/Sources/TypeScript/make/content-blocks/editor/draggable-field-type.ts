@@ -57,6 +57,15 @@ export class DraggableFieldType extends LitElement {
           <span>${renderLabel}</span>
         </div>
       `;
+    } else if (this.fieldTypeInfo.useExistingField) {
+      return html`
+        <div class="draggable-field-type" draggable="true" @dragstart="${() => { this.handleDragStart('useExistingField'); }}" data-identifier="${this.fieldTypeInfo.identifier}">
+          <div class="icon-wrap">
+            <typo3-backend-icon identifier="apps-pagetree-page-shortcut-external" size="small"></typo3-backend-icon>
+          </div>
+          <span>${this.fieldTypeInfo.identifier} (existing field)</span>
+        </div>
+      `;
     } else {
       return html `<p>No FieldTypeSetting</p>`;
     }

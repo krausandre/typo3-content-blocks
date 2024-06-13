@@ -50,8 +50,16 @@ export class ContentBlockEditorMiddlePane extends LitElement {
       <p>Add your fields here:</p>
 
       <ul>
+        <li>
+          <div id="cb-drop-zone-0"
+               class="cb-drop-zone"
+               data-position="0"
+               @dragover="${this.handleDragOver}"
+               @drop="${this.handleDrop}">
+          </div>
+        </li>
         ${this.fieldList.map((item, index) => html`
-          ${this.renderFieldArea(item, index)}
+          ${this.renderFieldArea(item, index + 1 )}
         `)}
       </ul>
     `;
@@ -69,7 +77,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
              @dragover="${this.handleDragOver}"
              @drop="${this.handleDrop}">
         </div>
-      <li>
+      </li>
     `;
   }
 

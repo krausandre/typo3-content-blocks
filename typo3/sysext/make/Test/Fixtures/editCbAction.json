@@ -9,6 +9,12 @@
 			{
 				"identifier": "header",
 				"useExistingField": true
+			},
+			{
+				"identifier": "mytext",
+				"type": "Textarea",
+				"label": "mY Text",
+				"enableRichtext": true
 			}
 		],
 		"table": "tt_content",

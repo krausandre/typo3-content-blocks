@@ -10,7 +10,7 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(e,t,o,r){var d,l=arguments.length,i=l<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)i=Reflect.decorate(e,t,o,r);else for(var n=e.length-1;n>=0;n--)(d=e[n])&&(i=(l<3?d(i):l>3?d(t,o,i):d(t,o))||i);return l>3&&i&&Object.defineProperty(t,o,i),i};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockEditorMiddlePane=class extends LitElement{render(){return console.log(this.fieldList),html`
+var __decorate=function(e,t,o,r){var d,i=arguments.length,l=i<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)l=Reflect.decorate(e,t,o,r);else for(var n=e.length-1;n>=0;n--)(d=e[n])&&(l=(i<3?d(l):i>3?d(t,o,l):d(t,o))||l);return i>3&&l&&Object.defineProperty(t,o,l),l};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockEditorMiddlePane=class extends LitElement{render(){return console.log(this.fieldList),html`
       <style>
         .cb-drop-zone {
           border: 1px dashed #ccc;
@@ -27,8 +27,16 @@ var __decorate=function(e,t,o,r){var d,l=arguments.length,i=l<3?t:null===r?r=Obj
       <p>Add your fields here:</p>
 
       <ul>
+        <li>
+          <div id="cb-drop-zone-0"
+               class="cb-drop-zone"
+               data-position="0"
+               @dragover="${this.handleDragOver}"
+               @drop="${this.handleDrop}">
+          </div>
+        </li>
         ${this.fieldList.map(((e,t)=>html`
-          ${this.renderFieldArea(e,t)}
+          ${this.renderFieldArea(e,t+1)}
         `))}
       </ul>
     `}renderFieldArea(e,t){const o=this.fieldTypes.filter((t=>t.type===e.type))[0];return html`
@@ -40,5 +48,5 @@ var __decorate=function(e,t,o,r){var d,l=arguments.length,i=l<3?t:null===r?r=Obj
              @dragover="${this.handleDragOver}"
              @drop="${this.handleDrop}">
         </div>
-      <li>
+      </li>
     `}handleDragOver(e){e.preventDefault()}handleDrop(e){e.preventDefault(),console.log("Dropped - "),console.log(e),this._dispatchFieldTypeDroppedEvent(e.dataTransfer)}_dispatchFieldTypeDroppedEvent(e){this.dispatchEvent(new CustomEvent("fieldTypeDropped",{detail:{data:e}}))}createRenderRoot(){return this}};__decorate([property()],ContentBlockEditorMiddlePane.prototype,"fieldList",void 0),__decorate([property()],ContentBlockEditorMiddlePane.prototype,"fieldTypes",void 0),ContentBlockEditorMiddlePane=__decorate([customElement("content-block-editor-middle-pane")],ContentBlockEditorMiddlePane);export{ContentBlockEditorMiddlePane};
