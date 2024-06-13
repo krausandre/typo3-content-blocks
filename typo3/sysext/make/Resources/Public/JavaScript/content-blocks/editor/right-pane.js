@@ -10,10 +10,10 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(e,t,o,r){var n,l=arguments.length,a=l<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(e,t,o,r);else for(var i=e.length-1;i>=0;i--)(n=e[i])&&(a=(l<3?n(a):l>3?n(t,o,a):n(t,o))||a);return l>3&&a&&Object.defineProperty(t,o,a),a};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockEditorRightPane=class extends LitElement{render(){return this.fieldconfig?(this.schema=JSON.parse(this.fieldconfig),html`
+var __decorate=function(e,t,r,o){var n,l=arguments.length,a=l<3?t:null===o?o=Object.getOwnPropertyDescriptor(t,r):o;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(e,t,r,o);else for(var i=e.length-1;i>=0;i--)(n=e[i])&&(a=(l<3?n(a):l>3?n(t,r,a):n(t,r))||a);return l>3&&a&&Object.defineProperty(t,r,a),a};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockEditorRightPane=class extends LitElement{render(){return this.schema?html`
         <p>Field settings: ${this.schema.type}</p>
         ${this.schema.properties.map((e=>html` ${this.renderFormFieldset(e)}`))}
-      `):html`<p>Field settings: Choose a Field.</p>`}renderFormFieldset(e){return html`
+      `:html`<p>Field settings: Choose a Field.</p>`}renderFormFieldset(e){return html`
       <div class="form-group">
         <label for="vendor-prefix">Property '${e.name}'</label>
         ${this.renderFormField(e)}
@@ -21,4 +21,4 @@ var __decorate=function(e,t,o,r){var n,l=arguments.length,a=l<3?t:null===r?r=Obj
           <option value="">Choose...</option>
           ${e.items.map((e=>html`
             <option value="${e.value}">${e.label}</option>`))}
-        </select>`;case"boolean":return html`<input type="checkbox" id="${e.name}" ?checked=${this.values[e.name]} value="${e.default}" class="form-control" />`;case"textarea":return html`<textarea id="${e.name}" class="form-control">${e.default}</textarea>`;default:return html`Unknown field type property ${e.name}.`}}createRenderRoot(){return this}};__decorate([property()],ContentBlockEditorRightPane.prototype,"fieldconfig",void 0),__decorate([property()],ContentBlockEditorRightPane.prototype,"values",void 0),ContentBlockEditorRightPane=__decorate([customElement("content-block-editor-right-pane")],ContentBlockEditorRightPane);export{ContentBlockEditorRightPane};
+        </select>`;case"boolean":return html`<input type="checkbox" id="${e.name}" ?checked=${this.values[e.name]} value="${e.default}" class="form-control" />`;case"textarea":return html`<textarea id="${e.name}" class="form-control">${e.default}</textarea>`;default:return html`Unknown field type property ${e.name}.`}}createRenderRoot(){return this}};__decorate([property()],ContentBlockEditorRightPane.prototype,"values",void 0),__decorate([property()],ContentBlockEditorRightPane.prototype,"schema",void 0),ContentBlockEditorRightPane=__decorate([customElement("content-block-editor-right-pane")],ContentBlockEditorRightPane);export{ContentBlockEditorRightPane};
