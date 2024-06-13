@@ -14,6 +14,7 @@
 import { html, LitElement, TemplateResult, css } from 'lit';
 import { customElement } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
+import '@typo3/backend/element/info-box';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -27,7 +28,7 @@ export class EditorLeftPaneBasics extends LitElement {
 
   protected render(): TemplateResult {
     return html`
-      <p>Basics...</p>
+      <typo3-infobox severity="2" subject="Oooops an error occured!" content="No basics are available"></typo3-infobox>
     `;
   }
 

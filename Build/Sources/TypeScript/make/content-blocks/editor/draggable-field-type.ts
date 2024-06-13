@@ -62,15 +62,15 @@ export class DraggableFieldType extends LitElement {
 
       return html`
         ${deleteButton}
-        <div class="draggable-field-type"
+        <div class="draggable-field-type d-flex gap-2 text-start btn btn-default d-block mb-3 justify-content-start"
              draggable="true"
              @dragstart="${(event: DragEvent) => { this.handleDragStart(event, this.fieldTypeSetting.type, identifier); }}"
              data-identifier="${identifier}"
              @click="${() => { this.activateSettings(identifier) }}" @dragend="${ () => {this.handleDragEnd()} }"
         >
-          <div class="icon-wrap">
+          <span class="icon-wrap">
             <typo3-backend-icon identifier="${this.fieldTypeSetting.icon}" size="small"></typo3-backend-icon>
-          </div>
+          </span>
           <span>${renderLabel}</span>
         </div>
       `;

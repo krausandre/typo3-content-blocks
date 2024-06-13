@@ -23,10 +23,7 @@ var __decorate=function(e,t,o,r){var d,i=arguments.length,n=i<3?t:null===r?r=Obj
           }
         }
       </style>
-
-      <p>Add your fields here: ${e}</p>
-
-      <ul class="${e}">
+      <ul class="list-unstyled row ${e}">
         <li>
           <div id="cb-drop-zone-0"
                class="cb-drop-zone"
@@ -39,6 +36,9 @@ var __decorate=function(e,t,o,r){var d,i=arguments.length,n=i<3?t:null===r?r=Obj
           ${this.renderFieldArea(e,t+1)}
         `))}
       </ul>
+      <pre>
+        ${e}
+      </pre>
     `}renderFieldArea(e,t){const o=this.fieldTypes.filter((t=>t.type===e.type))[0];return html`
       <li>
         <draggable-field-type
