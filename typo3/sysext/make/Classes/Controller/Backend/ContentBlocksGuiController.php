@@ -22,8 +22,6 @@ use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Attribute\AsController;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Template\Components\ButtonBar;
-use TYPO3\CMS\Backend\Template\Components\Buttons\GenericButton;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Core\Environment;
@@ -31,6 +29,7 @@ use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Make\Utility\ButtonBarUtility;
 use TYPO3\CMS\Make\Utility\ContentBlocksUtility;
 use TYPO3\CMS\Make\Utility\ExtensionUtility;
 
@@ -45,7 +44,8 @@ final class ContentBlocksGuiController
         protected PageRenderer $pageRenderer,
         protected ContentBlocksUtility $contentBlocksUtility,
         protected ExtensionUtility $extensionUtility,
-        protected IconFactory $iconFactory
+        protected IconFactory $iconFactory,
+        protected ButtonBarUtility $buttonBarUtility
     ) {
     }
 
@@ -61,12 +61,12 @@ final class ContentBlocksGuiController
         $contentBlocks = $sampleData['contentBlocks'];
         foreach ($contentBlocks as $key => $contentBlock) {
             $contentBlocks[$key]['editUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_edit', [
-                'name' => $contentBlock['name'],
-                'mode' => 'edit',
+                'type' => 'edit',
+                'name' => $contentBlock['name']
             ]);
-            $contentBlocks[$key]['duplicateUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_duplicate', [
-                'name' => $contentBlock['name'],
-                'mode' => 'duplicate',
+            $contentBlocks[$key]['duplicateUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_edit', [
+                'type' => 'duplicate',
+                'name' => $contentBlock['name']
             ]);
             $contentBlocks[$key]['deleteUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_delete', [
                 'name' => $contentBlock['name'],
@@ -81,48 +81,7 @@ final class ContentBlocksGuiController
         $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/list.js');
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:make/Resources/Private/Language/locallang.xlf');
 
-        $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
-        $addContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
-            ->setTag('a')
-            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_new', [
-                'name' => '',
-                'mode' => 'new',
-            ]))
-            ->setIcon($this->iconFactory->getIcon('actions-add'))
-            ->setTitle('Add a new content element')
-            ->setLabel('Add content element')
-            ->setShowLabelText(true)
-            ->setAttributes(['data-action' => 'add-content-block']);
-        $buttonBar->addButton($addContentElementButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
-
-        $addRecordTypeButton = GeneralUtility::makeInstance(GenericButton::class)
-            ->setTag('a')
-            ->setHref('#')
-            ->setIcon($this->iconFactory->getIcon('actions-add'))
-            ->setTitle('Add a new record type')
-            ->setLabel('Add record type')
-            ->setShowLabelText(true)
-            ->setAttributes(['data-action' => 'add-record-type']);
-        $buttonBar->addButton($addRecordTypeButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
-
-        $addPageTypeButton = GeneralUtility::makeInstance(GenericButton::class)
-            ->setTag('a')
-            ->setHref('#')
-            ->setIcon($this->iconFactory->getIcon('actions-add'))
-            ->setTitle('Add a new page type')
-            ->setLabel('Add page type')
-            ->setShowLabelText(true);
-        $buttonBar->addButton($addPageTypeButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
-
-        $reloadListButton = GeneralUtility::makeInstance(GenericButton::class)
-            ->setTag('a')
-            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
-            ->setIcon($this->iconFactory->getIcon('actions-refresh'))
-            ->setTitle('Reload list')
-            ->setLabel('Reload')
-            ->setShowLabelText(false);
-        $buttonBar->addButton($reloadListButton, ButtonBar::BUTTON_POSITION_RIGHT, 2);
-
+        $this->buttonBarUtility->addIndexButtonBar($this->moduleTemplate);
 
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/List');
     }
@@ -133,29 +92,9 @@ final class ContentBlocksGuiController
     public function editAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
-
-        $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
-        $addContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
-            ->setTag('a')
-            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
-            ->setTitle('Go back to the list')
-            ->setLabel('Go back')
-            ->setIcon($this->iconFactory->getIcon('actions-arrow-down-left'))
-            ->setShowLabelText(true);
-        $buttonBar->addButton($addContentElementButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
-
+        $this->buttonBarUtility->addEditButtonBar($this->moduleTemplate);
         $this->handleAction($request);
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
-    }
-
-    /**
-     * @throws RouteNotFoundException
-     */
-    public function duplicateAction(ServerRequestInterface $request): ResponseInterface
-    {
-        $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $this->handleAction($request);
-        return $this->moduleTemplate->renderResponse('ContentBlocksGui/Duplicate');
     }
 
     /**
@@ -181,13 +120,25 @@ final class ContentBlocksGuiController
     {
         $this->pageRenderer->loadJavaScriptModule('@typo3/make/content-blocks/editor.js');
         $queryParams = $request->getQueryParams();
-        if (empty($queryParams['name']) || empty($queryParams['mode'])) {
-            throw new RouteNotFoundException('Missing required content block data');
+        if (!isset($queryParams['name'])) {
+            throw new RouteNotFoundException('Missing required content block name');
         }
-        $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
-        $contentBlocksData = json_decode($sampleJson, true);
+        $mode = 'new';
+        if($request->getUri()->getPath() === '/typo3/make/content-blocks/gui/new') {
+            $contentBlocksData = [];
+        } elseif ($request->getUri()->getPath() === '/typo3/make/content-blocks/gui/edit') {
+            $mode = 'edit';
+            $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
+            $contentBlocksData = json_decode($sampleJson, true);
+        } elseif ($request->getUri()->getPath() === '/typo3/make/content-blocks/gui/duplicate') {
+            $mode = 'duplicate';
+            $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
+            $contentBlocksData = json_decode($sampleJson, true);
+        } else {
+            throw new RouteNotFoundException('Invalid request');
+        }
         $contentBlockEditorData = GeneralUtility::implodeAttributes([
-            'mode' => $queryParams['mode'],
+            'mode' => $mode,
             'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
             'extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
             'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),
