@@ -14,6 +14,7 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
+import '@typo3/backend/element/info-box';
 import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@typo3/make/content-blocks/interface/field-type-setting';
 
 /**
@@ -38,10 +39,11 @@ export class ContentBlockEditorRightPane extends LitElement {
       `;
     }
     return html `
-      <div class="t3js-infobox callout callout-sm callout-danger">
-        <div class="callout-title">Test</div>
-        Foobar
-      </div>
+      <typo3-infobox
+        severity="-1"
+        subject="No field was selected"
+        content="Please select a field first.">
+      </typo3-infobox>
     `;
   }
 
