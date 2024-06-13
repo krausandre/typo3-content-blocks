@@ -102,6 +102,16 @@ export class ContentBlockEditor extends LitElement {
     this.groupList = JSON.parse(this.groups);
     this.extensionList = JSON.parse(this.extensions);
     this.init = true;
+
+    document.querySelectorAll('[data-action="save-content-block"]').forEach((deleteButton) => {
+      deleteButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        console.log('test');
+        console.log(this.cbDefinition.yaml);
+
+        // this.handleRemove(deleteButton.getAttribute('href'));
+      });
+    });
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {

@@ -135,14 +135,25 @@ final class ContentBlocksGuiController
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
 
         $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
-        $addContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
+        // <button @click="${() => { this._dispatchBackEvent(); }}" type="button" class="btn btn-primary">Back</button>
+        $goBackButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
             ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
             ->setTitle('Go back to the list')
             ->setLabel('Go back')
             ->setIcon($this->iconFactory->getIcon('actions-arrow-down-left'))
             ->setShowLabelText(true);
-        $buttonBar->addButton($addContentElementButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
+        $buttonBar->addButton($goBackButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
+
+        $saveContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
+            ->setTag('a')
+            ->setHref('#')
+            ->setTitle('Save content element')
+            ->setLabel('Save')
+            ->setIcon($this->iconFactory->getIcon('actions-save'))
+            ->setAttributes(['data-action' => 'save-content-block'])
+            ->setShowLabelText(true);
+        $buttonBar->addButton($saveContentElementButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
 
         $this->handleAction($request);
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
