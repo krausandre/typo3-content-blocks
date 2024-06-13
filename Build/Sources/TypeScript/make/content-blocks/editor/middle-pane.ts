@@ -56,7 +56,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
 
       <p>Add your fields here: ${cssClasses}</p>
 
-      <ul class="${cssClasses}">
+      <ul class="list-unstyled row ${cssClasses}">
         <li>
           <div id="cb-drop-zone-0"
                class="cb-drop-zone"
