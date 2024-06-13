@@ -1,6 +1,10 @@
+// TODO: how to handle dynamic properties?
 export interface FieldTypeItems {
-  value: string;
   label: string;
+  value?: string;
+  labelChecked?: string;
+  labelUnchecked?: string;
+  invertStateDisplay?: boolean;
 }
 
 export interface FieldTypeProperty {
