@@ -10,13 +10,14 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(e,t,o,r){var l,n=arguments.length,a=n<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(e,t,o,r);else for(var i=e.length-1;i>=0;i--)(l=e[i])&&(a=(n<3?l(a):n>3?l(t,o,a):l(t,o))||a);return n>3&&a&&Object.defineProperty(t,o,a),a};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockEditorRightPane=class extends LitElement{render(){return this.schema?html`
+var __decorate=function(e,t,o,r){var n,l=arguments.length,a=l<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(e,t,o,r);else for(var i=e.length-1;i>=0;i--)(n=e[i])&&(a=(l<3?n(a):l>3?n(t,o,a):n(t,o))||a);return l>3&&a&&Object.defineProperty(t,o,a),a};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import"@typo3/backend/element/info-box.js";let ContentBlockEditorRightPane=class extends LitElement{render(){return this.schema?html`
         ${this.schema.properties.map((e=>html` ${this.renderFormFieldset(e)}`))}
       `:html`
-      <div class="t3js-infobox callout callout-sm callout-danger">
-        <div class="callout-title">Test</div>
-        Foobar
-      </div>
+      <typo3-infobox
+        severity="-1"
+        subject="No field was selected"
+        content="Please select a field first.">
+      </typo3-infobox>
     `}renderFormFieldset(e){return html`
       <div class="form-group">
         <label for="vendor-prefix">Property '${e.name}'</label>
