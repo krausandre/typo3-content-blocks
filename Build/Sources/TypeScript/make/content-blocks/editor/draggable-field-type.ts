@@ -50,7 +50,7 @@ export class DraggableFieldType extends LitElement {
       }
 
       return html`
-        <div class="draggable-field-type" draggable="true" @dragstart="${(event: DragEvent) => { this.handleDragStart(event, this.fieldTypeSetting.type); }}" data-identifier="${identifier}" @click="${() => { this.activateSettings(identifier) }}" >
+        <div class="draggable-field-type" draggable="true" @dragstart="${(event: DragEvent) => { this.handleDragStart(event, this.fieldTypeSetting.type); }}" data-identifier="${identifier}" @click="${() => { this.activateSettings(identifier) }}" @dragend="${ () => {this.handleDragEnd()} }" >
           <div class="icon-wrap">
             <typo3-backend-icon identifier="${this.fieldTypeSetting.icon}" size="small"></typo3-backend-icon>
           </div>
@@ -65,6 +65,17 @@ export class DraggableFieldType extends LitElement {
   protected handleDragStart(event: DragEvent, type: string): void {
     console.log('Drag started');
     event.dataTransfer?.setData('text/plain', type);
+    this.dispatchEvent(new CustomEvent('dragStart', {
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  protected handleDragEnd(): void {
+    this.dispatchEvent(new CustomEvent('dragEnd', {
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   protected activateSettings(identifier: string): void {

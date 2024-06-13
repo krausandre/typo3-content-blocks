@@ -30,11 +30,16 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     fieldList?: Array<ContentBlockField>;
   @property()
     fieldTypes: Array<FieldTypeSetting>;
+  @property()
+    dragActive: boolean;
 
   position: number;
 
   protected render(): TemplateResult {
-    console.log(this.fieldList);
+    let cssClasses = '';
+    if (this.dragActive) {
+      cssClasses = 'drag-active';
+    }
     return html`
       <style>
         .cb-drop-zone {
@@ -49,9 +54,9 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         }
       </style>
 
-      <p>Add your fields here:</p>
+      <p>Add your fields here: ${cssClasses}</p>
 
-      <ul>
+      <ul class="${cssClasses}">
         <li>
           <div id="cb-drop-zone-0"
                class="cb-drop-zone"

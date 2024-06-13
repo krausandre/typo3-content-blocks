@@ -62,6 +62,9 @@ export class ContentBlockEditor extends LitElement {
   @property()
     rightPaneActiveSchema: FieldTypeSetting;
 
+  @property()
+    dragActive?: boolean = false;
+
   init = false;
   cbDefinition: ContentBlockDefinition;
   fieldTypeList: Array<FieldTypeSetting>;
@@ -77,33 +80,36 @@ export class ContentBlockEditor extends LitElement {
       this._initMultiStepWizard();
     }
     return html`
-      <div class="row">
-        <div class="col-4">
-          <content-block-editor-left-pane
-            .contentBlockYaml="${this.cbDefinition.yaml}"
-            .groups="${this.groupList}"
-            .extensions="${this.extensionList}"
-            .fieldTypes="${this.fieldTypeList}"
-          >
-          </content-block-editor-left-pane>
+        <div class="row">
+          <div class="col-4">
+            <content-block-editor-left-pane
+              .contentBlockYaml="${this.cbDefinition.yaml}"
+              .groups="${this.groupList}"
+              .extensions="${this.extensionList}"
+              .fieldTypes="${this.fieldTypeList}"
+              @dragStart="${this.handleDragStart}"
+              @dragEnd="${this.handleDragEnd}"
+            >
+            </content-block-editor-left-pane>
+          </div>
+          <div class="col-4">
+            <content-block-editor-middle-pane
+              .fieldList="${this.cbDefinition.yaml.fields}"
+              .fieldTypes="${this.fieldTypeList}"
+              .dragActive="${this.dragActive}"
+              @fieldTypeDropped="${this.fieldTypeDroppedListener}"
+              @activateSettings="${this.activateFieldSettings}"
+            >
+            </content-block-editor-middle-pane>
+          </div>
+          <div class="col-4">
+            <content-block-editor-right-pane
+              .schema="${this.rightPaneActiveSchema}"
+              .values="${this.fieldSettingsValues}">
+            </content-block-editor-right-pane>
+          </div>
         </div>
-        <div class="col-4">
-          <content-block-editor-middle-pane
-            .fieldList="${this.cbDefinition.yaml.fields}"
-            .fieldTypes="${this.fieldTypeList}"
-            @fieldTypeDropped="${this.fieldTypeDroppedListener}"
-            @activateSettings="${this.activateFieldSettings}"
-          >
-          </content-block-editor-middle-pane>
-        </div>
-        <div class="col-4">
-          <content-block-editor-right-pane
-            .schema="${this.rightPaneActiveSchema}"
-            .values="${this.fieldSettingsValues}">
-          </content-block-editor-right-pane>
-        </div>
-      </div>
-    `;
+      `;
   }
 
   protected initData(): void {
@@ -143,6 +149,14 @@ export class ContentBlockEditor extends LitElement {
   protected activateFieldSettings(event: CustomEvent) {
     this.fieldSettingsValues = this.cbDefinition.yaml.fields.filter((fieldType) => fieldType.identifier === event.detail.identifier)[0] as ContentBlockField;
     this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
+  }
+
+  private handleDragEnd(): void {
+    this.dragActive = false;
+  }
+
+  private handleDragStart(): void {
+    this.dragActive = true;
   }
 
   private _initMultiStepWizard() {
