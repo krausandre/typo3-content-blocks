@@ -61,12 +61,15 @@ export class ContentBlockEditor extends LitElement {
 
   @property()
     rightPaneActiveSchema: FieldTypeSetting;
+  @property()
+    rightPaneActivePosition: number;
 
   @property()
     dragActive?: boolean = false;
+  @property()
+    cbDefinition: ContentBlockDefinition;
 
   init = false;
-  cbDefinition: ContentBlockDefinition;
   fieldTypeList: Array<FieldTypeSetting>;
   groupList: Array<GroupDefinition>;
   extensionList: Array<ExtensionDefinition>;
@@ -74,8 +77,6 @@ export class ContentBlockEditor extends LitElement {
 
   protected render(): TemplateResult {
     this.initData();
-    // this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === 'Textarea')[0];
-
     if (this.mode === 'copy') {
       this._initMultiStepWizard();
     }
@@ -99,13 +100,17 @@ export class ContentBlockEditor extends LitElement {
               .dragActive="${this.dragActive}"
               @fieldTypeDropped="${this.fieldTypeDroppedListener}"
               @activateSettings="${this.activateFieldSettings}"
+              @removeFieldType="${this.removeFieldTypeEventListener}"
             >
             </content-block-editor-middle-pane>
           </div>
           <div class="col-4">
             <content-block-editor-right-pane
               .schema="${this.rightPaneActiveSchema}"
-              .values="${this.fieldSettingsValues}">
+              .values="${this.fieldSettingsValues}"
+              .position="${this.rightPaneActivePosition}"
+              @updateCbFieldData="${this.updateFieldDataEventListener}"
+            >
             </content-block-editor-right-pane>
           </div>
         </div>
@@ -125,9 +130,7 @@ export class ContentBlockEditor extends LitElement {
     document.querySelectorAll('[data-action="save-content-block"]').forEach((deleteButton) => {
       deleteButton.addEventListener('click', (event) => {
         event.preventDefault();
-        console.log('test');
         console.log(this.cbDefinition.yaml);
-
         // this.handleRemove(deleteButton.getAttribute('href'));
       });
     });
@@ -140,15 +143,53 @@ export class ContentBlockEditor extends LitElement {
   }
 
   protected fieldTypeDroppedListener(event: CustomEvent) {
-    console.log('Field type dropped');
-    console.log(event.detail.type);
-    console.log(event.detail.position);
+    this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === event.detail.data.type)[0];
+    const newIdentifier = event.detail.data.type + '_' + this.cbDefinition.yaml.fields.length;
+    if(this.cbDefinition.yaml.fields.filter((fieldType) => fieldType.identifier === event.detail.data.identifier).length > 0) {
+      const existingFieldPosition = this.cbDefinition.yaml.fields.findIndex((fieldType) => fieldType.identifier === event.detail.data.identifier);
+      const movedField = this.cbDefinition.yaml.fields[existingFieldPosition];
+      const tempFields = [
+        ...this.cbDefinition.yaml.fields.slice(0, existingFieldPosition),
+        ...this.cbDefinition.yaml.fields.slice(existingFieldPosition + 1)
+      ];
 
+      this.cbDefinition.yaml.fields = [
+        ...tempFields.slice(0, event.detail.position),
+        movedField,
+        ...tempFields.slice(event.detail.position)
+      ];
+      this.fieldSettingsValues = this.cbDefinition.yaml.fields[existingFieldPosition];
+      this.rightPaneActivePosition = this.cbDefinition.yaml.fields.findIndex((fieldType) => fieldType.identifier === event.detail.data.identifier);
+    } else {
+      const newField: ContentBlockField = {
+        identifier: newIdentifier,
+        type: event.detail.data.type,
+        label: event.detail.data.type + this.cbDefinition.yaml.fields.length,
+      };
+      this.fieldSettingsValues = newField;
+      this.cbDefinition.yaml.fields.splice(event.detail.position, 0, newField);
+      this.rightPaneActivePosition = event.detail.position;
+    }
+  }
+
+  protected updateFieldDataEventListener(event: CustomEvent) {
+    this.cbDefinition.yaml.fields[event.detail.position] = event.detail.values;
+    console.log(this.cbDefinition.yaml.fields);
+    this.fieldSettingsValues = this.cbDefinition.yaml.fields[event.detail.position];
+  }
+  protected removeFieldTypeEventListener(event: CustomEvent) {
+    const clone = structuredClone(this.cbDefinition);
+    clone.yaml.fields.splice(event.detail.position, 1);
+    this.cbDefinition = clone;
+    console.log(this.cbDefinition.yaml.fields);
+    this.fieldSettingsValues = { identifier: '', label: '', type: '' };
+    this.rightPaneActiveSchema = null;
   }
 
   protected activateFieldSettings(event: CustomEvent) {
     this.fieldSettingsValues = this.cbDefinition.yaml.fields.filter((fieldType) => fieldType.identifier === event.detail.identifier)[0] as ContentBlockField;
     this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
+    this.rightPaneActivePosition = event.detail.position;
   }
 
   private handleDragEnd(): void {

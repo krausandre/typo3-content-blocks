@@ -31,7 +31,11 @@ export class ContentBlockEditorRightPane extends LitElement {
   @property()
     schema?: FieldTypeSetting;
 
+  @property()
+    position?: number;
+
   protected render(): TemplateResult {
+    console.log('Render right pane')
     if (this.schema) {
       return html `
         <p>Field settings: ${this.schema.type}</p>
@@ -52,24 +56,37 @@ export class ContentBlockEditorRightPane extends LitElement {
   protected renderFormField(fieldTypeProperty: FieldTypeProperty): TemplateResult {
     switch (fieldTypeProperty.dataType) {
       case 'text':
-        return html `<input type="text" id="${fieldTypeProperty.name}" value="${this.values[fieldTypeProperty.name] as string || fieldTypeProperty.default}" class="form-control" />`;
+        return html `<input @blur="${this.dispatchBlurEvent}" type="text" id="${fieldTypeProperty.name}" value="${this.values[fieldTypeProperty.name] as string || fieldTypeProperty.default || ''}" class="form-control" />`;
       case 'number':
-        return html `<input type="number" id="${fieldTypeProperty.name}" value="${this.values[fieldTypeProperty.name] as number || fieldTypeProperty.default}" class="form-control" />`;
+        return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" value="${this.values[fieldTypeProperty.name] as number || fieldTypeProperty.default}" class="form-control" />`;
       case 'select':
-        return html `<select class="form-control" id="${fieldTypeProperty.name}" >
+        return html `<select @blur="${this.dispatchBlurEvent}" class="form-control" id="${fieldTypeProperty.name}" >
           <option value="">Choose...</option>
           ${fieldTypeProperty.items.map( (option: FieldTypeItems) => html`
             <option value="${option.value}">${option.label}</option>` )}
         </select>`;
       case 'boolean':
-        return html `<input type="checkbox" id="${fieldTypeProperty.name}" ?checked=${this.values[fieldTypeProperty.name] as boolean} value="${fieldTypeProperty.default}" class="form-control" />`;
+        return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${this.values[fieldTypeProperty.name] as boolean} value="${fieldTypeProperty.default}" class="form-control" />`;
       case 'textarea':
-        return html `<textarea id="${fieldTypeProperty.name}" class="form-control">${fieldTypeProperty.default}</textarea>`;
+        return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${fieldTypeProperty.default}</textarea>`;
       default:
         return html `Unknown field type property ${fieldTypeProperty.name}.`;
     }
   }
 
+  protected dispatchBlurEvent(event: Event): void {
+    event.preventDefault();
+    const target = event.target as HTMLInputElement;
+    this.values[target.id] = target.value;
+    this.dispatchEvent(new CustomEvent('updateCbFieldData', {
+      bubbles: true,
+      composed: true,
+      detail: {
+        position: this.position,
+        values: this.values,
+      },
+    }));
+  }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly

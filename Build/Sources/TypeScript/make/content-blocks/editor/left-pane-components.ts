@@ -45,9 +45,6 @@ export class EditorLeftPaneComponents extends LitElement {
       </ul>
     `;
   }
-  protected test(e: CustomEvent): void {
-    console.log('test' + e.detail.type);
-  }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly

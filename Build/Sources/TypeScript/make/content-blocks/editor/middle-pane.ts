@@ -32,10 +32,11 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     fieldTypes: Array<FieldTypeSetting>;
   @property()
     dragActive: boolean;
-
-  position: number;
+  @property()
+    position: number;
 
   protected render(): TemplateResult {
+    console.log('Render middle pane')
     let cssClasses = '';
     if (this.dragActive) {
       cssClasses = 'drag-active';
@@ -73,11 +74,15 @@ export class ContentBlockEditorMiddlePane extends LitElement {
   }
 
   protected renderFieldArea(cbField: ContentBlockField, position: number): TemplateResult {
-    // const fieldType = this.fieldTypes.find( (item) => item.type === cbField.type );
     const fieldType = this.fieldTypes.filter((fieldType) => fieldType.type === cbField.type)[0];
     return html`
       <li>
-        <draggable-field-type .fieldTypeSetting="${fieldType}" .fieldTypeInfo="${cbField}"></draggable-field-type>
+        <draggable-field-type
+          .fieldTypeSetting="${fieldType}"
+          .fieldTypeInfo="${cbField}"
+          .position="${position - 1}"
+          showDeleteButton="true"
+        ></draggable-field-type>
         <div id="cb-drop-zone-${position}"
              class="cb-drop-zone"
              data-position="${position}"
@@ -94,14 +99,14 @@ export class ContentBlockEditorMiddlePane extends LitElement {
 
   protected handleDrop(event: DragEvent): void {
     event.preventDefault();
-    console.log('Dropped - ');
     this.position = parseInt((event.target as HTMLElement).dataset.position || '0', 10);
     this._dispatchFieldTypeDroppedEvent(event.dataTransfer?.getData('text/plain'));
   }
-  protected _dispatchFieldTypeDroppedEvent(type: string): void {
+  protected _dispatchFieldTypeDroppedEvent(data: string): void {
+    const dataObject = JSON.parse(data);
     this.dispatchEvent(new CustomEvent('fieldTypeDropped', {
       detail: {
-        type: type,
+        data: dataObject,
         position: this.position
       }
     }));

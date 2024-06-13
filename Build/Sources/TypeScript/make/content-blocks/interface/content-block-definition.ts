@@ -1,3 +1,5 @@
+import { FieldTypeItems } from '@typo3/make/content-blocks/interface/field-type-setting';
+
 export interface ContentBlockField {
   identifier: string;
   type: string;
@@ -14,6 +16,19 @@ export interface ContentBlockField {
   enableRichtext?: boolean;
   richtextConfiguration?: string;
   rows?: number;
+  relationship?: string;
+  maxitems?: number;
+  minitems?: number;
+  items?: Array<FieldTypeItems>;
+  renderType?: string;
+  allowedCustomProperties?: Array<FieldTypeItems>;
+  format?: string;
+  range?: Array<FieldTypeItems>;
+  slider?: Array<FieldTypeItems>;
+  size?: number;
+  valuePicker?: Array<FieldTypeItems>;
+  allowedTypes?: Array<FieldTypeItems>;
+  ignoreIfNotInPalette?: boolean;
 }
 
 /*interface ContentBlockNumberField extends ContentBlockField {

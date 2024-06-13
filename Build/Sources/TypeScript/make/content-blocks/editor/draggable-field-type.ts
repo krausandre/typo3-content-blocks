@@ -40,6 +40,11 @@ export class DraggableFieldType extends LitElement {
   @property()
     identifierIndex?: number = 0;
 
+  @property()
+    position?: number = 0;
+  @property()
+    showDeleteButton?: boolean = false;
+
   protected render(): TemplateResult {
     if (this.fieldTypeSetting) {
       let identifier: string = this.fieldTypeSetting.type + '_' + this.identifierIndex;
@@ -48,9 +53,21 @@ export class DraggableFieldType extends LitElement {
         identifier = this.fieldTypeInfo.identifier;
         renderLabel = identifier + ' (' + renderLabel + ')';
       }
+      let deleteButton = html` `;
+      if(this.showDeleteButton) {
+        deleteButton = html`<div class="delete-icon-wrap" @click="${() => { this.removeFieldType() }}">
+            <typo3-backend-icon identifier="actions-close" size="small"></typo3-backend-icon>
+          </div>`;
+      }
 
       return html`
-        <div class="draggable-field-type" draggable="true" @dragstart="${(event: DragEvent) => { this.handleDragStart(event, this.fieldTypeSetting.type); }}" data-identifier="${identifier}" @click="${() => { this.activateSettings(identifier) }}" @dragend="${ () => {this.handleDragEnd()} }" >
+        ${deleteButton}
+        <div class="draggable-field-type"
+             draggable="true"
+             @dragstart="${(event: DragEvent) => { this.handleDragStart(event, this.fieldTypeSetting.type, identifier); }}"
+             data-identifier="${identifier}"
+             @click="${() => { this.activateSettings(identifier) }}" @dragend="${ () => {this.handleDragEnd()} }"
+        >
           <div class="icon-wrap">
             <typo3-backend-icon identifier="${this.fieldTypeSetting.icon}" size="small"></typo3-backend-icon>
           </div>
@@ -62,9 +79,12 @@ export class DraggableFieldType extends LitElement {
     }
   }
 
-  protected handleDragStart(event: DragEvent, type: string): void {
-    console.log('Drag started');
-    event.dataTransfer?.setData('text/plain', type);
+  protected handleDragStart(event: DragEvent, type: string, identifier: string): void {
+    const data = {
+      type: type,
+      identifier: identifier,
+    };
+    event.dataTransfer?.setData('text/plain', JSON.stringify(data));
     this.dispatchEvent(new CustomEvent('dragStart', {
       bubbles: true,
       composed: true,
@@ -83,11 +103,21 @@ export class DraggableFieldType extends LitElement {
       this.dispatchEvent(new CustomEvent('activateSettings', {
         detail: {
           identifier: identifier,
+          position: this.position,
         },
         bubbles: true,
         composed: true,
       }));
     }
+  }
+  protected removeFieldType(): void {
+    this.dispatchEvent(new CustomEvent('removeFieldType', {
+      detail: {
+        position: this.position,
+      },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
@@ -95,5 +125,4 @@ export class DraggableFieldType extends LitElement {
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;
   }
-
 }
