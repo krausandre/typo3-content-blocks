@@ -84,7 +84,7 @@ export class ContentBlockEditor extends LitElement {
           </content-block-editor-left-pane>
         </div>
         <div class="col-4">
-          <content-block-editor-middle-pane  @fieldTypeDropped="${this.fieldTypeDroppedListener}"></content-block-editor-middle-pane>
+          <content-block-editor-middle-pane  @fieldTypeDropped="${this.fieldTypeDroppedListener}" .fieldList="${this.cbDefinition.yaml.fields}" .fieldTypes="${this.fieldTypeList}"></content-block-editor-middle-pane>
         </div>
         <div class="col-4">
           <content-block-editor-right-pane .schema="${textarea}" .values="${this.values}"></content-block-editor-right-pane>

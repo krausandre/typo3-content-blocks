@@ -15,6 +15,7 @@ import { html, LitElement, TemplateResult, css } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
 import { FieldTypeSetting } from '@typo3/make/content-blocks/interface/field-type-setting';
+import { ContentBlockField } from '@typo3/make/content-blocks/interface/content-block-definition';
 
 
 /**
@@ -33,14 +34,27 @@ export class DraggableFieldType extends LitElement {
   @property()
     fieldTypeSetting?: FieldTypeSetting;
 
+  @property()
+    fieldTypeInfo?: ContentBlockField;
+
+  @property()
+    identifierIndex?: number = 0;
+
   protected render(): TemplateResult {
     if (this.fieldTypeSetting) {
+      let identifier: string = this.fieldTypeSetting.type + '_' + this.identifierIndex;
+      let renderLabel: string = this.fieldTypeSetting.type;
+      if (this.fieldTypeInfo) {
+        identifier = this.fieldTypeInfo.identifier;
+        renderLabel = identifier + ' (' + renderLabel + ')';
+      }
+
       return html`
-        <div class="draggable-field-type" draggable="true" @dragstart="${() => { this.handleDragStart(this.fieldTypeSetting.type); }}">
+        <div class="draggable-field-type" draggable="true" @dragstart="${() => { this.handleDragStart(this.fieldTypeSetting.type); }}" data-identifier="${identifier}">
           <div class="icon-wrap">
             <typo3-backend-icon identifier="${this.fieldTypeSetting.icon}" size="small"></typo3-backend-icon>
           </div>
-          <span>${this.fieldTypeSetting.type}</span>
+          <span>${renderLabel}</span>
         </div>
       `;
     } else {

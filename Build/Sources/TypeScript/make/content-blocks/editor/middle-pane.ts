@@ -34,32 +34,45 @@ export class ContentBlockEditorMiddlePane extends LitElement {
   protected render(): TemplateResult {
     return html`
       <style>
-        #cb-drop-zone {
+        .cb-drop-zone {
           border: 1px dashed #ccc;
-          height: 100px;
+          height: 20px;
           margin: 10px 0;
+          background-color: #f9f9f9;
+
+          &:focus {
+            background-color: #cbffdb;
+          }
         }
       </style>
 
-      <p>I am the Middle pane...</p>
-      <div id="cb-drop-zone"
-            @dragover="${this.handleDragOver}"
-            @drop="${this.handleDrop}">
-          Drop here to add a new field
-      ></div>
+      <p>Add your fields here:</p>
+
+      <ul>
+        ${this.fieldList.map((item, index) => html`
+          ${this.renderFieldArea(item, index)}
+        `)}
+      </ul>
     `;
   }
 
-  protected renderFieldArea(cbField: ContentBlockField): TemplateResult {
-    return html `
-
+  protected renderFieldArea(cbField: ContentBlockField, position: number): TemplateResult {
+    const fieldType = this.fieldTypes.find( (item) => item.type === cbField.type );
+    return html`
+      <li>
+        <draggable-field-type .fieldTypeSetting="${fieldType}" .fieldTypeInfo="${cbField}"></draggable-field-type>
+        <div id="cb-drop-zone-${position}"
+             class="cb-drop-zone"
+             data-position="${position}"
+             @dragover="${this.handleDragOver}"
+             @drop="${this.handleDrop}">
+        </div>
+      <li>
     `;
   }
 
   protected handleDragOver(event: DragEvent): void {
     event.preventDefault();
-    console.log('Dragged over - ');
-    console.log(event);
   }
 
   protected handleDrop(event: DragEvent): void {
