@@ -31,6 +31,8 @@ export class ContentBlockEditorMiddlePane extends LitElement {
   @property()
     fieldTypes: Array<FieldTypeSetting>;
 
+  position: number;
+
   protected render(): TemplateResult {
     console.log(this.fieldList);
     return html`
@@ -88,13 +90,14 @@ export class ContentBlockEditorMiddlePane extends LitElement {
   protected handleDrop(event: DragEvent): void {
     event.preventDefault();
     console.log('Dropped - ');
-    console.log(event);
-    this._dispatchFieldTypeDroppedEvent(event.dataTransfer);
+    this.position = parseInt((event.target as HTMLElement).dataset.position || '0', 10);
+    this._dispatchFieldTypeDroppedEvent(event.dataTransfer?.getData('text/plain'));
   }
-  protected _dispatchFieldTypeDroppedEvent(data: DataTransfer): void {
+  protected _dispatchFieldTypeDroppedEvent(type: string): void {
     this.dispatchEvent(new CustomEvent('fieldTypeDropped', {
       detail: {
-        data: data
+        type: type,
+        position: this.position
       }
     }));
   }

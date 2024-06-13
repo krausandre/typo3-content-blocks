@@ -84,7 +84,6 @@ export class ContentBlockEditor extends LitElement {
             .groups="${this.groupList}"
             .extensions="${this.extensionList}"
             .fieldTypes="${this.fieldTypeList}"
-            @fetchDragEnd="${this.fetchDragEndListener}"
           >
           </content-block-editor-left-pane>
         </div>
@@ -134,12 +133,11 @@ export class ContentBlockEditor extends LitElement {
     return this;
   }
 
-  protected fetchDragEndListener(event: CustomEvent) {
-    console.log(event.detail);
-  }
   protected fieldTypeDroppedListener(event: CustomEvent) {
     console.log('Field type dropped');
-    console.log(event.detail.data);
+    console.log(event.detail.type);
+    console.log(event.detail.position);
+
   }
 
   protected activateFieldSettings(event: CustomEvent) {
