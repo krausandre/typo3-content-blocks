@@ -332,7 +332,7 @@ class ContentBlocksUtility
 
     public function getFieldTypes(): array
     {
-        $resource = ExtensionManagementUtility::extPath('make') . 'Configuration/FieldTypes/fieldTypes.json';
+        $resource = ExtensionManagementUtility::extPath('make') . 'Configuration/ContentBlocks/FieldTypes/fieldTypes.json';
         return json_decode(file_get_contents($resource), true);
     }
 

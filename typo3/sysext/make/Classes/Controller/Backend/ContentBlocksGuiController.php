@@ -125,7 +125,8 @@ final class ContentBlocksGuiController
         }
         $mode = 'new';
         if($request->getUri()->getPath() === '/typo3/make/content-blocks/gui/new') {
-            $contentBlocksData = [];
+            $skeletonJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Configuration/ContentBlocks/Skeleton.json');
+            $contentBlocksData = json_decode($skeletonJson, true);
         } elseif ($request->getUri()->getPath() === '/typo3/make/content-blocks/gui/edit') {
             $mode = 'edit';
             $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');

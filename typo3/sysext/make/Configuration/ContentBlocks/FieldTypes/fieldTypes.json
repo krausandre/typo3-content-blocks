@@ -1,0 +1,110 @@
+[
+	{
+		"icon": "form-textarea",
+		"type": "Textarea",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "default", "dataType": "text" },
+			{ "name": "placeholder", "dataType": "text" },
+			{ "name": "required", "dataType": "boolean" },
+			{ "name": "enableRichtext", "dataType": "boolean" },
+			{ "name": "richtextConfiguration", "dataType": "text", "default": "full" },
+			{ "name": "rows", "dataType": "number" }
+		]
+	},
+	{
+		"icon": "form-category",
+		"type": "Category",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "relationship", "dataType": "text" },
+			{ "name": "maxitems", "dataType": "number", "default": 0 },
+			{ "name": "minitems", "dataType": "number", "default": 0 },
+			{ "name": "treeConfig.startingPoints", "dataType": "text" }
+		]
+	},
+	{
+		"icon": "form-checkbox",
+		"type": "Checkbox",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "default", "dataType": "text" },
+			{ "name": "items", "dataType": "array" },
+			{ "name": "renderType", "dataType": "text", "default": "checkbox" },
+			{ "name": "allowedCustomProperties", "dataType": "array" }
+		]
+	},
+	{
+		"icon": "form-number",
+		"type": "Number",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "format", "dataType": "text", "default": "number" },
+			{ "name": "default", "dataType": "number", "default": 0 },
+			{ "name": "range", "dataType": "array" },
+			{ "name": "required", "dataType": "boolean", "default": false },
+			{ "name": "slider", "dataType": "array" }
+		]
+	},
+	{
+		"icon": "form-text",
+		"type": "Text",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "default", "dataType": "text" },
+			{ "name": "max", "dataType": "number" },
+			{ "name": "min", "dataType": "number" },
+			{ "name": "placeholder", "dataType": "text" },
+			{ "name": "required", "dataType": "boolean", "default": false },
+			{ "name": "size", "dataType": "number" },
+			{ "name": "valuePicker", "dataType": "array" }
+		]
+	},
+	{
+		"icon": "form-link",
+		"type": "Link",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "default", "dataType": "text", "default": "" },
+			{ "name": "required", "dataType": "boolean", "default": false },
+			{ "name": "size", "dataType": "number" },
+			{ "name": "allowedTypes", "dataType": "array" }
+		]
+	},
+	{
+		"icon": "form-radio",
+		"type": "Radio",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "default", "dataType": "text" },
+			{ "name": "items", "dataType": "array" },
+			{ "name": "allowedCustomProperties", "dataType": "array" }
+		]
+	},
+	{
+		"icon": "form-linebreak",
+		"type": "Linebreak",
+		"properties" : [
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "ignoreIfNotInPalette", "dataType": "boolean", "default": false }
+		]
+	},
+	{
+		"icon": "form-email",
+		"type": "Email",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "default", "dataType": "text" },
+			{ "name": "placeholder", "dataType": "text" },
+			{ "name": "required", "dataType": "boolean", "default": false }
+		]
+	}
+]

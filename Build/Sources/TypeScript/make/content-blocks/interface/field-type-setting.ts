@@ -5,6 +5,10 @@ export interface FieldTypeItems {
   labelChecked?: string;
   labelUnchecked?: string;
   invertStateDisplay?: boolean;
+  lower?: number;
+  upper?: number;
+  step?: number;
+  width?: number;
 }
 
 export interface FieldTypeProperty {
