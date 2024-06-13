@@ -10,7 +10,7 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(e,t,o,r){var d,l=arguments.length,n=l<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)n=Reflect.decorate(e,t,o,r);else for(var i=e.length-1;i>=0;i--)(d=e[i])&&(n=(l<3?d(n):l>3?d(t,o,n):d(t,o))||n);return l>3&&n&&Object.defineProperty(t,o,n),n};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockEditorMiddlePane=class extends LitElement{render(){return html`
+var __decorate=function(e,t,o,r){var d,l=arguments.length,i=l<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)i=Reflect.decorate(e,t,o,r);else for(var n=e.length-1;n>=0;n--)(d=e[n])&&(i=(l<3?d(i):l>3?d(t,o,i):d(t,o))||i);return l>3&&i&&Object.defineProperty(t,o,i),i};import{html,LitElement}from"lit";import{customElement,property}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let ContentBlockEditorMiddlePane=class extends LitElement{render(){return console.log(this.fieldList),html`
       <style>
         .cb-drop-zone {
           border: 1px dashed #ccc;
@@ -31,7 +31,7 @@ var __decorate=function(e,t,o,r){var d,l=arguments.length,n=l<3?t:null===r?r=Obj
           ${this.renderFieldArea(e,t)}
         `))}
       </ul>
-    `}renderFieldArea(e,t){const o=this.fieldTypes.find((t=>t.type===e.type));return html`
+    `}renderFieldArea(e,t){const o=this.fieldTypes.filter((t=>t.type===e.type))[0];return html`
       <li>
         <draggable-field-type .fieldTypeSetting="${o}" .fieldTypeInfo="${e}"></draggable-field-type>
         <div id="cb-drop-zone-${t}"

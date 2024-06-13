@@ -32,6 +32,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     fieldTypes: Array<FieldTypeSetting>;
 
   protected render(): TemplateResult {
+    console.log(this.fieldList);
     return html`
       <style>
         .cb-drop-zone {
@@ -57,7 +58,8 @@ export class ContentBlockEditorMiddlePane extends LitElement {
   }
 
   protected renderFieldArea(cbField: ContentBlockField, position: number): TemplateResult {
-    const fieldType = this.fieldTypes.find( (item) => item.type === cbField.type );
+    // const fieldType = this.fieldTypes.find( (item) => item.type === cbField.type );
+    const fieldType = this.fieldTypes.filter((fieldType) => fieldType.type === cbField.type)[0];
     return html`
       <li>
         <draggable-field-type .fieldTypeSetting="${fieldType}" .fieldTypeInfo="${cbField}"></draggable-field-type>

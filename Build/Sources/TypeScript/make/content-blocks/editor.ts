@@ -66,7 +66,7 @@ export class ContentBlockEditor extends LitElement {
 
   protected render(): TemplateResult {
     this.initData();
-    const textarea = this.fieldTypeList.filter((fieldType) => fieldType.type === 'Textarea')[0];
+    const rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === 'Textarea')[0];
 
     if (this.mode === 'copy') {
       this._initMultiStepWizard();
@@ -84,10 +84,17 @@ export class ContentBlockEditor extends LitElement {
           </content-block-editor-left-pane>
         </div>
         <div class="col-4">
-          <content-block-editor-middle-pane  @fieldTypeDropped="${this.fieldTypeDroppedListener}" .fieldList="${this.cbDefinition.yaml.fields}" .fieldTypes="${this.fieldTypeList}"></content-block-editor-middle-pane>
+          <content-block-editor-middle-pane
+            @fieldTypeDropped="${this.fieldTypeDroppedListener}"
+            .fieldList="${this.cbDefinition.yaml.fields}"
+            .fieldTypes="${this.fieldTypeList}">
+          </content-block-editor-middle-pane>
         </div>
         <div class="col-4">
-          <content-block-editor-right-pane .schema="${textarea}" .values="${this.values}"></content-block-editor-right-pane>
+          <content-block-editor-right-pane
+            .schema="${rightPaneActiveSchema}"
+            .values="${this.values}">
+          </content-block-editor-right-pane>
         </div>
       </div>
     `;
