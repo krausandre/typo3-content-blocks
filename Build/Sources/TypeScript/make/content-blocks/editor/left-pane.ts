@@ -11,7 +11,7 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult, css, nothing } from 'lit';
+import { html, LitElement, TemplateResult, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
 import '@typo3/make/content-blocks/editor/left-pane-content-block-settings';
@@ -20,6 +20,7 @@ import '@typo3/make/content-blocks/editor/left-pane-basics';
 import { ContentBlocksYaml } from '@typo3/make/content-blocks/interface/content-block-definition';
 import { GroupDefinition } from '@typo3/make/content-blocks/interface/group-definition';
 import { ExtensionDefinition } from '@typo3/make/content-blocks/interface/extension-definition';
+import { FieldTypeSetting } from '@typo3/make/content-blocks/interface/field-type-setting';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -30,12 +31,6 @@ import { ExtensionDefinition } from '@typo3/make/content-blocks/interface/extens
 @customElement('content-block-editor-left-pane')
 export class ContentBlockEditorLeftPane extends LitElement {
 
-  static styles = css`
-    .left-pane-tabs-container {
-
-    }
-  `;
-
   @property()
     activeTab: string = 'settings';
   @property()
@@ -44,6 +39,8 @@ export class ContentBlockEditorLeftPane extends LitElement {
     extensions: Array<ExtensionDefinition>;
   @property()
     contentBlockYaml: ContentBlocksYaml;
+  @property()
+    fieldTypes: Array<FieldTypeSetting>;
 
   protected render(): TemplateResult {
     const isShowSettings = this.activeTab === 'settings';
@@ -109,7 +106,7 @@ export class ContentBlockEditorLeftPane extends LitElement {
       case 'settings':
         return html`<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}" .groups="${this.groups}" .extensions="${this.extensions}"></editor-left-pane-content-block-settings>`;
       case 'components':
-        return html`<editor-left-pane-components></editor-left-pane-components>`;
+        return html`<editor-left-pane-components .fieldTypes="${this.fieldTypes}"></editor-left-pane-components>`;
       case 'basics':
         return html`<editor-left-pane-basics></editor-left-pane-basics>`;
       default:

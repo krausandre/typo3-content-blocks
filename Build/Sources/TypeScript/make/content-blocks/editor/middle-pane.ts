@@ -14,6 +14,8 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
+import { FieldTypeSetting } from '@typo3/make/content-blocks/interface/field-type-setting';
+import { ContentBlockField } from '@typo3/make/content-blocks/interface/content-block-definition';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -24,11 +26,10 @@ import '@typo3/backend/element/icon-element';
 @customElement('content-block-editor-middle-pane')
 export class ContentBlockEditorMiddlePane extends LitElement {
 
-
   @property()
-    name?: string;
-
-
+    fieldList?: Array<ContentBlockField>;
+  @property()
+    fieldTypes: Array<FieldTypeSetting>;
 
   protected render(): TemplateResult {
     return html`
@@ -46,6 +47,12 @@ export class ContentBlockEditorMiddlePane extends LitElement {
             @drop="${this.handleDrop}">
           Drop here to add a new field
       ></div>
+    `;
+  }
+
+  protected renderFieldArea(cbField: ContentBlockField): TemplateResult {
+    return html `
+
     `;
   }
 
