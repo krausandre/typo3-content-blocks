@@ -37,9 +37,9 @@ export class EditorLeftPaneComponents extends LitElement {
   protected render(): TemplateResult {
     return html`
       <p>Components...</p>
-      <ul>
+      <ul class="list-unstyled row">
         ${this.fieldTypes.map( (item) => html`
-              <li>
+              <li class="col-4">
                 <draggable-field-type .fieldTypeSetting="${item}"></draggable-field-type>
               </li>` )}
       </ul>
