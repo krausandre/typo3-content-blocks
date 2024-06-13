@@ -9,7 +9,11 @@ export interface ContentBlockField {
   displayCond?: string;
   onChange?: string;
   default?: string;
-
+  placeholder?: string;
+  required?: boolean;
+  enableRichtext?: boolean;
+  richtextConfiguration?: string;
+  rows?: number;
 }
 
 /*interface ContentBlockNumberField extends ContentBlockField {

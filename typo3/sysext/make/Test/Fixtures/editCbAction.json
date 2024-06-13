@@ -7,13 +7,9 @@
 		"prefixType": "full",
 		"fields": [
 			{
-				"identifier": "header",
-				"useExistingField": true
-			},
-			{
 				"identifier": "mytext",
 				"type": "Textarea",
-				"label": "mY Text",
+				"label": "My Text",
 				"enableRichtext": true
 			}
 		],

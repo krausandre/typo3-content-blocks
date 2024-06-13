@@ -20,7 +20,7 @@ import '@typo3/make/content-blocks/editor/right-pane';
 import MultiStepWizard from '@typo3/backend/multi-step-wizard';
 import Severity from '@typo3/backend/severity';
 import { FieldTypeSetting } from '@typo3/make/content-blocks/interface/field-type-setting';
-import { ContentBlockDefinition } from '@typo3/make/content-blocks/interface/content-block-definition';
+import { ContentBlockDefinition, ContentBlockField } from '@typo3/make/content-blocks/interface/content-block-definition';
 import { GroupDefinition } from '@typo3/make/content-blocks/interface/group-definition';
 import { ExtensionDefinition } from '@typo3/make/content-blocks/interface/extension-definition';
 
@@ -46,16 +46,21 @@ export class ContentBlockEditor extends LitElement {
   @property()
     fieldconfig?: string;
 
-  values = {
-    'identifier': 'text1',
-    'type': 'Textarea',
-    'default': 'default text',
-    'placeholder': 'placeholder text',
-    'required': false,
-    'enableRichtext': true,
-    'richtextConfiguration': 'full',
-    'rows': 5,
-  };
+  @property()
+    fieldSettingsValues: ContentBlockField = {
+      'identifier': 'text1',
+      'label': 'Demo text 1',
+      'type': 'Textarea',
+      'default': 'default text',
+      'placeholder': 'placeholder text',
+      'required': false,
+      'enableRichtext': true,
+      'richtextConfiguration': 'full',
+      'rows': 5,
+    };
+
+  @property()
+    rightPaneActiveSchema: FieldTypeSetting;
 
   init = false;
   cbDefinition: ContentBlockDefinition;
@@ -66,7 +71,7 @@ export class ContentBlockEditor extends LitElement {
 
   protected render(): TemplateResult {
     this.initData();
-    const rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === 'Textarea')[0];
+    // this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === 'Textarea')[0];
 
     if (this.mode === 'copy') {
       this._initMultiStepWizard();
@@ -85,15 +90,17 @@ export class ContentBlockEditor extends LitElement {
         </div>
         <div class="col-4">
           <content-block-editor-middle-pane
-            @fieldTypeDropped="${this.fieldTypeDroppedListener}"
             .fieldList="${this.cbDefinition.yaml.fields}"
-            .fieldTypes="${this.fieldTypeList}">
+            .fieldTypes="${this.fieldTypeList}"
+            @fieldTypeDropped="${this.fieldTypeDroppedListener}"
+            @activateSettings="${this.activateFieldSettings}"
+          >
           </content-block-editor-middle-pane>
         </div>
         <div class="col-4">
           <content-block-editor-right-pane
-            .schema="${rightPaneActiveSchema}"
-            .values="${this.values}">
+            .schema="${this.rightPaneActiveSchema}"
+            .values="${this.fieldSettingsValues}">
           </content-block-editor-right-pane>
         </div>
       </div>
@@ -135,6 +142,11 @@ export class ContentBlockEditor extends LitElement {
     console.log(event.detail.data);
   }
 
+  protected activateFieldSettings(event: CustomEvent) {
+    this.fieldSettingsValues = this.cbDefinition.yaml.fields.filter((fieldType) => fieldType.identifier === event.detail.identifier)[0] as ContentBlockField;
+    this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
+  }
+
   private _initMultiStepWizard() {
     // const contentBlockData = this.data;
     MultiStepWizard.addSlide('step-1', 'Step 1', '', Severity.notice, 'Step 1', async function (slide, settings) {
@@ -149,9 +161,5 @@ export class ContentBlockEditor extends LitElement {
       MultiStepWizard.unlockPrevStep();
     });
     MultiStepWizard.show();
-  }
-
-  private _dispatchBackEvent() {
-    this.dispatchEvent(new CustomEvent('contentBlockBack', {}));
   }
 }

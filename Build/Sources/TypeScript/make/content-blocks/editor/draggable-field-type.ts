@@ -50,20 +50,11 @@ export class DraggableFieldType extends LitElement {
       }
 
       return html`
-        <div class="draggable-field-type" draggable="true" @dragstart="${() => { this.handleDragStart(this.fieldTypeSetting.type); }}" data-identifier="${identifier}">
+        <div class="draggable-field-type" draggable="true" @dragstart="${() => { this.handleDragStart(this.fieldTypeSetting.type); }}" data-identifier="${identifier}" @click="${() => { this.activateSettings(identifier) }}" >
           <div class="icon-wrap">
             <typo3-backend-icon identifier="${this.fieldTypeSetting.icon}" size="small"></typo3-backend-icon>
           </div>
           <span>${renderLabel}</span>
-        </div>
-      `;
-    } else if (this.fieldTypeInfo.useExistingField) {
-      return html`
-        <div class="draggable-field-type" draggable="true" @dragstart="${() => { this.handleDragStart('useExistingField'); }}" data-identifier="${this.fieldTypeInfo.identifier}">
-          <div class="icon-wrap">
-            <typo3-backend-icon identifier="apps-pagetree-page-shortcut-external" size="small"></typo3-backend-icon>
-          </div>
-          <span>${this.fieldTypeInfo.identifier} (existing field)</span>
         </div>
       `;
     } else {
@@ -82,6 +73,18 @@ export class DraggableFieldType extends LitElement {
       bubbles: true,
       composed: true,
     }));
+  }
+
+  protected activateSettings(identifier: string): void {
+    if (this.fieldTypeInfo) {
+      this.dispatchEvent(new CustomEvent('activateSettings', {
+        detail: {
+          identifier: identifier,
+        },
+        bubbles: true,
+        composed: true,
+      }));
+    }
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
