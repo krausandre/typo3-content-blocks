@@ -78,6 +78,7 @@ export class ContentBlockEditor extends LitElement {
             .contentBlockYaml="${this.cbDefinition.yaml}"
             .groups="${this.groupList}"
             .extensions="${this.extensionList}"
+            .fieldTypes="${this.fieldTypeList}"
             @fetchDragEnd="${this.fetchDragEndListener}"
           >
           </content-block-editor-left-pane>

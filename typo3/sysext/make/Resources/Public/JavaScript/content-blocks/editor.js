@@ -17,6 +17,7 @@ var __decorate=function(t,e,o,i){var n,r=arguments.length,c=r<3?e:null===i?i=Obj
             .contentBlockYaml="${this.cbDefinition.yaml}"
             .groups="${this.groupList}"
             .extensions="${this.extensionList}"
+            .fieldTypes="${this.fieldTypeList}"
             @fetchDragEnd="${this.fetchDragEndListener}"
           >
           </content-block-editor-left-pane>
@@ -28,6 +29,4 @@ var __decorate=function(t,e,o,i){var n,r=arguments.length,c=r<3?e:null===i?i=Obj
           <content-block-editor-right-pane .schema="${t}" .values="${this.values}"></content-block-editor-right-pane>
         </div>
       </div>
-      <button @click="${()=>{this._dispatchBackEvent()}}" type="button" class="btn btn-primary">Back
-      </button>
     `}initData(){this.init||(this.cbDefinition=JSON.parse(this.data),this.fieldTypeList=JSON.parse(this.fieldconfig),this.groupList=JSON.parse(this.groups),this.extensionList=JSON.parse(this.extensions),this.init=!0)}createRenderRoot(){return this}fetchDragEndListener(t){console.log(t.detail)}_initMultiStepWizard(){MultiStepWizard.addSlide("step-1","Step 1","",Severity.notice,"Step 1",(async function(t,e){console.log(e),MultiStepWizard.unlockNextStep(),t.html('<h2>Select vendor</h2><p><select><option value="1">Sample</option></select></p>')})),MultiStepWizard.addSlide("step-2","Step 2","",Severity.notice,"Step 2",(async function(t,e){console.log(e),t.html("Test 2"),MultiStepWizard.unlockPrevStep()})),MultiStepWizard.show()}_dispatchBackEvent(){this.dispatchEvent(new CustomEvent("contentBlockBack",{}))}};__decorate([property()],ContentBlockEditor.prototype,"name",void 0),__decorate([property()],ContentBlockEditor.prototype,"mode",void 0),__decorate([property()],ContentBlockEditor.prototype,"data",void 0),__decorate([property()],ContentBlockEditor.prototype,"extensions",void 0),__decorate([property()],ContentBlockEditor.prototype,"groups",void 0),__decorate([property()],ContentBlockEditor.prototype,"fieldconfig",void 0),ContentBlockEditor=__decorate([customElement("content-block-editor")],ContentBlockEditor);export{ContentBlockEditor};
