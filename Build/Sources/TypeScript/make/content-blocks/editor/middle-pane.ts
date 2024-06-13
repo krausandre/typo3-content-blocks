@@ -55,7 +55,8 @@ export class ContentBlockEditorMiddlePane extends LitElement {
 
   protected handleDrop(event: DragEvent): void {
     event.preventDefault();
-    console.log('Dropped');
+    console.log('Dropped - ');
+    console.log(event);
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {

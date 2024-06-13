@@ -36,7 +36,7 @@ export class DraggableFieldType extends LitElement {
   protected render(): TemplateResult {
     if (this.fieldTypeSetting) {
       return html`
-        <div class="draggable-field-type" draggable="true"  data-field-type="${this.fieldTypeSetting.type}">
+        <div class="draggable-field-type" draggable="true" @dragstart="${() => { this.handleDragStart(this.fieldTypeSetting.type); }}">
           <div class="icon-wrap">
             <typo3-backend-icon identifier="${this.fieldTypeSetting.icon}" size="small"></typo3-backend-icon>
           </div>
@@ -46,6 +46,19 @@ export class DraggableFieldType extends LitElement {
     } else {
       return html `<p>No FieldTypeSetting</p>`;
     }
+  }
+
+  protected handleDragStart(type: string): void {
+    console.log('dispatch DragEnd');
+    this.dispatchEvent(new CustomEvent('fetchDragEnd', {
+      detail: {
+        type: type,
+        position: 0,
+        targetId: 'cb-drop-zone',
+      },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {

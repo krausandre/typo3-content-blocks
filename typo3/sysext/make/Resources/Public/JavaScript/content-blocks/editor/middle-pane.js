@@ -25,4 +25,4 @@ var __decorate=function(e,t,o,r){var n,d=arguments.length,l=d<3?t:null===r?r=Obj
             @drop="${this.handleDrop}">
           Drop here to add a new field
       ></div>
-    `}handleDragOver(e){e.preventDefault()}handleDrop(e){e.preventDefault(),console.log("Dropped")}createRenderRoot(){return this}};__decorate([property()],ContentBlockEditorMiddlePane.prototype,"name",void 0),ContentBlockEditorMiddlePane=__decorate([customElement("content-block-editor-middle-pane")],ContentBlockEditorMiddlePane);export{ContentBlockEditorMiddlePane};
+    `}handleDragOver(e){e.preventDefault()}handleDrop(e){e.preventDefault(),console.log("Dropped - "),console.log(e)}createRenderRoot(){return this}};__decorate([property()],ContentBlockEditorMiddlePane.prototype,"name",void 0),ContentBlockEditorMiddlePane=__decorate([customElement("content-block-editor-middle-pane")],ContentBlockEditorMiddlePane);export{ContentBlockEditorMiddlePane};

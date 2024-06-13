@@ -57,15 +57,16 @@ export class ContentBlockEditor extends LitElement {
     'rows': 5,
   };
 
+  init = false;
+  cbDefinition: ContentBlockDefinition;
+  fieldTypeList: Array<FieldTypeSetting>;
+  groupList: Array<GroupDefinition>;
+  extensionList: Array<ExtensionDefinition>;
+
+
   protected render(): TemplateResult {
-
-    const cbDefinition: ContentBlockDefinition = JSON.parse(this.data);
-
-    const fieldTypeList: Array<FieldTypeSetting> = JSON.parse(this.fieldconfig);
-    const textarea = fieldTypeList.filter((fieldType) => fieldType.type === 'Textarea')[0];
-    const groupList: Array<GroupDefinition> = JSON.parse(this.groups);
-    const extensionList: Array<ExtensionDefinition> = JSON.parse(this.extensions);
-
+    this.initData();
+    const textarea = this.fieldTypeList.filter((fieldType) => fieldType.type === 'Textarea')[0];
 
     if (this.mode === 'copy') {
       this._initMultiStepWizard();
@@ -73,10 +74,16 @@ export class ContentBlockEditor extends LitElement {
     return html`
       <div class="row">
         <div class="col-4">
-          <content-block-editor-left-pane .contentBlockYaml="${cbDefinition.yaml}" .groups="${groupList}" .extensions="${extensionList}"></content-block-editor-left-pane>
+          <content-block-editor-left-pane
+            .contentBlockYaml="${this.cbDefinition.yaml}"
+            .groups="${this.groupList}"
+            .extensions="${this.extensionList}"
+            @fetchDragEnd="${this.fetchDragEndListener}"
+          >
+          </content-block-editor-left-pane>
         </div>
         <div class="col-4">
-          <content-block-editor-middle-pane></content-block-editor-middle-pane>
+          <content-block-editor-middle-pane  @fetchDragEnd="${this.fetchDragEndListener}"></content-block-editor-middle-pane>
         </div>
         <div class="col-4">
           <content-block-editor-right-pane .schema="${textarea}" .values="${this.values}"></content-block-editor-right-pane>
@@ -87,10 +94,25 @@ export class ContentBlockEditor extends LitElement {
     `;
   }
 
+  protected initData(): void {
+    if (this.init) {
+      return;
+    }
+    this.cbDefinition = JSON.parse(this.data);
+    this.fieldTypeList = JSON.parse(this.fieldconfig);
+    this.groupList = JSON.parse(this.groups);
+    this.extensionList = JSON.parse(this.extensions);
+    this.init = true;
+  }
+
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;
+  }
+
+  protected fetchDragEndListener(event: CustomEvent) {
+    console.log(event.detail);
   }
 
   private _initMultiStepWizard() {
