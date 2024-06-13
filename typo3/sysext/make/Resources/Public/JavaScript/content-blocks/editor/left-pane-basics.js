@@ -10,6 +10,8 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-var __decorate=function(e,t,o,r){var n,c=arguments.length,i=c<3?t:null===r?r=Object.getOwnPropertyDescriptor(t,o):r;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)i=Reflect.decorate(e,t,o,r);else for(var s=e.length-1;s>=0;s--)(n=e[s])&&(i=(c<3?n(i):c>3?n(t,o,i):n(t,o))||i);return c>3&&i&&Object.defineProperty(t,o,i),i};import{html,LitElement,css}from"lit";import{customElement}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import"@typo3/backend/element/info-box.js";let EditorLeftPaneBasics=class extends LitElement{render(){return html`
-      <typo3-infobox severity="2" subject="Oooops an error occured!" content="No basics are available"></typo3-infobox>
+var __decorate=function(e,t,r,o){var i,s=arguments.length,c=s<3?t:null===o?o=Object.getOwnPropertyDescriptor(t,r):o;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)c=Reflect.decorate(e,t,r,o);else for(var n=e.length-1;n>=0;n--)(i=e[n])&&(c=(s<3?i(c):s>3?i(t,r,c):i(t,r))||c);return s>3&&c&&Object.defineProperty(t,r,c),c};import{html,LitElement,css}from"lit";import{customElement}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";let EditorLeftPaneBasics=class extends LitElement{render(){return html`
+      <div>
+        <h2>Basics</h2>
+      </div>
     `}createRenderRoot(){return this}};EditorLeftPaneBasics.styles=css``,EditorLeftPaneBasics=__decorate([customElement("editor-left-pane-basics")],EditorLeftPaneBasics);export{EditorLeftPaneBasics};

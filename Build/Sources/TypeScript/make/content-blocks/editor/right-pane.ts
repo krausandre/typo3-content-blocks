@@ -14,7 +14,7 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import '@typo3/backend/element/info-box';
+// import '@typo3/backend/element/info-box';
 import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@typo3/make/content-blocks/interface/field-type-setting';
 
 /**
@@ -42,13 +42,14 @@ export class ContentBlockEditorRightPane extends LitElement {
         ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
       `;
     }
-    return html `
-      <typo3-infobox
-        severity="-1"
-        subject="No field was selected"
-        content="Please select a field first.">
-      </typo3-infobox>
-    `;
+    return html `No field was selected`;
+    // return html `
+    //   <typo3-infobox
+    //     severity="-1"
+    //     subject="No field was selected"
+    //     content="Please select a field first.">
+    //   </typo3-infobox>
+    // `;
   }
 
   protected renderFormFieldset(fieldTypeProperty: FieldTypeProperty): TemplateResult {
