@@ -7,6 +7,12 @@
 		"prefixType": "full",
 		"fields": [
 			{
+				"identifier": "myheader",
+				"type": "Text",
+				"label": "My header",
+				"enableRichtext": true
+			},
+			{
 				"identifier": "mytext",
 				"type": "Textarea",
 				"label": "My Text",
