@@ -34,11 +34,15 @@ export class ContentBlockEditorRightPane extends LitElement {
   protected render(): TemplateResult {
     if (this.schema) {
       return html `
-        <p>Field settings: ${this.schema.type}</p>
         ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
       `;
     }
-    return html `<p>Field settings: Choose a Field.</p>`;
+    return html `
+      <div class="t3js-infobox callout callout-sm callout-danger">
+        <div class="callout-title">Test</div>
+        Foobar
+      </div>
+    `;
   }
 
   protected renderFormFieldset(fieldTypeProperty: FieldTypeProperty): TemplateResult {
