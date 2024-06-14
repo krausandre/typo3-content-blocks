@@ -38,7 +38,6 @@ export class ContentBlockEditorRightPane extends LitElement {
 
   protected render(): TemplateResult {
     console.log('Render right pane')
-    console.log(this.values)
     if (this.schema) {
       return html `
         ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
@@ -64,29 +63,22 @@ export class ContentBlockEditorRightPane extends LitElement {
   }
 
   protected renderFormField(fieldTypeProperty: FieldTypeProperty): TemplateResult {
-    // TODO: check why values won't be updated here (e.g. default or placeholder)
-    // TODO: values are correctly updated in editor.ts and in the variable this.values too, but won't be displayed here correctly
-    // TODO: https://lit.dev/docs/templates/directives/#live
+    // https://lit.dev/docs/templates/directives/#live
     switch (fieldTypeProperty.dataType) {
       case 'text':
-        let value = fieldTypeProperty.default || '';
-        if(this.values[fieldTypeProperty.name] !== undefined) {
-          value = this.values[fieldTypeProperty.name] as string;
-          console.log(fieldTypeProperty.name + ':' + value)
-        }
-        return html `<input @blur="${this.dispatchBlurEvent}" type="text" id="${fieldTypeProperty.name}" .value="${live(value)}" class="form-control" />`;
+        return html `<input @blur="${this.dispatchBlurEvent}" type="text" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default || '')}" class="form-control" />`;
       case 'number':
-        return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" value="${this.values[fieldTypeProperty.name] as number || fieldTypeProperty.default}" class="form-control" />`;
+        return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] as number || fieldTypeProperty.default)}" class="form-control" />`;
       case 'select':
         return html `<select @blur="${this.dispatchBlurEvent}" class="form-control" id="${fieldTypeProperty.name}" >
           <option value="">Choose...</option>
           ${fieldTypeProperty.items.map( (option: FieldTypeItems) => html`
-            <option value="${option.value}">${option.label}</option>` )}
+            <option .value="${live(option.value)}">${option.label}</option>` )}
         </select>`;
       case 'boolean':
-        return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${this.values[fieldTypeProperty.name] as boolean} value="${fieldTypeProperty.default}" class="form-check-input" />`;
+        return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(this.values[fieldTypeProperty.name] as boolean)} value="${fieldTypeProperty.default}" class="form-check-input" />`;
       case 'textarea':
-        return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${fieldTypeProperty.default}</textarea>`;
+        return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${live(fieldTypeProperty.default)}</textarea>`;
       default:
         return html `Unknown field type property ${fieldTypeProperty.name}.`;
     }

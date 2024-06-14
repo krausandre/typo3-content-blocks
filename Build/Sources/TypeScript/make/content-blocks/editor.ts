@@ -48,17 +48,10 @@ export class ContentBlockEditor extends LitElement {
 
   @property()
     fieldSettingsValues: ContentBlockField = {
-      'identifier': 'text1',
-      'label': 'Demo text 1',
-      'type': 'Textarea',
-      'default': 'default text',
-      'placeholder': 'placeholder text',
-      'required': false,
-      'enableRichtext': true,
-      'richtextConfiguration': 'full',
-      'rows': 5,
+      'identifier': '',
+      'label': '',
+      'type': '',
     };
-
   @property()
     rightPaneActiveSchema: FieldTypeSetting;
   @property()
@@ -175,17 +168,12 @@ export class ContentBlockEditor extends LitElement {
     const clone = structuredClone(this.cbDefinition);
     clone.yaml.fields[event.detail.position] = event.detail.values;
     this.cbDefinition = clone;
-    console.log(this.cbDefinition.yaml.fields);
-    // this.fieldSettingsValues = clone.yaml.fields[event.detail.position];
-    this.fieldSettingsValues = { identifier: '', label: '', type: '' };
-    this.requestUpdate();
     this.fieldSettingsValues = event.detail.values;
   }
   protected removeFieldTypeEventListener(event: CustomEvent) {
     const clone = structuredClone(this.cbDefinition);
     clone.yaml.fields.splice(event.detail.position, 1);
     this.cbDefinition = clone;
-    console.log(this.cbDefinition.yaml.fields);
     this.fieldSettingsValues = { identifier: '', label: '', type: '' };
     this.rightPaneActiveSchema = null;
   }
@@ -204,6 +192,7 @@ export class ContentBlockEditor extends LitElement {
     this.dragActive = true;
   }
 
+  // TODO: add logic and templates to handle a duplicated content block
   private _initMultiStepWizard() {
     // const contentBlockData = this.data;
     MultiStepWizard.addSlide('step-1', 'Step 1', '', Severity.notice, 'Step 1', async function (slide, settings) {
