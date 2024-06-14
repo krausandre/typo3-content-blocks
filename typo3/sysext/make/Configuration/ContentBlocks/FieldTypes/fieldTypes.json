@@ -14,7 +14,7 @@
 		]
 	},
 	{
-		"icon": "form-category",
+		"icon": "mimetypes-x-sys_category",
 		"type": "Category",
 		"properties" : [
 			{ "name": "identifier", "dataType": "text", "required": true },
@@ -66,7 +66,7 @@
 		]
 	},
 	{
-		"icon": "form-link",
+		"icon": "actions-link",
 		"type": "Link",
 		"properties" : [
 			{ "name": "identifier", "dataType": "text", "required": true },
@@ -78,7 +78,7 @@
 		]
 	},
 	{
-		"icon": "form-radio",
+		"icon": "form-radio-button",
 		"type": "Radio",
 		"properties" : [
 			{ "name": "identifier", "dataType": "text", "required": true },
@@ -89,7 +89,7 @@
 		]
 	},
 	{
-		"icon": "form-linebreak",
+		"icon": "mimetypes-x-content-divider",
 		"type": "Linebreak",
 		"properties" : [
 			{ "name": "type", "dataType": "text", "required": true },

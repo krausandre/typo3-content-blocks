@@ -57,8 +57,9 @@ export class ContentBlockEditorRightPane extends LitElement {
   protected renderFormFieldset(fieldTypeProperty: FieldTypeProperty): TemplateResult {
     return html `
       <div class="form-group">
-        <label for="vendor-prefix">Property '${fieldTypeProperty.name}'</label>
-        ${this.renderFormField(fieldTypeProperty)}
+        ${fieldTypeProperty.dataType === 'boolean' ? this.renderFormField(fieldTypeProperty) : ''}
+        <label for="${fieldTypeProperty.name}" class="${fieldTypeProperty.dataType === 'boolean' ? 'form-check-label fw-bold' : 'form-label'}">Property '${fieldTypeProperty.name}'</label>
+        ${fieldTypeProperty.dataType !== 'boolean' ? this.renderFormField(fieldTypeProperty) : ''}
       </div>`;
   }
 
@@ -83,7 +84,7 @@ export class ContentBlockEditorRightPane extends LitElement {
             <option value="${option.value}">${option.label}</option>` )}
         </select>`;
       case 'boolean':
-        return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${this.values[fieldTypeProperty.name] as boolean} value="${fieldTypeProperty.default}" class="form-control" />`;
+        return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${this.values[fieldTypeProperty.name] as boolean} value="${fieldTypeProperty.default}" class="form-check-input" />`;
       case 'textarea':
         return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${fieldTypeProperty.default}</textarea>`;
       default:

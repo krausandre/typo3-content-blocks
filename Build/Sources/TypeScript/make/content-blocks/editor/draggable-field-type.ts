@@ -53,15 +53,8 @@ export class DraggableFieldType extends LitElement {
         identifier = this.fieldTypeInfo.identifier;
         renderLabel = identifier + ' (' + renderLabel + ')';
       }
-      let deleteButton = html` `;
-      if(this.showDeleteButton) {
-        deleteButton = html`<div class="delete-icon-wrap" @click="${() => { this.removeFieldType() }}">
-            <typo3-backend-icon identifier="actions-close" size="small"></typo3-backend-icon>
-          </div>`;
-      }
 
       return html`
-        ${deleteButton}
         <div class="draggable-field-type d-flex gap-2 text-start btn btn-default d-block mb-3 justify-content-start"
              draggable="true"
              @dragstart="${(event: DragEvent) => { this.handleDragStart(event, this.fieldTypeSetting.type, identifier); }}"
@@ -72,6 +65,9 @@ export class DraggableFieldType extends LitElement {
             <typo3-backend-icon identifier="${this.fieldTypeSetting.icon}" size="small"></typo3-backend-icon>
           </span>
           <span>${renderLabel}</span>
+          ${this.showDeleteButton ? html`<div class="delete-icon-wrap ms-auto" @click="${() => { this.removeFieldType() }}">
+            <typo3-backend-icon identifier="actions-delete" size="small"></typo3-backend-icon>
+          </div>` : ''}
         </div>
       `;
     } else {
