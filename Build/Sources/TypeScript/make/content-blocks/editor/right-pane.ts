@@ -14,6 +14,7 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
+import { live } from 'lit/directives/live.js';
 // import '@typo3/backend/element/info-box';
 import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@typo3/make/content-blocks/interface/field-type-setting';
 
@@ -37,6 +38,7 @@ export class ContentBlockEditorRightPane extends LitElement {
 
   protected render(): TemplateResult {
     console.log('Render right pane')
+    console.log(this.values)
     if (this.schema) {
       return html `
         ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
@@ -61,9 +63,17 @@ export class ContentBlockEditorRightPane extends LitElement {
   }
 
   protected renderFormField(fieldTypeProperty: FieldTypeProperty): TemplateResult {
+    // TODO: check why values won't be updated here (e.g. default or placeholder)
+    // TODO: values are correctly updated in editor.ts and in the variable this.values too, but won't be displayed here correctly
+    // TODO:
     switch (fieldTypeProperty.dataType) {
       case 'text':
-        return html `<input @blur="${this.dispatchBlurEvent}" type="text" id="${fieldTypeProperty.name}" value="${this.values[fieldTypeProperty.name] as string || fieldTypeProperty.default || ''}" class="form-control" />`;
+        let value = fieldTypeProperty.default || '';
+        if(this.values[fieldTypeProperty.name] !== undefined) {
+          value = this.values[fieldTypeProperty.name] as string;
+          console.log(fieldTypeProperty.name + ':' + value)
+        }
+        return html `<input @blur="${this.dispatchBlurEvent}" type="text" id="${fieldTypeProperty.name}" .value="${live(value)}" class="form-control" />`;
       case 'number':
         return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" value="${this.values[fieldTypeProperty.name] as number || fieldTypeProperty.default}" class="form-control" />`;
       case 'select':

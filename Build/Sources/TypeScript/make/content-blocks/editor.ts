@@ -74,7 +74,6 @@ export class ContentBlockEditor extends LitElement {
   groupList: Array<GroupDefinition>;
   extensionList: Array<ExtensionDefinition>;
 
-
   protected render(): TemplateResult {
     this.initData();
     if (this.mode === 'copy') {
@@ -173,9 +172,14 @@ export class ContentBlockEditor extends LitElement {
   }
 
   protected updateFieldDataEventListener(event: CustomEvent) {
-    this.cbDefinition.yaml.fields[event.detail.position] = event.detail.values;
+    const clone = structuredClone(this.cbDefinition);
+    clone.yaml.fields[event.detail.position] = event.detail.values;
+    this.cbDefinition = clone;
     console.log(this.cbDefinition.yaml.fields);
-    this.fieldSettingsValues = this.cbDefinition.yaml.fields[event.detail.position];
+    // this.fieldSettingsValues = clone.yaml.fields[event.detail.position];
+    this.fieldSettingsValues = { identifier: '', label: '', type: '' };
+    this.requestUpdate();
+    this.fieldSettingsValues = event.detail.values;
   }
   protected removeFieldTypeEventListener(event: CustomEvent) {
     const clone = structuredClone(this.cbDefinition);
