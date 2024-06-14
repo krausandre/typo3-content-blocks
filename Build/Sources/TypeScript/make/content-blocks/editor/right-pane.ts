@@ -66,7 +66,7 @@ export class ContentBlockEditorRightPane extends LitElement {
   protected renderFormField(fieldTypeProperty: FieldTypeProperty): TemplateResult {
     // TODO: check why values won't be updated here (e.g. default or placeholder)
     // TODO: values are correctly updated in editor.ts and in the variable this.values too, but won't be displayed here correctly
-    // TODO:
+    // TODO: https://lit.dev/docs/templates/directives/#live
     switch (fieldTypeProperty.dataType) {
       case 'text':
         let value = fieldTypeProperty.default || '';
