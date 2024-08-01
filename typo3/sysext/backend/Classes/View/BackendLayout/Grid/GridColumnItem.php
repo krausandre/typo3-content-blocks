@@ -75,7 +75,7 @@ class GridColumnItem extends AbstractGridObject
         // Dispatch event to allow listeners adding an alternative content type
         // specific preview or to manipulate the content elements' record data.
         $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch(
-            new PageContentPreviewRenderingEvent($this->table, $this->record, $this->context)
+            new PageContentPreviewRenderingEvent($this->table, $this->getRecordType(), $this->record, $this->context)
         );
 
         // Update the modified record data
@@ -165,13 +165,16 @@ class GridColumnItem extends AbstractGridObject
 
     public function getContentTypeLabel(): string
     {
-        if (($typeColumn = $this->getTypeColumn()) === '') {
+        if (($recordType = $this->getRecordType()) === '') {
             return '';
         }
-        $contentType = $this->record[$typeColumn] ?? '';
         $contentTypeLabels = $this->context->getContentTypeLabels();
-        return $contentTypeLabels[$contentType] ??
-            BackendUtility::getLabelFromItemListMerged((int)($this->record['pid'] ?? 0), $this->table, $typeColumn, $contentType, $this->record);
+        $contentTypeLabel = $contentTypeLabels[$recordType] ?? '';
+        if ($contentTypeLabel === '') {
+            $contentTypeLabel = $this->getLabelFromItemListMerged();
+            $contentTypeLabel = $this->getLanguageService()->sL($contentTypeLabel);
+        }
+        return $contentTypeLabel;
     }
 
     public function getIcons(): string
@@ -260,7 +263,7 @@ class GridColumnItem extends AbstractGridObject
                 || (
                     ((int)($this->record['editlock'] ?? 0) === 0 && (int)($pageRecord['editlock'] ?? 0) === 0)
                     && $this->getBackendUser()->doesUserHaveAccess($pageRecord, Permission::CONTENT_EDIT)
-                    && $this->getBackendUser()->checkAuthMode($this->table, $typeColumn, $this->record[$typeColumn])
+                    && $this->getBackendUser()->checkAuthMode($this->table, $typeColumn, $this->getRecordType())
                 )
             )
         ;
@@ -349,6 +352,21 @@ class GridColumnItem extends AbstractGridObject
         return $uriBuilder->buildUriFromRoute('record_edit', $urlParameters) . '#element-' . $this->table . '-' . $this->record['uid'];
     }
 
+    public function getTypeColumn(): string
+    {
+        return (string)($GLOBALS['TCA'][$this->table]['ctrl']['type'] ?? '');
+    }
+
+    public function getRecordType(): string
+    {
+        return (string)($this->record[$this->getTypeColumn()] ?? '');
+    }
+
+    public function getTable(): string
+    {
+        return $this->table;
+    }
+
     /**
      * Gets the number of records referencing the record with the UID $uid in
      * the current table.
@@ -360,8 +378,14 @@ class GridColumnItem extends AbstractGridObject
         return GeneralUtility::makeInstance(ReferenceIndex::class)->getNumberOfReferencedRecords($this->table, $uid);
     }
 
-    protected function getTypeColumn(): string
+    protected function getLabelFromItemListMerged(): string
     {
-        return (string)($GLOBALS['TCA'][$this->table]['ctrl']['type'] ?? '');
+        $record = $this->record;
+        $pid = (int)($record['pid'] ?? 0);
+        $table = $this->table;
+        $typeColumn = $this->getTypeColumn();
+        $recordType = $this->getRecordType();
+        $label = BackendUtility::getLabelFromItemListMerged($pid, $table, $typeColumn, $recordType, $record);
+        return $label;
     }
 }

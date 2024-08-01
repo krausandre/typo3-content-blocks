@@ -100,7 +100,7 @@ class ConfirmationFinisher extends AbstractFinisher
                 }
                 $setup = $setup[$segment . '.'];
             }
-            $this->contentObjectRenderer->setRequest($this->finisherContext->getRequest());
+            $this->contentObjectRenderer->setRequest($this->finisherContext->getRequest()->withoutAttribute('extbase'));
             $this->contentObjectRenderer->start([$contentElementUid]);
             $this->contentObjectRenderer->setCurrentVal((string)$contentElementUid);
             $message = $this->contentObjectRenderer->cObjGetSingle($setup[$lastSegment], $setup[$lastSegment . '.'], $lastSegment);
@@ -136,7 +136,7 @@ class ConfirmationFinisher extends AbstractFinisher
         }
 
         $standaloneView->setTemplate($this->options['templateName']);
-        $standaloneView->getTemplatePaths()->fillFromConfigurationArray($this->options);
+        $standaloneView->getRenderingContext()->getTemplatePaths()->fillFromConfigurationArray($this->options);
 
         if (isset($this->options['variables']) && is_array($this->options['variables'])) {
             $standaloneView->assignMultiple($this->options['variables']);

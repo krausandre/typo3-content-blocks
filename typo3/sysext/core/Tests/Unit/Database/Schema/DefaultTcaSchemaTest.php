@@ -989,11 +989,11 @@ final class DefaultTcaSchemaTest extends UnitTestCase
         $result = $this->subject->enrich(['aTable' => $this->defaultTable]);
         $expectedColumn = new Column(
             '`slug`',
-            Type::getType('string'),
+            Type::getType('text'),
             [
                 'default' => null,
                 'notnull' => false,
-                'length' => 2048,
+                'length' => 65535,
             ]
         );
         self::assertSame($expectedColumn->toArray(), $result['aTable']->getColumn('slug')->toArray());
@@ -1644,15 +1644,16 @@ final class DefaultTcaSchemaTest extends UnitTestCase
         $result = $this->subject->enrich(['aTable' => $this->defaultTable]);
         $expectedColumn = new Column(
             '`link`',
-            Type::getType('string'),
+            Type::getType('text'),
             [
-                'length' => 2048,
+                'length' => 65535,
                 'default' => '',
                 'notnull' => true,
             ]
         );
         self::assertSame($expectedColumn->toArray(), $result['aTable']->getColumn('link')->toArray());
     }
+
     #[Test]
     public function enrichAddsLinkNullable(): void
     {
@@ -1667,14 +1668,134 @@ final class DefaultTcaSchemaTest extends UnitTestCase
         $result = $this->subject->enrich(['aTable' => $this->defaultTable]);
         $expectedColumn = new Column(
             '`link`',
-            Type::getType('string'),
+            Type::getType('text'),
             [
-                'length' => 2048,
+                'length' => 65535,
                 'default' => null,
                 'notnull' => false,
             ]
         );
         self::assertSame($expectedColumn->toArray(), $result['aTable']->getColumn('link')->toArray());
+    }
+
+    #[Test]
+    public function enrichAddsInput(): void
+    {
+        $this->mockDefaultConnectionPlatformInConnectionPool();
+        $GLOBALS['TCA']['aTable']['columns']['input'] = [
+            'label' => 'aLabel',
+            'config' => [
+                'type' => 'input',
+            ],
+        ];
+        $result = $this->subject->enrich(['aTable' => $this->defaultTable]);
+        $expectedColumn = new Column(
+            '`input`',
+            Type::getType('string'),
+            [
+                'length' => 255,
+                'default' => '',
+                'notnull' => true,
+            ]
+        );
+        self::assertSame($expectedColumn->toArray(), $result['aTable']->getColumn('input')->toArray());
+    }
+
+    #[Test]
+    public function enrichAddsInputAndConsidersMax(): void
+    {
+        $this->mockDefaultConnectionPlatformInConnectionPool();
+        $GLOBALS['TCA']['aTable']['columns']['input'] = [
+            'label' => 'aLabel',
+            'config' => [
+                'type' => 'input',
+                'max' => 123,
+            ],
+        ];
+        $result = $this->subject->enrich(['aTable' => $this->defaultTable]);
+        $expectedColumn = new Column(
+            '`input`',
+            Type::getType('string'),
+            [
+                'length' => 123,
+                'default' => '',
+                'notnull' => true,
+            ]
+        );
+        self::assertSame($expectedColumn->toArray(), $result['aTable']->getColumn('input')->toArray());
+    }
+
+    #[Test]
+    public function enrichAddsInputAndConsidersNullable(): void
+    {
+        $this->mockDefaultConnectionPlatformInConnectionPool();
+        $GLOBALS['TCA']['aTable']['columns']['input'] = [
+            'label' => 'aLabel',
+            'config' => [
+                'type' => 'input',
+                'nullable' => true,
+            ],
+        ];
+        $result = $this->subject->enrich(['aTable' => $this->defaultTable]);
+        $expectedColumn = new Column(
+            '`input`',
+            Type::getType('string'),
+            [
+                'length' => 255,
+                'default' => '',
+                'notnull' => false,
+            ]
+        );
+        self::assertSame($expectedColumn->toArray(), $result['aTable']->getColumn('input')->toArray());
+    }
+
+    #[Test]
+    public function enrichAddsInputAndUsesTextForLongColumns(): void
+    {
+        $this->mockDefaultConnectionPlatformInConnectionPool();
+        $GLOBALS['TCA']['aTable']['columns']['input'] = [
+            'label' => 'aLabel',
+            'config' => [
+                'type' => 'input',
+                'max' => 256,
+            ],
+        ];
+        $result = $this->subject->enrich(['aTable' => $this->defaultTable]);
+        $expectedColumn = new Column(
+            '`input`',
+            Type::getType('text'),
+            [
+                'length' => 65535,
+                'default' => '',
+                'notnull' => true,
+            ]
+        );
+        self::assertSame($expectedColumn->toArray(), $result['aTable']->getColumn('input')->toArray());
+    }
+
+    #[Test]
+    public function enrichAddsInputAndUsesTextForLongColumnsAndNullable(): void
+    {
+        $this->mockDefaultConnectionPlatformInConnectionPool();
+        $GLOBALS['TCA']['aTable']['columns']['input'] = [
+            'label' => 'aLabel',
+            'config' => [
+                'type' => 'input',
+                'max' => 512,
+                'nullable' => true,
+            ],
+        ];
+        $result = $this->subject->enrich(['aTable' => $this->defaultTable]);
+        $expectedColumn = new Column(
+            '`input`',
+            Type::getType('text'),
+            [
+                'length' => 65535,
+                'default' => null,
+                'notnull' => false,
+            ]
+        );
+        self::assertSame($expectedColumn->toArray(), $result['aTable']->getColumn('input')->toArray());
     }
 
     #[Test]

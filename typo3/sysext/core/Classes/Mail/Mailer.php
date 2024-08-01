@@ -16,6 +16,7 @@
 namespace TYPO3\CMS\Core\Mail;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\TransportInterface;
@@ -35,6 +36,7 @@ use TYPO3\CMS\Core\Utility\MailUtility;
  * This will use the setting in TYPO3_CONF_VARS to choose the correct transport
  * for it to work out-of-the-box.
  */
+#[Autoconfigure(public: true)]
 class Mailer implements MailerInterface
 {
     protected array $mailSettings = [];
@@ -69,7 +71,7 @@ class Mailer implements MailerInterface
         $this->eventDispatcher?->dispatch(new AfterMailerInitializationEvent($this));
     }
 
-    public function send(RawMessage $message, Envelope $envelope = null): void
+    public function send(RawMessage $message, ?Envelope $envelope = null): void
     {
         if ($message instanceof Email) {
             // Ensure to always have a From: header set
@@ -150,7 +152,7 @@ class Mailer implements MailerInterface
      *
      * @internal
      */
-    public function injectMailSettings(array $mailSettings = null)
+    public function injectMailSettings(?array $mailSettings = null)
     {
         $this->mailSettings = $mailSettings ?? (array)$GLOBALS['TYPO3_CONF_VARS']['MAIL'];
     }

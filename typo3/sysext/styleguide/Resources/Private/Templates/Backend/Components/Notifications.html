@@ -1,0 +1,202 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:sg="http://typo3.org/ns/TYPO3/CMS/Styleguide/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Before">
+    <f:be.pageRenderer
+        includeJavaScriptModules="{
+            0: '@typo3/styleguide/render-notifications.js',
+        }"
+    />
+</f:section>
+
+<f:section name="Content">
+
+    <f:render
+        partial="Backend/Navigation"
+        arguments="{
+            currentAction: currentAction,
+            actions: actions,
+            route: routeIdentifier
+        }"
+    />
+
+    <div class="styleguide-content">
+        <f:variable
+            name="dummyText"
+            value="Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua."
+        />
+
+        <h1><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.headline"/></h1>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.section.default.headline" /></h2>
+        <div class="styleguide-example">
+            <div class="styleguide-example-content">
+                <button
+                    class="btn btn-default"
+                    data-severity="notice"
+                    data-action="trigger-notification"
+                    data-title="Notification title"
+                    data-message="{dummyText}"
+                    data-duration="5"
+                    data-include-actions="0"
+                >
+                    Trigger notification
+                </button>
+            </div>
+            <div class="styleguide-example-code">
+                <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.implementation.html" /></p>
+                <sg:code language="html" disableOuterWrap="true">
+                    <button
+                        class="btn btn-default"
+                        data-severity="notice"
+                        data-action="trigger-notification"
+                        data-title="Notification title"
+                        data-message="Lorem ipsum dolor..."
+                        data-duration="5"
+                        data-include-actions="0"
+                    >
+                        Trigger notification
+                    </button>
+                </sg:code>
+
+                <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.implementation.script" /></p>
+                <sg:code language="javascript" disableOuterWrap="true">
+                    <script type="module">
+                        import Notification from '@typo3/backend/notification.js';
+                        Notification.notice(
+                            'Notification title',
+                            'Lorem ipsum dolor...'
+                        );
+                    </script>
+                </sg:code>
+            </div>
+        </div>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.section.actionButtons.headline" /></h2>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.section.actionButtons.text" /></p>
+
+        <h3><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.section.actionButtons.immediateAction.headline" /></h3>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.section.actionButtons.immediateAction.text" /></p>
+
+        <h3><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.section.actionButtons.deferredAction.headline" /></h3>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.section.actionButtons.deferredAction.text" /></p>
+
+        <div class="styleguide-example">
+            <div class="styleguide-example-content">
+                <button
+                    class="btn btn-default"
+                    data-severity="notice"
+                    data-action="trigger-notification"
+                    data-title="Notification title"
+                    data-message="{dummyText}"
+                    data-duration="5"
+                    data-include-actions="1"
+                >
+                    Trigger notification with action buttons
+                </button>
+            </div>
+            <div class="styleguide-example-code">
+                <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.implementation.html" /></p>
+                <sg:code language="html" disableOuterWrap="true">
+                    <button
+                        class="btn btn-default"
+                        data-severity="notice"
+                        data-action="trigger-notification"
+                        data-title="Notification title"
+                        data-message="Lorem ipsum dolor..."
+                        data-duration="5"
+                        data-include-actions="1"
+                    >
+                        Trigger notification with action buttons
+                    </button>
+                </sg:code>
+
+                <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.implementation.script" /></p>
+                <sg:code language="javascript" disableOuterWrap="true">
+                    <script type="module">
+                        import Notification from '@typo3/backend/notification.js';
+                        Notification.notice(
+                            'Notification title',
+                            'Lorem ipsum dolor...',
+                            5,
+                            [
+                                {
+                                    label: 'Immediate action',
+                                    action: new ImmediateAction(function () {
+                                        alert('Immediate action done');
+                                    }),
+                                },
+                                {
+                                    label: 'Deferred action',
+                                    action: new DeferredAction(function () {
+                                        return new Promise(resolve => setTimeout(() => {
+                                            alert('Deferred action done after 3000 ms');
+                                            resolve();
+                                        }, 3000));
+                                    }),
+                                }
+                            ]
+                        );
+                    </script>
+                </sg:code>
+            </div>
+        </div>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.section.severity.headline" /></h2>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.section.severity.text" /></p>
+
+        <div class="styleguide-example">
+            <div class="styleguide-example-content">
+                <div class="example-container">
+                    <f:for each="{variants}" as="variant">
+                        <f:variable name="buttonClass">
+                            <f:if condition="{variant} == 'error'">
+                                <f:then>danger</f:then>
+                                <f:else>{variant}</f:else>
+                            </f:if>
+                        </f:variable>
+                        <div class="example-item">
+                            <button
+                                class="btn btn-{buttonClass -> f:spaceless()}"
+                                data-severity="{variant}"
+                                data-action="trigger-notification"
+                                data-title="{variant}"
+                                data-message="{dummyText}"
+                                data-duration="5"
+                                data-include-actions="0"
+                            >
+                                Trigger {variant} notification
+                            </button>
+                        </div>
+                    </f:for>
+                </div>
+            </div>
+            <div class="styleguide-example-code">
+                <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.implementation.html" /></p>
+                <sg:code language="html" disableOuterWrap="true">
+                    <f:for each="{variants}" as="variant">
+                    data-severity="{variant}"
+                    </f:for>
+                </sg:code>
+
+                <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.notification.implementation.script" /></p>
+                <sg:code language="javascript" disableOuterWrap="true">
+                    <script type="module">
+                        import Notification from '@typo3/backend/notification.js';
+                        <f:for each="{variants}" as="variant">
+                        Notification.{variant}(...);"
+                        </f:for>
+                    </script>
+                </sg:code>
+            </div>
+        </div>
+    </div>
+
+</f:section>
+
+</html>

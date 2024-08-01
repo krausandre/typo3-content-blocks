@@ -56,8 +56,6 @@ final class DatePickerViewHelper extends AbstractFormFieldViewHelper
     public function initializeArguments(): void
     {
         parent::initializeArguments();
-        $this->registerTagAttribute('size', 'int', 'The size of the input field');
-        $this->registerTagAttribute('placeholder', 'string', 'Specifies a short hint that describes the expected value of an input element');
         $this->registerArgument('errorClass', 'string', 'CSS class to set if there are errors for this ViewHelper', false, 'f3-form-error');
         $this->registerArgument('initialDate', 'string', 'Initial date (@see http://www.php.net/manual/en/datetime.formats.php for supported formats)');
         $this->registerArgument('enableDatePicker', 'bool', 'Enable the Datepicker', false, true);
@@ -65,7 +63,6 @@ final class DatePickerViewHelper extends AbstractFormFieldViewHelper
         $this->registerArgument('dateFormat', 'string', 'The date format', false, 'Y-m-d');
         // use the default value if custom templates have not yet adapted this property
         $this->registerArgument('datePickerInitializationJavaScriptFile', 'string', 'The JavaScript file to initialize the date picker', false, 'EXT:form/Resources/Public/JavaScript/frontend/date-picker.js');
-        $this->registerUniversalTagAttributes();
     }
 
     /**
@@ -76,7 +73,7 @@ final class DatePickerViewHelper extends AbstractFormFieldViewHelper
         $enableDatePicker = $this->arguments['enableDatePicker'];
         $dateFormat = $this->arguments['dateFormat'];
         $previewMode = (bool)$this->arguments['previewMode'];
-        $placeholder = $this->arguments['additionalAttributes']['placeholder'] ?? $this->arguments['placeholder'];
+        $placeholder = $this->arguments['additionalAttributes']['placeholder'] ?? $this->additionalArguments['placeholder'] ?? null;
 
         $name = $this->getName();
         $this->registerFieldNameForFormTokenGeneration($name);
@@ -84,8 +81,8 @@ final class DatePickerViewHelper extends AbstractFormFieldViewHelper
         $this->tag->addAttribute('type', 'text');
         $this->tag->addAttribute('name', $name . '[date]');
 
-        if ($this->hasArgument('id')) {
-            $id = $this->arguments['id'];
+        if (isset($this->additionalArguments['id'])) {
+            $id = $this->additionalArguments['id'];
         } else {
             $id = 'field' . md5(StringUtility::getUniqueId());
         }

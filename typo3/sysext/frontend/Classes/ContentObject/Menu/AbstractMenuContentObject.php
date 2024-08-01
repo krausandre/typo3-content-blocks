@@ -617,7 +617,7 @@ abstract class AbstractMenuContentObject
      * Builds PageRepository instance without depending on global context, e.g.
      * not automatically overlaying records based on current request language.
      */
-    protected function buildPageRepository(LanguageAspect $languageAspect = null): PageRepository
+    protected function buildPageRepository(?LanguageAspect $languageAspect = null): PageRepository
     {
         // clone global context object (singleton)
         $context = clone GeneralUtility::makeInstance(Context::class);
@@ -1057,7 +1057,7 @@ abstract class AbstractMenuContentObject
             }
             $items = explode('|', $this->conf['special.']['items']);
             $c = 0;
-            foreach ($items as $k_b => $v_b) {
+            foreach ($items as $v_b) {
                 $v_b = strtolower(trim($v_b));
                 if ((int)($this->conf['special.'][$v_b . '.']['uid'] ?? false)) {
                     $recArr[$v_b] = $this->sys_page->getPage((int)$this->conf['special.'][$v_b . '.']['uid'], $this->disableGroupAccessCheck);
@@ -1653,8 +1653,11 @@ abstract class AbstractMenuContentObject
 
         $backupData = $this->parent_cObj->data;
         $this->parent_cObj->data = $page;
-        $link = $this->parent_cObj->createLink('|', $conf);
-        $this->parent_cObj->data = $backupData;
+        try {
+            $link = $this->parent_cObj->createLink('|', $conf);
+        } finally {
+            $this->parent_cObj->data = $backupData;
+        }
 
         return $link;
     }

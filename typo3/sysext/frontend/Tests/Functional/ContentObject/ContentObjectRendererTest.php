@@ -23,6 +23,8 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\Container;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Platform\PlatformHelper;
 use TYPO3\CMS\Core\EventDispatcher\ListenerProvider;
@@ -57,6 +59,8 @@ final class ContentObjectRendererTest extends FunctionalTestCase
         'EN' => ['id' => 0, 'title' => 'English', 'locale' => 'en_US.UTF8'],
     ];
 
+    protected string $testAsset = '';
+
     protected array $pathsToProvideInTestInstance = ['typo3/sysext/frontend/Tests/Functional/Fixtures/Images' => 'fileadmin/user_upload'];
 
     protected function setUp(): void
@@ -73,6 +77,14 @@ final class ContentObjectRendererTest extends FunctionalTestCase
             $this->buildErrorHandlingConfiguration('Fluid', [404]),
         );
         GeneralUtility::flushInternalRuntimeCaches();
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->testAsset !== '') {
+            unlink($this->testAsset);
+        }
+        parent::tearDown();
     }
 
     protected function getPreparedRequest(): ServerRequestInterface
@@ -198,7 +210,7 @@ final class ContentObjectRendererTest extends FunctionalTestCase
         ];
 
         $typoScriptFrontendController = GeneralUtility::makeInstance(TypoScriptFrontendController::class);
-        $subject = GeneralUtility::makeInstance(ContentObjectRenderer::class, $typoScriptFrontendController);
+        $subject = new ContentObjectRenderer($typoScriptFrontendController);
         $request = $this->getPreparedRequest();
         $pageInformation = new PageInformation();
         $pageInformation->setId(0);
@@ -988,7 +1000,7 @@ And another one';
     #[Test]
     public function checkIfReturnsExpectedValues(array $configuration, bool $expected): void
     {
-        $subject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        $subject = new ContentObjectRenderer();
         $subject->data = [
             'known' => 'somevalue',
         ];
@@ -1171,7 +1183,7 @@ And another one';
         ];
         $fileReference = new FileReference($fileReferenceData);
         $typoScriptFrontendController = GeneralUtility::makeInstance(TypoScriptFrontendController::class);
-        $subject = GeneralUtility::makeInstance(ContentObjectRenderer::class, $typoScriptFrontendController);
+        $subject = new ContentObjectRenderer($typoScriptFrontendController);
         $subject->setCurrentFile($fileReference);
         $typoScript = new FrontendTypoScript(new RootNode(), [], [], []);
         $typoScript->setConfigArray([]);
@@ -1210,7 +1222,7 @@ And another one';
         ];
         $fileReference = new FileReference($fileReferenceData);
 
-        $subject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        $subject = new ContentObjectRenderer();
         $result = $subject->getImgResource($fileReference, []);
 
         $expectedWidth = 512;
@@ -1239,7 +1251,7 @@ And another one';
         $eventListener = $container->get(ListenerProvider::class);
         $eventListener->addListener(AfterContentObjectRendererInitializedEvent::class, 'after-content-object-renderer-initialized-listener');
 
-        $subject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        $subject = new ContentObjectRenderer();
         $subject->start(['foo' => 'bar'], 'aTable');
 
         self::assertInstanceOf(AfterContentObjectRendererInitializedEvent::class, $afterContentObjectRendererInitializedEvent);
@@ -1276,7 +1288,7 @@ And another one';
         $eventListener = $container->get(ListenerProvider::class);
         $eventListener->addListener(AfterGetDataResolvedEvent::class, 'after-get-data-resolved-listener');
 
-        $subject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        $subject = new ContentObjectRenderer();
         $subject->start(['foo' => 'bar'], 'aTable');
         $subject->getData('field:title', ['title' => 'title']);
 
@@ -1306,7 +1318,7 @@ And another one';
         $eventListener = $container->get(ListenerProvider::class);
         $eventListener->addListener(AfterImageResourceResolvedEvent::class, 'after-image-resource-resolved-listener');
 
-        $subject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        $subject = new ContentObjectRenderer();
         $subject->start(['foo' => 'bar'], 'aTable');
         $subject->getImgResource('GIFBUILDER', ['foo' => 'bar']);
 
@@ -1336,7 +1348,7 @@ And another one';
         $eventListener = $container->get(ListenerProvider::class);
         $eventListener->addListener(EnhanceStdWrapEvent::class, 'enhance-stdWrap-listener');
 
-        $subject = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        $subject = new ContentObjectRenderer();
         $result = $subject->stdWrap('Test', ['wrap' => $wrap]);
 
         self::assertInstanceOf(EnhanceStdWrapEvent::class, $enhanceStdWrapEvent);
@@ -1344,5 +1356,33 @@ And another one';
         self::assertEquals($content, $enhanceStdWrapEvent->getContent());
         self::assertEquals($wrap, $enhanceStdWrapEvent->getConfiguration()['wrap']);
         self::assertEquals($subject, $enhanceStdWrapEvent->getContentObjectRenderer());
+    }
+
+    public function getDataWithTypeAssetReturnsVersionedUri(): void
+    {
+        $subject = new ContentObjectRenderer();
+        Environment::initialize(
+            Environment::getContext(),
+            true,
+            false,
+            Environment::getProjectPath(),
+            Environment::getPublicPath(),
+            Environment::getVarPath(),
+            Environment::getConfigPath(),
+            Environment::getPublicPath() . '/index.php',
+            Environment::isWindows() ? 'WINDOWS' : 'UNIX'
+        );
+        $request = new ServerRequest('https://www.example.com', 'GET');
+        $GLOBALS['TYPO3_REQUEST'] = $request->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
+
+        $testAssetName = 'HappyResourceUri.svg';
+        $this->testAsset = Environment::getPublicPath() . '/' . $testAssetName;
+        touch($this->testAsset);
+        $mtime = filemtime($this->testAsset);
+        $GLOBALS['TYPO3_CONF_VARS']['FE']['versionNumberInFilename'] = false;
+        self::assertSame(
+            $testAssetName . '?' . $mtime,
+            $subject->getData('asset:' . $this->testAsset, [])
+        );
     }
 }

@@ -12,9 +12,6 @@
 			<trans-unit id="mlang_labels_tablabel" resname="mlang_labels_tablabel">
 				<source>System Reports</source>
 			</trans-unit>
-			<trans-unit id="title" resname="title">
-				<source>Reports</source>
-			</trans-unit>
 			<trans-unit id="reports_overview" resname="reports_overview">
 				<source>Reports overview</source>
 			</trans-unit>
@@ -26,6 +23,12 @@
 			</trans-unit>
 			<trans-unit id="noReportsMessage" resname="noReportsMessage">
 				<source>There are no reports registered in the system and default reports have been disabled.</source>
+			</trans-unit>
+			<trans-unit id="link.openModule" resname="link.openModule">
+				<source>Open</source>
+			</trans-unit>
+			<trans-unit id="link.openModuleWithTitle" resname="link.openModuleWithTitle">
+				<source>Open %1s</source>
 			</trans-unit>
 		</body>
 	</file>

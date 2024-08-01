@@ -455,7 +455,7 @@ class ExpressionBuilder extends DoctrineExpressionBuilder
      *
      * @param string|null $alias
      */
-    public function min(string $fieldName, string $alias = null): string
+    public function min(string $fieldName, ?string $alias = null): string
     {
         return $this->calculation('MIN', $fieldName, $alias);
     }
@@ -465,7 +465,7 @@ class ExpressionBuilder extends DoctrineExpressionBuilder
      *
      * @param string|null $alias
      */
-    public function max(string $fieldName, string $alias = null): string
+    public function max(string $fieldName, ?string $alias = null): string
     {
         return $this->calculation('MAX', $fieldName, $alias);
     }
@@ -475,7 +475,7 @@ class ExpressionBuilder extends DoctrineExpressionBuilder
      *
      * @param string|null $alias
      */
-    public function avg(string $fieldName, string $alias = null): string
+    public function avg(string $fieldName, ?string $alias = null): string
     {
         return $this->calculation('AVG', $fieldName, $alias);
     }
@@ -485,7 +485,7 @@ class ExpressionBuilder extends DoctrineExpressionBuilder
      *
      * @param string|null $alias
      */
-    public function sum(string $fieldName, string $alias = null): string
+    public function sum(string $fieldName, ?string $alias = null): string
     {
         return $this->calculation('SUM', $fieldName, $alias);
     }
@@ -495,7 +495,7 @@ class ExpressionBuilder extends DoctrineExpressionBuilder
      *
      * @param string|null $alias
      */
-    public function count(string $fieldName, string $alias = null): string
+    public function count(string $fieldName, ?string $alias = null): string
     {
         return $this->calculation('COUNT', $fieldName, $alias);
     }
@@ -505,7 +505,7 @@ class ExpressionBuilder extends DoctrineExpressionBuilder
      *
      * @param string|null $alias
      */
-    public function length(string $fieldName, string $alias = null): string
+    public function length(string $fieldName, ?string $alias = null): string
     {
         return $this->calculation('LENGTH', $fieldName, $alias);
     }
@@ -654,11 +654,70 @@ class ExpressionBuilder extends DoctrineExpressionBuilder
     }
 
     /**
+     * Creates a cast for the `$expression` result to a text datatype depending on the database management system.
+     *
+     * Note that for MySQL/MariaDB the corresponding CHAR/VARCHAR types are used with a length of `16383` reflecting
+     * 65554 bytes with `utf8mb4` and working with default `max_packet_size=16KB`. For SQLite and PostgreSQL the text
+     * type conversion is used.
+     *
+     * Main purpose of this expression is to use it in a expression chain to convert non-text values to text in chain
+     * with other expressions, for example to {@see self::concat()} multiple values or to ensure the type,  within
+     * `UNION/UNION ALL` query parts for example in recursive `Common Table Expressions` parts.
+     *
+     * This is a replacement for {@see QueryBuilder::castFieldToTextType()} with minor adjustments like enforcing and
+     * limiting the size to a fixed variant to be more usable in sensible areas like `Common Table Expressions`.
+     *
+     * Alternatively the {@see self::castVarchar()} can be used which allows for dynamic length setting per expression
+     * call.
+     *
+     * **Example:**
+     * ```
+     * $queryBuilder->expr()->castText(
+     *    '(' . '1 * 10' . ')',
+     *    'virtual_field'
+     * );
+     * ```
+     *
+     * **Result with MySQL:**
+     * ```
+     * CAST((1 * 10) AS CHAR(16383) AS `virtual_field`
+     * ```
+     *
+     * @throws \RuntimeException when used with a unsupported platform.
+     */
+    public function castText(CompositeExpression|\Stringable|string $expression, string $asIdentifier = ''): string
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        if ($platform instanceof DoctrinePostgreSQLPlatform) {
+            return $this->as(sprintf('((%s)::%s)', $expression, 'text'), $asIdentifier);
+        }
+        if ($platform instanceof DoctrineSQLitePlatform) {
+            return $this->as(sprintf('(CAST((%s) AS %s))', $expression, 'TEXT'), $asIdentifier);
+        }
+        if ($platform instanceof DoctrineMariaDBPlatform) {
+            // 16383 is the maximum for a VARCHAR field with `utf8mb4`
+            return $this->as(sprintf('(CAST((%s) AS %s(%s)))', $expression, 'VARCHAR', '16383'), $asIdentifier);
+        }
+        if ($platform instanceof DoctrineMySQLPlatform) {
+            // 16383 is the maximum for a VARCHAR field with `utf8mb4`
+            return $this->as(sprintf('(CAST((%s) AS %s(%s)))', $expression, 'CHAR', '16383'), $asIdentifier);
+        }
+        throw new \RuntimeException(
+            sprintf(
+                '%s is not implemented for the used database platform "%s", yet!',
+                __METHOD__,
+                get_class($this->connection->getDatabasePlatform())
+            ),
+            1722105672
+        );
+    }
+
+    /**
      * Create an SQL aggregate function.
      *
      * @param string|null $alias
      */
-    protected function calculation(string $aggregateName, string $fieldName, string $alias = null): string
+    protected function calculation(string $aggregateName, string $fieldName, ?string $alias = null): string
     {
         $aggregateSQL = sprintf(
             '%s(%s)',
@@ -988,6 +1047,53 @@ class ExpressionBuilder extends DoctrineExpressionBuilder
             ), $asIdentifier);
         }
         return $this->as(sprintf('RPAD(%s, %s, %s)', $value, $this->castInt((string)$length), $paddingValue), $asIdentifier);
+    }
+
+    /**
+     * Creates IF-THEN-ELSE expression construct compatible with all supported database vendors.
+     * No automatic quoting or escaping is done, which allows to build up nested expression statements.
+     *
+     * **Example:**
+     * ```
+     * $queryBuilder
+     *   ->selectLiteral(
+     *     $queryBuilder->expr()->if(
+     *       $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+     *       $queryBuilder->quote('page-is-visible'),
+     *       $queryBuilder->quote('page-is-not-visible'),
+     *       'result_field_name'
+     *     ),
+     *   )
+     *   ->from('pages');
+     * ```
+     *
+     * **Result with MySQL:**
+     * ```
+     * SELECT (IF(`hidden` = 0, 'page-is-visible', 'page-is-not-visible')) AS `result_field_name` FROM `pages`
+     * ```
+     */
+    public function if(
+        CompositeExpression|\Doctrine\DBAL\Query\Expression\CompositeExpression|\Stringable|string $condition,
+        \Stringable|string $truePart,
+        \Stringable|string $falsePart,
+        \Stringable|string|null $as = null
+    ): string {
+        $platform = $this->connection->getDatabasePlatform();
+        $pattern = match (true) {
+            $platform instanceof DoctrineSQLitePlatform => 'IIF(%s, %s, %s)',
+            $platform instanceof DoctrinePostgreSQLPlatform => 'CASE WHEN %s THEN %s ELSE %s END',
+            $platform instanceof DoctrineMariaDBPlatform,
+            $platform instanceof DoctrineMySQLPlatform => 'IF(%s, %s, %s)',
+            default => throw new \RuntimeException(
+                sprintf('Platform "%s" not supported for "%s"', $platform::class, __METHOD__),
+                1721806463
+            )
+        };
+        $expression = sprintf($pattern, $condition, $truePart, $falsePart);
+        if ($as !== null) {
+            $expression = $this->as(sprintf('(%s)', $expression), $as);
+        }
+        return $expression;
     }
 
     /**

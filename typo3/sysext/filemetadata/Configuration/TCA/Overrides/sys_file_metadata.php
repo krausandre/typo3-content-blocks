@@ -215,7 +215,6 @@ $tca = [
                 'type' => 'input',
                 'size' => 20,
                 'eval' => 'trim',
-                'max' => 255,
             ],
         ],
         'download_name' => [
@@ -227,7 +226,6 @@ $tca = [
                 'type' => 'input',
                 'size' => 30,
                 'eval' => 'trim',
-                'max' => 255,
             ],
         ],
         'creator' => [
@@ -239,7 +237,6 @@ $tca = [
                 'type' => 'input',
                 'size' => 30,
                 'eval' => 'trim',
-                'max' => 255,
             ],
         ],
         'publisher' => [
@@ -348,7 +345,6 @@ $tca = [
                 'type' => 'select',
                 'renderType' => 'selectSingle',
                 'minitems' => 1,
-                'maxitems' => 1,
                 'items' => [
                     ['label' => 0, 'value' => 0],
                     ['label' => 1, 'value' => 1],
@@ -498,6 +494,11 @@ $tca = [
             ],
         ],
         'fe_groups' => [
+            // @todo Inconsistent: sys_file_metadata has no ['ctrl']['enablecolumns']['fe_group'],
+            //       but this column is configured like the standard fe_group column?! Does this
+            //       actually work? And why can metadata be restricted for fe_groups in the first place?
+            //       Same question for 'visible' column above, shouldn't this be registered as
+            //       enablecolumns as well, if it actually works in FE?
             'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.fe_group',
             'config' => [

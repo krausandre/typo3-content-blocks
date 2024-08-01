@@ -38,7 +38,7 @@ class ExtensionComposerStatus implements RequestAwareStatusProviderInterface
         protected readonly UriBuilder $uriBuilder
     ) {}
 
-    public function getStatus(ServerRequestInterface $request = null): array
+    public function getStatus(?ServerRequestInterface $request = null): array
     {
         $status = [];
         $extensionsWithComposerDeficit = $this->composerDeficitDetector->getExtensionsWithComposerDeficit();
@@ -60,7 +60,7 @@ class ExtensionComposerStatus implements RequestAwareStatusProviderInterface
 
         $dispatchAction = 'TYPO3.ModuleMenu.showModule';
         $dispatchArgs = [
-            'tools_ExtensionmanagerExtensionmanager',
+            'extensionmanager',
             '&' . http_build_query($queryParameters),
         ];
 

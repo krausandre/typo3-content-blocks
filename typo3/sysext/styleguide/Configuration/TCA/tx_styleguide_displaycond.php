@@ -23,54 +23,6 @@ return [
     ],
 
     'columns' => [
-        'hidden' => [
-            'config' => [
-                'type' => 'check',
-                'items' => [
-                    ['label' => 'Disable'],
-                ],
-            ],
-        ],
-        'sys_language_uid' => [
-            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
-            'config' => [
-                'type' => 'language',
-            ],
-        ],
-        'l10n_parent' => [
-            'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'label' => 'Translation parent',
-            'config' => [
-                'type' => 'select',
-                'renderType' => 'selectSingle',
-                'items' => [
-                    ['label' => '', 'value' => 0],
-                ],
-                'foreign_table' => 'tx_styleguide_required',
-                'foreign_table_where' => 'AND {#tx_styleguide_required}.{#pid}=###CURRENT_PID### AND {#tx_styleguide_required}.{#sys_language_uid} IN (-1,0)',
-                'default' => 0,
-            ],
-        ],
-        'l10n_source' => [
-            'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'label' => 'Translation source',
-            'config' => [
-                'type' => 'select',
-                'renderType' => 'selectSingle',
-                'items' => [
-                    ['label' => '', 'value' => 0],
-                ],
-                'foreign_table' => 'tx_styleguide_required',
-                'foreign_table_where' => 'AND {#tx_styleguide_required}.{#pid}=###CURRENT_PID### AND {#tx_styleguide_required}.{#uid}!=###THIS_UID###',
-                'default' => 0,
-            ],
-        ],
-        'l10n_diffsource' => [
-            'config' => [
-                'type' => 'passthrough',
-            ],
-        ],
-
         // Tab FIELD REQ start
         'select_1' => [
             'label' => 'select_1',
@@ -79,8 +31,6 @@ return [
             'config' => [
                 'type' => 'select',
                 'renderType' => 'selectSingle',
-                'size' => 1,
-                'maxitems' => 1,
                 'items' => [
                     ['label' => 'false values', 'value' => '--div--'],
                     ['label' => 'integer 0', 'value' => 0],
@@ -184,9 +134,6 @@ return [
                     ['label' => 'foo2', 'value' => 2],
                     ['label' => 'foo42', 'value' => 42],
                 ],
-                'size' => 1,
-                'minitems' => 0,
-                'maxitems' => 1,
             ],
         ],
         'checkbox_1' => [
@@ -318,9 +265,6 @@ return [
                     ['label' => 'Hide input_2 on flex_1', 'value' => 0],
                     ['label' => 'Show input_2 on flex_1', 'value' => 1],
                 ],
-                'size' => 1,
-                'minitems' => 0,
-                'maxitems' => 1,
             ],
         ],
         'flex_1' => [

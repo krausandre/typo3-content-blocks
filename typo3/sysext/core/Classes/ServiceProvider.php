@@ -23,6 +23,8 @@ use Symfony\Component\Console\Command\HelpCommand;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface as SymfonyEventDispatcherInterface;
 use TYPO3\CMS\Core\Adapter\EventDispatcherAdapter as SymfonyEventDispatcher;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
+use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Database\Schema\DefaultTcaSchema;
@@ -112,6 +114,8 @@ class ServiceProvider extends AbstractServiceProvider
             TypoScript\Tokenizer\LosslessTokenizer::class => [ self::class, 'getLosslessTokenizer'],
             'icons' => self::getIcons(...),
             'middlewares' => self::getMiddlewares(...),
+            'cache.assets' => self::getAssetsCache(...),
+            'cache.runtime' => self::getRuntimeCache(...),
             'core.middlewares' => self::getCoreMiddlewares(...),
             'content.security.policies' => self::getContentSecurityPolicies(...),
         ];
@@ -325,6 +329,7 @@ class ServiceProvider extends AbstractServiceProvider
             $container->get(EventDispatcherInterface::class),
             $container->get(Imaging\IconRegistry::class),
             $container,
+            $container->get('cache.runtime'),
         ]);
     }
 
@@ -597,6 +602,16 @@ class ServiceProvider extends AbstractServiceProvider
         return new Map();
     }
 
+    public static function getAssetsCache(ContainerInterface $container): FrontendInterface
+    {
+        return Bootstrap::createCache('assets');
+    }
+
+    public static function getRuntimeCache(ContainerInterface $container): FrontendInterface
+    {
+        return Bootstrap::createCache('runtime');
+    }
+
     public static function getCoreMiddlewares(ContainerInterface $container): \ArrayObject
     {
         return new \ArrayObject($container->get(Http\MiddlewareStackResolver::class)->resolve('core'));
@@ -609,7 +624,7 @@ class ServiceProvider extends AbstractServiceProvider
 
     public static function provideFallbackEventDispatcher(
         ContainerInterface $container,
-        EventDispatcherInterface $eventDispatcher = null
+        ?EventDispatcherInterface $eventDispatcher = null
     ): EventDispatcherInterface {
         // Provide a dummy / empty event dispatcher for the install tool when $eventDispatcher is null (that means when we run without symfony DI)
         return $eventDispatcher ?? new EventDispatcher\EventDispatcher(

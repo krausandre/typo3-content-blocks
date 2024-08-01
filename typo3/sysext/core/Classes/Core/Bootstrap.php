@@ -43,6 +43,7 @@ use TYPO3\CMS\Core\Package\Cache\PackageCacheInterface;
 use TYPO3\CMS\Core\Package\Cache\PackageStatesPackageCache;
 use TYPO3\CMS\Core\Package\FailsafePackageManager;
 use TYPO3\CMS\Core\Package\PackageManager;
+use TYPO3\CMS\Core\Schema\TcaSchemaFactory;
 use TYPO3\CMS\Core\Service\DependencyOrderingService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -106,7 +107,6 @@ class Bootstrap
         static::setDefaultTimezone();
         static::setMemoryLimit();
 
-        $assetsCache = static::createCache('assets', $disableCaching);
         $dependencyInjectionContainerCache = static::createCache('di');
 
         $bootState = new \stdClass();
@@ -121,7 +121,6 @@ class Bootstrap
             RequestId::class => $requestId,
             'cache.di' => $dependencyInjectionContainerCache,
             'cache.core' => $coreCache,
-            'cache.assets' => $assetsCache,
             PackageManager::class => $packageManager,
 
             // @internal
@@ -153,6 +152,7 @@ class Bootstrap
         $GLOBALS['TCA'] = $tcaFactory->get();
         static::checkEncryptionKey();
         $bootState->complete = true;
+        $container->get(TcaSchemaFactory::class)->load($GLOBALS['TCA']);
         $eventDispatcher->dispatch(new BootCompletedEvent(true));
 
         return $container;
@@ -492,7 +492,7 @@ class Bootstrap
      * @todo: It would be better to remove this method and use the factory directly.
      *        Needs a pre-patch in testing-framework.
      */
-    public static function loadExtTables(bool $allowCaching = true, FrontendInterface $coreCache = null)
+    public static function loadExtTables(bool $allowCaching = true, ?FrontendInterface $coreCache = null)
     {
         $container = GeneralUtility::getContainer();
         if ($allowCaching) {
@@ -509,7 +509,7 @@ class Bootstrap
      * @param ServerRequestInterface|null $request
      * @internal This is not a public API method, do not use in own extensions
      */
-    public static function initializeBackendUser($className = BackendUserAuthentication::class, ServerRequestInterface $request = null)
+    public static function initializeBackendUser($className = BackendUserAuthentication::class, ?ServerRequestInterface $request = null)
     {
         /** @var BackendUserAuthentication $backendUser */
         $backendUser = GeneralUtility::makeInstance($className);

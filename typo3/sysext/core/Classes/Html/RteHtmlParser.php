@@ -20,7 +20,12 @@ namespace TYPO3\CMS\Core\Html;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Configuration\Features;
+use TYPO3\CMS\Core\Html\Event\AfterTransformTextForPersistenceEvent;
+use TYPO3\CMS\Core\Html\Event\AfterTransformTextForRichTextEditorEvent;
+use TYPO3\CMS\Core\Html\Event\BeforeTransformTextForPersistenceEvent;
+use TYPO3\CMS\Core\Html\Event\BeforeTransformTextForRichTextEditorEvent;
 use TYPO3\CMS\Core\Html\Event\BrokenLinkAnalysisEvent;
 use TYPO3\CMS\Core\LinkHandling\Exception\UnknownLinkHandlerException;
 use TYPO3\CMS\Core\LinkHandling\LinkService;
@@ -36,6 +41,7 @@ use TYPO3\HtmlSanitizer\Builder\BuilderInterface;
  * line breaks to LFs internally, however when all transformations are done, all LFs are transformed to CRLFs.
  * This means: RteHtmlParser always returns CRLFs to be maximum compatible with all formats.
  */
+#[Autoconfigure(public: true)]
 class RteHtmlParser extends HtmlParser implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
@@ -151,8 +157,18 @@ class RteHtmlParser extends HtmlParser implements LoggerAwareInterface
      */
     public function transformTextForRichTextEditor(string $value, array $processingConfiguration): string
     {
+        $initialValue = $value;
         $this->setProcessingConfiguration($processingConfiguration);
         $modes = $this->resolveAppliedTransformationModes('rte');
+
+        $beforeTransformTextForRichTextEditorEvent = new BeforeTransformTextForRichTextEditorEvent(
+            $value,
+            $initialValue,
+            $processingConfiguration
+        );
+        $this->eventDispatcher->dispatch($beforeTransformTextForRichTextEditorEvent);
+        $value = $beforeTransformTextForRichTextEditorEvent->getHtmlContent();
+
         $value = $this->streamlineLineBreaksForProcessing($value);
         // If an entry HTML cleaner was configured, pass the content through the HTMLcleaner
         $value = $this->runHtmlParserIfConfigured($value, 'entryHTMLparser_rte');
@@ -173,7 +189,14 @@ class RteHtmlParser extends HtmlParser implements LoggerAwareInterface
         $value = $this->runHtmlParserIfConfigured($value, 'exitHTMLparser_rte');
         // Final clean up of linebreaks
         $value = $this->streamlineLineBreaksAfterProcessing($value);
-        return $value;
+
+        $afterTransformTextForRichTextEditorEvent = new AfterTransformTextForRichTextEditorEvent(
+            $value,
+            $initialValue,
+            $processingConfiguration
+        );
+        $this->eventDispatcher->dispatch($afterTransformTextForRichTextEditorEvent);
+        return $afterTransformTextForRichTextEditorEvent->getHtmlContent();
     }
 
     /**
@@ -181,8 +204,18 @@ class RteHtmlParser extends HtmlParser implements LoggerAwareInterface
      */
     public function transformTextForPersistence(string $value, array $processingConfiguration): string
     {
+        $initialValue = $value;
         $this->setProcessingConfiguration($processingConfiguration);
         $modes = $this->resolveAppliedTransformationModes('db');
+
+        $beforeTransformTextForPersistenceEvent = new BeforeTransformTextForPersistenceEvent(
+            $value,
+            $initialValue,
+            $processingConfiguration
+        );
+        $this->eventDispatcher->dispatch($beforeTransformTextForPersistenceEvent);
+        $value = $beforeTransformTextForPersistenceEvent->getHtmlContent();
+
         $value = $this->streamlineLineBreaksForProcessing($value);
         // If an entry HTML cleaner was configured, pass the content through the HTMLcleaner
         $value = $this->runHtmlParserIfConfigured($value, 'entryHTMLparser_db');
@@ -212,7 +245,14 @@ class RteHtmlParser extends HtmlParser implements LoggerAwareInterface
         $value = $this->runHtmlParserIfConfigured($value, 'exitHTMLparser_db');
         // Final clean up of linebreaks
         $value = $this->streamlineLineBreaksAfterProcessing($value);
-        return $value;
+
+        $afterTransformTextForPersistenceEvent = new AfterTransformTextForPersistenceEvent(
+            $value,
+            $initialValue,
+            $processingConfiguration
+        );
+        $this->eventDispatcher->dispatch($afterTransformTextForPersistenceEvent);
+        return $afterTransformTextForPersistenceEvent->getHtmlContent();
     }
 
     /**

@@ -33,8 +33,10 @@ use Doctrine\DBAL\Schema\UniqueConstraint;
 use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BinaryType;
 use Doctrine\DBAL\Types\IntegerType;
+use Doctrine\DBAL\Types\JsonType;
 use Doctrine\DBAL\Types\SmallIntType;
 use Doctrine\DBAL\Types\StringType;
+use Doctrine\DBAL\Types\TextType;
 use TYPO3\CMS\Core\Database\Connection as Typo3Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Platform\PlatformInformation;
@@ -564,7 +566,7 @@ class ConnectionMigrator
         $databasePlatform = $this->connection->getDatabasePlatform();
         $updateSuggestions = [];
 
-        foreach ($schemaDiff->alteredTables as $index => $changedTable) {
+        foreach ($schemaDiff->alteredTables as $changedTable) {
             // Treat each changed index with a new diff to get a dedicated suggestions
             // just for this index.
             if (count($changedTable->modifiedIndexes) !== 0) {
@@ -657,7 +659,9 @@ class ConnectionMigrator
                 // just for this index.
                 foreach ($changedTable->renamedIndexes as $key => $renamedIndex) {
                     $indexDiff = clone $tableDiff;
-                    $indexDiff->renamedIndexes = [$key => $renamedIndex];
+                    $indexDiff->renamedIndexes = [
+                        $changedTable->getOldTable()->getIndex($key)->getQuotedName($databasePlatform) => $renamedIndex,
+                    ];
 
                     $temporarySchemaDiff = new Typo3SchemaDiff(
                         // createdSchemas
@@ -667,7 +671,7 @@ class ConnectionMigrator
                         // createdTables
                         [],
                         // alteredTables
-                        [$indexDiff->getOldTable()->getName() => $indexDiff],
+                        [$indexDiff->getOldTable()->getQuotedName($databasePlatform) => $indexDiff],
                         // droppedTables
                         [],
                         // createdSequences
@@ -862,8 +866,9 @@ class ConnectionMigrator
      */
     protected function getUnusedTableUpdateSuggestions(Typo3SchemaDiff $schemaDiff): array
     {
+        $databasePlatform = $this->connection->getDatabasePlatform();
         $updateSuggestions = [];
-        foreach ($schemaDiff->alteredTables as $tableName => $tableDiff) {
+        foreach ($schemaDiff->alteredTables as $tableDiff) {
             // Skip tables that are not being renamed or where the new name isn't prefixed
             // with the deletion marker.
             if ($tableDiff->getNewName() === null
@@ -872,8 +877,8 @@ class ConnectionMigrator
                 continue;
             }
 
-            $statement = $this->connection->getDatabasePlatform()->getRenameTableSQL(
-                $tableDiff->getOldTable()->getName(),
+            $statement = $databasePlatform->getRenameTableSQL(
+                $tableDiff->getOldTable()->getQuotedName($databasePlatform),
                 $tableDiff->newName
             );
             $updateSuggestions['change_table'][md5($statement)] = $statement;
@@ -894,23 +899,22 @@ class ConnectionMigrator
      */
     protected function getUnusedFieldUpdateSuggestions(Typo3SchemaDiff $schemaDiff): array
     {
+        $databasePlatform = $this->connection->getDatabasePlatform();
         $changedTables = [];
-
         foreach ($schemaDiff->alteredTables as $tableName => $changedTable) {
             if (count($changedTable->modifiedColumns) === 0) {
                 continue;
             }
 
-            $databasePlatform = $this->getDatabasePlatformForTable($tableName);
-
             // Treat each changed column with a new diff to get a dedicated suggestions
             // just for this single column.
-            foreach ($changedTable->modifiedColumns as $oldFieldName => $changedColumn) {
+            foreach ($changedTable->modifiedColumns as $index => $changedColumn) {
                 // Field has not been renamed
                 if ($changedColumn->getOldColumn()->getName() === $changedColumn->getNewColumn()->getName()) {
                     continue;
                 }
 
+                $oldFieldName = $changedColumn->getOldColumn()->getQuotedName($databasePlatform);
                 $renameColumnTableDiff = new Typo3TableDiff(
                     // oldTable
                     $this->buildQuotedTable($changedTable->getOldTable()),
@@ -1285,7 +1289,7 @@ class ConnectionMigrator
      */
     protected function migrateColumnRenamesToDistinctActions(Typo3SchemaDiff $schemaDiff): Typo3SchemaDiff
     {
-        foreach ($schemaDiff->alteredTables as $index => $changedTable) {
+        foreach ($schemaDiff->alteredTables as $changedTable) {
             if (count($changedTable->getRenamedColumns()) === 0) {
                 continue;
             }
@@ -1877,6 +1881,18 @@ class ConnectionMigrator
             return;
         }
 
+        foreach ($table->getColumns() as $column) {
+            // Doctrine DBAL 4 no longer determines the field type taking field comments into account. Due to the fact
+            // that SQLite does not provide a native JSON type, it is created as TEXT field type. In consequence, the
+            // current way to compare columns this leads to a change look for JSON fields. To mitigate this, until the
+            // real Doctrine DBAL 4 way to compare columns can be enabled we need to mirror that type transformation
+            // on the virtual database schema and change the type here.
+            // @see https://github.com/doctrine/dbal/blob/4.0.x/UPGRADE.md#bc-break-removed-platform-commented-type-api
+            if ($column->getType() instanceof JsonType) {
+                $column->setType(new TextType());
+            }
+        }
+
         // doctrine/dbal detects both sqlite autoincrement variants (row_id alias and autoincrement) through assumptions
         // which have been made. TYPO3 reads the ext_tables.sql files as MySQL/MariaDB variant, thus not setting the
         // autoincrement value to true for the row_id alias variant, which leads to an endless missmatch during database
@@ -1958,7 +1974,7 @@ class ConnectionMigrator
      * @return array{seqid: int, objid: int}|null
      * @throws DBALException
      */
-    private function getTableSequenceInformation(Typo3Connection $connection, TableDiff $changedTable, ColumnDiff $modifiedColumn): array|null
+    private function getTableSequenceInformation(Typo3Connection $connection, TableDiff $changedTable, ColumnDiff $modifiedColumn): ?array
     {
         $oldColumn = $modifiedColumn->getOldColumn();
         $newColumn = $modifiedColumn->getNewColumn();
@@ -1986,7 +2002,7 @@ class ConnectionMigrator
      * @return array{seqid: int, objid: int}|null
      * @throws DBALException
      */
-    private function getSequenceInfo(Typo3Connection $connection, string $table, string $field, int $colNum): array|null
+    private function getSequenceInfo(Typo3Connection $connection, string $table, string $field, int $colNum): ?array
     {
         $quotedTable = $connection->quote($table);
         $colNum = $connection->quote((string)$colNum);
@@ -2029,7 +2045,7 @@ class ConnectionMigrator
      * @see https://github.com/doctrine/dbal/blob/4.0.x/UPGRADE.md#bc-break-auto-increment-columns-on-postgresql-are-implemented-as-identity-not-serial
      * @see ConnectionMigrator::getTableSequenceInformation()
      */
-    private function getTableFieldColumnNumber(Typo3Connection $connection, string $table, string $field): int|null
+    private function getTableFieldColumnNumber(Typo3Connection $connection, string $table, string $field): ?int
     {
         $table = $connection->quote($table);
         $field = $connection->quote($field);
@@ -2065,7 +2081,6 @@ class ConnectionMigrator
             'index_words' => ['wid'],
             'index_section' => ['phash', 'phash_t3'],
             'index_grlist' => ['phash', 'phash_x', 'hash_gr_list'],
-            'index_debug' => ['phash'],
         ];
         $tableName = $this->trimIdentifierQuotes($changedTable->getOldTable()->getName());
         $oldType = $modifiedColumn->getOldColumn()->getType();

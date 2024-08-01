@@ -15,7 +15,6 @@
 
 namespace TYPO3\CMS\Backend\Form;
 
-use TYPO3\CMS\Backend\Form\Container\FilesControlContainer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -58,8 +57,8 @@ class NodeFactory
         'fullRecordContainer' => Container\FullRecordContainer::class,
         'inline' => Container\InlineControlContainer::class,
         'inlineRecordContainer' => Container\InlineRecordContainer::class,
-        FilesControlContainer::NODE_TYPE_IDENTIFIER => Container\FilesControlContainer::class,
-        Container\FileReferenceContainer::NODE_TYPE_IDENTIFIER => Container\FileReferenceContainer::class,
+        'file' => Container\FilesControlContainer::class,
+        'fileReferenceContainer' => Container\FileReferenceContainer::class,
         'siteLanguage' => Container\SiteLanguageContainer::class,
         'listOfFieldsContainer' => Container\ListOfFieldsContainer::class,
         'noTabsContainer' => Container\NoTabsContainer::class,
@@ -106,6 +105,7 @@ class NodeFactory
         'belayoutwizard' => Element\BackendLayoutWizardElement::class,
         'json' => Element\JsonElement::class,
         'uuid' => Element\UuidElement::class,
+        'tablePermission' => Element\TablePermissionElement::class,
 
         // Default classes to enrich single elements
         'fieldControl' => NodeExpansion\FieldControl::class,
@@ -167,6 +167,7 @@ class NodeFactory
         if (!empty($this->nodeResolver[$type])) {
             // Resolver with the highest priority is called first. If it returns with a new class name,
             // it will be taken and loop is aborted, otherwise resolver with next lower priority is called.
+            /** @noinspection PhpUnusedLocalVariableInspection leave for debugging purpose */
             foreach ($this->nodeResolver[$type] as $priority => $resolverClassName) {
                 $resolver = $this->initializeNodeResolverClass($resolverClassName, $data);
                 // Resolver classes do NOT receive the name of the already resolved class. Single

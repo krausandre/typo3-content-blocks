@@ -52,14 +52,14 @@ final class ActionViewHelper extends AbstractViewHelper
     public function initializeArguments(): void
     {
         $this->registerArgument('action', 'string', 'Target action');
-        $this->registerArgument('arguments', 'array', 'Arguments', false, []);
+        $this->registerArgument('arguments', 'array', 'Arguments (do not use reserved keywords "action", "controller" or "format" if not referring to these internal variables specifically)', false, []);
         $this->registerArgument('controller', 'string', 'Target controller. If NULL current controllerName is used');
         $this->registerArgument('extensionName', 'string', 'Target Extension Name (without `tx_` prefix and no underscores). If NULL the current extension name is used');
         $this->registerArgument('pluginName', 'string', 'Target plugin. If empty, the current plugin name is used');
         $this->registerArgument('pageUid', 'int', 'Target page. See TypoLink destination');
         $this->registerArgument('pageType', 'int', 'Type of the target page. See typolink.parameter', false, 0);
         $this->registerArgument('noCache', 'bool', 'Set this to disable caching for the target page. You should not need this.', false);
-        $this->registerArgument('language', 'string', 'link to a specific language - defaults to the current language, use a language ID or "current" to enforce a specific language', false);
+        $this->registerArgument('language', 'string', 'link to a specific language - defaults to the current language, use a language ID or "current" to enforce a specific language');
         $this->registerArgument('section', 'string', 'The anchor to be added to the URI', false, '');
         $this->registerArgument('format', 'string', 'The requested format, e.g. ".html', false, '');
         $this->registerArgument('linkAccessRestrictedPages', 'bool', 'If set, links pointing to access restricted pages will still link to the page even though the page cannot be accessed.', false, false);

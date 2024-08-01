@@ -1,0 +1,91 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:sg="http://typo3.org/ns/TYPO3/CMS/Styleguide/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Before">
+    <f:be.pageRenderer
+        includeJavaScriptModules="{
+            0: '@typo3/backend/element/progress-bar-element.js'
+        }"
+    />
+</f:section>
+
+<f:section name="Content">
+
+    <f:render
+        partial="Backend/Navigation"
+        arguments="{
+            currentAction: currentAction,
+            actions: actions,
+            route: routeIdentifier
+        }"
+    />
+
+    <div class="styleguide-content">
+        <h1><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.progressIndicator.headline" /></h1>
+        <p>
+            <f:sanitize.html><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.progressIndicator.introtext" /></f:sanitize.html>
+        </p>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.progressIndicator.section.default.headline" /></h2>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.progressIndicator.section.default.text" /></p>
+        <f:variable name="codeSnippetDefault">&lt;typo3-backend-progress-bar&gt;&lt;/typo3-backend-progress-bar&gt;</f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetDefault}" decodeEntities="true">
+            <typo3-backend-progress-bar></typo3-backend-progress-bar>
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.progressIndicator.section.customLabel.headline" /></h2>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.progressIndicator.section.customLabel.text" /></p>
+        <f:variable name="codeSnippetCustomLabel">&lt;typo3-backend-progress-bar label="Custom label"&gt;&lt;/typo3-backend-progress-bar&gt;</f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetCustomLabel}" decodeEntities="true">
+            <typo3-backend-progress-bar label="Custom label"></typo3-backend-progress-bar>
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.progressIndicator.section.value.headline" /></h2>
+        <f:variable name="codeSnippetValue">&lt;typo3-backend-progress-bar value="33" label="Progress with value=33"&gt;&lt;/typo3-backend-progress-bar&gt;</f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetValue}" decodeEntities="true">
+            <typo3-backend-progress-bar value="33" label="Progress with value=33"></typo3-backend-progress-bar>
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.progressIndicator.section.maxValue.headline" /></h2>
+        <f:variable name="codeSnippetMaxValue">
+            &lt;typo3-backend-progress-bar  value="0.5" max="1" label="Progress with value=0.5, max=1"&gt;&lt;/typo3-backend-progress-bar&gt;
+        </f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetMaxValue}" decodeEntities="true">
+            <typo3-backend-progress-bar  value="0.5" max="1" label="Progress with value=0.5, max=1"></typo3-backend-progress-bar>
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.progressIndicator.section.severity.headline" /></h2>
+        <f:variable name="codeSnippetSeverity">
+            /
+            severity="0"
+            severity="1"
+            severity="2"
+        </f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetSeverity}">
+            <typo3-backend-progress-bar value="10" max="10" label="info"></typo3-backend-progress-bar><br>
+            <typo3-backend-progress-bar value="10" max="10" label="ok" severity="0"></typo3-backend-progress-bar><br>
+            <typo3-backend-progress-bar value="10" max="10" label="warning" severity="1"></typo3-backend-progress-bar><br>
+            <typo3-backend-progress-bar value="10" max="10" label="error" severity="2"></typo3-backend-progress-bar>
+        </sg:example>
+
+        <hr>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:section.frontend.headline" /></h2>
+
+        <h3><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:section.colorScheme.headline" /></h3>
+        <sg:colorScheme>
+            <typo3-backend-progress-bar value="10" max="10" label="info"></typo3-backend-progress-bar><br>
+            <typo3-backend-progress-bar value="10" max="10" label="ok" severity="0"></typo3-backend-progress-bar><br>
+            <typo3-backend-progress-bar value="10" max="10" label="warning" severity="1"></typo3-backend-progress-bar><br>
+            <typo3-backend-progress-bar value="10" max="10" label="error" severity="2"></typo3-backend-progress-bar>
+        </sg:colorScheme>
+    </div>
+
+</f:section>
+
+</html>

@@ -59,6 +59,7 @@ class PasswordElement extends AbstractFormElement
             MathUtility::forceIntegerInRange($config['size'] ?? $this->defaultInputWidth, $this->minimumInputWidth, $this->maxInputWidth)
         );
         $fieldId = StringUtility::getUniqueId('formengine-input-');
+        $itemName = (string)$parameterArray['itemFormElName'];
         $renderedLabel = $this->renderLabel($fieldId);
 
         $passwordPolicy = $config['passwordPolicy'] ?? null;
@@ -84,7 +85,7 @@ class PasswordElement extends AbstractFormElement
             $html[] =   '<div class="form-wizards-wrap">';
             $html[] =       '<div class="form-wizards-element">';
             $html[] =           '<div class="form-control-wrap" style="max-width: ' . $width . 'px">';
-            $html[] =               '<input class="form-control" id="' . htmlspecialchars($fieldId) . '" value="' . htmlspecialchars($this->getObfuscatedSecretValue($itemValue)) . '" type="text" disabled>';
+            $html[] =               '<input class="form-control" id="' . htmlspecialchars($fieldId) . '" name="' . htmlspecialchars($itemName) . '" value="' . htmlspecialchars($this->getObfuscatedSecretValue($itemValue)) . '" type="text" disabled>';
             $html[] =           '</div>';
             $html[] =       '</div>';
             $html[] =   '</div>';
@@ -94,7 +95,6 @@ class PasswordElement extends AbstractFormElement
         }
 
         $languageService = $this->getLanguageService();
-        $itemName = (string)$parameterArray['itemFormElName'];
 
         // Always add "trim" and "password" (required for JS validation)
         $evalList = ['trim', 'password'];
@@ -110,7 +110,6 @@ class PasswordElement extends AbstractFormElement
                 'form-control',
                 'form-control-clearable',
                 't3js-clearable',
-                'hasDefaultValue',
             ]),
             'data-formengine-validation-rules' => $this->getValidationDataAsJsonString($config),
             'data-formengine-input-params' => (string)json_encode([
@@ -256,11 +255,13 @@ class PasswordElement extends AbstractFormElement
         );
 
         $passwordPolicyElement[] = '<div id="password-policy-info-' . htmlspecialchars($fieldId) . '" class="mt-2 callout callout-secondary hidden">';
-        $passwordPolicyElement[] = '  <div class="callout-title">' . htmlspecialchars($calloutTitle) . '</div>';
-        $passwordPolicyElement[] = '  <div class="callout-body">';
-        $passwordPolicyElement[] = '    <ul>';
-        $passwordPolicyElement[] =        implode(LF, $requirements);
-        $passwordPolicyElement[] = '    </ul>';
+        $passwordPolicyElement[] = '  <div class="callout-content">';
+        $passwordPolicyElement[] = '    <div class="callout-title">' . htmlspecialchars($calloutTitle) . '</div>';
+        $passwordPolicyElement[] = '    <div class="callout-body">';
+        $passwordPolicyElement[] = '      <ul>';
+        $passwordPolicyElement[] =          implode(LF, $requirements);
+        $passwordPolicyElement[] = '      </ul>';
+        $passwordPolicyElement[] = '    </div>';
         $passwordPolicyElement[] = '  </div>';
         $passwordPolicyElement[] = '</div>';
 

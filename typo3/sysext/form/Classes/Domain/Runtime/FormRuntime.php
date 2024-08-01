@@ -23,6 +23,7 @@ namespace TYPO3\CMS\Form\Domain\Runtime;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Error\Http\BadRequestException;
@@ -102,6 +103,7 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  * @internal High cohesion to FormDefinition, may change any time
  * @todo: Declare final in v12
  */
+#[Autoconfigure(public: true, shared: false)]
 class FormRuntime implements RootRenderableInterface, \ArrayAccess
 {
     public const HONEYPOT_NAME_SESSION_IDENTIFIER = 'tx_form_honeypot_name_';
@@ -354,7 +356,7 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
             $honeypotNameFromSession = $this->getHoneypotNameFromSession($this->lastDisplayedPage);
             if ($honeypotNameFromSession) {
                 $honeypotElement = $this->lastDisplayedPage->createElement($honeypotNameFromSession, $renderingOptions['honeypot']['formElementToUse']);
-                $validator = $this->validatorResolver->createValidator(EmptyValidator::class);
+                $validator = $this->validatorResolver->createValidator(EmptyValidator::class, [], $this->request);
                 $honeypotElement->addValidator($validator);
             }
         }
@@ -398,7 +400,7 @@ class FormRuntime implements RootRenderableInterface, \ArrayAccess
 
             $referenceElement = $this->currentPage->getElements()[$randomElementNumber];
             $honeypotElement = $this->currentPage->createElement($honeypotName, $renderingOptions['honeypot']['formElementToUse']);
-            $validator = $this->validatorResolver->createValidator(EmptyValidator::class);
+            $validator = $this->validatorResolver->createValidator(EmptyValidator::class, [], $this->request);
 
             $honeypotElement->addValidator($validator);
             if (random_int(0, 1) === 1) {

@@ -22,10 +22,10 @@
 		"doctrine/instantiator": "^1.5 || ^2.0",
 		"phpdocumentor/reflection-docblock": "^5.2",
 		"phpdocumentor/type-resolver": "^1.7.1",
-		"symfony/dependency-injection": "^7.0",
-		"symfony/property-access": "^7.0",
-		"symfony/property-info": "^7.0",
-		"typo3/cms-core": "13.2.*@dev"
+		"symfony/dependency-injection": "^7.1",
+		"symfony/property-access": "^7.1",
+		"symfony/property-info": "^7.1",
+		"typo3/cms-core": "13.3.*@dev"
 	},
 	"suggest": {
 		"typo3/cms-scheduler": "Additional scheduler tasks"
@@ -35,7 +35,7 @@
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-main": "13.2.x-dev"
+			"dev-main": "13.3.x-dev"
 		},
 		"typo3/cms": {
 			"Package": {

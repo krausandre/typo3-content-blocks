@@ -1,0 +1,69 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:sg="http://typo3.org/ns/TYPO3/CMS/Styleguide/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+    <f:render
+        partial="Backend/Navigation"
+        arguments="{
+            currentAction: currentAction,
+            actions: actions,
+            route: routeIdentifier
+        }"
+    />
+
+    <div class="styleguide-content">
+        <h1><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.modal.headline" /></h1>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.modal.introtext" /></p>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.modal.section.default.headline" /></h2>
+        <sg:example codePreview="true" codeLanguage="html">
+            <a class="btn btn-default t3js-modal-trigger">Open modal</a>
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.modal.section.customTitleContent.headline" /></h2>
+        <f:variable name="codeSnippetCustomTitle">
+            <a class="btn btn-default t3js-modal-trigger" data-title="Custom modal title" data-content="Lorem ipsum dolor...">Open modal</a>
+        </f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetCustomTitle}">
+            <a
+                class="btn btn-default t3js-modal-trigger"
+                data-title="Custom modal title"
+                data-content="Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua."
+            >
+                Open modal
+            </a>
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.modal.section.severity.headline" /></h2>
+        <f:variable name="codeSnippetSeverity">
+            <f:for each="{variants}" as="variant">
+            data-severity="{variant}"
+            </f:for>
+        </f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetSeverity}">
+            <div class="example-container">
+                <f:for each="{variants}" as="variant">
+                    <f:variable name="buttonClass">
+                        <f:if condition="{variant} == 'ok'">
+                            <f:then>success</f:then>
+                            <f:else if="{variant} == 'error'">danger</f:else>
+                            <f:else>{variant}</f:else>
+                        </f:if>
+                    </f:variable>
+                    <div class="example-item">
+                        <a class="btn btn-{buttonClass -> f:spaceless()} t3js-modal-trigger" data-severity="{variant}">Open {variant} modal</a>
+                    </div>
+                </f:for>
+            </div>
+        </sg:example>
+    </div>
+
+</f:section>
+
+</html>

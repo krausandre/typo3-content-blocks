@@ -21,7 +21,6 @@ use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Tests\Functional\SiteHandling\SiteBasedTestTrait;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\Framework\DataHandling\Scenario\DataHandlerFactory;
 use TYPO3\TestingFramework\Core\Functional\Framework\DataHandling\Scenario\DataHandlerWriter;
 use TYPO3\TestingFramework\Core\Functional\Framework\Frontend\InternalRequest;
@@ -30,6 +29,10 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 final class RecordTransformationProcessorTest extends FunctionalTestCase
 {
     use SiteBasedTestTrait;
+
+    protected array $testExtensionsToLoad = [
+        'typo3/sysext/core/Tests/Functional/Fixtures/Extensions/test_classic_content',
+    ];
 
     protected const LANGUAGE_PRESETS = [
         'EN' => ['id' => 0, 'title' => 'English', 'locale' => 'en-US'],
@@ -56,7 +59,7 @@ final class RecordTransformationProcessorTest extends FunctionalTestCase
             $writer = DataHandlerWriter::withBackendUser($backendUser);
             $writer->invokeFactory($factory);
             static::failIfArrayIsNotEmpty($writer->getErrors());
-            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('pages');
+            $connection = $this->get(ConnectionPool::class)->getConnectionForTable('pages');
 
             $pageLayoutFileContents[] = file_get_contents(__DIR__ . '/Fixtures/PageLayouts/Default.tsconfig');
             $pageLayoutFileContents[] = file_get_contents(__DIR__ . '/Fixtures/PageLayouts/Home.tsconfig');

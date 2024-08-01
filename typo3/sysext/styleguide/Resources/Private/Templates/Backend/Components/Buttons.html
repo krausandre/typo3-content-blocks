@@ -1,0 +1,92 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:sg="http://typo3.org/ns/TYPO3/CMS/Styleguide/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+    <f:render
+        partial="Backend/Navigation"
+        arguments="{
+            currentAction: currentAction,
+            actions: actions,
+            route: routeIdentifier
+        }"
+    />
+
+    <div class="styleguide-content">
+        <h1><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.button.headline" /></h1>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.button.section.default.headline" /></h2>
+        <sg:example codePreview="true" codeLanguage="html">
+            <button class="btn btn-default">Button title</button>
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.button.section.withIcon.headline" /></h2>
+        <f:variable name="codeSnippetIcon">
+            <button class="btn btn-default">&lt;core:icon identifier="actions-open" /&gt; Button title</button>
+        </f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetIcon}" decodeEntities="true">
+            <button class="btn btn-default"><core:icon identifier="actions-open" /> Button title</button>
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.button.section.color.headline" /></h2>
+        <f:variable name="codeSnippetColor">
+            <f:for each="{variants}" as="variant">
+            btn-{variant}
+            </f:for>
+        </f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetColor}" decodeEntities="true">
+            <div class="example-container">
+                <f:for each="{variants}" as="variant">
+                    <div class="example-item">
+                        <button class="btn btn-{variant}">{variant}</button>
+                    </div>
+                </f:for>
+            </div>
+        </sg:example>
+
+        <hr>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:section.frontend.headline" /></h2>
+
+        <h3><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.button.section.types.headline" /></h3>
+        <sg:example codePreview="true" codeLanguage="html">
+            <button class="btn btn-default">button</button>
+            <input type="button" class="btn btn-default" value="input type='button'" />
+            <input type="submit" class="btn btn-default" value="input type='submit'" />
+            <a href="#" class="btn btn-default">a tag</a>
+        </sg:example>
+
+        <h3><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:section.colorScheme.headline" /></h3>
+
+        <h4><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.button.section.stateActive.headline" /></h4>
+        <sg:colorScheme>
+            <div class="example-container">
+            <f:for each="{variants}" as="variant">
+                <div class="example-item">
+                    <button class="btn btn-{variant}">{variant}</button>
+                </div>
+            </f:for>
+            </div>
+        </sg:colorScheme>
+
+        <h4><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.button.section.stateDisabled.headline" /></h4>
+        <sg:colorScheme>
+            <div class="example-container">
+            <f:for each="{variants}" as="variant">
+                <div class="example-item">
+                    <button class="btn btn-{variant} disabled">{variant} disabled</button>
+                </div>
+            </f:for>
+            </div>
+        </sg:colorScheme>
+    </div>
+
+</f:section>
+
+</html>

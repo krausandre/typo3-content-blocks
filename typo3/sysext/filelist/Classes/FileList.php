@@ -700,7 +700,14 @@ class FileList
      */
     protected function renderCreationTime(ResourceView $resourceView): string
     {
-        $timestamp = ($resourceView->resource instanceof File) ? $resourceView->getCreatedAt() : null;
+        if ($resourceView->resource instanceof File) {
+            $timestamp = $resourceView->getCreatedAt();
+        } elseif ($resourceView->resource instanceof Folder) {
+            $timestamp = $resourceView->resource->getCreationTime();
+        } else {
+            $timestamp = null;
+        }
+
         return $timestamp ? BackendUtility::datetime($timestamp) : '';
     }
 
@@ -709,7 +716,14 @@ class FileList
      */
     protected function renderModificationTime(ResourceView $resourceView): string
     {
-        $timestamp = ($resourceView->resource instanceof File) ? $resourceView->getUpdatedAt() : null;
+        if ($resourceView->resource instanceof File) {
+            $timestamp = $resourceView->getUpdatedAt();
+        } elseif ($resourceView->resource instanceof Folder) {
+            $timestamp = $resourceView->resource->getModificationTime();
+        } else {
+            $timestamp = null;
+        }
+
         return $timestamp ? BackendUtility::datetime($timestamp) : '';
     }
 
@@ -1420,7 +1434,7 @@ class FileList
 
         return '
             <div class="btn-group dropdown">
-                <button type="button" class="dropdown-toggle dropdown-toggle-link t3js-multi-record-selection-check-actions-toggle" data-bs-toggle="dropdown" data-bs-boundary="window" aria-expanded="false">
+                <button type="button" class="dropdown-toggle dropdown-toggle-link t3js-multi-record-selection-check-actions-toggle" data-bs-toggle="dropdown" data-bs-boundary="window" aria-expanded="false" aria-label="' . htmlspecialchars($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.openSelectionOptions')) . '">
                     ' . $this->iconFactory->getIcon('actions-selection', IconSize::SMALL) . '
                 </button>
                 <ul class="dropdown-menu t3js-multi-record-selection-check-actions">
@@ -1679,6 +1693,10 @@ class FileList
                     . ($resource->checkActionPermission('write') ? 'W' : '');
             case 'name':
                 return $resource->getName();
+            case 'tstamp':
+                return $resource->getModificationTime() . 't';
+            case 'crdate':
+                return $resource->getCreationTime() . 'c';
             default:
                 return '';
         }

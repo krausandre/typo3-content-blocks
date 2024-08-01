@@ -18,11 +18,11 @@ import { AbstractInteractableModule } from './module/abstract-interactable-modul
 import { AbstractInlineModule } from './module/abstract-inline-module';
 import { default as Modal, ModalElement } from '@typo3/backend/modal';
 import { InfoBox } from './renderable/info-box';
-import './renderable/progress-bar';
 import Severity from './renderable/severity';
 import '@typo3/backend/element/spinner-element';
 import MessageInterface from '@typo3/install/message-interface';
 import RegularEvent from '@typo3/core/event/regular-event';
+import '@typo3/backend/element/progress-bar-element';
 
 class Router {
   private readonly rootSelector: string = '.t3js-body';
@@ -231,6 +231,7 @@ class Router {
       const url = this.getUrl(undefined, 'upgrade');
       const message =
         '<div class="t3js-infobox callout callout-sm callout-danger">'
+        + '<div class="callout-content">'
         + '<div class="callout-title">Something went wrong</div>'
         + '<div class="callout-body">'
         + '<p>Please use <b><a href="' + url + '">Check for broken'
@@ -243,6 +244,7 @@ class Router {
         + '<code>[\'BE\'][\'debug\'] => true</code>, <code>[\'SYS\'][\'devIPmask\'] => \'*\'</code>, '
         + '<code>[\'SYS\'][\'displayErrors\'] => 1</code>,'
         + '<code>[\'SYS\'][\'exceptionalErrors\'] => 12290</code></p>'
+        + '</div>'
         + '</div>'
         + '</div>'
         + '<div class="panel-group" role="tablist" aria-multiselectable="true">'
@@ -344,7 +346,7 @@ class Router {
 
   public login(): void {
     const outputContainer: HTMLElement = document.querySelector('.t3js-login-output');
-    const progressBar = document.createElement('typo3-install-progress-bar');
+    const progressBar = document.createElement('typo3-backend-progress-bar');
 
     outputContainer.replaceChildren(progressBar);
     (new AjaxRequest(this.getUrl()))

@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Backend\Form\FormDataProvider;
 
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Backend\Form\FormDataProviderInterface;
 use TYPO3\CMS\Core\Configuration\SiteConfiguration;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
@@ -28,17 +29,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * Fetch "row" data from yml file and set as 'databaseRow'
  */
-class SiteDatabaseEditRow implements FormDataProviderInterface
+#[Autoconfigure(public: true)]
+readonly class SiteDatabaseEditRow implements FormDataProviderInterface
 {
-    /**
-     * @var SiteConfiguration
-     */
-    protected $siteConfiguration;
-
-    public function __construct(SiteConfiguration $siteConfiguration)
-    {
-        $this->siteConfiguration = $siteConfiguration;
-    }
+    public function __construct(private SiteConfiguration $siteConfiguration) {}
 
     /**
      * First level of ['customData']['siteData'] to ['databaseRow']

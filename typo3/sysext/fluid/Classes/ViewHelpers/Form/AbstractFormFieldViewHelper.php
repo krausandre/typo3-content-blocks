@@ -48,11 +48,7 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
         parent::initializeArguments();
         $this->registerArgument('name', 'string', 'Name of input tag');
         $this->registerArgument('value', 'mixed', 'Value of input tag');
-        $this->registerArgument(
-            'property',
-            'string',
-            'Name of Object Property. If used in conjunction with <f:form object="...">, the "name" property will be ignored, while "value" can be used to specify a default field value instead of the object property value.'
-        );
+        $this->registerArgument('property', 'string', 'Name of Object Property. If used in conjunction with <f:form object="...">, the "name" property will be ignored, while "value" can be used to specify a default field value instead of the object property value.');
     }
 
     /**
@@ -124,11 +120,11 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
         } else {
             $name = $this->arguments['name'] ?? '';
         }
-        if ($this->hasArgument('value') && is_object($this->arguments['value'])) {
-            // @todo Use  $this->persistenceManager->isNewObject() once it is implemented
-            if ($this->persistenceManager->getIdentifierByObject($this->arguments['value']) !== null) {
-                $name .= '[__identity]';
-            }
+        if ($this->hasArgument('value') &&
+            is_object($this->arguments['value']) &&
+            !$this->persistenceManager->isNewObject($this->arguments['value'])
+        ) {
+            $name .= '[__identity]';
         }
         return (string)$name;
     }
@@ -137,8 +133,8 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
      * Returns the current value of this Form ViewHelper and converts it to an identifier string in case it's an object
      * The value is determined as follows:
      * * If property mapping errors occurred and the form is re-displayed, the *last submitted* value is returned
-     * * Else the bound property is returned (only in objectAccessor-mode)
-     * * As fallback the "value" argument of this ViewHelper is used
+     * * If a "value" attribute was specified, this value is used (preferring an "override" from integrators)
+     * * Else the bound property value is returned (only in objectAccessor-mode)
      *
      * Note: This method should *not* be used for form elements that must not change the value attribute, e.g. (radio) buttons and checkboxes.
      *
@@ -331,7 +327,12 @@ abstract class AbstractFormFieldViewHelper extends AbstractFormViewHelper
     protected function setErrorClassAttribute(): void
     {
         if ($this->hasArgument('class')) {
+            // @deprecated: Fallback layer for VH's that register 'class' as argument
+            //              via registerUniversalTagAttributes(). Remove in v14. Make
+            //              elseif() below if().
             $cssClass = $this->arguments['class'] . ' ';
+        } elseif (isset($this->additionalArguments['class'])) {
+            $cssClass = $this->additionalArguments['class'] . ' ';
         } else {
             $cssClass = '';
         }

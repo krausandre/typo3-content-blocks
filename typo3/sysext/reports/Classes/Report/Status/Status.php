@@ -16,6 +16,7 @@
 namespace TYPO3\CMS\Reports\Report\Status;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Backend\View\BackendViewFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Registry;
@@ -30,6 +31,7 @@ use TYPO3\CMS\Reports\Status as ReportStatus;
 /**
  * The status report
  */
+#[Autoconfigure(public: true)]
 class Status implements RequestAwareReportInterface
 {
     /**
@@ -49,7 +51,7 @@ class Status implements RequestAwareReportInterface
      * @param ServerRequestInterface|null $request the currently handled request
      * @return string The status report as HTML
      */
-    public function getReport(ServerRequestInterface $request = null): string
+    public function getReport(?ServerRequestInterface $request = null): string
     {
         $status = $this->getSystemStatus($request);
         $registry = GeneralUtility::makeInstance(Registry::class);
@@ -83,7 +85,7 @@ class Status implements RequestAwareReportInterface
      * @param ServerRequestInterface|null $request
      * @return ReportStatus[][]
      */
-    public function getSystemStatus(ServerRequestInterface $request = null): array
+    public function getSystemStatus(?ServerRequestInterface $request = null): array
     {
         $status = [];
         foreach ($this->statusRegistry->getProviders() as $statusProvider) {

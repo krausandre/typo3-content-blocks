@@ -252,22 +252,6 @@ class AdministrationController extends ActionController
             return $this->redirect('statistic');
         }
 
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('index_debug');
-        $debugRow = $queryBuilder
-            ->select('debuginfo')
-            ->from('index_debug')
-            ->where(
-                $queryBuilder->expr()->eq(
-                    'phash',
-                    $queryBuilder->createNamedParameter($pageHash, Connection::PARAM_STR)
-                )
-            )
-            ->executeQuery()
-            ->fetchAssociative();
-        $debugInfo = [];
-        if (is_array($debugRow)) {
-            $debugInfo = json_decode($debugRow['debuginfo'], true);
-        }
         $pageRecord = BackendUtility::getRecord('pages', $pageHashRow['data_page_id']);
 
         // words
@@ -310,7 +294,6 @@ class AdministrationController extends ActionController
             'phashRow' => $pageHashRow,
             'words' => $wordRecords,
             'sections' => $sections,
-            'debug' => $debugInfo,
             'page' => $pageRecord,
         ]);
 
@@ -394,15 +377,16 @@ class AdministrationController extends ActionController
             }
         }
         $this->administrationRepository->external_parsers = $externalParsers;
-        $allLines = $this->administrationRepository->getTree($this->pageUid, $depth, $mode);
+        $tree = $this->administrationRepository->getTree($this->pageUid, $depth, $mode);
         $view = $this->initializeModuleTemplate($this->request);
         $view->assignMultiple([
             'extensionConfiguration' => $this->indexerConfig,
             'levelTranslations' => explode('|', $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.enterSearchLevels')),
-            'tree' => $allLines,
+            'tree' => $tree,
             'pageUid' => $this->pageUid,
             'mode' => $mode,
             'depth' => $depth,
+            'backendUserTitleLength' => (int)$this->getBackendUserAuthentication()->uc['titleLen'],
         ]);
         return $view->renderResponse('Administration/Statistic');
     }

@@ -62,10 +62,10 @@
 		"egulias/email-validator": "^4.0",
 		"enshrined/svg-sanitize": "^0.18.0",
 		"firebase/php-jwt": "^6.4.0",
-		"guzzlehttp/guzzle": "^7.7.0",
-		"guzzlehttp/promises": "^1.5.2 || ^2.0",
-		"guzzlehttp/psr7": "^2.5.0",
-		"lolli42/finediff": "^1.1.0",
+		"guzzlehttp/guzzle": "^7.9.2",
+		"guzzlehttp/promises": "^2.0.3",
+		"guzzlehttp/psr7": "^2.7.0",
+		"lolli42/finediff": "^1.1.1",
 		"masterminds/html5": "^2.7.6",
 		"nikic/php-parser": "^5.0.1",
 		"phpdocumentor/reflection-docblock": "^5.2",
@@ -73,36 +73,37 @@
 		"psr/container": "^2.0",
 		"psr/event-dispatcher": "^1.0",
 		"psr/http-client": "^1.0",
-		"psr/http-factory": "^1.0",
+		"psr/http-factory": "^1.1.0",
 		"psr/http-message": "^1.1 || ^2.0",
 		"psr/http-server-handler": "^1.0",
 		"psr/http-server-middleware": "^1.0",
 		"psr/log": "^2.0 || ^3.0",
-		"symfony/config": "^7.0",
-		"symfony/console": "^7.0",
-		"symfony/dependency-injection": "^7.0",
-		"symfony/doctrine-messenger": "^7.0",
+		"symfony/config": "^7.1",
+		"symfony/console": "^7.1",
+		"symfony/dependency-injection": "^7.1",
+		"symfony/doctrine-messenger": "^7.1",
 		"symfony/event-dispatcher-contracts": "^3.1",
-		"symfony/expression-language": "^7.0",
-		"symfony/filesystem": "^7.0",
-		"symfony/finder": "^7.0",
-		"symfony/http-foundation": "^7.0",
-		"symfony/mailer": "^7.0",
-		"symfony/messenger": "^7.0",
-		"symfony/mime": "^7.0",
-		"symfony/options-resolver": "^7.0",
-		"symfony/property-access": "^7.0",
-		"symfony/property-info": "^7.0",
-		"symfony/rate-limiter": "^7.0",
-		"symfony/routing": "^7.0",
-		"symfony/uid": "^7.0",
-		"symfony/var-dumper": "^7.0",
-		"symfony/yaml": "^7.0",
+		"symfony/expression-language": "^7.1",
+		"symfony/filesystem": "^7.1",
+		"symfony/finder": "^7.1",
+		"symfony/http-foundation": "^7.1",
+		"symfony/mailer": "^7.1",
+		"symfony/messenger": "^7.1",
+		"symfony/mime": "^7.1",
+		"symfony/options-resolver": "^7.1",
+		"symfony/process": "^7.1",
+		"symfony/property-access": "^7.1",
+		"symfony/property-info": "^7.1",
+		"symfony/rate-limiter": "^7.1",
+		"symfony/routing": "^7.1",
+		"symfony/uid": "^7.1",
+		"symfony/var-dumper": "^7.1",
+		"symfony/yaml": "^7.1",
 		"typo3/class-alias-loader": "^1.1.4",
 		"typo3/cms-cli": "^3.1",
 		"typo3/cms-composer-installers": "^5.0",
-		"typo3/html-sanitizer": "^2.1.4",
-		"typo3fluid/fluid": "^2.11.0"
+		"typo3/html-sanitizer": "^2.2.0",
+		"typo3fluid/fluid": "^2.14.1"
 	},
 	"require-dev": {
 		"bnf/phpstan-psr-container": "^1.0.1",
@@ -117,11 +118,11 @@
 		"friendsoftypo3/phpstan-typo3": "^0.9.0",
 		"php-webdriver/webdriver": "^1.15.1",
 		"phpstan/phpdoc-parser": "^1.29.0",
-		"phpstan/phpstan": "^1.11.3",
+		"phpstan/phpstan": "^1.11.8",
 		"phpstan/phpstan-phpunit": "^1.4.0",
-		"phpunit/phpunit": "^11.0.3",
+		"phpunit/phpunit": "^11.2.7",
 		"sokil/php-isocodes-db-i18n": "^4.0.22",
-		"symfony/translation": "^7.0",
+		"symfony/translation": "^7.1",
 		"typo3/testing-framework": "dev-main",
 		"webmozart/assert": "^1.11.0"
 	},
@@ -148,7 +149,7 @@
 			"always-add-alias-loader": true
 		},
 		"branch-alias": {
-			"dev-main": "13.2.x-dev"
+			"dev-main": "13.3.x-dev"
 		}
 	},
 	"scripts": {
@@ -332,8 +333,5 @@
 			"TYPO3Tests\\ViewhelperLibrary\\": "typo3/sysext/fluid/Tests/Functional/Fixtures/Libraries/viewhelper_library/src/",
 			"TYPO3\\CMS\\PHPStan\\": "Build/phpstan/src/"
 		}
-	},
-	"conflict": {
-		"phpunit/phpunit": "11.2.0"
 	}
 }

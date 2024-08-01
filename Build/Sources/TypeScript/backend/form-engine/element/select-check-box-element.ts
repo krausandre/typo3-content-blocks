@@ -11,83 +11,52 @@
  * The TYPO3 project - inspiring people to share!
  */
 
-import DocumentService from '@typo3/core/document-service';
 import RegularEvent from '@typo3/core/event/regular-event';
+import Icons from '@typo3/backend/icons';
 
 enum Identifier {
-  toggleAll = '.t3js-toggle-checkboxes',
-  singleItem = '.t3js-checkbox',
-  revertSelection = '.t3js-revert-selection',
+  toggleGroup = '.t3js-toggle-selectcheckbox-group',
 }
 
-class SelectCheckBoxElement {
-  private readonly checkBoxId: string = '';
-  private table: HTMLTableElement = null;
-  private checkedBoxes: NodeListOf<HTMLInputElement> = null;
+enum IconIdentifier {
+  collapse = 'actions-view-list-collapse',
+  expand = 'actions-view-list-expand',
+}
 
-  /**
-   * @param {string} checkBoxId
-   */
-  constructor(checkBoxId: string) {
-    this.checkBoxId = checkBoxId;
-    DocumentService.ready().then((document: Document): void => {
-      this.table = document.getElementById(checkBoxId).closest('table');
-      this.checkedBoxes = this.table.querySelectorAll(Identifier.singleItem + ':checked');
+/**
+ * Module: @typo3/backend/form-engine/element/select-check-box-element
+ *
+ * Functionality for the selectCheckBox element
+ *
+ * @example
+ * <typo3-formengine-element-select-check-box>
+ *   ...
+ * </typo3-formengine-element-select-check-box>
+ *
+ * This is based on W3C custom elements ("web components") specification, see
+ * https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
+ */
+class SelectCheckBoxElement extends HTMLElement {
 
-      this.enableTriggerCheckBox();
-      this.registerEventHandler();
+  public connectedCallback(): void {
+    this.registerEventHandler();
+  }
+
+  private registerEventHandler(): void {
+    new RegularEvent('click', this.toggleGroup).delegateTo(this, Identifier.toggleGroup);
+  }
+
+  private toggleGroup(e: MouseEvent, targetEl: HTMLElement): void {
+    e.preventDefault();
+
+    const isExpanded = targetEl.ariaExpanded === 'true';
+    const collapseIcon = targetEl.querySelector('.collapseIcon');
+    const toggleIcon = isExpanded ? IconIdentifier.collapse : IconIdentifier.expand;
+
+    Icons.getIcon(toggleIcon, Icons.sizes.small).then((icon: string): void => {
+      collapseIcon.innerHTML = icon;
     });
   }
-
-  /**
-   * Determines whether all available checkboxes are checked
-   *
-   * @param {NodeListOf<HTMLInputElement>} checkBoxes
-   * @return {boolean}
-   */
-  private static allCheckBoxesAreChecked(checkBoxes: NodeListOf<HTMLInputElement>): boolean {
-    const checkboxArray = Array.from(checkBoxes);
-    return checkBoxes.length === checkboxArray.filter((checkBox: HTMLInputElement) => checkBox.checked).length;
-  }
-
-  /**
-   * Registers the events for clicking the "Toggle all" and the single item checkboxes
-   */
-  private registerEventHandler(): void {
-    new RegularEvent('change', (e: Event, currentTarget: HTMLInputElement): void => {
-      const checkBoxes: NodeListOf<HTMLInputElement> = this.table.querySelectorAll(Identifier.singleItem);
-      const checkIt = !SelectCheckBoxElement.allCheckBoxesAreChecked(checkBoxes);
-
-      checkBoxes.forEach((checkBox: HTMLInputElement): void => {
-        checkBox.checked = checkIt;
-      });
-      currentTarget.checked = checkIt;
-    }).delegateTo(this.table, Identifier.toggleAll);
-
-    new RegularEvent('change', this.setToggleAllState.bind(this)).delegateTo(this.table, Identifier.singleItem);
-
-    new RegularEvent('click', (): void => {
-      const checkBoxes = this.table.querySelectorAll(Identifier.singleItem);
-      const checkedCheckBoxesAsArray = Array.from(this.checkedBoxes);
-      checkBoxes.forEach((checkBox: HTMLInputElement): void => {
-        checkBox.checked = checkedCheckBoxesAsArray.includes(checkBox);
-      });
-      this.setToggleAllState();
-    }).delegateTo(this.table, Identifier.revertSelection);
-  }
-
-  private setToggleAllState(): void {
-    const checkBoxes: NodeListOf<HTMLInputElement> = this.table.querySelectorAll(Identifier.singleItem);
-    (this.table.querySelector(Identifier.toggleAll) as HTMLInputElement).checked = SelectCheckBoxElement.allCheckBoxesAreChecked(checkBoxes);
-  }
-
-  /**
-   * Enables the "Toggle all" checkbox on document load if all child checkboxes are checked
-   */
-  private enableTriggerCheckBox(): void {
-    const checkBoxes: NodeListOf<HTMLInputElement> = this.table.querySelectorAll(Identifier.singleItem);
-    (document.getElementById(this.checkBoxId) as HTMLInputElement).checked = SelectCheckBoxElement.allCheckBoxesAreChecked(checkBoxes);
-  }
 }
 
-export default SelectCheckBoxElement;
+window.customElements.define('typo3-formengine-element-select-check-box', SelectCheckBoxElement);

@@ -116,7 +116,7 @@ class PackageManager implements SingletonInterface
      */
     protected ?string $packagePathMatchRegex;
 
-    public function __construct(DependencyOrderingService $dependencyOrderingService, string $packageStatesPathAndFilename = null, string $packagesBasePath = null)
+    public function __construct(DependencyOrderingService $dependencyOrderingService, ?string $packageStatesPathAndFilename = null, ?string $packagesBasePath = null)
     {
         $this->packagesBasePath = $packagesBasePath ?? Environment::getPublicPath() . '/';
         $this->packageStatesPathAndFilename = $packageStatesPathAndFilename ?? Environment::getLegacyConfigPath() . '/PackageStates.php';
@@ -222,7 +222,7 @@ class PackageManager implements SingletonInterface
         $activePackages = array_merge($requiredPackages, $activePackages);
 
         if ($activePackages != $previousActivePackages) {
-            foreach ($requiredPackages as $requiredPackageKey => $package) {
+            foreach ($requiredPackages as $package) {
                 $this->registerActivePackage($package);
             }
             $this->sortAndSavePackageStates();

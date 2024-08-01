@@ -51,7 +51,7 @@ final class PagesTsConfigGuardTest extends FunctionalTestCase
             ]
         );
         // define page create permissions for backend user group 9 on page 1
-        GeneralUtility::makeInstance(ConnectionPool::class)
+        $this->get(ConnectionPool::class)
             ->getConnectionForTable('pages')
             ->update(
                 'pages',
@@ -87,6 +87,7 @@ final class PagesTsConfigGuardTest extends FunctionalTestCase
     {
         $identifier = StringUtility::getUniqueId('NEW');
         $backendUser = $this->setUpBackendUser(9);
+        $backendUser->groupData['pagetypes_select'] = '1';
         $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($backendUser);
 
         $dataMap = [

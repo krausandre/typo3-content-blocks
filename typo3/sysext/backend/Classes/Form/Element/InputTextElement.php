@@ -81,6 +81,7 @@ class InputTextElement extends AbstractFormElement
             MathUtility::forceIntegerInRange($config['size'] ?? $this->defaultInputWidth, $this->minimumInputWidth, $this->maxInputWidth)
         );
         $fieldId = StringUtility::getUniqueId('formengine-input-');
+        $itemName = (string)$parameterArray['itemFormElName'];
         $renderedLabel = $this->renderLabel($fieldId);
 
         $fieldInformationResult = $this->renderFieldInformation();
@@ -95,7 +96,7 @@ class InputTextElement extends AbstractFormElement
             $html[] =   '<div class="form-wizards-wrap">';
             $html[] =       '<div class="form-wizards-element">';
             $html[] =           '<div class="form-control-wrap" style="max-width: ' . $width . 'px">';
-            $html[] =               '<input class="form-control" id="' . htmlspecialchars($fieldId) . '" value="' . htmlspecialchars((string)$itemValue) . '" type="text" disabled>';
+            $html[] =               '<input class="form-control" id="' . htmlspecialchars($fieldId) . '" name="' . htmlspecialchars($itemName) . '" value="' . htmlspecialchars((string)$itemValue) . '" type="text" disabled>';
             $html[] =           '</div>';
             $html[] =       '</div>';
             $html[] =   '</div>';
@@ -105,7 +106,6 @@ class InputTextElement extends AbstractFormElement
         }
 
         $languageService = $this->getLanguageService();
-        $itemName = (string)$parameterArray['itemFormElName'];
 
         // @todo: The whole eval handling is a mess and needs refactoring
         $evalList = GeneralUtility::trimExplode(',', $config['eval'] ?? '', true);
@@ -156,7 +156,6 @@ class InputTextElement extends AbstractFormElement
                 'form-control',
                 'form-control-clearable',
                 't3js-clearable',
-                'hasDefaultValue',
             ]),
             'data-formengine-validation-rules' => $this->getValidationDataAsJsonString($config),
             'data-formengine-input-params' => (string)json_encode($formEngineInputParams, JSON_THROW_ON_ERROR),

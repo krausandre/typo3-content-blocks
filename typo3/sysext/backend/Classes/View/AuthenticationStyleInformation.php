@@ -19,6 +19,7 @@ namespace TYPO3\CMS\Backend\View;
 
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
@@ -28,6 +29,7 @@ use TYPO3\CMS\Core\Utility\PathUtility;
  *
  * @internal
  */
+#[Autoconfigure(public: true)]
 class AuthenticationStyleInformation implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
@@ -70,17 +72,24 @@ class AuthenticationStyleInformation implements LoggerAwareInterface
             return '';
         }
 
+        $highlightColor = GeneralUtility::sanitizeCssVariableValue($highlightColor);
+
         return '
-            .btn-login.disabled, .btn-login[disabled], fieldset[disabled] .btn-login,
-            .btn-login.disabled:hover, .btn-login[disabled]:hover, fieldset[disabled] .btn-login:hover,
-            .btn-login.disabled:focus, .btn-login[disabled]:focus, fieldset[disabled] .btn-login:focus,
-            .btn-login.disabled.focus, .btn-login[disabled].focus, fieldset[disabled] .btn-login.focus,
-            .btn-login.disabled:active, .btn-login[disabled]:active, fieldset[disabled] .btn-login:active,
-            .btn-login.disabled.active, .btn-login[disabled].active, fieldset[disabled] .btn-login.active,
-            .btn-login:hover, .btn-login:focus, .btn-login:active,
-            .btn-login:active:hover, .btn-login:active:focus,
-            .btn-login { background-color: ' . GeneralUtility::sanitizeCssVariableValue($highlightColor) . '; }
-            .card-login .card-footer { border-color: ' . GeneralUtility::sanitizeCssVariableValue($highlightColor) . '; }
+            .btn-login {
+                --typo3-btn-color: #fff;
+                --typo3-btn-bg: ' . $highlightColor . ';
+                --typo3-btn-border-color: hsl(from ' . $highlightColor . ' h s calc(l - 5));
+                --typo3-btn-hover-color: #fff;
+                --typo3-btn-hover-bg: hsl(from ' . $highlightColor . ' h s calc(l - 3));
+                --typo3-btn-hover-border-color: hsl(from ' . $highlightColor . ' h s calc(l - 8));
+                --typo3-btn-focus-color: #fff;
+                --typo3-btn-focus-bg: hsl(from ' . $highlightColor . ' h s calc(l - 6));
+                --typo3-btn-focus-border-color: hsl(from ' . $highlightColor . ' h s calc(l - 11));
+                --typo3-btn-disabled-color: #fff;
+                --typo3-btn-disabled-bg: ' . $highlightColor . ';
+                --typo3-btn-disabled-border-color: hsl(from ' . $highlightColor . ' h s calc(l - 5));
+            }
+            .card-login .card-footer { border-color: ' . $highlightColor . '; }
         ';
     }
 

@@ -17,8 +17,10 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\FrontendLogin\Event;
 
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\View\ViewInterface;
 use TYPO3\CMS\FrontendLogin\Controller\LoginController;
-use TYPO3Fluid\Fluid\View\ViewInterface;
+use TYPO3Fluid\Fluid\View\ViewInterface as FluidStandaloneViewInterface;
 
 /**
  * A confirmation notification when an login/logout action has successfully arrived at the plugin, via the view and the controller, multiple
@@ -26,14 +28,12 @@ use TYPO3Fluid\Fluid\View\ViewInterface;
  */
 abstract class AbstractConfirmedEvent
 {
-    private LoginController $controller;
-    private ViewInterface $view;
-
-    public function __construct(LoginController $controller, ViewInterface $view)
-    {
-        $this->controller = $controller;
-        $this->view = $view;
-    }
+    public function __construct(
+        protected readonly LoginController $controller,
+        // @todo: only core ViewInterface in v14.
+        private FluidStandaloneViewInterface|\TYPO3\CMS\Core\View\ViewInterface $view,
+        protected readonly ServerRequestInterface $request
+    ) {}
 
     public function getController(): LoginController
     {
@@ -43,5 +43,10 @@ abstract class AbstractConfirmedEvent
     public function getView(): ViewInterface
     {
         return $this->view;
+    }
+
+    public function getRequest(): ServerRequestInterface
+    {
+        return $this->request;
     }
 }

@@ -70,15 +70,8 @@ $modal-sidebar-button-space: $padding-small-vertical;
 }
 
 .modal-footer {
-    .btn {
-        margin-inline-end: 0;
-        padding-inline: 1em;
-        display: inline-flex;
-        align-items: center;
-
-        typo3-backend-icon {
-            margin-inline: -2px 4px;
-        }
+    .btn + .btn {
+        margin-inline-start: .5em;
     }
 
     .progress {
@@ -290,18 +283,13 @@ $modal-sidebar-button-space: $padding-small-vertical;
         }
 
         .carousel-inner {
-            // fix cropped input outlines due to overflow:hidden
             width: auto;
-            margin: 0 -5px;
-            padding: 0 5px;
+            margin: -5px;
+            padding: 5px;
         }
     }
 
     .modal-footer {
-        .btn + .btn {
-            margin-inline-start: .5em;
-        }
-
         .progress-bar {
             &.inactive {
                 background: none;

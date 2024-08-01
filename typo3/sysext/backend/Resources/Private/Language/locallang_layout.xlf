@@ -6,9 +6,6 @@
 			<trans-unit id="title" resname="title">
 				<source>Page content</source>
 			</trans-unit>
-			<trans-unit id="advancedFunctions" resname="advancedFunctions">
-				<source>Advanced functions</source>
-			</trans-unit>
 			<trans-unit id="noEditItems" resname="noEditItems">
 				<source>Sorry, you do not have permissions to edit items on this page!</source>
 			</trans-unit>
@@ -96,6 +93,9 @@
 			<trans-unit id="content" resname="content">
 				<source>Content</source>
 			</trans-unit>
+			<trans-unit id="createNewContent" resname="createNewContent">
+				<source>Create new content</source>
+			</trans-unit>
 			<trans-unit id="newInColumn" resname="newInColumn">
 				<source>Create new record in top of this column</source>
 			</trans-unit>
@@ -172,10 +172,10 @@
 				<source>Not assigned</source>
 			</trans-unit>
 			<trans-unit id="emptyColPos" resname="emptyColPos">
-				<source>Empty Colpos</source>
+				<source>Empty section</source>
 			</trans-unit>
 			<trans-unit id="emptyColPos.message" resname="emptyColPos.message">
-				<source>This column has no "colPos". This is only for display Purposes.</source>
+				<source>This section is only for display purposes, no "colPos" configuration is set.</source>
 			</trans-unit>
 			<trans-unit id="unusedColPos" resname="unusedColPos">
 				<source>Unused</source>

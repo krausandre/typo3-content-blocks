@@ -68,6 +68,7 @@ use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\Exception\MissingArrayPathException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\StringUtility;
 use TYPO3\CMS\Core\Versioning\VersionState;
 use TYPO3\CMS\Frontend\ContentObject\Event\AfterContentObjectRendererInitializedEvent;
@@ -380,7 +381,7 @@ class ContentObjectRenderer implements LoggerAwareInterface
      */
     public const OBJECTTYPE_USER = 2;
 
-    public function __construct(TypoScriptFrontendController $typoScriptFrontendController = null, ContainerInterface $container = null)
+    public function __construct(?TypoScriptFrontendController $typoScriptFrontendController = null, ?ContainerInterface $container = null)
     {
         $this->typoScriptFrontendController = $typoScriptFrontendController;
         $this->container = $container;
@@ -641,10 +642,15 @@ class ContentObjectRenderer implements LoggerAwareInterface
             // Content rendering Exceptions indicate a critical problem which should not be
             // caught e.g. when something went wrong with Exception handling itself
             throw $exception;
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $exceptionHandler = $this->createExceptionHandler($configuration);
             if ($exceptionHandler === null) {
                 throw $exception;
+            }
+            // Ensure that the exception handler receives an \Exception instance,
+            // which is required by the \ExceptionHandlerInterface.
+            if (!$exception instanceof \Exception) {
+                $exception = new \Exception($exception->getMessage(), 1698347363, $exception);
             }
             $content = $exceptionHandler->handle($exception, $contentObject, $configuration);
         }
@@ -2878,7 +2884,7 @@ class ContentObjectRenderer implements LoggerAwareInterface
                 }
                 if ($useOptionSplitReplace) {
                     // init for replacement
-                    $splitCount = preg_match_all($search, $content, $matches);
+                    $splitCount = preg_match_all($search, $content);
                     $typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
                     $replaceArray = $typoScriptService->explodeConfigurationForOptionSplit([$replace], $splitCount);
                     $replaceCount = 0;
@@ -2896,7 +2902,7 @@ class ContentObjectRenderer implements LoggerAwareInterface
                 $searchPreg = '#' . preg_quote($search, '#') . '#';
 
                 // init for replacement
-                $splitCount = preg_match_all($searchPreg, $content, $matches);
+                $splitCount = preg_match_all($searchPreg, $content);
                 $typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
                 $replaceArray = $typoScriptService->explodeConfigurationForOptionSplit([$replace], $splitCount);
                 $replaceCount = 0;
@@ -3121,8 +3127,9 @@ class ContentObjectRenderer implements LoggerAwareInterface
         $stripNL = 0;
         $contentAccum = [];
         $contentAccumP = 0;
-        $allowTags = strtolower(str_replace(' ', '', $conf['allowTags'] ?? ''));
-        $denyTags = strtolower(str_replace(' ', '', $conf['denyTags'] ?? ''));
+
+        $allowTags = GeneralUtility::trimExplode(',', strtolower($conf['allowTags'] ?? ''), true);
+        $denyTags = GeneralUtility::trimExplode(',', strtolower($conf['denyTags'] ?? ''), true);
         $totalLen = strlen($theValue);
         do {
             if (!$inside) {
@@ -3144,58 +3151,54 @@ class ContentObjectRenderer implements LoggerAwareInterface
                 // $data is the content until the next <tag-start or end is detected.
                 // In case of a currentTag set, this would mean all data between the start- and end-tags
                 $data = substr($theValue, $pointer, $len);
-                if ($data !== false) {
-                    if ($stripNL) {
-                        // If the previous tag was set to strip NewLines in the beginning of the next data-chunk.
-                        $data = preg_replace('/^[ ]*' . CR . '?' . LF . '/', '', $data);
-                        if ($data === null) {
-                            $this->logger->debug('Stripping new lines failed for "{data}"', ['data' => $data]);
-                            $data = '';
-                        }
+                if ($stripNL) {
+                    // If the previous tag was set to strip NewLines in the beginning of the next data-chunk.
+                    $data = preg_replace('/^[ ]*' . CR . '?' . LF . '/', '', $data);
+                    if ($data === null) {
+                        $this->logger->debug('Stripping new lines failed for "{data}"', ['data' => $data]);
+                        $data = '';
                     }
-                    // These operations should only be performed on code outside the tags...
-                    if (!is_array($currentTag)) {
-                        // Short
-                        if (isset($conf['short.']) && is_array($conf['short.'])) {
-                            $shortWords = $conf['short.'];
-                            krsort($shortWords);
-                            foreach ($shortWords as $key => $val) {
-                                if (is_string($val)) {
-                                    $data = str_replace($key, $val, $data);
-                                }
-                            }
-                        }
-                        // stdWrap
-                        if (isset($conf['plainTextStdWrap.']) && is_array($conf['plainTextStdWrap.'])) {
-                            $data = $this->stdWrap($data, $conf['plainTextStdWrap.']);
-                        }
-                        // userFunc
-                        if ($conf['userFunc'] ?? false) {
-                            $data = $this->callUserFunction($conf['userFunc'], $conf['userFunc.'] ?? [], $data);
-                        }
-                    }
-                    // Search for tags to process in current data and
-                    // call this method recursively if found
-                    if (str_contains($data, '<') && isset($conf['tags.']) && is_array($conf['tags.'])) {
-                        // @todo probably use a DOM tree traversal for the whole stuff
-                        // This iterations basically re-processes the markup string, as
-                        // long as there are `<$tag ` or `<$tag>` "tags" found...
-                        foreach (array_keys($conf['tags.']) as $tag) {
-                            // only match tag `a` in `<a href"...">` but not in `<abbr>`
-                            if (preg_match('#<' . $tag . '[\s/>]#', $data)) {
-                                $data = $this->parseFuncInternal($data, $conf);
-                                break;
-                            }
-                        }
-                    }
-                    if (!is_array($currentTag) && ($conf['makelinks'] ?? false)) {
-                        $data = $this->http_makelinks($data, $conf['makelinks.']['http.'] ?? []);
-                        $data = $this->mailto_makelinks($data, $conf['makelinks.']['mailto.'] ?? []);
-                    }
-                    $contentAccum[$contentAccumP] = isset($contentAccum[$contentAccumP])
-                        ? $contentAccum[$contentAccumP] . $data
-                        : $data;
                 }
+                // These operations should only be performed on code outside the tags...
+                if (!is_array($currentTag)) {
+                    // Short
+                    if (isset($conf['short.']) && is_array($conf['short.'])) {
+                        $shortWords = $conf['short.'];
+                        krsort($shortWords);
+                        foreach ($shortWords as $key => $val) {
+                            if (is_string($val)) {
+                                $data = str_replace($key, $val, $data);
+                            }
+                        }
+                    }
+                    // stdWrap
+                    if (isset($conf['plainTextStdWrap.']) && is_array($conf['plainTextStdWrap.'])) {
+                        $data = $this->stdWrap($data, $conf['plainTextStdWrap.']);
+                    }
+                    // userFunc
+                    if ($conf['userFunc'] ?? false) {
+                        $data = $this->callUserFunction($conf['userFunc'], $conf['userFunc.'] ?? [], $data);
+                    }
+                }
+                // Search for tags to process in current data and
+                // call this method recursively if found
+                if (str_contains($data, '<') && isset($conf['tags.']) && is_array($conf['tags.'])) {
+                    // @todo probably use a DOM tree traversal for the whole stuff
+                    // This iterations basically re-processes the markup string, as
+                    // long as there are `<$tag ` or `<$tag>` "tags" found...
+                    foreach (array_keys($conf['tags.']) as $tag) {
+                        // only match tag `a` in `<a href"...">` but not in `<abbr>`
+                        if (preg_match('#<' . $tag . '[\s/>]#', $data)) {
+                            $data = $this->parseFuncInternal($data, $conf);
+                            break;
+                        }
+                    }
+                }
+                if (!is_array($currentTag) && ($conf['makelinks'] ?? false)) {
+                    $data = $this->http_makelinks($data, $conf['makelinks.']['http.'] ?? []);
+                    $data = $this->mailto_makelinks($data, $conf['makelinks.']['mailto.'] ?? []);
+                }
+                $contentAccum[$contentAccumP] = ($contentAccum[$contentAccumP] ?? '') . $data;
                 $inside = true;
             } else {
                 // tags
@@ -3239,11 +3242,9 @@ class ContentObjectRenderer implements LoggerAwareInterface
                         if (isset($currentTag[1])) {
                             // decode HTML entities in attributes, since they're processed
                             $params = GeneralUtility::get_tag_attributes((string)$currentTag[1], true);
-                            if (is_array($params)) {
-                                foreach ($params as $option => $val) {
-                                    // contains non-encoded values
-                                    $this->parameters[strtolower($option)] = $val;
-                                }
+                            foreach ($params as $option => $val) {
+                                // contains non-encoded values
+                                $this->parameters[strtolower($option)] = $val;
                             }
                             $this->parameters['allParams'] = trim((string)$currentTag[1]);
                         }
@@ -3277,17 +3278,22 @@ class ContentObjectRenderer implements LoggerAwareInterface
                         $contentAccum[$contentAccumP] .= $data;
                     }
                 } else {
+                    $contentAccum[$contentAccumP] = $contentAccum[$contentAccumP] ?? '';
                     // If a tag was not a typo tag, then it is just added to the content
                     $stripNL = false;
-                    if (GeneralUtility::inList($allowTags, (string)$tag[0]) ||
-                        ($denyTags !== '*' && !GeneralUtility::inList($denyTags, (string)$tag[0]))) {
-                        $contentAccum[$contentAccumP] = isset($contentAccum[$contentAccumP])
-                            ? $contentAccum[$contentAccumP] . $data
-                            : $data;
+                    if (
+                        // Neither allowTags or denyTags set, thus everything is allowed
+                        ($denyTags === [] && $allowTags === [])
+                        // Explicitly allowed
+                        || ($allowTags !== [] && in_array((string)$tag[0], $allowTags, true))
+                        // Explicitly denied or everything "denied" (except for the explicitly allowed)
+                        || ($denyTags !== [] && $denyTags !== ['*'] && !in_array((string)$tag[0], $denyTags))
+                        // All tags are allowed, but not in the denied list above, so this is OK
+                        || ($allowTags === ['*'] && !in_array((string)$tag[0], $denyTags))
+                    ) {
+                        $contentAccum[$contentAccumP] .= $data;
                     } else {
-                        $contentAccum[$contentAccumP] = isset($contentAccum[$contentAccumP])
-                            ? $contentAccum[$contentAccumP] . htmlspecialchars($data)
-                            : htmlspecialchars($data);
+                        $contentAccum[$contentAccumP] .= htmlspecialchars($data);
                     }
                 }
                 $inside = false;
@@ -3648,6 +3654,8 @@ class ContentObjectRenderer implements LoggerAwareInterface
                         $imageResource = ImageResource::createFromProcessedFile($processedFileObject);
                     }
                 }
+            } elseif ($fileObject instanceof ProcessedFile) {
+                $imageResource = ImageResource::createFromProcessedFile($fileObject);
             }
         }
 
@@ -3831,6 +3839,13 @@ class ContentObjectRenderer implements LoggerAwareInterface
                         break;
                     case 'file':
                         $retVal = $this->getFileDataKey($key);
+                        break;
+                    case 'asset':
+                        $absoluteFilePath = GeneralUtility::getFileAbsFileName($key);
+                        if ($absoluteFilePath === '') {
+                            throw new \RuntimeException('Asset "' . $key . '" not found', 1670713983);
+                        }
+                        $retVal = GeneralUtility::createVersionNumberedFilename(PathUtility::getAbsoluteWebPath($absoluteFilePath));
                         break;
                     case 'parameters':
                         $retVal = $this->parameters[$key] ?? null;
@@ -5093,7 +5108,8 @@ class ContentObjectRenderer implements LoggerAwareInterface
                 $includeRecordsWithoutDefaultTranslation = isset($conf['includeRecordsWithoutDefaultTranslation.'])
                     ? $this->stdWrap($conf['includeRecordsWithoutDefaultTranslation'], $conf['includeRecordsWithoutDefaultTranslation.'])
                     : $conf['includeRecordsWithoutDefaultTranslation'];
-                $includeRecordsWithoutDefaultTranslation = trim($includeRecordsWithoutDefaultTranslation) !== '';
+                $includeRecordsWithoutDefaultTranslation = trim((string)$includeRecordsWithoutDefaultTranslation);
+                $includeRecordsWithoutDefaultTranslation = $includeRecordsWithoutDefaultTranslation !== '' && $includeRecordsWithoutDefaultTranslation !== '0';
             } else {
                 // Option was not explicitly set, check what's in for the language overlay type.
                 $includeRecordsWithoutDefaultTranslation = $languageAspect->getOverlayType() === $languageAspect::OVERLAYS_ON_WITH_FLOATING;

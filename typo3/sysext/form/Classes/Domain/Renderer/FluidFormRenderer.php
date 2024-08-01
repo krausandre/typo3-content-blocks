@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Form\Domain\Renderer;
 
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\TemplateView;
 use TYPO3\CMS\Form\Domain\Exception\RenderingException;
@@ -123,6 +124,7 @@ use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
  * **This class is NOT meant to be sub classed by developers.**
  * @internal
  */
+#[Autoconfigure(public: true, shared: false)]
 class FluidFormRenderer extends AbstractElementRenderer
 {
     /**
@@ -171,9 +173,8 @@ class FluidFormRenderer extends AbstractElementRenderer
             ->getViewHelperVariableContainer()
             ->addOrUpdate(RenderRenderableViewHelper::class, 'formRuntime', $this->formRuntime);
 
-        // Configure the fluid TemplatePaths with the rendering options
-        // from the renderable
-        $view->getTemplatePaths()->fillFromConfigurationArray($renderingOptions);
+        // Configure the fluid TemplatePaths with the rendering options from the renderable
+        $view->getRenderingContext()->getTemplatePaths()->fillFromConfigurationArray($renderingOptions);
 
         foreach ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/form']['beforeRendering'] ?? [] as $className) {
             $hookObj = GeneralUtility::makeInstance($className);

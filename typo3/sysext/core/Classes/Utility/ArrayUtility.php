@@ -361,10 +361,16 @@ class ArrayUtility
             return $arrays;
         }
         $sortResult = uasort($arrays, static function (array $a, array $b) use ($key, $ascending) {
-            if (!isset($a[$key]) || !isset($b[$key])) {
+            if (!isset($a[$key], $b[$key])) {
                 throw new \RuntimeException('The specified sorting key "' . $key . '" is not available in the given array.', 1373727309);
             }
-            return $ascending ? strcasecmp($a[$key], $b[$key]) : strcasecmp($b[$key], $a[$key]);
+            if (!is_scalar($a[$key])) {
+                throw new \RuntimeException(sprintf('The specified sorting key "%s" is not a scalar value, given "%s".', $key, gettype($a[$key])), 1373727310);
+            }
+            if (!is_scalar($b[$key])) {
+                throw new \RuntimeException(sprintf('The specified sorting key "%s" is not a scalar value, given "%s".', $key, gettype($b[$key])), 1373727311);
+            }
+            return $ascending ? strcasecmp((string)$a[$key], (string)$b[$key]) : strcasecmp((string)$b[$key], (string)$a[$key]);
         });
         if (!$sortResult) {
             throw new \RuntimeException('The function uasort() failed for unknown reasons.', 1373727329);
@@ -849,7 +855,7 @@ class ArrayUtility
     public static function naturalKeySortRecursive(array &$array): bool
     {
         uksort($array, 'strnatcasecmp');
-        foreach ($array as $key => &$value) {
+        foreach ($array as &$value) {
             if (is_array($value)) {
                 self::naturalKeySortRecursive($value);
             }
@@ -938,7 +944,7 @@ class ArrayUtility
      * @param 0|ARRAY_FILTER_USE_KEY|ARRAY_FILTER_USE_BOTH $mode
      * @see https://www.php.net/manual/en/function.array-filter.php
      */
-    public static function filterRecursive(array $array, callable $callback = null, int $mode = 0): array
+    public static function filterRecursive(array $array, ?callable $callback = null, int $mode = 0): array
     {
         $callback ??= static fn($value) => (bool)$value;
 

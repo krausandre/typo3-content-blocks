@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Styleguide\TcaDataGenerator\TableHandler;
 
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Styleguide\TcaDataGenerator\RecordData;
 use TYPO3\CMS\Styleguide\TcaDataGenerator\RecordFinder;
 use TYPO3\CMS\Styleguide\TcaDataGenerator\TableHandlerInterface;
@@ -29,12 +29,20 @@ use TYPO3\CMS\Styleguide\TcaDataGenerator\TableHandlerInterface;
  *
  * @internal
  */
+#[Autoconfigure(public: true)]
 final class InlineMnSymmetric extends AbstractTableHandler implements TableHandlerInterface
 {
     /**
      * @var string Table name to match
      */
     protected $tableName = 'tx_styleguide_inline_mnsymmetric';
+
+    public function __construct(
+        private readonly ConnectionPool $connectionPool,
+        private readonly RecordData $recordData,
+        private readonly RecordFinder $recordFinder,
+        private readonly Context $context,
+    ) {}
 
     /**
      * Create 4 rows, add row 2 and 3 as branch to row 1
@@ -43,12 +51,7 @@ final class InlineMnSymmetric extends AbstractTableHandler implements TableHandl
      */
     public function handle(string $tableName): void
     {
-        $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
-
-        $recordFinder = GeneralUtility::makeInstance(RecordFinder::class);
-        $pidOfMainTable = $recordFinder->findPidOfMainTableRecord($tableName);
-        $recordData = GeneralUtility::makeInstance(RecordData::class);
-        $context = GeneralUtility::makeInstance(Context::class);
+        $pidOfMainTable = $this->recordFinder->findPidOfMainTableRecord($tableName);
 
         $isFirst = true;
         $numberOfRelationsForFirstRecord = 2;
@@ -57,17 +60,17 @@ final class InlineMnSymmetric extends AbstractTableHandler implements TableHandl
         for ($i = 0; $i < 4; $i++) {
             $fieldValues = [
                 'pid' => $pidOfMainTable,
-                'tstamp' => $context->getAspect('date')->get('timestamp'),
-                'crdate' => $context->getAspect('date')->get('timestamp'),
+                'tstamp' => $this->context->getAspect('date')->get('timestamp'),
+                'crdate' => $this->context->getAspect('date')->get('timestamp'),
             ];
-            $connection = $connectionPool->getConnectionForTable($tableName);
+            $connection = $this->connectionPool->getConnectionForTable($tableName);
             $connection->insert($tableName, $fieldValues);
             $fieldValues['uid'] = $connection->lastInsertId();
             if ($isFirst) {
                 $fieldValues['branches'] = $numberOfRelationsForFirstRecord;
                 $uidOfFirstRecord = $fieldValues['uid'];
             }
-            $fieldValues = $recordData->generate($tableName, $fieldValues);
+            $fieldValues = $this->recordData->generate($tableName, $fieldValues);
             // Do not update primary identifier uid anymore, db's choke on that for good reason
             $updateValues = $fieldValues;
             unset($updateValues['uid']);
@@ -89,16 +92,17 @@ final class InlineMnSymmetric extends AbstractTableHandler implements TableHandl
         foreach ($relationUids as $uid) {
             $mmFieldValues = [
                 'pid' => $pidOfMainTable,
-                'tstamp' => $context->getAspect('date')->get('timestamp'),
-                'crdate' => $context->getAspect('date')->get('timestamp'),
+                'tstamp' => $this->context->getAspect('date')->get('timestamp'),
+                'crdate' => $this->context->getAspect('date')->get('timestamp'),
                 'hotelid' => $uidOfFirstRecord,
                 'branchid' => $uid,
             ];
-            $connection = $connectionPool->getConnectionForTable('tx_styleguide_inline_mnsymmetric_mm');
-            $connection->insert(
-                'tx_styleguide_inline_mnsymmetric_mm',
-                $mmFieldValues
-            );
+            $this->connectionPool
+                ->getConnectionForTable('tx_styleguide_inline_mnsymmetric_mm')
+                ->insert(
+                    'tx_styleguide_inline_mnsymmetric_mm',
+                    $mmFieldValues
+                );
         }
     }
 }

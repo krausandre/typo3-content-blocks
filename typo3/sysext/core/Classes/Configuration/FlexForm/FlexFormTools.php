@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Core\Configuration\FlexForm;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Configuration\Event\AfterFlexFormDataStructureIdentifierInitializedEvent;
 use TYPO3\CMS\Core\Configuration\Event\AfterFlexFormDataStructureParsedEvent;
 use TYPO3\CMS\Core\Configuration\Event\BeforeFlexFormDataStructureIdentifierInitializedEvent;
@@ -36,10 +37,13 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * This service provides various helpers to determine the data structure of flex form
  * fields and to maintain integrity of flex form related details in general.
  */
-class FlexFormTools
+#[Autoconfigure(public: true)]
+readonly class FlexFormTools
 {
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private EventDispatcherInterface $eventDispatcher,
+        private TcaMigration $tcaMigration,
+        private TcaPreparation $tcaPreparation,
     ) {}
 
     /**
@@ -106,7 +110,7 @@ class FlexFormTools
      *
      * After that method is run, the data structure is fully resolved to an array,
      * and same base normalization is done: If the ds did not contain a sheet,
-     * it will have one afterwards as "sDEF"
+     * it will have one afterward as "sDEF".
      *
      * This method gets: Target specification of the data structure.
      * This method returns: The normalized data structure parsed to an array.
@@ -142,7 +146,7 @@ class FlexFormTools
         $dataStructure = $this->convertDataStructureToArray($dataStructure);
         $dataStructure = $this->ensureDefaultSheet($dataStructure);
         $dataStructure = $this->resolveFileDirectives($dataStructure);
-        $dataStructure = $this->migrateAndPrepareFlexTca($dataStructure);
+        $dataStructure = $this->checkMigratePrepareFlexTca($dataStructure);
         return $this->eventDispatcher
             ->dispatch(new AfterFlexFormDataStructureParsedEvent($dataStructure, $parsedIdentifier))
             ->getDataStructure();
@@ -243,47 +247,6 @@ class FlexFormTools
         ];
         return '<?xml version="1.0" encoding="utf-8" standalone="yes" ?>' . LF .
             GeneralUtility::array2xml($array, '', 0, 'T3FlexForms', 4, $options);
-    }
-
-    /**
-     * Recursively migrate flex form TCA
-     *
-     * @internal
-     */
-    protected function migrateFlexFormTcaRecursive(array $structure): array
-    {
-        $newStructure = [];
-        foreach ($structure as $key => $value) {
-            if ($key === 'el' && is_array($value)) {
-                $newSubStructure = [];
-                $tcaMigration = GeneralUtility::makeInstance(TcaMigration::class);
-                foreach ($value as $subKey => $subValue) {
-                    // On-the-fly migration for flex form "TCA". Call the TcaMigration and log any deprecations.
-                    $dummyTca = [
-                        'dummyTable' => [
-                            'columns' => [
-                                'dummyField' => $subValue,
-                            ],
-                        ],
-                    ];
-                    $migratedTca = $tcaMigration->migrate($dummyTca);
-                    $messages = $tcaMigration->getMessages();
-                    if (!empty($messages)) {
-                        $context = 'FlexFormTools did an on-the-fly migration of a flex form data structure. This is deprecated and will be removed.'
-                            . ' Merge the following changes into the flex form definition "' . $subKey . '":';
-                        array_unshift($messages, $context);
-                        trigger_error(implode(LF, $messages), E_USER_DEPRECATED);
-                    }
-                    $newSubStructure[$subKey] = $migratedTca['dummyTable']['columns']['dummyField'];
-                }
-                $value = $newSubStructure;
-            }
-            if (is_array($value)) {
-                $value = $this->migrateFlexFormTcaRecursive($value);
-            }
-            $newStructure[$key] = $value;
-        }
-        return $newStructure;
     }
 
     /**
@@ -580,146 +543,114 @@ class FlexFormTools
     }
 
     /**
-     * Call TCA migration and TCA preparation on flex elements.
+     * Check for invalid flex form structures, migrate and prepare single fields.
      */
-    protected function migrateAndPrepareFlexTca(array $dataStructure): array
+    private function checkMigratePrepareFlexTca(array $dataStructure): array
     {
-        if (isset($dataStructure['sheets']) && is_array($dataStructure['sheets'])) {
-            foreach ($dataStructure['sheets'] as $sheetName => $sheetStructure) {
-                if (is_array($dataStructure['sheets'][$sheetName])) {
-                    // @todo Use TcaPreparation instead of duplicating the code.
-                    // @todo Actually, the type category preparation is different for FlexForm as is doesn't support manyToMany.
-                    // @todo The difficulty for type file is the difference of the field name. For FlexForm it is not the column name of TCA, but the sub key.
-                    $dataStructure['sheets'][$sheetName] = $this->migrateFlexFormTcaRecursive($dataStructure['sheets'][$sheetName]);
-                    $dataStructure['sheets'][$sheetName] = $this->prepareCategoryFields($dataStructure['sheets'][$sheetName]);
-                    $dataStructure['sheets'][$sheetName] = $this->prepareFileFields($dataStructure['sheets'][$sheetName]);
-                }
-            }
+        if (!is_array($dataStructure['sheets'] ?? null)) {
+            return $dataStructure;
         }
-        return $dataStructure;
-    }
-
-    /**
-     * Prepare type=category fields if given.
-     *
-     * NOTE: manyToMany relationships are not supported!
-     *
-     * @param array $dataStructureSheets
-     * @return array The processed $dataStructureSheets
-     */
-    protected function prepareCategoryFields(array $dataStructureSheets): array
-    {
-        if ($dataStructureSheets === []) {
-            // Early return in case the no sheets are given
-            return $dataStructureSheets;
-        }
-        foreach ($dataStructureSheets as &$structure) {
-            if (!is_array($structure['el'] ?? false) || $structure['el'] === []) {
-                // Skip if no elements (fields) are defined
+        $newStructure = $dataStructure;
+        foreach ($dataStructure['sheets'] as $sheetName => $sheetStructure) {
+            if (!is_array($sheetStructure['ROOT']['el'])) {
                 continue;
             }
-            foreach ($structure['el'] as $fieldName => &$fieldConfig) {
-                if (($fieldConfig['config']['type'] ?? '') !== 'category') {
-                    // Skip if type is not "category"
+            foreach ($sheetStructure['ROOT']['el'] as $sheetElementName => $sheetElementConfig) {
+                if (!is_array($sheetElementConfig)) {
                     continue;
                 }
-                // Add a default label if none is defined
-                if (!isset($fieldConfig['label'])) {
-                    $fieldConfig['label'] = 'LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:sys_category.categories';
-                }
-                // Initialize default column configuration and merge it with already defined
-                $fieldConfig['config']['size'] ??= 20;
-                // Force foreign_table_* fields for type category
-                $fieldConfig['config']['foreign_table'] = 'sys_category';
-                $fieldConfig['config']['foreign_table_where'] = ' AND {#sys_category}.{#sys_language_uid} IN (-1, 0)';
-                if (empty($fieldConfig['config']['relationship'])) {
-                    // Fall back to "oneToMany" when no relationship is given
-                    $fieldConfig['config']['relationship'] = 'oneToMany';
-                }
-                if (!in_array($fieldConfig['config']['relationship'], ['oneToOne', 'oneToMany'], true)) {
+                if (($sheetElementConfig['type'] ?? null) === 'array' xor ($sheetElementConfig['section'] ?? null) === '1') {
+                    // Section element, but type=array without section=1 or vice versa is not ok
                     throw new \UnexpectedValueException(
-                        '"relationship" must be one of "oneToOne" or "oneToMany", "manyToMany" is not supported as "relationship"' .
-                        ' for field ' . $fieldName . ' of type "category" in flexform.',
-                        1627640208
+                        'Broken data structure on field name ' . $sheetElementName . '. section without type or vice versa is not allowed',
+                        1440685208
                     );
                 }
-                // Set the maxitems value (necessary for DataHandling and FormEngine)
-                if ($fieldConfig['config']['relationship'] === 'oneToOne') {
-                    // In case relationship is set to "oneToOne", maxitems must be 1.
-                    if ((int)($fieldConfig['config']['maxitems'] ?? 0) > 1) {
-                        throw new \UnexpectedValueException(
-                            $fieldName . ' is defined as type category with an "oneToOne" relationship. ' .
-                            'Therefore maxitems must be 1. Otherwise, use oneToMany as relationship instead.',
-                            1627640209
-                        );
+                if (($sheetElementConfig['type'] ?? null) === 'array' && ($sheetElementConfig['section'] ?? null) === '1') {
+                    // Section element
+                    if (!is_array($sheetElementConfig['el'] ?? null)) {
+                        continue;
                     }
-                    $fieldConfig['config']['maxitems'] = 1;
+                    foreach ($sheetElementConfig['el'] as $containerName => $containerConfig) {
+                        if (!is_array($containerConfig['el'] ?? null)) {
+                            continue;
+                        }
+                        foreach ($containerConfig['el'] as $containerElementName => $containerElementConfig) {
+                            if (!is_array($containerElementConfig)) {
+                                continue;
+                            }
+                            if (
+                                // inline, file, group and category are always DB relations
+                                in_array($containerElementConfig['config']['type'] ?? [], ['inline', 'file', 'folder', 'group', 'category'], true)
+                                // MM is not allowed (usually type=select, otherwise the upper check should kick in)
+                                || isset($containerElementConfig['config']['MM'])
+                                // foreign_table is not allowed (usually type=select, otherwise the upper check should kick in)
+                                || isset($containerElementConfig['config']['foreign_table'])
+                            ) {
+                                // Nesting types that use DB relations in container sections is not supported.
+                                throw new \UnexpectedValueException(
+                                    'Invalid flex form data structure on field name "' . $containerElementName . '" with element "' . $sheetElementName . '"'
+                                    . ' in section container "' . $containerName . '": Nesting elements that have database relations in flex form'
+                                    . ' sections is not allowed.',
+                                    1458745468
+                                );
+                            }
+                            if (($containerElementConfig['type'] ?? null) === 'array' && ($containerElementConfig['section'] ?? null) === '1') {
+                                // Nesting sections is not supported. Throw an exception if configured.
+                                throw new \UnexpectedValueException(
+                                    'Invalid flex form data structure on field name "' . $containerElementName . '" with element "' . $sheetElementName . '"'
+                                    . ' in section container "' . $containerName . '": Nesting sections in container elements'
+                                    . ' sections is not allowed.',
+                                    1458745712
+                                );
+                            }
+                            $containerElementConfig = $this->migrateFlexField($containerElementName, $containerElementConfig);
+                            $containerElementConfig = $this->prepareFlexField($containerElementName, $containerElementConfig);
+                            $newStructure['sheets'][$sheetName]['ROOT']['el'][$sheetElementName]['el'][$containerName]['el'][$containerElementName] = $containerElementConfig;
+                        }
+                    }
                 } else {
-                    // In case maxitems is not set or set to 0, set the default value "99999"
-                    if (!($fieldConfig['config']['maxitems'] ?? false)) {
-                        $fieldConfig['config']['maxitems'] = 99999;
-                    } elseif ((int)($fieldConfig['config']['maxitems'] ?? 0) === 1) {
-                        throw new \UnexpectedValueException(
-                            'Can not use maxitems=1 for field ' . $fieldName . ' with "relationship" set to "oneToMany". Use "oneToOne" instead.',
-                            1627640210
-                        );
-                    }
-                }
-                // Add the default value if not set
-                if (!isset($fieldConfig['config']['default'])
-                    && $fieldConfig['config']['relationship'] !== 'oneToMany'
-                ) {
-                    $fieldConfig['config']['default'] = 0;
+                    // Normal element
+                    $sheetElementConfig = $this->migrateFlexField($sheetElementName, $sheetElementConfig);
+                    $sheetElementConfig = $this->prepareFlexField($sheetElementName, $sheetElementConfig);
+                    $newStructure['sheets'][$sheetName]['ROOT']['el'][$sheetElementName] = $sheetElementConfig;
                 }
             }
         }
-        return $dataStructureSheets;
+        return $newStructure;
     }
 
-    /**
-     * Prepare type=file fields if given.
-     *
-     * @return array The processed $dataStructureSheets
-     */
-    protected function prepareFileFields(array $dataStructureSheets): array
+    private function migrateFlexField(string $fieldName, array $fieldConfig): array
     {
-        if ($dataStructureSheets === []) {
-            // Early return in case the no sheets are given
-            return $dataStructureSheets;
+        // TcaMigration of this field. Call the TcaMigration and log any deprecations.
+        $dummyTca = [
+            'dummyTable' => [
+                'columns' => [
+                    $fieldName => $fieldConfig,
+                ],
+            ],
+        ];
+        $migratedTca = $this->tcaMigration->migrate($dummyTca);
+        $messages = $this->tcaMigration->getMessages();
+        if (!empty($messages)) {
+            $context = 'FlexFormTools did an on-the-fly migration of a flex form data structure. This is deprecated and will be removed.'
+                . ' Merge the following changes into the flex form definition "' . $fieldName . '":';
+            array_unshift($messages, $context);
+            trigger_error(implode(LF, $messages), E_USER_DEPRECATED);
         }
-        foreach ($dataStructureSheets as &$structure) {
-            if (!is_array($structure['el'] ?? false) || $structure['el'] === []) {
-                // Skip if no elements (fields) are defined
-                continue;
-            }
-            foreach ($structure['el'] as $fieldName => &$fieldConfig) {
-                if (($fieldConfig['config']['type'] ?? '') !== 'file') {
-                    // Skip if type is not "file"
-                    continue;
-                }
-                $fieldConfig['config'] = array_replace_recursive(
-                    $fieldConfig['config'],
-                    [
-                        'foreign_table' => 'sys_file_reference',
-                        'foreign_field' => 'uid_foreign',
-                        'foreign_sortby' => 'sorting_foreign',
-                        'foreign_table_field' => 'tablenames',
-                        'foreign_match_fields' => [
-                            'fieldname' => $fieldName,
-                        ],
-                        'foreign_label' => 'uid_local',
-                        'foreign_selector' => 'uid_local',
-                    ]
-                );
+        return $migratedTca['dummyTable']['columns'][$fieldName];
+    }
 
-                if (!empty(($allowed = ($fieldConfig['config']['allowed'] ?? null)))) {
-                    $fieldConfig['config']['allowed'] = TcaPreparation::prepareFileExtensions($allowed);
-                }
-                if (!empty(($disallowed = ($fieldConfig['config']['disallowed'] ?? null)))) {
-                    $fieldConfig['config']['disallowed'] = TcaPreparation::prepareFileExtensions($disallowed);
-                }
-            }
-        }
-        return $dataStructureSheets;
+    private function prepareFlexField(string $fieldName, array $fieldConfig): array
+    {
+        $dummyTca = [
+            'dummyTable' => [
+                'columns' => [
+                    $fieldName => $fieldConfig,
+                ],
+            ],
+        ];
+        $preparedTca = $this->tcaPreparation->prepare($dummyTca, true);
+        return $preparedTca['dummyTable']['columns'][$fieldName];
     }
 }

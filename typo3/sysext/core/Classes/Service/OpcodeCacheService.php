@@ -23,7 +23,7 @@ namespace TYPO3\CMS\Core\Service;
  * https://forge.typo3.org/issues/55252
  * Supported opcaches are: OPcache >= 7.0 (PHP 5.5)
  */
-class OpcodeCacheService
+readonly class OpcodeCacheService
 {
     /**
      * Returns all supported and active opcaches
@@ -62,7 +62,7 @@ class OpcodeCacheService
      *
      * @param string|null $fileAbsPath The file as absolute path to be cleared or NULL to clear completely.
      */
-    public function clearAllActive(string $fileAbsPath = null): void
+    public function clearAllActive(?string $fileAbsPath = null): void
     {
         foreach ($this->getAllActive() as $properties) {
             $callback = $properties['clearCallback'];

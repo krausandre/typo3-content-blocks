@@ -110,6 +110,7 @@ class LinkElement extends AbstractFormElement
             MathUtility::forceIntegerInRange($config['size'] ?? $this->defaultInputWidth, $this->minimumInputWidth, $this->maxInputWidth)
         );
         $fieldId = StringUtility::getUniqueId('formengine-input-');
+        $itemName = (string)$parameterArray['itemFormElName'];
         $renderedLabel = $this->renderLabel($fieldId);
 
         $fieldInformationResult = $this->renderFieldInformation();
@@ -124,7 +125,7 @@ class LinkElement extends AbstractFormElement
             $html[] =   '<div class="form-wizards-wrap">';
             $html[] =       '<div class="form-wizards-element">';
             $html[] =           '<div class="form-control-wrap" style="max-width: ' . $width . 'px">';
-            $html[] =               '<input class="form-control" id="' . htmlspecialchars($fieldId) . '" value="' . htmlspecialchars((string)$itemValue) . '" type="text" disabled>';
+            $html[] =               '<input class="form-control" id="' . htmlspecialchars($fieldId) . '" name="' . htmlspecialchars($itemName) . '" value="' . htmlspecialchars((string)$itemValue) . '" type="text" disabled>';
             $html[] =           '</div>';
             $html[] =       '</div>';
             $html[] =   '</div>';
@@ -134,7 +135,6 @@ class LinkElement extends AbstractFormElement
         }
 
         $languageService = $this->getLanguageService();
-        $itemName = (string)$parameterArray['itemFormElName'];
 
         // Always adding "trim".
         $evalList = ['trim'];
@@ -150,7 +150,6 @@ class LinkElement extends AbstractFormElement
                 'form-control-clearable',
                 't3js-clearable',
                 't3js-form-field-link-input',
-                'hasDefaultValue',
             ]),
             'data-formengine-validation-rules' => $this->getValidationDataAsJsonString($config),
             'data-formengine-input-params' => (string)json_encode([
@@ -439,8 +438,10 @@ class LinkElement extends AbstractFormElement
         $data['additionalAttributes'] = $additionalAttributes !== []
             ? '
                 <div class="callout callout-info mt-3 mb-0">
-                    <div class="callout-body">
-                        ' . implode(' - ', $additionalAttributes) . '
+                    <div class="callout-content">
+                        <div class="callout-body">
+                            ' . implode(' - ', $additionalAttributes) . '
+                        </div>
                     </div>
                 </div>
             '

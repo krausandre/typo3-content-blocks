@@ -135,6 +135,71 @@ final class YamlFileLoaderTest extends FunctionalTestCase
     }
 
     /**
+     * Method checking for placeholders in keys
+     */
+    #[Test]
+    public function loadWithPlaceholdersInKeys(): void
+    {
+        $fileName = 'EXT:core/Tests/Functional/Configuration/Loader/Fixtures/LoadWithPlaceholdersInKeys.yaml';
+
+        $expected = [
+            'firstset' => [
+                'myinitialversion' => 13,
+                'mysecondversion' => 12,
+            ],
+            'options' => [
+                'option1',
+                'option2',
+            ],
+            'mysteriousKey' => 'mysterious13',
+            'betterthanbefore' => 13,
+            'muchbetterthanbefore' => 'some::option1::option',
+            'mysterious13' => 12,
+            'bestVersion' => 13,
+            'foo' => 'bar value',
+        ];
+
+        putenv('env=bestVersion');
+        putenv('bar=foo');
+        $output = (new YamlFileLoader())->load($fileName);
+        putenv('env');
+        putenv('bar');
+        self::assertSame($expected, $output);
+    }
+
+    /**
+     * Method checking for placeholders in keys
+     */
+    #[Test]
+    public function loadWihPlaceholdersInKeysResolvedKeyAlreadyExistingThrowsException(): void
+    {
+        self::expectExceptionCode(1719316250);
+        self::expectExceptionMessage('Placeholder key "%env("bar")%" can not be substituted with "foo" because key already exists');
+        self::expectException(\UnexpectedValueException::class);
+        $fileName = 'EXT:core/Tests/Functional/Configuration/Loader/Fixtures/LoadWihPlaceholdersInKeysResolvedKeyAlreadyExisting.yaml';
+        putenv('bar=foo');
+        (new YamlFileLoader())->load($fileName);
+        putenv('bar');
+    }
+
+    /**
+     * Method checking for placeholders in keys
+     */
+    #[Test]
+    public function loadWithUnresolvablePlaceholdersInKeysThrowsException(): void
+    {
+        self::expectExceptionCode(1719672440);
+        self::expectExceptionMessage('Unresolvable placeholder key "%env("notset1")%" could not be substituted.');
+        self::expectException(\UnexpectedValueException::class);
+        $fileName = 'EXT:core/Tests/Functional/Configuration/Loader/Fixtures/LoadWithUnresolvablePlaceholdersInKeys.yaml';
+        putenv('env=bestVersion');
+        putenv('bar=foo');
+        (new YamlFileLoader())->load($fileName);
+        putenv('env');
+        putenv('bar');
+    }
+
+    /**
      * Method checking for nested placeholders
      */
     #[Test]
@@ -259,6 +324,50 @@ final class YamlFileLoaderTest extends FunctionalTestCase
                 'option2',
             ],
             'betterthanbefore' => 1,
+        ];
+
+        self::assertSame($expected, $output);
+    }
+
+    /**
+     * Method checking for multiple imports with numeric keys
+     */
+    #[Test]
+    public function loadImportsWithNumericKeys(): void
+    {
+        $output = (new YamlFileLoader())->load('EXT:core/Tests/Functional/Configuration/Loader/Fixtures/NumericKeys/Base.yaml');
+
+        $expected = [
+            'TYPO3' => [
+                'CMS' => [
+                    'Form' => [
+                        'prototypes' => [
+                            'standard' => [
+                                'formElementsDefinition' => [
+                                    'Form' => [
+                                        'formEditor' => [
+                                            'editors' => [
+                                                900 => [
+                                                    'selectOptions' => [
+                                                        35 => [
+                                                            'value' => 'FirstValue',
+                                                            'label' => 'First option',
+                                                        ],
+                                                        45 => [
+                                                            'value' => 'SecondValue',
+                                                            'label' => 'Second option',
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         self::assertSame($expected, $output);

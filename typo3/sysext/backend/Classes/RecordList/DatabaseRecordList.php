@@ -19,10 +19,12 @@ namespace TYPO3\CMS\Backend\RecordList;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Backend\Clipboard\Clipboard;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
 use TYPO3\CMS\Backend\Module\ModuleData;
 use TYPO3\CMS\Backend\Module\ModuleProvider;
+use TYPO3\CMS\Backend\RecordList\Event\BeforeRecordDownloadPresetsAreDisplayedEvent;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListHeaderColumnsEvent;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListTableActionsEvent;
@@ -30,6 +32,7 @@ use TYPO3\CMS\Backend\Routing\PreviewUriBuilder;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\Buttons\ButtonInterface;
 use TYPO3\CMS\Backend\Template\Components\Buttons\GenericButton;
+use TYPO3\CMS\Backend\Template\Components\MultiRecordSelection\Action;
 use TYPO3\CMS\Backend\Tree\Repository\PageTreeRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\View\BackendViewFactory;
@@ -64,6 +67,7 @@ use TYPO3\CMS\Core\Versioning\VersionState;
  * Class for rendering of Web>List module
  * @internal This class is a specific TYPO3 Backend implementation and is not part of the TYPO3's Core API.
  */
+#[Autoconfigure(public: true, shared: false)]
 class DatabaseRecordList
 {
     // *********
@@ -419,7 +423,7 @@ class DatabaseRecordList
      * Returns a list of all fields / columns including meta columns such as
      * "_REF_" or "_PATH_" which should be rendered for the database table.
      */
-    public function getColumnsToRender(string $table, bool $includeMetaColumns): array
+    public function getColumnsToRender(string $table, bool $includeMetaColumns, string $selectedPreset = ''): array
     {
         $titleCol = $GLOBALS['TCA'][$table]['ctrl']['label'] ?? '';
 
@@ -464,7 +468,62 @@ class DatabaseRecordList
                 }
             }
         }
-        return array_unique(array_merge($columnsToSelect, $rowListArray));
+
+        return $this->applyPresetToColumns(
+            $table,
+            $selectedPreset,
+            array_unique(array_merge($columnsToSelect, $rowListArray))
+        );
+    }
+
+    /**
+     * Checks if a preset exists that will modify the selected columns.
+     * @internal
+     */
+    protected function applyPresetToColumns(string $table, string $selectedPreset, array $columnsToRender): array
+    {
+        if ($selectedPreset === '') {
+            return $columnsToRender;
+        }
+
+        // To prevent client-side transmission of wanted column names,
+        // we only evaluate the defined presets and take the definition from there.
+        $presetRenderColumns = [];
+
+        $presets = $this->eventDispatcher->dispatch(
+            new BeforeRecordDownloadPresetsAreDisplayedEvent(
+                $table,
+                $this->modTSconfig['downloadPresets.'][$table . '.'] ?? [],
+                $this->request,
+                $this->id,
+            )
+        )->getPresets();
+
+        foreach ($presets as $presetData) {
+            if (($presetData->getIdentifier()) === $selectedPreset) {
+                $presetRenderColumns = ($presetData->getColumns());
+                break;
+            }
+        }
+
+        // Evaluation yielded empty list
+        if ($presetRenderColumns === []) {
+            return $columnsToRender;
+        }
+
+        // Make sure no column is configured in a preset that is not actually allowed.
+        foreach ($presetRenderColumns as $columnKey => $overlayColumnName) {
+            if (!in_array($overlayColumnName, $columnsToRender, true)) {
+                unset($presetRenderColumns[$columnKey]);
+            }
+        }
+
+        // Evaluation yielded no valid column names.
+        if ($presetRenderColumns === []) {
+            return $columnsToRender;
+        }
+
+        return $presetRenderColumns;
     }
 
     /**
@@ -1277,7 +1336,7 @@ class DatabaseRecordList
                             . ' title="' . $label . '"'
                             . ' aria-label="' . $label . '"'
                             . ' data-return-url="' . htmlspecialchars($this->listURL()) . '"'
-                            . ' data-columns-only="' . htmlspecialchars(implode(',', $this->fieldArray)) . '">'
+                            . ' data-columns-only="' . GeneralUtility::jsonEncodeForHtmlAttribute(array_values($this->fieldArray)) . '">'
                             . $this->iconFactory->getIcon('actions-document-open', IconSize::SMALL)->render()
                             . '</button>';
                     }
@@ -1347,7 +1406,7 @@ class DatabaseRecordList
                                 . ' title="' . htmlspecialchars($iTitle) . '"'
                                 . ' aria-label="' . htmlspecialchars($iTitle) . '"'
                                 . ' data-return-url="' . htmlspecialchars($this->listURL()) . '"'
-                                . ' data-columns-only="' . htmlspecialchars($fCol) . '">'
+                                . ' data-columns-only="' . GeneralUtility::jsonEncodeForHtmlAttribute([$fCol]) . '">'
                                 . $this->iconFactory->getIcon('actions-document-open', IconSize::SMALL)->render()
                                 . '</button>';
                         }
@@ -3082,7 +3141,7 @@ class DatabaseRecordList
 
         return '
             <div class="btn-group dropdown">
-                <button type="button" class="dropdown-toggle dropdown-toggle-link t3js-multi-record-selection-check-actions-toggle" data-bs-toggle="dropdown" data-bs-boundary="window" aria-expanded="false">
+                <button type="button" class="dropdown-toggle dropdown-toggle-link t3js-multi-record-selection-check-actions-toggle" data-bs-toggle="dropdown" data-bs-boundary="window" aria-expanded="false" aria-label="' . htmlspecialchars($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.openSelectionOptions')) . '">
                     ' . $this->iconFactory->getIcon('actions-selection', IconSize::SMALL) . '
                 </button>
                 <ul class="dropdown-menu t3js-multi-record-selection-check-actions">
@@ -3106,22 +3165,34 @@ class DatabaseRecordList
 
         // Add actions in case table can be modified by the current user
         if ($editPermission && $this->isEditable($table)) {
-            $editActionConfiguration = GeneralUtility::jsonEncodeForHtmlAttribute([
+            $editActionConfiguration = [
                 'idField' => 'uid',
                 'tableName' => $table,
                 'returnUrl' =>  $this->listURL(),
-            ], true);
+            ];
             $actions['edit'] = '
-                <button
-                    type="button"
-                    title="' . htmlspecialchars($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:cm.edit')) . '"
-                    class="btn btn-sm btn-default"
-                    data-multi-record-selection-action="edit"
-                    data-multi-record-selection-action-config="' . $editActionConfiguration . '"
-                >
-                    ' . $this->iconFactory->getIcon('actions-document-open', IconSize::SMALL)->render() . '
-                    ' . htmlspecialchars($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:cm.edit')) . '
-                </button>';
+                <div class="btn-group">
+                    <button
+                        type="button"
+                        title="' . htmlspecialchars($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:cm.edit')) . '"
+                        class="btn btn-sm btn-default"
+                        data-multi-record-selection-action="edit"
+                        data-multi-record-selection-action-config="' . GeneralUtility::jsonEncodeForHtmlAttribute($editActionConfiguration) . '"
+                    >
+                        ' . $this->iconFactory->getIcon('actions-document-open', IconSize::SMALL)->render() . '
+                        ' . htmlspecialchars($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:cm.edit')) . '
+                    </button>
+                    <button
+                        type="button"
+                        title="' . htmlspecialchars($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:cm.editColumns')) . '"
+                        class="btn btn-sm btn-default"
+                        data-multi-record-selection-action="edit"
+                        data-multi-record-selection-action-config="' . GeneralUtility::jsonEncodeForHtmlAttribute(array_merge($editActionConfiguration, ['columnsOnly' => array_values($this->getColumnsToRender($table, false))])) . '"
+                    >
+                        ' . $this->iconFactory->getIcon('actions-document-open', IconSize::SMALL)->render() . '
+                        ' . htmlspecialchars($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:cm.editColumns')) . '
+                    </button>
+                </div>';
 
             if (!(bool)trim((string)($userTsConfig['options.']['disableDelete.'][$table] ?? $userTsConfig['options.']['disableDelete'] ?? ''))) {
                 $deleteActionConfiguration = GeneralUtility::jsonEncodeForHtmlAttribute([

@@ -751,10 +751,6 @@ class SiteConfigurationController
             $row['rootline'] = BackendUtility::BEgetRootLine((int)$row['uid']);
             array_pop($row['rootline']);
             $row['rootline'] = array_reverse($row['rootline']);
-            $i = 0;
-            foreach ($row['rootline'] as &$record) {
-                $record['margin'] = $i++ * 20;
-            }
             $pages[(int)$row['uid']] = $row;
         }
         return $pages;
@@ -769,7 +765,7 @@ class SiteConfigurationController
     {
         $duplicatedEntryPoints = [];
 
-        foreach ($allSites as $identifier => $site) {
+        foreach ($allSites as $site) {
             if (!isset($pages[$site->getRootPageId()])) {
                 continue;
             }

@@ -19,6 +19,7 @@ namespace TYPO3\CMS\Workspaces\Preview;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\UriInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
 use TYPO3\CMS\Backend\Routing\PreviewUriBuilder as BackendPreviewUriBuilder;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -43,6 +44,7 @@ use TYPO3\CMS\Workspaces\Service\WorkspaceService;
  *
  * @internal
  */
+#[Autoconfigure(public: true)]
 class PreviewUriBuilder
 {
     /**
@@ -144,7 +146,7 @@ class PreviewUriBuilder
      * @param array $liveRecord Optional live record data
      * @param array $versionRecord Optional version record data
      */
-    public function buildUriForElement(string $table, int $uid, array $liveRecord = null, array $versionRecord = null): string
+    public function buildUriForElement(string $table, int $uid, ?array $liveRecord = null, ?array $versionRecord = null): string
     {
         $previewUri = $this->createPreviewUriForElement($table, $uid, $liveRecord, $versionRecord);
         $event = new RetrievedPreviewUrlEvent($table, $uid, $previewUri, [
@@ -156,7 +158,7 @@ class PreviewUriBuilder
         return $previewUri;
     }
 
-    protected function createPreviewUriForElement(string $table, int $uid, array $liveRecord = null, array $versionRecord = null): ?UriInterface
+    protected function createPreviewUriForElement(string $table, int $uid, ?array $liveRecord = null, ?array $versionRecord = null): ?UriInterface
     {
         if ($table === 'pages') {
             return BackendPreviewUriBuilder::create((int)BackendUtility::getLiveVersionIdOfRecord('pages', $uid))
@@ -241,7 +243,7 @@ class PreviewUriBuilder
      * @param int|null $workspaceId Which workspace ID to preview.
      * @return string Returns keyword to use in URL for ADMCMD_prev=, a 32 byte MD5 hash keyword for the URL: "?ADMCMD_prev=[keyword]
      */
-    protected function compilePreviewKeyword(int $ttl = 172800, int $workspaceId = null): string
+    protected function compilePreviewKeyword(int $ttl = 172800, ?int $workspaceId = null): string
     {
         $keyword = md5(StringUtility::getUniqueId());
         GeneralUtility::makeInstance(ConnectionPool::class)

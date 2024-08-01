@@ -29,32 +29,9 @@ return [
                 'type' => 'passthrough',
             ],
         ],
-        'sys_language_uid' => [
-            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
-            'config' => [
-                'type' => 'language',
-            ],
-        ],
         'categories' => [
             'config' => [
                 'type' => 'category',
-            ],
-        ],
-        'l10n_parent' => [
-            'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
-            'config' => [
-                'type' => 'group',
-                'allowed' => 'sys_file_metadata',
-                'size' => 1,
-                'maxitems' => 1,
-                'default' => 0,
-            ],
-        ],
-        'l10n_diffsource' => [
-            'config' => [
-                'type' => 'passthrough',
-                'default' => '',
             ],
         ],
         'fileinfo' => [
@@ -73,7 +50,6 @@ return [
                 'foreign_table' => 'sys_file',
                 'foreign_table_where' => 'AND {#sys_file}.{#uid} = ###REC_FIELD_file###',
                 'minitems' => 1,
-                'maxitems' => 1,
                 'default' => 0,
             ],
         ],

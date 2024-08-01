@@ -2,7 +2,7 @@
 
 return [
     'ctrl' => [
-        'title' => 'Form engine elements - input, text, checkbox, radio, none, passthrough, user',
+        'title' => 'Form engine elements - input, text, uuid, checkbox, radio, none, passthrough, user',
         'label' => 'uid',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
@@ -23,55 +23,6 @@ return [
     ],
 
     'columns' => [
-        'hidden' => [
-            'config' => [
-                'type' => 'check',
-                'items' => [
-                    ['label' => 'Disable'],
-                ],
-            ],
-        ],
-        'sys_language_uid' => [
-            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
-            'config' => [
-                'type' => 'language',
-            ],
-        ],
-        'l10n_parent' => [
-            'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'label' => 'Translation parent',
-            'config' => [
-                'type' => 'select',
-                'renderType' => 'selectSingle',
-                'items' => [
-                    ['label' => '', 'value' => 0],
-                ],
-                'foreign_table' => 'tx_styleguide_elements_basic',
-                'foreign_table_where' => 'AND {#tx_styleguide_elements_basic}.{#pid}=###CURRENT_PID### AND {#tx_styleguide_elements_basic}.{#sys_language_uid} IN (-1,0)',
-                'default' => 0,
-            ],
-        ],
-        'l10n_source' => [
-            'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'label' => 'Translation source',
-            'config' => [
-                'type' => 'select',
-                'renderType' => 'selectSingle',
-                'items' => [
-                    ['label' => '', 'value' => 0],
-                ],
-                'foreign_table' => 'tx_styleguide_elements_basic',
-                'foreign_table_where' => 'AND {#tx_styleguide_elements_basic}.{#pid}=###CURRENT_PID### AND {#tx_styleguide_elements_basic}.{#uid}!=###THIS_UID###',
-                'default' => 0,
-            ],
-        ],
-        'l10n_diffsource' => [
-            'config' => [
-                'type' => 'passthrough',
-                'default' => '',
-            ],
-        ],
-
         'input_1' => [
             'l10n_mode' => 'prefixLangTitle',
             'label' => 'input_1 description',
@@ -346,7 +297,7 @@ return [
         ],
         'inputdatetime_4' => [
             'label' => 'inputdatetime_4',
-            'description' => 'format=datetime eval=datetime',
+            'description' => 'dbType=datetime format=datetime',
             'config' => [
                 'type' => 'datetime',
                 'dbType' => 'datetime',
@@ -416,20 +367,20 @@ return [
         ],
         'inputdatetime_12' => [
             'label' => 'inputdatetime_12',
-            'description' => 'format=time dbType=time',
+            'description' => 'dbType=time format=time',
             'config' => [
                 'type' => 'datetime',
-                'format' => 'time',
                 'dbType' => 'time',
+                'format' => 'time',
             ],
         ],
         'inputdatetime_13' => [
             'label' => 'inputdatetime_13',
-            'description' => 'format=timesec dbType=time',
+            'description' => 'dbType=time format=timesec',
             'config' => [
                 'type' => 'datetime',
-                'format' => 'timesec',
                 'dbType' => 'time',
+                'format' => 'timesec',
             ],
         ],
 
@@ -462,7 +413,7 @@ return [
         ],
         'inputdatetime_24' => [
             'label' => 'inputdatetime_24',
-            'description' => 'format=datetime eval=datetime nullable=true',
+            'description' => 'format=datetime dbType=datetime nullable=true',
             'config' => [
                 'type' => 'datetime',
                 'dbType' => 'datetime',
@@ -479,7 +430,7 @@ return [
             ],
         ],
         'inputdatetime_26' => [
-            'label' => 'inputdatetime_6',
+            'label' => 'inputdatetime_26',
             'description' => 'format=timesec nullable=true',
             'config' => [
                 'type' => 'datetime',
@@ -586,7 +537,7 @@ return [
             ],
         ],
         'link_4' => [
-            'label' => 'link_2',
+            'label' => 'link_4',
             'description' => 'type=link linkBrowser disabled',
             'config' => [
                 'type' => 'link',
@@ -756,6 +707,23 @@ return [
                 'type' => 'color',
                 'size' => 10,
                 'nullable' => true,
+            ],
+        ],
+        'color_5' => [
+            'label' => 'color_5 opacity',
+            'description' => 'type=color opacity',
+            'config' => [
+                'type' => 'color',
+                'size' => 10,
+                'opacity' => true,
+            ],
+        ],
+        'color_palpreset' => [
+            'label' => 'color_palpreset with limited palette',
+            'description' => 'type=color',
+            'config' => [
+                'type' => 'color',
+                'size' => 10,
             ],
         ],
 
@@ -1088,6 +1056,30 @@ backend_layout {
             ],
         ],
 
+        'uuid_1' => [
+            'label' => 'uuid_1',
+            'description' => 'uuid',
+            'config' => [
+                'type' => 'uuid',
+            ],
+        ],
+        'uuid_2' => [
+            'label' => 'uuid_2',
+            'description' => 'uuid without copy icon',
+            'config' => [
+                'type' => 'uuid',
+                'enableCopyToClipboard' => false,
+            ],
+        ],
+        'uuid_3' => [
+            'label' => 'uuid_3',
+            'description' => 'uuid version 7',
+            'config' => [
+                'type' => 'uuid',
+                'version' => 7,
+            ],
+        ],
+
         'checkbox_1' => [
             'label' => 'checkbox_1',
             'description' => 'field description',
@@ -1412,7 +1404,7 @@ backend_layout {
             ],
         ],
         'checkbox_26' => [
-            'label' => 'checkbox_26 description',
+            'label' => 'checkbox_26',
             'description' => 'renderType=checkboxLabeledToggle single readOnly',
             'config' => [
                 'type' => 'check',
@@ -1429,7 +1421,7 @@ backend_layout {
         ],
 
         'radio_1' => [
-            'label' => 'description',
+            'label' => 'radio_1',
             'description' => 'radio_1 three options, one without label',
             'config' => [
                 'type' => 'radio',
@@ -1888,7 +1880,7 @@ backend_layout {
                 --div--;password,
                     password_1,password_2,password_3,password_8,password_4,password_5,password_6,password_7,
                 --div--;color,
-                    color_1,color_2,color_3,color_4,
+                    color_1,color_2,color_3,color_4,color_5,color_palpreset,
                 --div--;number,
                     number_1, number_2, number_3, number_4, number_5, number_7,
                 --div--;email,
@@ -1897,6 +1889,8 @@ backend_layout {
                     text_1, text_2, text_3, text_4, text_5, text_6, text_7, text_9, text_10,
                     text_11, text_12, text_13, text_18, text_14, text_15, text_16, text_17, text_19,
                     text_20,
+                --div--;uuid,
+                    uuid_1, uuid_2, uuid_3,
                 --div--;check,
                     checkbox_1, checkbox_9, checkbox_2, checkbox_17, checkbox_25, checkbox_18, checkbox_24, checkbox_19, checkbox_26,
                     checkbox_20, checkbox_21, checkbox_22, checkbox_23, checkbox_3, checkbox_4, checkbox_6, checkbox_7, checkbox_8,

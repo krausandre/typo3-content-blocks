@@ -33,7 +33,7 @@ class BootstrapRenderer implements FlashMessageRendererInterface
 {
     protected IconFactory $iconFactory;
 
-    public function __construct(IconFactory $iconFactory = null)
+    public function __construct(?IconFactory $iconFactory = null)
     {
         $this->iconFactory = $iconFactory ?? GeneralUtility::makeInstance(IconFactory::class);
     }
@@ -83,13 +83,13 @@ class BootstrapRenderer implements FlashMessageRendererInterface
         foreach ($flashMessages as $flashMessage) {
             $messageTitle = $flashMessage->getTitle();
             $markup[] = '<div class="alert ' . htmlspecialchars($this->getClass($flashMessage)) . '">';
-            $markup[] = '  <div class="media">';
-            $markup[] = '    <div class="media-left">';
+            $markup[] = '  <div class="alert-inner">';
+            $markup[] = '    <div class="alert-icon">';
             $markup[] = '      <span class="icon-emphasized">';
             $markup[] =            $this->iconFactory->getIcon($this->getIconName($flashMessage), IconSize::SMALL)->render();
             $markup[] = '      </span>';
             $markup[] = '    </div>';
-            $markup[] = '    <div class="media-body">';
+            $markup[] = '    <div class="alert-content">';
             if ($messageTitle !== '') {
                 $markup[] = '      <div class="alert-title">' . htmlspecialchars($messageTitle) . '</div>';
             }

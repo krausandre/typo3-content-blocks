@@ -36,7 +36,7 @@ final class SystemInformationController
 {
     protected array $backendUserConfiguration;
 
-    public function __construct(array $backendUserConfiguration = null)
+    public function __construct(?array $backendUserConfiguration = null)
     {
         $this->backendUserConfiguration = $backendUserConfiguration ?? $GLOBALS['BE_USER']->uc;
     }
@@ -68,7 +68,7 @@ final class SystemInformationController
 
         if ($count > 0) {
             $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-            $moduleIdentifier = 'system_BelogLog';
+            $moduleIdentifier = 'system_log';
             $moduleParams = ['constraint' => ['channel' => 'php']];
             $systemInformationToolbarItem->addSystemMessage(
                 sprintf(

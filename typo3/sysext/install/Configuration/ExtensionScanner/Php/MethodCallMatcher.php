@@ -6323,4 +6323,32 @@ return [
             'Breaking-102763-ExtbaseHashServiceUsageReplacedWithCoreHashService.rst',
         ],
     ],
+    'TYPO3\CMS\Core\Utility\DiffUtility->makeDiffDisplay' => [
+        'numberOfMandatoryArguments' => 2,
+        'maximumNumberOfArguments' => 3,
+        'restFiles' => [
+            'Deprecation-104325-DiffUtility-makeDiffDisplay.rst',
+        ],
+    ],
+    'TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper->registerUniversalTagAttributes' => [
+        'numberOfMandatoryArguments' => 0,
+        'maximumNumberOfArguments' => 0,
+        'restFiles' => [
+            'Deprecation-104223-FluidStandaloneMethods.rst',
+        ],
+    ],
+    'TYPO3Fluid\Fluid\Core\ViewHelper\AbstractTagBasedViewHelper->registerTagAttribute' => [
+        'numberOfMandatoryArguments' => 3,
+        'maximumNumberOfArguments' => 5,
+        'restFiles' => [
+            'Deprecation-104223-FluidStandaloneMethods.rst',
+        ],
+    ],
+    'TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper->overrideArgument' => [
+        'numberOfMandatoryArguments' => 3,
+        'maximumNumberOfArguments' => 6,
+        'restFiles' => [
+            'Deprecation-104463-FluidStandaloneOverrideArgument.rst',
+        ],
+    ],
 ];

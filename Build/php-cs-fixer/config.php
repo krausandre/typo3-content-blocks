@@ -45,7 +45,11 @@ return (new \PhpCsFixer\Config())
     ->setFinder(
         (new PhpCsFixer\Finder())
             ->ignoreVCSIgnored(true)
-            ->in(realpath(__DIR__ . '/../../'))
+            ->in([
+                __DIR__ . '/../../typo3/sysext',
+                __DIR__ . '/../../Build',
+            ])
+            ->exclude('node_modules')
     )
     ->setRiskyAllowed(true)
     ->setRules([
@@ -88,6 +92,10 @@ return (new \PhpCsFixer\Config())
         'no_unused_imports' => true,
         'no_useless_else' => true,
         'no_useless_nullsafe_operator' => true,
+        'nullable_type_declaration' => [
+            'syntax' => 'question_mark',
+        ],
+        'nullable_type_declaration_for_default_null_value' => true,
         'ordered_imports' => ['imports_order' => ['class', 'function', 'const'], 'sort_algorithm' => 'alpha'],
         'php_unit_construct' => ['assertions' => ['assertEquals', 'assertSame', 'assertNotEquals', 'assertNotSame']],
         'php_unit_mock_short_will_return' => true,

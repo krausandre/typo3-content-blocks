@@ -42,17 +42,6 @@
 }
 
 //
-// IE: ensure DatePicker is opened on button click
-//
-label {
-    .icon {
-        img {
-            pointer-events: none;
-        }
-    }
-}
-
-//
 // Form control additions
 //
 .form-control {
@@ -213,6 +202,10 @@ select {
         box-shadow: none;
         border-color: inherit;
     }
+
+    &:focus-within {
+        z-index: 3;
+    }
 }
 
 //
@@ -248,13 +241,8 @@ select {
     }
 }
 
-.tab-pane {
-    > .form-section:first-child {
-        border-top: none;
-    }
-}
-
 .form-section-headline {
+    font-size: $h4-font-size;
     margin-top: 0;
     margin-bottom: 10px;
 
@@ -374,10 +362,6 @@ select {
 
 .form-irre-header-control {
     cursor: auto;
-
-    .btn-group > .btn {
-        float: none;
-    }
 }
 
 //
@@ -471,9 +455,4 @@ textarea {
     min-height: floor(2px + ($padding-small-vertical * 2) + ($font-size-small * $line-height-small));
     // Consistent space between actions and listing
     margin: .5rem 0;
-}
-
-.input-group > .btn {
-    display: flex;
-    align-items: center;
 }

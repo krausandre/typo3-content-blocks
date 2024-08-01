@@ -272,7 +272,7 @@ class ResourceFactory implements SingletonInterface
      * - "file:23"
      *
      * @param string $input
-     * @return File|Folder|null
+     * @return ProcessedFile|File|Folder|null
      */
     public function retrieveFileOrFolderObject($input)
     {
@@ -401,7 +401,7 @@ class ResourceFactory implements SingletonInterface
      *
      * @return File
      */
-    public function createFileObject(array $fileData, ResourceStorage $storage = null)
+    public function createFileObject(array $fileData, ?ResourceStorage $storage = null)
     {
         if (array_key_exists('storage', $fileData) && MathUtility::canBeInterpretedAsInteger($fileData['storage'])) {
             $storageObject = $this->storageRepository->findByUid((int)$fileData['storage']);

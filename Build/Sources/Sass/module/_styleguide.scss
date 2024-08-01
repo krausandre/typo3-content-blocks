@@ -1,19 +1,17 @@
 .module-styleguide .module-body {
     display: flex;
-    gap: calc(var(--module-body-padding-x) * 1.5);
+    gap: 2.5rem;
     flex-wrap: wrap;
+    container-type: inline-size;
 }
 
 .styleguide-navigation {
-    flex: 0 1 250px;
-    position: sticky;
+    flex: 0 1 200px;
     align-self: flex-start;
-    top: calc(var(--module-body-padding-y) + var(--module-docheader-height));
-    margin-bottom: var(--module-body-padding-y);
 }
 
 .styleguide-content {
-    flex: 1 1 560px;
+    flex: 1 1 500px;
     contain: inline-size;
 
     // Icon module
@@ -40,4 +38,92 @@
             background-color: #e1e1e1;
         }
     }
+
+    .example-container {
+        display: flex;
+        align-items: center;
+        gap: var(--typo3-spacing);
+
+        &.example-container--large-spacing {
+            gap: calc(var(--typo3-spacing) * 2);
+        }
+    }
 }
+
+.styleguide-example {
+    --typo3-example-border-width: var(--typo3-component-border-width);
+    --typo3-example-border-color: var(--typo3-component-border-color);
+    --typo3-example-border-radius: var(--typo3-component-border-radius);
+    --typo3-example-box-shadow: var(--typo3-component-box-shadow);
+    --typo3-example-margin-bottom: var(--typo3-spacing);
+    --typo3-example-content-bg: var(--typo3-surface-base);
+    --typo3-example-content-background-image-color: light-dark(var(--token-color-neutral-10), var(--token-color-neutral-90));
+    --typo3-example-content-padding: var(--typo3-spacing);
+    --typo3-example-code-bg: var(--typo3-surface-container-base);
+    --typo3-example-code-border-top-width: var(--typo3-component-border-width);
+    --typo3-example-code-border-top-color: var(--typo3-component-border-color);
+    --typo3-example-code-padding: var(--typo3-spacing);
+    --typo3-example-label-color: var(--typo3-component-variant-color);
+    --typo3-example-label-margin-bottom: var(--typo3-spacing);
+    border: var(--typo3-example-border-width) solid var(--typo3-example-border-color);
+    border-radius: var(--typo3-example-border-radius);
+    box-shadow: var(--typo3-example-box-shadow);
+    margin-bottom: calc(var(--typo3-example-margin-bottom) * 1.5);
+
+    .styleguide-example-content {
+        background: var(--typo3-example-content-bg);
+        background-image: linear-gradient(45deg, var(--typo3-example-content-background-image-color) 25%, transparent 25%), linear-gradient(135deg, var(--typo3-example-content-background-image-color) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--typo3-example-content-background-image-color) 75%), linear-gradient(135deg, transparent 75%, var(--typo3-example-content-background-image-color) 75%);
+        background-position: 0 0, 10px 0, 10px -10px, 0 10px;
+        background-size: 20px 20px;
+        padding: var(--typo3-example-content-padding);
+    }
+
+    .styleguide-example-code {
+        background-color: var(--typo3-example-code-bg);
+        border-top: var(--typo3-example-code-border-top-width) solid var(--typo3-example-code-border-top-color);
+        margin: 0;
+        padding: var(--typo3-example-code-padding);
+
+        .example {
+            padding: 0;
+        }
+    }
+
+    .example {
+        border: 0;
+        border-radius: 0;
+        margin-bottom: 0;
+
+        &:first-child {
+            border-top-left-radius: var(--typo3-component-border-radius);
+            border-top-right-radius: var(--typo3-component-border-radius);
+        }
+
+        &:last-child {
+            border-bottom-left-radius: var(--typo3-component-border-radius);
+            border-bottom-right-radius: var(--typo3-component-border-radius);
+        }
+
+        &:before {
+            display: none;
+        }
+
+        .styleguide-example-label {
+            display: block;
+            color: var(--typo3-example-label-color);
+            font-weight: bold;
+            font-size: .9em;
+            margin-bottom: var(--typo3-example-label-margin-bottom);
+        }
+    }
+}
+
+/* clean-css ignore:start */
+@container (min-width: 740px) {
+    .styleguide-navigation {
+        position: sticky;
+        top: calc(var(--module-body-padding-y) + var(--module-docheader-height));
+    }
+}
+
+/* clean-css ignore:end */

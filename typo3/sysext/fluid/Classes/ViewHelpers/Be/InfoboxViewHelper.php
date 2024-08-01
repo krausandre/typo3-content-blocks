@@ -59,7 +59,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithContentArgumentAndRenderS
  *
  * All options::
  *
- *    <f:be.infobox title="Message title" message="your box content" state="-2" iconName="check" disableIcon="true" />
+ *    <f:be.infobox title="Message title" message="your box content" state="{f:constant(name: 'TYPO3\CMS\Fluid\ViewHelpers\Be\InfoboxViewHelper::STATE_NOTICE')}" iconName="check" disableIcon="true" />
  */
 final class InfoboxViewHelper extends AbstractViewHelper
 {
@@ -104,7 +104,7 @@ final class InfoboxViewHelper extends AbstractViewHelper
         $iconTemplate = '';
         if (!$disableIcon) {
             $iconTemplate = '' .
-                '<div class="media-left">' .
+                '<div class="callout-icon">' .
                     '<span class="icon-emphasized">' .
                         $iconFactory->getIcon($icon, IconSize::SMALL)->render() .
                     '</span>' .
@@ -115,12 +115,10 @@ final class InfoboxViewHelper extends AbstractViewHelper
             $titleTemplate = '<div class="callout-title">' . htmlspecialchars($title) . '</div>';
         }
         return '<div class="callout callout-' . htmlspecialchars($severity->getCssClass()) . '">' .
-                '<div class="media">' .
-                    $iconTemplate .
-                    '<div class="media-body">' .
-                        $titleTemplate .
-                        '<div class="callout-body">' . $message . '</div>' .
-                    '</div>' .
+                $iconTemplate .
+                '<div class="callout-content">' .
+                    $titleTemplate .
+                    '<div class="callout-body">' . $message . '</div>' .
                 '</div>' .
             '</div>';
     }

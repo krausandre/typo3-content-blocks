@@ -69,7 +69,7 @@ class FormEditorController extends AbstractBackendController
      *
      * @throws PersistenceManagerException
      */
-    public function indexAction(string $formPersistenceIdentifier, string $prototypeName = null): ResponseInterface
+    public function indexAction(string $formPersistenceIdentifier, ?string $prototypeName = null): ResponseInterface
     {
         if (!$this->formPersistenceManager->isAllowedPersistencePath($formPersistenceIdentifier)) {
             throw new PersistenceManagerException(sprintf('Read "%s" is not allowed', $formPersistenceIdentifier), 1614500662);
@@ -216,10 +216,12 @@ class FormEditorController extends AbstractBackendController
             ];
         }
 
-        $this->view->assign('response', $response);
         // saveFormAction uses the extbase JsonView::class.
         // That's why we have to set the view variables in this way.
-        $this->view->setVariablesToRender([
+        /** @var JsonView $view */
+        $view = $this->view;
+        $view->assign('response', $response);
+        $view->setVariablesToRender([
             'response',
         ]);
 
@@ -233,13 +235,13 @@ class FormEditorController extends AbstractBackendController
     public function renderFormPageAction(
         FormDefinitionArray $formDefinition,
         int $pageIndex,
-        string $prototypeName = null
+        ?string $prototypeName = null
     ): ResponseInterface {
         $prototypeName = $prototypeName ?: $formDefinition['prototypeName'] ?? 'standard';
         $formDefinition = $formDefinition->getArrayCopy();
 
         $formFactory = GeneralUtility::makeInstance(ArrayFormFactory::class);
-        $formDefinition = $formFactory->build($formDefinition, $prototypeName);
+        $formDefinition = $formFactory->build($formDefinition, $prototypeName, $this->request);
         $formDefinition->setRenderingOption('previewMode', true);
         $form = $formDefinition->bind($this->request);
         $form->setCurrentSiteLanguage($this->buildFakeSiteLanguage(0, 0));

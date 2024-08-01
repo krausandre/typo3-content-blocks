@@ -21,7 +21,6 @@ use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Controller\FormSelectTreeAjaxController;
 use TYPO3\CMS\Backend\Form\FormDataCompiler;
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
-use TYPO3\CMS\Core\EventDispatcher\NoopEventDispatcher;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
@@ -32,7 +31,7 @@ final class FormSelectTreeAjaxControllerTest extends UnitTestCase
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionCode(1479386729);
-        (new FormSelectTreeAjaxController(new FormDataCompiler(), new FlexFormTools(new NoopEventDispatcher())))->fetchDataAction(new ServerRequest());
+        (new FormSelectTreeAjaxController(new FormDataCompiler(), $this->createMock(FlexFormTools::class)))->fetchDataAction(new ServerRequest());
     }
 
     #[Test]
@@ -45,6 +44,6 @@ final class FormSelectTreeAjaxControllerTest extends UnitTestCase
         $GLOBALS['TCA']['aTable']['columns'] = [];
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionCode(1479386990);
-        (new FormSelectTreeAjaxController(new FormDataCompiler(), new FlexFormTools(new NoopEventDispatcher())))->fetchDataAction($serverRequest);
+        (new FormSelectTreeAjaxController(new FormDataCompiler(), $this->createMock(FlexFormTools::class)))->fetchDataAction($serverRequest);
     }
 }

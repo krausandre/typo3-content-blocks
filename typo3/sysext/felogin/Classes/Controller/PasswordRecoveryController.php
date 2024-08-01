@@ -60,7 +60,7 @@ class PasswordRecoveryController extends ActionController
      * Shows the recovery form. If $userIdentifier is set, an email will be sent, if the corresponding user exists and
      * has a valid email address set.
      */
-    public function recoveryAction(string $userIdentifier = null): ResponseInterface
+    public function recoveryAction(?string $userIdentifier = null): ResponseInterface
     {
         if (empty($userIdentifier)) {
             return $this->htmlResponse();
@@ -210,7 +210,7 @@ class PasswordRecoveryController extends ActionController
             ->getHashedPassword($newPass);
 
         $user = $this->userRepository->findOneByForgotPasswordHash($this->hashService->hmac($hash, self::class));
-        $event = new PasswordChangeEvent($user, $hashedPassword, $newPass);
+        $event = new PasswordChangeEvent($user, $hashedPassword, $newPass, $this->request);
         $this->eventDispatcher->dispatch($event);
 
         $this->userRepository->updatePasswordAndInvalidateHash($this->hashService->hmac($hash, self::class), $hashedPassword);
@@ -218,7 +218,7 @@ class PasswordRecoveryController extends ActionController
 
         $this->addFlashMessage($this->getTranslation('change_password_done_message'));
 
-        return $this->redirect('login', 'Login', 'felogin');
+        return $this->redirect('login', 'Login', 'felogin', ['redirectReferrer' => 'off']);
     }
 
     /**

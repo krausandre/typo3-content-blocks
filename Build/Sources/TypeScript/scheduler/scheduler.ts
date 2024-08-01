@@ -53,6 +53,12 @@ class Scheduler {
     }
   }
 
+  private static updateDateTimePickers(): void {
+    (document.querySelectorAll('#tx_scheduler_form .t3js-datetimepicker') as NodeListOf<HTMLInputElement>).forEach(
+      (dateTimePickerElement: HTMLInputElement) => DateTimePicker.initialize(dateTimePickerElement)
+    );
+  }
+
   private static updateElementBrowserTriggers(): void {
     const triggers = document.querySelectorAll('.t3js-element-browser');
 
@@ -219,10 +225,6 @@ class Scheduler {
       new SortableTable(table);
     });
 
-    (<NodeListOf<HTMLInputElement>>document.querySelectorAll('#tx_scheduler_form .t3js-datetimepicker')).forEach(
-      (dateTimePickerElement: HTMLInputElement) => DateTimePicker.initialize(dateTimePickerElement)
-    );
-
     new RegularEvent('click', (e: Event, target: HTMLAnchorElement): void => {
       e.preventDefault();
 
@@ -244,10 +246,10 @@ class Scheduler {
 
     window.addEventListener('message', this.listenOnElementBrowser.bind(this));
 
-    new RegularEvent('click', (e: Event): void => {
+    new RegularEvent('click', (e: Event, target: HTMLElement): void => {
       e.preventDefault();
 
-      this.saveDocument(e.target as HTMLElement);
+      this.saveDocument(target);
     }).delegateTo(document, 'button[form]');
   }
 
@@ -326,6 +328,7 @@ class Scheduler {
     if (taskClass !== null) {
       this.toggleTaskSettingFields(taskClass);
       Scheduler.updateClearableInputs();
+      Scheduler.updateDateTimePickers();
       Scheduler.updateElementBrowserTriggers();
     }
   }
@@ -401,17 +404,17 @@ class Scheduler {
       return;
     }
 
-    const formData = new FormData(schedulerForm)
+    const formData = new FormData(schedulerForm);
 
-    document.querySelector('.t3js-scheduler-close').addEventListener('click', (e: Event) => {
+    new RegularEvent('click', (e: Event): void => {
       const newFormData = new FormData(schedulerForm)
       const formDataObj = Object.fromEntries(formData.entries());
       const newFormDataObj = Object.fromEntries(newFormData.entries());
       const formChanged = JSON.stringify(formDataObj) !== JSON.stringify(newFormDataObj)
 
-      if(formChanged || schedulerForm.querySelector('input[value="add"]')) {
+      if (formChanged || schedulerForm.querySelector('input[value="add"]')) {
         e.preventDefault();
-        const closeUrl = (e.target as HTMLLinkElement).href
+        const closeUrl = (e.currentTarget as HTMLLinkElement).href;
         Modal.confirm(
           TYPO3.lang['label.confirm.close_without_save.title'] || 'Do you want to close without saving?',
           TYPO3.lang['label.confirm.close_without_save.content'] || 'You currently have unsaved changes. Are you sure you want to discard these changes?',
@@ -429,7 +432,7 @@ class Scheduler {
               name: 'yes',
               trigger: () => {
                 Modal.dismiss();
-                window.location.href = closeUrl
+                window.location.href = closeUrl;
               }
             },
             {
@@ -452,7 +455,7 @@ class Scheduler {
           ]
         );
       }
-    })
+    }).bindTo(document.querySelector('.t3js-scheduler-close'));
   }
 
   private getTaskEditForm(): HTMLFormElement|null {

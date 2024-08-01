@@ -16,13 +16,13 @@
 				<source>Create a shortcut to this page?</source>
 			</trans-unit>
 			<trans-unit id="labels.makeBookmark" resname="labels.makeBookmark">
-				<source>Create a bookmark to this page</source>
+				<source>Create a bookmark to this record</source>
 			</trans-unit>
 			<trans-unit id="labels.alreadyBookmarked" resname="labels.alreadyBookmarked">
-				<source>This page is already bookmarked</source>
+				<source>This record is already bookmarked</source>
 			</trans-unit>
 			<trans-unit id="labels.copyCurrentUrl" resname="labels.copyCurrentUrl">
-				<source>Copy URL of this page</source>
+				<source>Copy URL of this record</source>
 			</trans-unit>
 			<trans-unit id="labels.lockedRecord" resname="labels.lockedRecord">
 				<source>The user '%s' began to edit this record %s ago.</source>
@@ -412,6 +412,9 @@ Do you want to continue WITHOUT saving?</source>
 			<trans-unit id="labels.noMatchingValue" resname="labels.noMatchingValue">
 				<source>INVALID VALUE ("%s")</source>
 			</trans-unit>
+			<trans-unit id="labels.noMatchingLabel" resname="labels.noMatchingLabel">
+				<source>MISSING LABEL ("%s")</source>
+			</trans-unit>
 			<trans-unit id="labels.thumbmode_clip" resname="labels.thumbmode_clip">
 				<source>Show Thumbnails on ClipBoard</source>
 			</trans-unit>
@@ -450,6 +453,9 @@ Do you want to continue WITHOUT saving?</source>
 			</trans-unit>
 			<trans-unit id="labels.setAllCheckboxes" resname="labels.setAllCheckboxes">
 				<source>Select All Checkboxes</source>
+			</trans-unit>
+			<trans-unit id="labels.openSelectionOptions" resname="labels.openSelectionOptions">
+				<source>Open selection options</source>
 			</trans-unit>
 			<trans-unit id="labels.checkAll" resname="labels.checkAll">
 				<source>Check all</source>
@@ -534,6 +540,9 @@ Do you want to continue WITHOUT saving?</source>
 			</trans-unit>
 			<trans-unit id="labels.editingLiveRecordsWarning" resname="labels.editingLiveRecordsWarning">
 				<source>Caution! These records are not versioned, you will edit the live records.</source>
+			</trans-unit>
+			<trans-unit id="labels.th.name" resname="labels.th.name">
+				<source>Name</source>
 			</trans-unit>
 			<trans-unit id="alttext.suggestSearching" resname="alttext.suggestSearching">
 				<source>Searching...</source>
@@ -971,12 +980,6 @@ Do you want to refresh it now?</source>
 			<trans-unit id="rm.closeDoc" resname="rm.closeDoc">
 				<source>Close</source>
 			</trans-unit>
-			<trans-unit id="rm.closeAllDocs" resname="rm.closeAllDocs">
-				<source>Close all</source>
-			</trans-unit>
-			<trans-unit id="rm.clearCache_clearCache" resname="rm.clearCache_clearCache">
-				<source>Clear cache</source>
-			</trans-unit>
 			<trans-unit id="rm.clearCache_thisPage" resname="rm.clearCache_thisPage">
 				<source>This page</source>
 			</trans-unit>
@@ -1065,14 +1068,8 @@ Do you want to refresh it now?</source>
 				<source>The folder "%s" was successfully deleted.</source>
 			</trans-unit>
 
-			<trans-unit id="buttons.logout" resname="buttons.logout">
-				<source>Logout</source>
-			</trans-unit>
 			<trans-unit id="buttons.exit" resname="buttons.exit">
 				<source>Exit</source>
-			</trans-unit>
-			<trans-unit id="buttons.exitSwitchUser" resname="buttons.exitSwitchUser">
-				<source>Exit switch user mode</source>
 			</trans-unit>
 			<trans-unit id="buttons.selMenu_modules" resname="buttons.selMenu_modules">
 				<source>MODULES</source>
@@ -1139,6 +1136,9 @@ Do you want to refresh it now?</source>
 			</trans-unit>
 			<trans-unit id="cm.editMetadata" resname="cm.editMetadata">
 				<source>Edit Metadata of this file</source>
+			</trans-unit>
+			<trans-unit id="cm.editColumns" resname="cm.editColumns">
+				<source>Edit columns</source>
 			</trans-unit>
 			<trans-unit id="cm.new" resname="cm.new">
 				<source>New</source>
@@ -1337,111 +1337,6 @@ Do you want to refresh it now?</source>
 			</trans-unit>
 			<trans-unit id="error.formProtection.tokenInvalid" resname="error.formProtection.tokenInvalid">
 				<source>Validating the security token of this form has failed. Please reload the form and submit it again.</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.shortcuts" resname="toolbarItems.shortcuts">
-				<source>Shortcuts</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.shortcut" resname="toolbarItems.shortcut">
-				<source>Shortcut</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.shortcutsGroup" resname="toolbarItems.shortcutsGroup">
-				<source>Shortcut Group</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.shortcutsEdit" resname="toolbarItems.shortcutsEdit">
-				<source>Edit Shortcut</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.shortcutsDelete" resname="toolbarItems.shortcutsDelete">
-				<source>Delete Shortcut</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.bookmarks" resname="toolbarItems.bookmarks">
-				<source>Bookmarks</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.bookmark" resname="toolbarItems.bookmark">
-				<source>Bookmark</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.bookmarksGroup" resname="toolbarItems.bookmarksGroup">
-				<source>Bookmark group</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.bookmarksEdit" resname="toolbarItems.bookmarksEdit">
-				<source>Edit bookmark</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.bookmarksDelete" resname="toolbarItems.bookmarksDelete">
-				<source>Delete bookmark</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.collapsePageTree" resname="toolbarItems.collapsePageTree">
-				<source>Collapse page tree</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.confirmBookmarksDelete" resname="toolbarItems.confirmBookmarksDelete">
-				<source>Do you really want to remove this bookmark?</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.bookmarkSavedTitle" resname="toolbarItems.bookmarkSavedTitle">
-				<source>Bookmark saved</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.bookmarkSavedMessage" resname="toolbarItems.bookmarkSavedMessage">
-				<source>The bookmark was saved.</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.bookmarkAlreadyExistsTitle" resname="toolbarItems.bookmarkAlreadyExistsTitle">
-				<source>Bookmark already exists</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.bookmarkAlreadyExistsMessage" resname="toolbarItems.bookmarkAlreadyExistsMessage">
-				<source>The document is already in your bookmarks.</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.bookmarkFailedTitle" resname="toolbarItems.bookmarkFailedTitle">
-				<source>Bookmark creation failed</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.bookmarkFailedMessage" resname="toolbarItems.bookmarkFailedMessage">
-				<source>The bookmark couldn't get created</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.help" resname="toolbarItems.help">
-				<source>Help</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.minMaxModuleMenu" resname="toolbarItems.minMaxModuleMenu">
-				<source>Minimize/maximize module menu</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.search" resname="toolbarItems.search">
-				<source>Search</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.toolbarOpenClose" resname="toolbarItems.toolbarOpenClose">
-				<source>Open/Close toolbar</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.searchbarOpenClose" resname="toolbarItems.searchbarOpenClose">
-				<source>Open/Close searchbar</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.workspace" resname="toolbarItems.workspace">
-				<source>Workspace</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.sysinfo" resname="toolbarItems.sysinfo">
-				<source>System Information</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.sysinfo.phpversion" resname="toolbarItems.sysinfo.phpversion">
-				<source>PHP Version</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.sysinfo.debugger" resname="toolbarItems.sysinfo.debugger">
-				<source>Debugger</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.sysinfo.database" resname="toolbarItems.sysinfo.database">
-				<source>Database</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.sysinfo.database.offline" resname="toolbarItems.sysinfo.database.offline">
-				<source>Offline</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.sysinfo.applicationcontext" resname="toolbarItems.sysinfo.applicationcontext">
-				<source>Application Context</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.sysinfo.composerMode" resname="toolbarItems.sysinfo.composerMode">
-				<source>Composer mode</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.sysinfo.gitrevision" resname="toolbarItems.sysinfo.gitrevision">
-				<source>GIT Revision</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.sysinfo.operatingsystem" resname="toolbarItems.sysinfo.operatingsystem">
-				<source>Operating System</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.sysinfo.webserver" resname="toolbarItems.sysinfo.webserver">
-				<source>Webserver</source>
-			</trans-unit>
-			<trans-unit id="toolbarItems.sysinfo.typo3-version" resname="toolbarItems.sysinfo.typo3-version">
-				<source>TYPO3 Version</source>
 			</trans-unit>
 			<trans-unit id="extension.not.installed" resname="extension.not.installed">
 				<source>Extension "%s" is not installed.</source>

@@ -22,14 +22,13 @@ import Severity from '../../renderable/severity';
 import Router from '../../router';
 import MessageInterface from '@typo3/install/message-interface';
 import type { ModalElement } from '@typo3/backend/modal';
-import type { ProgressBar } from '../../renderable/progress-bar';
-
 import type {
   ActivateLanguageEvent,
   DeactivateLanguageEvent,
   DownloadPacksEvent,
   LanguagePacksGetDataResponse
 } from '../../renderable/language-packs';
+import type { ProgressBarElement } from '@typo3/backend/element/progress-bar-element';
 
 enum Identifiers {
   outputContainer = '.t3js-languagePacks-output',
@@ -95,13 +94,14 @@ class LanguagePacks extends AbstractInteractableModule {
             modalContent.innerHTML = html;
             const contentContainer: HTMLElement = modalContent.parentElement.querySelector(Identifiers.contentContainer);
             contentContainer.innerHTML = '';
-            const configurationIsWritable = this.getModuleContent().dataset.configurationIsWritable;
 
             const documentRef = window.location !== window.parent.location ? parent.document : document;
 
             const languageMatrix = documentRef.createElement('typo3-install-language-matrix');
             languageMatrix.data = state;
-            languageMatrix.configurationIsWritable = Boolean(configurationIsWritable);
+            if (this.getModuleContent().dataset.configurationIsWritable === 'true') {
+              languageMatrix.setAttribute('configurationIsWritable', '');
+            }
             languageMatrix.addEventListener('activate-language', (e: CustomEvent<ActivateLanguageEvent>) => {
               this.activateLanguage(e.detail.iso);
             });
@@ -221,7 +221,8 @@ class LanguagePacks extends AbstractInteractableModule {
     const progressBar = this.renderProgressBar(
       outputContainer,
       this.packsUpdateDetails.toHandle === 1 ? undefined : {
-        progress: '0',
+        value: 0,
+        max: this.packsUpdateDetails.toHandle,
         label: '0 of ' + this.packsUpdateDetails.toHandle + ' language ' +
           LanguagePacks.pluralize(this.packsUpdateDetails.toHandle) + ' updated'
       }
@@ -272,7 +273,7 @@ class LanguagePacks extends AbstractInteractableModule {
     });
   }
 
-  private packUpdateDone(updateIsoTimes: boolean, isos: string[], progressBar: ProgressBar): void {
+  private packUpdateDone(updateIsoTimes: boolean, isos: string[], progressBar: ProgressBarElement): void {
     const modalContent = this.getModalBody();
     if (this.packsUpdateDetails.handled === this.packsUpdateDetails.toHandle) {
       // All done - create summary, update 'last update' of iso list, render main view
@@ -311,8 +312,7 @@ class LanguagePacks extends AbstractInteractableModule {
       }
     } else {
       // Update progress bar
-      const percent = (this.packsUpdateDetails.handled / this.packsUpdateDetails.toHandle) * 100;
-      progressBar.progress = String(percent);
+      progressBar.value = this.packsUpdateDetails.handled;
       progressBar.label = this.packsUpdateDetails.handled + ' of ' + this.packsUpdateDetails.toHandle + ' language ' +
         LanguagePacks.pluralize(this.packsUpdateDetails.handled, 'pack', 's', this.packsUpdateDetails.toHandle) + ' updated';
     }

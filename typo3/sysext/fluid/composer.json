@@ -19,17 +19,17 @@
 		"sort-packages": true
 	},
 	"require": {
-		"symfony/dependency-injection": "^7.0",
-		"typo3/cms-core": "13.2.*@dev",
-		"typo3/cms-extbase": "13.2.*@dev",
-		"typo3fluid/fluid": "^2.11.0"
+		"symfony/dependency-injection": "^7.1",
+		"typo3/cms-core": "13.3.*@dev",
+		"typo3/cms-extbase": "13.3.*@dev",
+		"typo3fluid/fluid": "^2.14.1"
 	},
 	"conflict": {
 		"typo3/cms": "*"
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-main": "13.2.x-dev"
+			"dev-main": "13.3.x-dev"
 		},
 		"typo3/cms": {
 			"Package": {

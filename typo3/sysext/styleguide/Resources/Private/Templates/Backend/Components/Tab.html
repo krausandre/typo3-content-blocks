@@ -1,0 +1,132 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:sg="http://typo3.org/ns/TYPO3/CMS/Styleguide/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+
+<f:section name="Before">
+    <f:be.pageRenderer
+        includeJavaScriptModules="{
+            0: '@typo3/backend/tabs.js'
+        }"
+    />
+</f:section>
+
+<f:section name="Content">
+
+    <f:render
+        partial="Backend/Navigation"
+        arguments="{
+            currentAction: currentAction,
+            actions: actions,
+            route: routeIdentifier
+        }"
+    />
+
+    <div class="styleguide-content">
+        <h1><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.tabs.headline" /></h1>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.tabs.section.default.headline" /></h2>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.tabs.section.default.text" /></p>
+        <sg:example codePreview="true" codeLanguage="html">
+            <div role="tabpanel">
+                <f:render
+                    section="tabNavigation"
+                    arguments="{
+                        identifier: 'DTM-1721236302',
+                    }"
+                />
+                <f:render
+                    section="tabContent"
+                    arguments="{
+                        identifier: 'DTM-1721236302',
+                    }"
+                />
+            </div>
+        </sg:example>
+
+        <hr>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:section.frontend.headline" /></h2>
+
+        <h3><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:section.colorScheme.headline" /></h3>
+        <sg:colorScheme>
+            <div role="tabpanel">
+                <f:render
+                    section="tabNavigation"
+                    arguments="{
+                        identifier: 'DTM-1721236304',
+                    }"
+                />
+                <f:render
+                    section="tabContent"
+                    arguments="{
+                        identifier: 'DTM-1721236304',
+                    }"
+                />
+            </div>
+        </sg:colorScheme>
+    </div>
+
+</f:section>
+
+<f:section name="tabNavigation">
+    <ul class="nav nav-tabs t3js-tabs" role="tablist" id="tabs-{identifier}" data-store-last-tab="1">
+        <f:render
+            section="tabNavigationItem"
+            arguments="{
+                identifier: identifier,
+                iterator: '1'
+            }"
+        />
+        <f:render
+            section="tabNavigationItem"
+            arguments="{
+                identifier: identifier,
+                iterator: '2'
+            }"
+        />
+    </ul>
+</f:section>
+
+<f:section name="tabNavigationItem">
+    <li role="presentation" class="t3js-tabmenu-item">
+        <a href="#{identifier}-{iterator}"{f:if(condition: '{iterator} == 1', then: ' class="active"')} title="" aria-controls="{identifier}-{iterator}" role="tab" data-bs-toggle="tab">
+            Tab {iterator}
+        </a>
+    </li>
+</f:section>
+
+<f:section name="tabContent">
+    <div class="tab-content">
+        <f:render
+            section="tabItem"
+            arguments="{
+                identifier: identifier,
+                iterator: '1',
+                panelBodyValue: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores.'
+            }"
+        />
+        <f:render
+            section="tabItem"
+            arguments="{
+                identifier: identifier,
+                iterator: '2',
+                panelBodyValue: 'Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.',
+            }"
+        />
+    </div>
+</f:section>
+
+<f:section name="tabItem">
+    <div role="tabpanel" class="tab-pane{f:if(condition: '{iterator} == 1', then: ' active')}" id="{identifier}-{iterator}">
+        <div class="panel panel-tab">
+            <div class="panel-body">{f:if(condition: panelBodyValue, then: panelBodyValue, else: '...')}</div>
+        </div>
+    </div>
+</f:section>
+
+</html>

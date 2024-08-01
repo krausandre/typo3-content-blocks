@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Core\Database\Schema;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
 use TYPO3\CMS\Core\Package\PackageManager;
 
@@ -27,6 +28,7 @@ use TYPO3\CMS\Core\Package\PackageManager;
  *
  * @internal not part of public core API.
  */
+#[Autoconfigure(public: true)]
 class SqlReader
 {
     /**
@@ -81,10 +83,10 @@ class SqlReader
      * and there may only be one statement (or partial statement) per line.
      *
      * @param string $dumpContent The SQL dump content.
-     * @param string $queryRegex Regex to select which statements to return.
+     * @param string|null $queryRegex Regex to select which statements to return.
      * @return array Array of SQL statements
      */
-    public function getStatementArray(string $dumpContent, string $queryRegex = null): array
+    public function getStatementArray(string $dumpContent, ?string $queryRegex = null): array
     {
         $statementArray = [];
         $statementArrayPointer = 0;

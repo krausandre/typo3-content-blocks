@@ -102,9 +102,7 @@ class SuggestWizardDefaultReceiver
         $this->queryBuilder->getRestrictions()
             ->removeAll()
             ->add(GeneralUtility::makeInstance(DeletedRestriction::class))
-            // if table is versionized, only get the records from the Live Workspace
-            // the overlay itself of WS-records is done below
-            ->add(GeneralUtility::makeInstance(WorkspaceRestriction::class, 0));
+            ->add(GeneralUtility::makeInstance(WorkspaceRestriction::class, $this->getBackendUser()->workspace));
         $this->table = $table;
         $this->config = $config;
         // get a list of all the pages that should be looked on
@@ -112,7 +110,7 @@ class SuggestWizardDefaultReceiver
             $pageIds = GeneralUtility::intExplode(',', (string)$config['pidList'], true);
             $depth = (int)($config['pidDepth'] ?? 0);
             $availablePageIds = $this->getAvailablePageIds($pageIds, $depth);
-            $this->allowedPages = array_unique(array_merge($this->allowedPages, ...$availablePageIds));
+            $this->allowedPages = array_unique(array_merge($this->allowedPages, $availablePageIds));
         }
         if (isset($config['maxItemsInResultList'])) {
             $this->maxItems = $config['maxItemsInResultList'];

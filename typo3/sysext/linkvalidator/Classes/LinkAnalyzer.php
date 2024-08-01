@@ -16,6 +16,7 @@
 namespace TYPO3\CMS\Linkvalidator;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -35,6 +36,7 @@ use TYPO3\CMS\Linkvalidator\Repository\BrokenLinkRepository;
  * This class provides Processing plugin implementation
  * @internal
  */
+#[Autoconfigure(public: true)]
 class LinkAnalyzer
 {
     /**
@@ -175,7 +177,7 @@ class LinkAnalyzer
      */
     protected function checkLinks(array $links, array $linkTypes)
     {
-        foreach ($this->linktypeRegistry->getLinktypes() as $key => $hookObj) {
+        foreach ($this->linktypeRegistry->getLinktypes() as $key => $linkType) {
             if (!is_array($links[$key] ?? false) || (!in_array($key, $linkTypes, true))) {
                 continue;
             }
@@ -219,11 +221,11 @@ class LinkAnalyzer
                 }
 
                 $this->linkCounts[$table]++;
-                $checkUrl = $hookObj->checkLink($url, $entryValue, $this);
+                $checkUrl = $linkType->checkLink($url, $entryValue, $this);
 
                 // Broken link found
                 if (!$checkUrl) {
-                    $this->brokenLinkRepository->addBrokenLink($record, false, $hookObj->getErrorParams() ?: []);
+                    $this->brokenLinkRepository->addBrokenLink($record, false, $linkType->getErrorParams() ?: []);
                     $this->brokenLinkCounts[$table]++;
                 }
             }
@@ -310,12 +312,7 @@ class LinkAnalyzer
             $conf = $GLOBALS['TCA'][$table]['columns'][$field]['config'];
             $valueField = $record[$field];
 
-            // Add a softref definition for link fields if the TCA does not specify one already
-            // todo: check for 'type' => 'file' as well and update in documentation
-            // e.g. pages.media
-            if (($conf['type'] ?? '') === 'link' && empty($conf['softref'])) {
-                $conf['softref'] = 'typolink';
-            }
+            // @todo: check for 'type' => 'file' as well and update in documentation?
 
             // Check if a TCA configured field has soft references defined (see TYPO3 Core API document)
             if (!($conf['softref'] ?? false) || (string)$valueField === '') {
@@ -358,8 +355,8 @@ class LinkAnalyzer
                 continue;
             }
 
-            foreach ($this->linktypeRegistry->getLinktypes() as $keyArr => $hookObj) {
-                $type = $hookObj->fetchType($reference, $type, $keyArr);
+            foreach ($this->linktypeRegistry->getLinktypes() as $keyArr => $linkType) {
+                $type = $linkType->fetchType($reference, $type, $keyArr);
                 // Store the type that was found
                 // This prevents overriding by internal validator
                 if (!empty($type)) {
@@ -421,8 +418,8 @@ class LinkAnalyzer
             if (empty($currentR)) {
                 continue;
             }
-            foreach ($this->linktypeRegistry->getLinktypes() as $keyArr => $hookObj) {
-                $type = $hookObj->fetchType($currentR, $type, $keyArr);
+            foreach ($this->linktypeRegistry->getLinktypes() as $keyArr => $linkType) {
+                $type = $linkType->fetchType($currentR, $type, $keyArr);
                 // Store the type that was found
                 // This prevents overriding by internal validator
                 if (!empty($type)) {

@@ -28,12 +28,12 @@
 
     <f:if condition="!{accessContent}">
         <f:then>
-            <f:be.infobox state="-1" message="{f:translate(key: 'LLL:EXT:backend/Resources/Private/Language/locallang_pagetsconfig.xlf:module.pagetsconfig.noAccess')}" />
+            <f:be.infobox state="{f:constant(name: 'TYPO3\CMS\Fluid\ViewHelpers\Be\InfoboxViewHelper::STATE_INFO')}" message="{f:translate(key: 'LLL:EXT:backend/Resources/Private/Language/locallang_pagetsconfig.xlf:module.pagetsconfig.noAccess')}" />
         </f:then>
         <f:else>
             <f:if condition="!{overviewOfPagesUsingTSConfig}">
                 <f:then>
-                    <f:be.infobox state="-1" message="{f:translate(key: 'LLL:EXT:backend/Resources/Private/Language/locallang_pagetsconfig.xlf:module.pagetsconfig_pages.noRecords')}" />
+                    <f:be.infobox state="{f:constant(name: 'TYPO3\CMS\Fluid\ViewHelpers\Be\InfoboxViewHelper::STATE_INFO')}" message="{f:translate(key: 'LLL:EXT:backend/Resources/Private/Language/locallang_pagetsconfig.xlf:module.pagetsconfig_pages.noRecords')}" />
                 </f:then>
                 <f:else>
                     <div class="table-fit">
@@ -55,6 +55,7 @@
                                                     data-contextmenu-trigger="click"
                                                     data-contextmenu-table="pages"
                                                     data-contextmenu-uid="{line.title}"
+                                                    aria-label="{f:translate(key: 'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.contextMenu.open')}"
                                                 >
                                                     <span title="id={line.title}">
                                                         <f:format.raw>{line.icon}</f:format.raw>

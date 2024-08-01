@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace TYPO3\CMS\Seo\MetaTag;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Imaging\ImageManipulation\CropVariantCollection;
 use TYPO3\CMS\Core\MetaTag\MetaTagManagerRegistry;
 use TYPO3\CMS\Core\Resource\FileInterface;
@@ -32,6 +33,7 @@ use TYPO3\CMS\Frontend\Resource\FileCollector;
  *
  * @internal
  */
+#[Autoconfigure(public: true)]
 readonly class MetaTagGenerator
 {
     public function __construct(
@@ -44,6 +46,8 @@ readonly class MetaTagGenerator
      */
     public function generate(array $params)
     {
+        $twitterCardTagRequired = false;
+
         /** @var ServerRequestInterface $request */
         $request = $params['request'];
         $pageRecord = $request->getAttribute('frontend.page.information')->getPageRecord();
@@ -53,11 +57,13 @@ readonly class MetaTagGenerator
         }
 
         if (!empty($pageRecord['og_title'])) {
+            $twitterCardTagRequired = true;
             $manager = $this->metaTagManagerRegistry->getManagerForProperty('og:title');
             $manager->addProperty('og:title', $pageRecord['og_title']);
         }
 
         if (!empty($pageRecord['og_description'])) {
+            $twitterCardTagRequired = true;
             $manager = $this->metaTagManagerRegistry->getManagerForProperty('og:description');
             $manager->addProperty('og:description', $pageRecord['og_description']);
         }
@@ -69,6 +75,7 @@ readonly class MetaTagGenerator
 
             $ogImages = $this->generateSocialImages($fileCollector->getFiles());
             foreach ($ogImages as $ogImage) {
+                $twitterCardTagRequired = true;
                 $subProperties = [];
                 $subProperties['url'] = $ogImage['url'];
                 $subProperties['width'] = $ogImage['width'];
@@ -86,15 +93,14 @@ readonly class MetaTagGenerator
             }
         }
 
-        $manager = $this->metaTagManagerRegistry->getManagerForProperty('twitter:card');
-        $manager->addProperty('twitter:card', $pageRecord['twitter_card'] ?: 'summary');
-
         if (!empty($pageRecord['twitter_title'])) {
+            $twitterCardTagRequired = true;
             $manager = $this->metaTagManagerRegistry->getManagerForProperty('twitter:title');
             $manager->addProperty('twitter:title', $pageRecord['twitter_title']);
         }
 
         if (!empty($pageRecord['twitter_description'])) {
+            $twitterCardTagRequired = true;
             $manager = $this->metaTagManagerRegistry->getManagerForProperty('twitter:description');
             $manager->addProperty('twitter:description', $pageRecord['twitter_description']);
         }
@@ -106,6 +112,7 @@ readonly class MetaTagGenerator
 
             $twitterImages = $this->generateSocialImages($fileCollector->getFiles());
             foreach ($twitterImages as $twitterImage) {
+                $twitterCardTagRequired = true;
                 $subProperties = [];
 
                 if (!empty($twitterImage['alternative'])) {
@@ -118,6 +125,12 @@ readonly class MetaTagGenerator
                     $subProperties
                 );
             }
+        }
+
+        $twitterCard = $pageRecord['twitter_card'] ?: ($twitterCardTagRequired ? 'summary' : '');
+        if (!empty($twitterCard)) {
+            $manager = $this->metaTagManagerRegistry->getManagerForProperty('twitter:card');
+            $manager->addProperty('twitter:card', $twitterCard);
         }
 
         $noIndex = ($pageRecord['no_index']) ? 'noindex' : 'index';

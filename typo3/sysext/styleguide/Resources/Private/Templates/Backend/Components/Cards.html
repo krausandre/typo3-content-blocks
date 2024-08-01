@@ -1,0 +1,393 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:sg="http://typo3.org/ns/TYPO3/CMS/Styleguide/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+
+    <f:render
+        partial="Backend/Navigation"
+        arguments="{
+            currentAction: currentAction,
+            actions: actions,
+            route: routeIdentifier
+        }"
+    />
+
+    <div class="styleguide-content">
+        <h1><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.headline" /></h1>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.introtext" /></p>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.default.headline" /></h2>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.default.text" /></p>
+
+        <f:variable name="codeSnippetDefault">
+            <f:render
+                section="cardItem"
+                arguments="{
+                    showIcon: 1,
+                    showSubtitle: 1,
+                    showLink: 1,
+                    decodeEntities: 1
+                }"
+            />
+        </f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetDefault}" decodeEntities="true">
+            <f:render
+                section="cardItem"
+                arguments="{
+                    showIcon: 1,
+                    showSubtitle: 1,
+                    showLink: 1,
+                    cardTextValue: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.'
+                }"
+            />
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.multipleCards.headline" /></h2>
+        <p>
+            <f:sanitize.html><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.multipleCards.text" /></f:sanitize.html>
+        </p>
+        <f:variable name="codeSnippetMultiple">
+            <div class="card-container">
+                <div class="card card-size-small">...</div>
+                <div class="card card-size-small">...</div>
+                <div class="card card-size-small">...</div>
+            </div>
+        </f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetMultiple}">
+            <div class="card-container">
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Item 1',
+                        cardTextValue: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.',
+                        cardSize: 'card-size-small'
+                    }"
+                />
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Item 2',
+                        cardTextValue: 'Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.',
+                        cardSize: 'card-size-small'
+                    }"
+                />
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Item 3 - with a longer text that requires multiple lines',
+                        cardTextValue: 'Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.',
+                        cardSize: 'card-size-small'
+                    }"
+                />
+            </div>
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.alignment.headline" /></h2>
+        <p>
+            <f:sanitize.html><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.alignment.text" /></f:sanitize.html>
+        </p>
+        <sg:example>
+            <div class="card-container">
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        showLink: 1,
+                        cardTextValue: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.',
+                        cardSize: 'card-size-small'
+                    }"
+                />
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        showLink: 1,
+                        cardTextValue: 'At vero eos et accusam et justo duo dolores et ea rebum.',
+                        cardSize: 'card-size-small'
+                    }"
+                />
+            </div>
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.size.headline" /></h2>
+        <p>
+            <f:sanitize.html><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.size.text" /></f:sanitize.html>
+        </p>
+        <sg:example>
+            <div class="card-container">
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Small size (<code>.card-size-small</code>)',
+                        cardTextValue: 'The card has a width of 25% of the card container.',
+                        cardSize: 'card-size-small'
+                    }"
+                />
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Small size (<code>.card-size-small</code>)',
+                        cardTextValue: 'The card has a width of 25% of the card container.',
+                        cardSize: 'card-size-small'
+                    }"
+                />
+            </div>
+
+            <div class="card-container">
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Medium size (<code>.card-size-medium</code>)',
+                        cardTextValue: 'The card has a width of 50% of the card container.',
+                        cardSize: 'card-size-medium'
+                    }"
+                />
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Medium size (<code>.card-size-medium</code>)',
+                        cardTextValue: 'The card has a width of 50% of the card container.',
+                        cardSize: 'card-size-medium'
+                    }"
+                />
+            </div>
+
+            <div class="card-container">
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Large size (<code>.card-size-large</code>)',
+                        cardTextValue: 'The card has a width of 100% of the card container.',
+                        cardSize: 'card-size-large'
+                    }"
+                />
+            </div>
+
+            <div class="card-container">
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Fixed small size (<code>.card-size-fixed-small</code>)',
+                        cardTextValue: 'The card keeps a fixed small size in all viewports.',
+                        cardSize: 'card-size-fixed-small'
+                    }"
+                />
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Fixed small size (<code>.card-size-fixed-small</code>)',
+                        cardTextValue: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.',
+                        cardSize: 'card-size-fixed-small'
+                    }"
+                />
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Fixed small size (<code>.card-size-fixed-small</code>)',
+                        cardTextValue: 'At vero eos et accusam et justo duo dolores et ea rebum.',
+                        cardSize: 'card-size-fixed-small'
+                    }"
+                />
+                <f:render
+                    section="cardItem"
+                    arguments="{
+                        cardTitle: 'Fixed small size (<code>.card-size-fixed-small</code>)',
+                        cardTextValue: 'Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.',
+                        cardSize: 'card-size-fixed-small'
+                    }"
+                />
+            </div>
+        </sg:example>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.color.headline" /></h2>
+        <p>
+            <f:sanitize.html><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.color.text" /></f:sanitize.html>
+        </p>
+        <f:variable name="codeSnippetColor">
+            <f:for each="{variants}" as="variant">
+            card-{variant}
+            </f:for>
+        </f:variable>
+        <sg:example codePreview="true" codeLanguage="html" customCode="{codeSnippetColor}">
+            <div class="card-container">
+                <f:for each="{variants}" as="variant">
+                    <f:render
+                        section="cardItem"
+                        arguments="{
+                            cardTitle: '{variant}',
+                            cardTextValue: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
+                            cardSize: 'card-size-small card-{variant}'
+                        }"
+                    />
+                </f:for>
+            </div>
+        </sg:example>
+
+        <hr>
+
+        <h2><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:section.frontend.headline" /></h2>
+
+        <h3><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.formFieldsInCards.headline" /></h3>
+        <f:variable name="UriExtensionManagerModule" value="{f:be.uri(route: 'extensionmanager')}" />
+        <f:variable name="UriSettingsModule" value="{f:be.uri(route: 'tools_toolssettings')}" />
+        <f:variable name="UriDBCheckModule" value="{f:be.uri(route: 'system_dbint')}" />
+        <p>
+            <f:sanitize.html>
+                <f:translate
+                    key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.formFieldsInCards.text"
+                    arguments="{
+                        0: '{UriExtensionManagerModule}',
+                        1: '{UriSettingsModule}',
+                        2: '{UriDBCheckModule}'
+                    }"
+                />
+            </f:sanitize.html>
+        </p>
+
+        <sg:example>
+            <form>
+                <div class="card-container">
+                    <div class="card card-size-large">
+                        <div class="card-header">
+                            <h4>Headline</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" value="1" name="" id="formFieldId" checked="checked">
+                                <label class="form-check-label" for="formFieldId">
+                                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.<br>
+                                    <strong>Default setting: Disabled</strong>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </sg:example>
+
+        <h3><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.rowsInCards.headline" /></h3>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.rowsInCards.text" /></p>
+        <sg:example>
+            <div class="card-container">
+                <div class="card card-size-medium">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <core:icon identifier="module-styleguide" size="small" />
+                        </div>
+                        <div class="card-header-body">
+                            <h3 class="card-title">Menu sitemap pages<code>[70]</code></h3>
+                            <span class="card-subtitle">Page Content</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Created At</strong><br>
+                                01-01-70 00:00
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Last Modified</strong><br>
+                                01-01-70 00:00
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </sg:example>
+
+        <h4><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.extensionManangerModule.headline" /></h4>
+        <p><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:component.card.section.extensionManangerModule.text" /></p>
+
+        <sg:colorScheme>
+            <div class="card-container">
+                <div class="card card-size-fixed-small">
+                    <div class="card-image">
+                        <a href="#" class="distribution-image">
+                            <f:image src="EXT:styleguide/Resources/Public/Images/ExtensionManagerDistribution.svg" />
+                        </a>
+                        <div class="card-image-badge">
+                            <span class="badge badge-success">0.0.0 - 99.9.99</span>
+                        </div>
+                        <div class="distribution-official-badge">
+                            <f:image
+                                src="EXT:styleguide/Resources/Public/Images/ExtensionManagerOfficialBadge.svg"
+                                height="64"
+                                width="64"
+                            />
+                        </div>
+                    </div>
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <a href="#">Title of the pre-configured distribution</a>
+                        </h3>
+                        <span class="card-subtitle">Category</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
+                            ut labore et dolore magna aliquyam erat, sed diam voluptua.
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="#" class="btn btn-default">
+                            <core:icon identifier="actions-system-extension-import" /> Install
+                        </a>
+                        <a href="#" class="btn btn-link">Show Details</a>
+                    </div>
+                </div>
+            </div>
+        </sg:colorScheme>
+
+        <h3><f:translate key="LLL:EXT:styleguide/Resources/Private/Language/locallang.xlf:section.colorScheme.headline" /></h3>
+        <sg:colorScheme>
+            <div class="card-container">
+                <f:for each="{variants}" as="variant">
+                    <f:render
+                        section="cardItem"
+                        arguments="{
+                            showSubtitle: 1,
+                            showLink: 1,
+                            cardTitle: '{variant}',
+                            cardTextValue: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr.',
+                            cardSize: 'card-size-small card-{variant}'
+                        }"
+                    />
+                </f:for>
+            </div>
+        </sg:colorScheme>
+    </div>
+
+</f:section>
+
+<f:section name="cardItem">
+    <div class="card{f:if(condition: cardSize, then: ' {cardSize}')}">
+        <div class="card-header">
+            <f:if condition="{showIcon}">
+            <div class="card-icon">
+                <f:if condition="{decodeEntities}">
+                    <f:then>&lt;core:icon identifier="module-styleguide" size="large" /&gt;</f:then>
+                    <f:else><core:icon identifier="module-styleguide" size="large" /></f:else>
+                </f:if>
+            </div>
+            </f:if>
+            <div class="card-header-body">
+                <h2 class="card-title"><f:sanitize.html>{f:if(condition: cardTitle, then: '{cardTitle -> f:format.raw()}', else: 'Headline')}</f:sanitize.html></h2>
+                <f:if condition="{showSubtitle}"><span class="card-subtitle">Subtitle</span></f:if>
+            </div>
+        </div>
+        <div class="card-body">
+            <p class="card-text">{f:if(condition: cardTextValue, then: cardTextValue, else: '...')}</p>
+        </div>
+        <f:if condition="{showLink}">
+        <div class="card-footer">
+            <a href="#" class="btn btn-default">Link title</a>
+        </div>
+        </f:if>
+    </div>
+</f:section>
+
+</html>

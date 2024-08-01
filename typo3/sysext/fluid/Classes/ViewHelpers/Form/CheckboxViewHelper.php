@@ -70,11 +70,6 @@ final class CheckboxViewHelper extends AbstractFormFieldViewHelper
     public function initializeArguments(): void
     {
         parent::initializeArguments();
-        $this->registerTagAttribute(
-            'disabled',
-            'string',
-            'Specifies that the input element should be disabled when the page loads'
-        );
         $this->registerArgument(
             'errorClass',
             'string',
@@ -82,8 +77,7 @@ final class CheckboxViewHelper extends AbstractFormFieldViewHelper
             false,
             'f3-form-error'
         );
-        $this->overrideArgument('value', 'string', 'Value of input tag. Required for checkboxes', true);
-        $this->registerUniversalTagAttributes();
+        $this->registerArgument('value', 'string', 'Value of input tag. Required for checkboxes', true);
         $this->registerArgument('checked', 'bool', 'Specifies that the input element should be preselected');
         $this->registerArgument('multiple', 'bool', 'Specifies whether this checkbox belongs to a multivalue (is part of a checkbox group)', false, false);
     }

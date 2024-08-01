@@ -304,15 +304,23 @@ class ImageManipulation {
       'click',
       (evt: Event, target: HTMLElement): void => {
         const ratioId: string = target.dataset.bsOption;
-        const temp: CropVariant = Object.assign({}, this.currentCropVariant);
-        const ratio: Ratio = temp.allowedAspectRatios[ratioId];
-        this.setAspectRatio(ratio);
-        // set data explicitly or setAspectRatio upscales the crop
-        this.setCropArea(temp.cropArea);
-        this.currentCropVariant = Object.assign({}, temp, { selectedRatio: ratioId });
-        this.update(this.currentCropVariant);
+        this.handleAspectRatioChange(ratioId);
       }
     ).delegateTo(this.currentModal, 'label[data-method=setAspectRatio]');
+
+    new RegularEvent('keydown', (evt: KeyboardEvent, target: HTMLElement): void => {
+      if (!['Enter', 'Space'].includes(evt.code)) {
+        return;
+      }
+      evt.preventDefault();
+      evt.stopImmediatePropagation();
+
+      const setAspectRatioLabel = target.closest('label[data-method="setAspectRatio"]') as HTMLElement;
+      const ratioId: string = setAspectRatioLabel.dataset.bsOption;
+
+      setAspectRatioLabel.querySelector('input').checked = true;
+      this.handleAspectRatioChange(ratioId);
+    }).delegateTo(this.currentModal, 'label[data-method="setAspectRatio"] input[type="radio"]');
 
     /**
      * Assign EventListener to saveButton
@@ -400,6 +408,7 @@ class ImageManipulation {
       );
       const variant: CropVariant = Object.assign({}, this.data[cropVariantId], { cropArea });
       this.updatePreviewThumbnail(variant, elem);
+      this.currentModal.querySelector(`[data-crop-variant-container="${variant.id}"]`)?.querySelector(`[data-bs-option="${variant.selectedRatio}"]`)?.classList.add('active');
     });
 
     this.currentCropVariant.cropArea = this.convertRelativeToAbsoluteCropArea(
@@ -475,6 +484,17 @@ class ImageManipulation {
     this.cropInfo.innerText = `${naturalWidth}×${naturalHeight} px`;
   };
 
+  private handleAspectRatioChange(ratioId: string): void {
+    const temp: CropVariant = Object.assign({}, this.currentCropVariant);
+    const ratio: Ratio = temp.allowedAspectRatios[ratioId];
+    this.setAspectRatio(ratio);
+    // set data explicitly or setAspectRatio upscales the crop
+    this.setCropArea(temp.cropArea);
+    this.currentCropVariant = Object.assign({}, temp, { selectedRatio: ratioId });
+
+    this.update(this.currentCropVariant);
+  }
+
   /**
    * @desc Update current cropArea position and size when changing cropVariants
    * @param {CropVariant} cropVariant - The new cropVariant to update the UI with
@@ -482,15 +502,20 @@ class ImageManipulation {
   private update(cropVariant: CropVariant): void {
     const temp: CropVariant = Object.assign({}, cropVariant);
     const selectedRatio: Ratio = cropVariant.allowedAspectRatios[cropVariant.selectedRatio];
-    this.currentModal.querySelector('[data-bs-option].active')?.classList.remove('active');
-    this.currentModal.querySelector(`[data-bs-option="${cropVariant.selectedRatio}"]`)?.classList.add('active');
+
+    // Set cropInfo to current container context
+    this.cropInfo = this.currentModal.querySelector(`[data-crop-variant-container="${cropVariant.id}"]`)?.querySelector(this.cropInfoSelector);
+    // highlight the currently selected ratio of the active cropping variant
+    this.currentModal.querySelector(`[data-crop-variant-container="${cropVariant.id}"]`)?.querySelector('[data-bs-option].active')?.classList.remove('active');
+    this.currentModal.querySelector(`[data-crop-variant-container="${cropVariant.id}"]`)?.querySelector(`[data-bs-option="${cropVariant.selectedRatio}"]`)?.classList.add('active');
+
     /**
      * Setting the aspect ratio cause a redraw of the crop area so we need to manually reset it to last data
      */
     this.setAspectRatio(selectedRatio);
     this.setCropArea(temp.cropArea);
     this.currentCropVariant = Object.assign({}, temp, cropVariant);
-    this.cropBox?.querySelector(this.coverAreaSelector)?.remove();
+    this.cropBox?.querySelectorAll(this.coverAreaSelector)?.forEach((el: HTMLElement) => el.remove());
 
     // if the current container has a focus area element, deregister and cleanup prior to initialization
     if (this.cropBox?.querySelectorAll(this.focusAreaSelector)?.length > 0) {

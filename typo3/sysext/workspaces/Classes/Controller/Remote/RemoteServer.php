@@ -19,6 +19,7 @@ namespace TYPO3\CMS\Workspaces\Controller\Remote;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Backend\Backend\Avatar\Avatar;
 use TYPO3\CMS\Backend\Form\FormDataCompiler;
 use TYPO3\CMS\Backend\Form\FormDataGroup\TcaDatabaseRecord;
@@ -51,6 +52,7 @@ use TYPO3\CMS\Workspaces\Service\WorkspaceService;
 /**
  * @internal This is a specific Backend Controller implementation and is not considered part of the Public TYPO3 API.
  */
+#[Autoconfigure(public: true)]
 class RemoteServer
 {
     use LogDataTrait;
@@ -62,6 +64,7 @@ class RemoteServer
         protected readonly EventDispatcherInterface $eventDispatcher,
         private readonly FormDataCompiler $formDataCompiler,
         protected readonly FlexFormValueFormatter $flexFormValueFormatter,
+        private readonly DiffUtility $diffUtility,
     ) {}
 
     /**
@@ -116,14 +119,12 @@ class RemoteServer
      */
     public function getRowDetails($parameter, ServerRequestInterface $request)
     {
-        $diffUtility = GeneralUtility::makeInstance(DiffUtility::class);
         $diffReturnArray = [];
         $liveReturnArray = [];
         $liveRecord = (array)BackendUtility::getRecord($parameter->table, $parameter->t3ver_oid);
         $versionRecord = (array)BackendUtility::getRecord($parameter->table, $parameter->uid);
         $versionState = VersionState::tryFrom($versionRecord['t3ver_state'] ?? 0);
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $iconLive = $iconFactory->getIconForRecord($parameter->table, $liveRecord, IconSize::SMALL);
         $iconWorkspace = $iconFactory->getIconForRecord($parameter->table, $versionRecord, IconSize::SMALL);
         $stagePosition = $this->stagesService->getPositionOfCurrentStage($parameter->stage);
         $fieldsOfRecords = array_keys($liveRecord);
@@ -208,8 +209,8 @@ class RemoteServer
                         'field' => $fieldName,
                         'label' => $fieldTitle,
                         'content' => $versionState === VersionState::NEW_PLACEHOLDER
-                            ? $diffUtility->makeDiffDisplay('', $newOrDeleteRecord[$fieldName], $granularity)
-                            : $diffUtility->makeDiffDisplay($newOrDeleteRecord[$fieldName], '', $granularity),
+                            ? $this->diffUtility->diff('', strip_tags($newOrDeleteRecord[$fieldName]), $granularity)
+                            : $this->diffUtility->diff(strip_tags($newOrDeleteRecord[$fieldName]), '', $granularity),
                     ];
 
                     // Generally not needed by Core, but let's make it available for further processing in hooks
@@ -222,13 +223,9 @@ class RemoteServer
                     // Select the human-readable values before diff
                     $liveRecord[$fieldName] = $this->formatValue($parameter->table, $fieldName, (string)$liveRecord[$fieldName], $liveRecord['uid'], $configuration);
                     $versionRecord[$fieldName] = $this->formatValue($parameter->table, $fieldName, (string)$versionRecord[$fieldName], $versionRecord['uid'], $configuration);
-                    $granularity = ($configuration['type'] ?? '') === 'flex' ? DiffGranularity::CHARACTER : DiffGranularity::WORD;
-                    $fieldDifferences = $diffUtility->makeDiffDisplay(
-                        $liveRecord[$fieldName],
-                        $versionRecord[$fieldName],
-                        $granularity
-                    );
-
+                    $fieldDifferences = ($configuration['type'] ?? '') === 'flex'
+                        ? $this->diffUtility->diff(strip_tags($liveRecord[$fieldName]), strip_tags($versionRecord[$fieldName]), DiffGranularity::CHARACTER)
+                        : $this->diffUtility->diff(strip_tags($liveRecord[$fieldName]), strip_tags($versionRecord[$fieldName]));
                     $diffReturnArray[] = [
                         'field' => $fieldName,
                         'label' => $fieldTitle,
@@ -322,14 +319,14 @@ class RemoteServer
         $substitutes = [];
 
         // Process live references
-        foreach ($liveFileReferences as $identifier => $liveFileReference) {
+        foreach ($liveFileReferences as $liveFileReference) {
             $identifierWithRandomValue = $randomValue . '__' . $liveFileReference->getUid() . '__' . $randomValue;
             $candidates[$identifierWithRandomValue] = $liveFileReference;
             $liveValues[] = $identifierWithRandomValue;
         }
 
         // Process version references
-        foreach ($versionFileReferences as $identifier => $versionFileReference) {
+        foreach ($versionFileReferences as $versionFileReference) {
             $identifierWithRandomValue = $randomValue . '__' . $versionFileReference->getUid() . '__' . $randomValue;
             $candidates[$identifierWithRandomValue] = $versionFileReference;
             $versionValues[] = $identifierWithRandomValue;
@@ -362,8 +359,7 @@ class RemoteServer
             }
         }
 
-        $diffUtility = GeneralUtility::makeInstance(DiffUtility::class);
-        $differences = $diffUtility->makeDiffDisplay($liveInformation, $versionInformation);
+        $differences = $this->diffUtility->diff(strip_tags($liveInformation), strip_tags($versionInformation));
         $liveInformation = str_replace(array_keys($substitutes), array_values($substitutes), trim($liveInformation));
         $differences = str_replace(array_keys($substitutes), array_values($substitutes), trim($differences));
 

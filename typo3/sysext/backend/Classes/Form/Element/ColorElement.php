@@ -80,6 +80,7 @@ class ColorElement extends AbstractFormElement
             MathUtility::forceIntegerInRange($config['size'] ?? $this->defaultInputWidth, $this->minimumInputWidth, $this->maxInputWidth)
         );
         $fieldId = StringUtility::getUniqueId('formengine-input-');
+        $itemName = (string)$parameterArray['itemFormElName'];
         $renderedLabel = $this->renderLabel($fieldId);
 
         $fieldInformationResult = $this->renderFieldInformation();
@@ -94,7 +95,7 @@ class ColorElement extends AbstractFormElement
             $html[] =   '<div class="form-wizards-wrap">';
             $html[] =       '<div class="form-wizards-element">';
             $html[] =           '<div class="form-control-wrap" style="max-width: ' . $width . 'px">';
-            $html[] =               '<input class="form-control" id="' . htmlspecialchars($fieldId) . '" value="' . htmlspecialchars((string)$itemValue) . '" type="text" disabled>';
+            $html[] =               '<input class="form-control" id="' . htmlspecialchars($fieldId) . '" name="' . htmlspecialchars($itemName) . '" value="' . htmlspecialchars((string)$itemValue) . '" type="text" disabled>';
             $html[] =           '</div>';
             $html[] =       '</div>';
             $html[] =   '</div>';
@@ -104,13 +105,13 @@ class ColorElement extends AbstractFormElement
         }
 
         $languageService = $this->getLanguageService();
-        $itemName = (string)$parameterArray['itemFormElName'];
 
         // Always add "trim".
         $evalList = ['trim'];
         if ($config['nullable'] ?? false) {
             $evalList[] = 'null';
         }
+        $opacityEnabled = (bool)($config['opacity'] ?? false);
 
         $attributes = [
             'value' => '',
@@ -118,9 +119,8 @@ class ColorElement extends AbstractFormElement
             'class' => implode(' ', [
                 'form-control',
                 't3js-color-picker',
-                'hasDefaultValue',
             ]),
-            'maxlength' => '7', // #XXXXXX (/#[0-9a-fA-F]{3,6}/)
+            'maxlength' => $opacityEnabled ? 9 : 7, // #RRGGBBAA (/#[0-9a-fA-F]{3,6}([0-9]{2})?/)
             'data-formengine-validation-rules' => $this->getValidationDataAsJsonString($config),
             'data-formengine-input-params' => (string)json_encode([
                 'field' => $itemName,
@@ -256,6 +256,7 @@ class ColorElement extends AbstractFormElement
         $attributes = [
             'recordFieldId' => $fieldId,
             'colorPalette' => implode(';', array_unique(array_filter($colorDefinitions))),
+            'opacity' => $opacityEnabled,
         ];
 
         $resultArray['html'] = $renderedLabel . '

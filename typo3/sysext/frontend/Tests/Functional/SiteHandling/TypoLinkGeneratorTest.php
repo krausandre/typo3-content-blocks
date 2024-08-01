@@ -24,13 +24,12 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Resource\Index\Indexer;
 use TYPO3\CMS\Core\Resource\StorageRepository;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Tests\Functional\SiteHandling\Fixtures\LinkHandlingController;
 use TYPO3\CMS\Frontend\Tests\Functional\SiteHandling\Fixtures\TestSanitizerBuilder;
 use TYPO3\TestingFramework\Core\Functional\Framework\DataHandling\Scenario\DataHandlerFactory;
 use TYPO3\TestingFramework\Core\Functional\Framework\DataHandling\Scenario\DataHandlerWriter;
-use TYPO3\TestingFramework\Core\Functional\Framework\Frontend\Internal\AbstractInstruction;
 use TYPO3\TestingFramework\Core\Functional\Framework\Frontend\Internal\ArrayValueInstruction;
+use TYPO3\TestingFramework\Core\Functional\Framework\Frontend\Internal\InstructionInterface;
 use TYPO3\TestingFramework\Core\Functional\Framework\Frontend\Internal\TypoScriptInstruction;
 use TYPO3\TestingFramework\Core\Functional\Framework\Frontend\InternalRequest;
 
@@ -63,7 +62,7 @@ final class TypoLinkGeneratorTest extends AbstractTestCase
             $writer = DataHandlerWriter::withBackendUser($backendUser);
             $writer->invokeFactory($factory);
             static::failIfArrayIsNotEmpty($writer->getErrors());
-            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('pages');
+            $connection = $this->get(ConnectionPool::class)->getConnectionForTable('pages');
             $connection->update(
                 'pages',
                 ['TSconfig' => implode(chr(10), [
@@ -80,7 +79,7 @@ final class TypoLinkGeneratorTest extends AbstractTestCase
 
     private function setUpFileStorage(): void
     {
-        $storageRepository = GeneralUtility::makeInstance(StorageRepository::class);
+        $storageRepository = $this->get(StorageRepository::class);
         $storageId = $storageRepository->createLocalStorage(
             'fileadmin',
             'fileadmin/',
@@ -495,7 +494,8 @@ final class TypoLinkGeneratorTest extends AbstractTestCase
         return [
             [
                 't3://page?uid=9911',
-                '<a href="/test/good">&lt;good&gt;</a>',
+                // the Masterminds parser (via sanitizer) expands this to `<good></good>`
+                '<a href="/test/good">&lt;good&gt;&lt;/good&gt;</a>',
                 false,
             ],
             [
@@ -505,7 +505,8 @@ final class TypoLinkGeneratorTest extends AbstractTestCase
             ],
             [
                 't3://page?uid=9912',
-                '<a href="/test/good-a-b-spaced">&lt;good a=&quot;a/&quot; b=&quot;thing(1)&quot;&gt;</a>',
+                // the Masterminds parser (via sanitizer) expands this to `<good ...></good>`
+                '<a href="/test/good-a-b-spaced">&lt;good a="a/" b="thing(1)"&gt;&lt;/good&gt;</a>',
                 false,
             ],
             [
@@ -515,7 +516,8 @@ final class TypoLinkGeneratorTest extends AbstractTestCase
             ],
             [
                 't3://page?uid=9913',
-                '<a href="/test/good-a-b-enc-a">&lt;good%20a=&quot;a/&quot;%20b=&quot;thing(1)&quot;&gt;</a>',
+                // the Masterminds parser (via sanitizer) ignores the invalid `%20a=... %20b=...` arguments
+                '<a href="/test/good-a-b-enc-a">&lt;good&gt;&lt;/good&gt;</a>',
                 false,
             ],
             [
@@ -525,7 +527,8 @@ final class TypoLinkGeneratorTest extends AbstractTestCase
             ],
             [
                 't3://page?uid=9914',
-                '<a href="/test/good-a-b-enc-b">&lt;good/a=&quot;a/&quot;/b=&quot;thing(1)&quot;&gt;</a>',
+                // the Masterminds parser (via sanitizer) converts the invalid delimiter token `/` to spaces
+                '<a href="/test/good-a-b-enc-b">&lt;good a="a/" b="thing(1)"&gt;&lt;/good&gt;</a>',
                 false,
             ],
             [
@@ -535,11 +538,12 @@ final class TypoLinkGeneratorTest extends AbstractTestCase
             ],
             [
                 't3://page?uid=9921',
-                '<a href="/test/bad">&lt;bad&gt;</a>',
+                '<a href="/test/bad">&lt;bad&gt;&lt;/bad&gt;</a>',
                 false,
             ],
             [
                 't3://page?uid=9921',
+                // the Masterminds parser (via sanitizer) expands this to `<bad></bad>`
                 '<a href="/test/bad">&lt;bad&gt;</a>',
                 true,
             ],
@@ -628,10 +632,9 @@ final class TypoLinkGeneratorTest extends AbstractTestCase
         self::assertSame($expectation, (string)$response->getBody());
     }
 
-    private function invokeTypoLink(string $parameter, AbstractInstruction ...$instructions): ResponseInterface
+    private function invokeTypoLink(string $parameter, InstructionInterface ...$instructions): ResponseInterface
     {
         $sourcePageId = 1100;
-
         $request = (new InternalRequest('https://acme.us/'))
             ->withPageId($sourcePageId)
             ->withInstructions(
@@ -650,11 +653,9 @@ final class TypoLinkGeneratorTest extends AbstractTestCase
                     ]),
                 ]
             );
-
         if (count($instructions) > 0) {
             $request = $this->applyInstructions($request, ...$instructions);
         }
-
         return $this->executeFrontendSubRequest($request);
     }
 

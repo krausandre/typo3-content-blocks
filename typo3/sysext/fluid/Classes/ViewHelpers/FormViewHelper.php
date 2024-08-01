@@ -110,7 +110,7 @@ class FormViewHelper extends AbstractFormViewHelper
     {
         parent::initializeArguments();
         $this->registerArgument('action', 'string', 'Target action');
-        $this->registerArgument('arguments', 'array', 'Arguments', false, []);
+        $this->registerArgument('arguments', 'array', 'Arguments (do not use reserved keywords "action", "controller" or "format" if not referring to these internal variables specifically)', false, []);
         $this->registerArgument('controller', 'string', 'Target controller');
         $this->registerArgument('extensionName', 'string', 'Target Extension Name (without `tx_` prefix and no underscores). If NULL the current extension name is used');
         $this->registerArgument('pluginName', 'string', 'Target plugin. If empty, the current plugin name is used');
@@ -130,14 +130,9 @@ class FormViewHelper extends AbstractFormViewHelper
         $this->registerArgument('hiddenFieldClassName', 'string', 'hiddenFieldClassName');
         $this->registerArgument('requestToken', 'mixed', 'whether to add that request token to the form');
         $this->registerArgument('signingType', 'string', 'which signing type to be used on the request token (falls back to "nonce")');
-        $this->registerTagAttribute('enctype', 'string', 'MIME type with which the form is submitted');
-        $this->registerTagAttribute('method', 'string', 'Transfer type (get or post)', false, 'post');
-        $this->registerTagAttribute('name', 'string', 'Name of form');
-        $this->registerTagAttribute('onreset', 'string', 'JavaScript: On reset of the form');
-        $this->registerTagAttribute('onsubmit', 'string', 'JavaScript: On submit of the form');
-        $this->registerTagAttribute('target', 'string', 'Target attribute of the form');
-        $this->registerTagAttribute('novalidate', 'bool', 'Indicate that the form is not to be validated on submit.');
-        $this->registerUniversalTagAttributes();
+        $this->registerArgument('method', 'string', 'Transfer type (get or post)', false, 'post');
+        $this->registerArgument('name', 'string', 'Name of form');
+        $this->registerArgument('novalidate', 'bool', 'Indicate that the form is not to be validated on submit.');
     }
 
     public function render(): string
@@ -159,6 +154,10 @@ class FormViewHelper extends AbstractFormViewHelper
             $this->tag->addAttribute('method', 'get');
         } else {
             $this->tag->addAttribute('method', 'post');
+        }
+
+        if (!empty($this->arguments['name'])) {
+            $this->tag->addAttribute('name', $this->arguments['name']);
         }
 
         if (isset($this->arguments['novalidate']) && $this->arguments['novalidate'] === true) {
@@ -283,9 +282,9 @@ class FormViewHelper extends AbstractFormViewHelper
         ];
 
         $result = LF;
-        $result .= '<input type="hidden" name="' . htmlspecialchars($this->prefixFieldName('__referrer[@extension]')) . '" value="' . htmlspecialchars((string)$extensionName) . '" />' . LF;
-        $result .= '<input type="hidden" name="' . htmlspecialchars($this->prefixFieldName('__referrer[@controller]')) . '" value="' . htmlspecialchars((string)$controllerName) . '" />' . LF;
-        $result .= '<input type="hidden" name="' . htmlspecialchars($this->prefixFieldName('__referrer[@action]')) . '" value="' . htmlspecialchars((string)$actionName) . '" />' . LF;
+        $result .= '<input type="hidden" name="' . htmlspecialchars($this->prefixFieldName('__referrer[@extension]')) . '" value="' . htmlspecialchars($extensionName) . '" />' . LF;
+        $result .= '<input type="hidden" name="' . htmlspecialchars($this->prefixFieldName('__referrer[@controller]')) . '" value="' . htmlspecialchars($controllerName) . '" />' . LF;
+        $result .= '<input type="hidden" name="' . htmlspecialchars($this->prefixFieldName('__referrer[@action]')) . '" value="' . htmlspecialchars($actionName) . '" />' . LF;
         $result .= '<input type="hidden" name="' . htmlspecialchars($this->prefixFieldName('__referrer[arguments]')) . '" value="' . htmlspecialchars($this->hashService->appendHmac(base64_encode(serialize($request->getArguments())), HashScope::ReferringArguments->prefix())) . '" />' . LF;
         $result .= '<input type="hidden" name="' . htmlspecialchars($this->prefixFieldName('__referrer[@request]')) . '" value="' . htmlspecialchars($this->hashService->appendHmac(json_encode($actionRequest), HashScope::ReferringRequest->prefix())) . '" />' . LF;
 

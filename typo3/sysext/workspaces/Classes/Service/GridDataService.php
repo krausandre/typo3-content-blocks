@@ -21,6 +21,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Backend\Configuration\TranslationConfigurationProvider;
 use TYPO3\CMS\Backend\Module\ModuleProvider;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -44,6 +45,7 @@ use TYPO3\CMS\Workspaces\Service\Dependency\CollectionService;
 /**
  * @internal
  */
+#[Autoconfigure(public: true)]
 class GridDataService implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
@@ -162,8 +164,6 @@ class GridDataService implements LoggerAwareInterface
                     }
                     $viewUrl = GeneralUtility::makeInstance(PreviewUriBuilder::class)->buildUriForElement($table, (int)$record['uid'], $origRecord, $versionRecord);
                     $workspaceRecordLabel = BackendUtility::getRecordTitle($table, $versionRecord);
-                    $liveRecordLabel = BackendUtility::getRecordTitle($table, $origRecord);
-                    $iconLive = $iconFactory->getIconForRecord($table, $origRecord, IconSize::SMALL);
                     $iconWorkspace = $iconFactory->getIconForRecord($table, $versionRecord, IconSize::SMALL);
                     [$pathWorkspaceCropped, $pathWorkspace] = BackendUtility::getRecordPath((int)$record['wspid'], '', 15, 1000);
                     $calculatedT3verOid = $record['t3ver_oid'];

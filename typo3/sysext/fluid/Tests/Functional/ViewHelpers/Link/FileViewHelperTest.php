@@ -25,7 +25,6 @@ use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Core\Resource\ProcessedFile;
 use TYPO3\CMS\Core\Resource\ProcessedFileRepository;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContextFactory;
 use TYPO3\CMS\Frontend\Resource\FileCollector;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
@@ -92,7 +91,7 @@ final class FileViewHelperTest extends FunctionalTestCase
         self::assertEquals(
             [
                 '<a title="uid-1" href="fileadmin/user_upload/typo3_image2.jpg">typo3_image2.jpg</a>',
-                '<a title="uid-1" target="_blank" href="fileadmin/user_upload/typo3_image2.jpg">Link file</a>',
+                '<a target="_blank" title="uid-1" href="fileadmin/user_upload/typo3_image2.jpg">Link file</a>',
                 '<a title="uid-1" href="fileadmin/user_upload/typo3_image2.jpg">Link file - alt-name.jpg</a>',
                 '<a title="uid-1" download="" href="fileadmin/user_upload/typo3_image2.jpg">Download file</a>',
                 '<a title="uid-1" download="" href="fileadmin/user_upload/typo3_image2.jpg">Download file - alt name not valid</a>',
@@ -108,7 +107,7 @@ final class FileViewHelperTest extends FunctionalTestCase
     public function renderTagsForNonPublicFileTest(): void
     {
         // Set storage to non-public
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('sys_file_storage');
+        $connection = $this->get(ConnectionPool::class)->getConnectionForTable('sys_file_storage');
         $connection->update('sys_file_storage', ['is_public' => 0], ['uid' => 1]);
 
         $context = $this->get(RenderingContextFactory::class)->create();
@@ -143,7 +142,7 @@ final class FileViewHelperTest extends FunctionalTestCase
         self::assertEquals(
             [
                 '<a title="uid-2" href="fileadmin/user_upload/typo3_image2.jpg">typo3_image2.jpg</a>',
-                '<a title="uid-2" target="_blank" href="fileadmin/user_upload/typo3_image2.jpg">Link file</a>',
+                '<a target="_blank" title="uid-2" href="fileadmin/user_upload/typo3_image2.jpg">Link file</a>',
                 '<a title="uid-2" href="fileadmin/user_upload/typo3_image2.jpg">Link file - alt-name.jpg</a>',
                 '<a title="uid-2" download="" href="fileadmin/user_upload/typo3_image2.jpg">Download file</a>',
                 '<a title="uid-2" download="" href="fileadmin/user_upload/typo3_image2.jpg">Download file - alt name not valid</a>',
@@ -159,7 +158,7 @@ final class FileViewHelperTest extends FunctionalTestCase
     public function renderTagsForNonPublicFileReferenceTest(): void
     {
         // Set storage to non-public
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('sys_file_storage');
+        $connection = $this->get(ConnectionPool::class)->getConnectionForTable('sys_file_storage');
         $connection->update('sys_file_storage', ['is_public' => 0], ['uid' => 1]);
 
         $context = $this->get(RenderingContextFactory::class)->create();
@@ -194,7 +193,7 @@ final class FileViewHelperTest extends FunctionalTestCase
         self::assertEquals(
             [
                 '<a title="uid-3" href="fileadmin/_processed_/csm_typo3_image2_5c2670fd59.jpg">csm_typo3_image2_5c2670fd59.jpg</a>',
-                '<a title="uid-3" target="_blank" href="fileadmin/_processed_/csm_typo3_image2_5c2670fd59.jpg">Link file</a>',
+                '<a target="_blank" title="uid-3" href="fileadmin/_processed_/csm_typo3_image2_5c2670fd59.jpg">Link file</a>',
                 '<a title="uid-3" href="fileadmin/_processed_/csm_typo3_image2_5c2670fd59.jpg">Link file - alt-name.jpg</a>',
                 '<a title="uid-3" download="" href="fileadmin/_processed_/csm_typo3_image2_5c2670fd59.jpg">Download file</a>',
                 '<a title="uid-3" download="" href="fileadmin/_processed_/csm_typo3_image2_5c2670fd59.jpg">Download file - alt name not valid</a>',
@@ -210,7 +209,7 @@ final class FileViewHelperTest extends FunctionalTestCase
     public function renderTagsForNonPublicProcessedFileTest(): void
     {
         // Set storage to non-public
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('sys_file_storage');
+        $connection = $this->get(ConnectionPool::class)->getConnectionForTable('sys_file_storage');
         $connection->update('sys_file_storage', ['is_public' => 0], ['uid' => 1]);
 
         $context = $this->get(RenderingContextFactory::class)->create();
@@ -241,7 +240,7 @@ final class FileViewHelperTest extends FunctionalTestCase
 
     protected function getFileReference(int $fileUid): FileReference
     {
-        $fileCollector = GeneralUtility::makeInstance(FileCollector::class);
+        $fileCollector = $this->get(FileCollector::class);
         $fileCollector->addFileReferences([$fileUid]);
         $fileReferences = $fileCollector->getFiles();
 

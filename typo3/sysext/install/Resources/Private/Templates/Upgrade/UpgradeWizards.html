@@ -1,7 +1,7 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 
 <p>
-    If you upgrade your TYPO3 installation from one major version to another (e.g. 10 LTS to 11 LTS),
+    If you upgrade your TYPO3 installation from one major version to another (e.g. {currentVersion - 1} LTS to {currentVersion} LTS),
     then the Upgrade Wizards guide you through the necessary steps to upgrade your database
     records or explicitly install extensions that ship with the latest TYPO3 version.
 </p>
@@ -38,11 +38,12 @@
     </div>
 
     <div class="t3js-upgradeWizards-list-template">
+        <f:comment><!--
+            @todo: this whole "partial" gets reloaded everytime the "Upgrade status" is re-calculated
+                this is an issue with the progress bar as it thus is re-rendered all the time
+        --></f:comment>
         <h4 class="mt-4">Upgrade status</h4>
-        <p>Progress of upgrade wizards:</p>
-        <div class="progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar progress-bar-info progress-bar-striped" style="width: 0;">0%</div>
-        </div>
+        <typo3-backend-progress-bar value="0" max="100"></typo3-backend-progress-bar>
         <div class="t3js-upgradeWizards-list-rows mt-4"></div>
     </div>
     <div class="t3js-upgradeWizards-list-row-template form-group form-group-dashed">

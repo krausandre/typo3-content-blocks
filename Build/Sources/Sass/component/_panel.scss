@@ -127,6 +127,7 @@ $panel-heading-bg-scale: -85%;
     margin-block-end: var(--typo3-spacing);
     transition: all .2s ease-in-out;
     transition-property: box-shadow, border, transform;
+    position: relative;
 
     .table-fit {
         box-shadow: none;
@@ -226,6 +227,15 @@ $panel-heading-bg-scale: -85%;
         flex-wrap: wrap;
         gap: .25rem;
     }
+
+    &-button {
+        display: flex;
+        text-align: start;
+        align-items: center;
+        align-self: stretch;
+        border: 0;
+        width: 100%;
+    }
 }
 
 //
@@ -312,6 +322,7 @@ $panel-heading-bg-scale: -85%;
 }
 
 .tab-pane {
+    > h2 + .form-section,
     > .panel-tab:first-child {
         border-top: none;
     }
@@ -357,7 +368,7 @@ $panel-heading-bg-scale: -85%;
         margin: 0;
         border: none;
         border-top: var(--panel-border-width) solid var(--panel-border-color);
-        --bs-alert-padding-x: var(--panel-header-padding-x);
+        --typo3-alert-padding-x: var(--panel-header-padding-x);
     }
 
     > .form-section,

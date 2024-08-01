@@ -20,6 +20,7 @@ namespace TYPO3\CMS\Core\Security\ContentSecurityPolicy;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\Uri;
@@ -34,6 +35,7 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  *
  * @internal
  */
+#[Autoconfigure(public: true)]
 final class PolicyProvider
 {
     protected const REPORTING_URI = '@http-reporting';
@@ -50,7 +52,7 @@ final class PolicyProvider
     /**
      * Provides the complete, dynamically mutated policy to be used in HTTP responses.
      */
-    public function provideFor(Scope $scope): Policy
+    public function provideFor(Scope $scope, ?ServerRequestInterface $request = null): Policy
     {
         // @todo add policy cache per scope
         $defaultPolicy = new Policy();
@@ -68,7 +70,7 @@ final class PolicyProvider
         // apply all mutations to current policy
         $currentPolicy = $defaultPolicy->mutate(...$mutationCollections);
         // allow other components to modify the current policy individually via PSR-14 event
-        $event = new PolicyMutatedEvent($scope, $defaultPolicy, $currentPolicy, ...$mutationCollections);
+        $event = new PolicyMutatedEvent($scope, $request, $defaultPolicy, $currentPolicy, ...$mutationCollections);
         $this->eventDispatcher->dispatch($event);
         return $event->getCurrentPolicy();
     }

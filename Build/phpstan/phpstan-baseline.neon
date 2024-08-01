@@ -6,11 +6,6 @@ parameters:
 			path: ../../typo3/sysext/backend/Classes/Controller/EditDocumentController.php
 
 		-
-			message: "#^If condition is always false\\.$#"
-			count: 1
-			path: ../../typo3/sysext/backend/Classes/Controller/EditDocumentController.php
-
-		-
 			message: "#^Offset 2 does not exist on array\\{\\}\\.$#"
 			count: 1
 			path: ../../typo3/sysext/backend/Classes/Controller/EditDocumentController.php
@@ -257,7 +252,7 @@ parameters:
 
 		-
 			message: "#^Call to an undefined method Psr\\\\Container\\\\ContainerInterface\\:\\:set\\(\\)\\.$#"
-			count: 3
+			count: 2
 			path: ../../typo3/sysext/core/Classes/Core/BootService.php
 
 		-
@@ -289,11 +284,6 @@ parameters:
 			message: "#^Variable \\$alias on left side of \\?\\? always exists and is not nullable\\.$#"
 			count: 2
 			path: ../../typo3/sysext/core/Classes/Database/Query/QueryBuilder.php
-
-		-
-			message: "#^Else branch is unreachable because previous condition is always true\\.$#"
-			count: 1
-			path: ../../typo3/sysext/core/Classes/Database/RelationHandler.php
 
 		-
 			message: "#^Call to an undefined method TYPO3\\\\CMS\\\\Core\\\\Package\\\\PackageInterface\\:\\:getServiceProvider\\(\\)\\.$#"
@@ -419,11 +409,6 @@ parameters:
 			message: "#^Call to an undefined method Symfony\\\\Component\\\\Mailer\\\\Transport\\\\Smtp\\\\Stream\\\\AbstractStream\\:\\:setStreamOptions\\(\\)\\.$#"
 			count: 1
 			path: ../../typo3/sysext/core/Classes/Mail/TransportFactory.php
-
-		-
-			message: "#^Method TYPO3\\\\CMS\\\\Core\\\\Messaging\\\\FlashMessage\\:\\:createFromArray\\(\\) should return static\\(TYPO3\\\\CMS\\\\Core\\\\Messaging\\\\FlashMessage\\) but returns object\\.$#"
-			count: 1
-			path: ../../typo3/sysext/core/Classes/Messaging/FlashMessage.php
 
 		-
 			message: "#^Call to an undefined method TYPO3\\\\CMS\\\\Core\\\\Cache\\\\Frontend\\\\FrontendInterface\\:\\:require\\(\\)\\.$#"
@@ -826,26 +811,6 @@ parameters:
 			path: ../../typo3/sysext/core/Tests/Unit/Pagination/SimplePaginationTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$expected of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) expects class\\-string\\<ad9195e2487eea33c8a2abd5cf33cba4\\>, string given\\.$#"
-			count: 1
-			path: ../../typo3/sysext/core/Tests/Unit/Resource/Index/ExtractorRegistryTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$expected of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) expects class\\-string\\<cef9aa4e1cd3aa7ff05dcdccb117156a\\>, string given\\.$#"
-			count: 1
-			path: ../../typo3/sysext/core/Tests/Unit/Resource/Index/ExtractorRegistryTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$expected of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) expects class\\-string\\<db76010e5c24658c35ea1605cce2391d\\>, string given\\.$#"
-			count: 1
-			path: ../../typo3/sysext/core/Tests/Unit/Resource/Index/ExtractorRegistryTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$name of method PHPUnit\\\\Framework\\\\MockObject\\\\MockBuilder\\<TYPO3\\\\CMS\\\\Core\\\\Resource\\\\Index\\\\ExtractorInterface\\>\\:\\:setMockClassName\\(\\) expects class\\-string, string given\\.$#"
-			count: 10
-			path: ../../typo3/sysext/core/Tests/Unit/Resource/Index/ExtractorRegistryTest.php
-
-		-
 			message: "#^Constructor of class TYPO3\\\\CMS\\\\Core\\\\Tests\\\\Unit\\\\Tree\\\\TableConfiguration\\\\Fixtures\\\\TreeDataProviderFixture has an unused parameter \\$configuration\\.$#"
 			count: 1
 			path: ../../typo3/sysext/core/Tests/Unit/Tree/TableConfiguration/Fixtures/TreeDataProviderFixture.php
@@ -966,11 +931,6 @@ parameters:
 			path: ../../typo3/sysext/extbase/Classes/Property/TypeConverter/AbstractFileFolderConverter.php
 
 		-
-			message: "#^Method TYPO3\\\\CMS\\\\Extbase\\\\Property\\\\TypeConverter\\\\IntegerConverter\\:\\:convertFrom\\(\\) should return int\\|TYPO3\\\\CMS\\\\Extbase\\\\Error\\\\Error but returns null\\.$#"
-			count: 1
-			path: ../../typo3/sysext/extbase/Classes/Property/TypeConverter/IntegerConverter.php
-
-		-
 			message: "#^Parameter \\#2 \\$key of method TYPO3\\\\CMS\\\\Extbase\\\\Property\\\\PropertyMappingConfigurationInterface\\:\\:getConfigurationValue\\(\\) expects string, int given\\.$#"
 			count: 2
 			path: ../../typo3/sysext/extbase/Classes/Property/TypeConverter/ObjectConverter.php
@@ -1031,11 +991,6 @@ parameters:
 			path: ../../typo3/sysext/extbase/Classes/Validation/Validator/CollectionValidator.php
 
 		-
-			message: "#^Call to an undefined method TYPO3Fluid\\\\Fluid\\\\View\\\\ViewInterface\\:\\:setConfiguration\\(\\)\\.$#"
-			count: 1
-			path: ../../typo3/sysext/extbase/Tests/Functional/Fixtures/Extensions/blog_example/Classes/Controller/ContentController.php
-
-		-
 			message: "#^Variable \\$expectations on left side of \\?\\? always exists and is not nullable\\.$#"
 			count: 1
 			path: ../../typo3/sysext/extbase/Tests/Functional/Mvc/Controller/ActionControllerArgumentTest.php
@@ -1061,7 +1016,7 @@ parameters:
 			path: ../../typo3/sysext/extbase/Tests/Functional/Property/TypeConverter/ObjectConverterTest.php
 
 		-
-			message: "#^Property class@anonymous/extbase/Tests/Functional/Property/TypeConverter/ObjectConverterTest\\.php\\:313\\:\\:\\$name is unused\\.$#"
+			message: "#^Property class@anonymous/extbase/Tests/Functional/Property/TypeConverter/ObjectConverterTest\\.php\\:331\\:\\:\\$name is unused\\.$#"
 			count: 1
 			path: ../../typo3/sysext/extbase/Tests/Functional/Property/TypeConverter/ObjectConverterTest.php
 
@@ -1341,11 +1296,6 @@ parameters:
 			path: ../../typo3/sysext/form/Classes/Controller/FormEditorController.php
 
 		-
-			message: "#^Call to an undefined method TYPO3Fluid\\\\Fluid\\\\View\\\\ViewInterface\\:\\:setVariablesToRender\\(\\)\\.$#"
-			count: 1
-			path: ../../typo3/sysext/form/Classes/Controller/FormEditorController.php
-
-		-
 			message: "#^Call to an undefined method TYPO3\\\\CMS\\\\Form\\\\Mvc\\\\Persistence\\\\FormPersistenceManagerInterface\\:\\:isAllowedPersistencePath\\(\\)\\.$#"
 			count: 2
 			path: ../../typo3/sysext/form/Classes/Controller/FormEditorController.php
@@ -1354,11 +1304,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$namespace of method TYPO3\\\\CMS\\\\Core\\\\Page\\\\PageRenderer\\:\\:addInlineSettingArray\\(\\) expects string, null given\\.$#"
 			count: 1
 			path: ../../typo3/sysext/form/Classes/Controller/FormEditorController.php
-
-		-
-			message: "#^Call to an undefined method TYPO3Fluid\\\\Fluid\\\\View\\\\ViewInterface\\:\\:setVariablesToRender\\(\\)\\.$#"
-			count: 3
-			path: ../../typo3/sysext/form/Classes/Controller/FormManagerController.php
 
 		-
 			message: "#^Call to an undefined method TYPO3\\\\CMS\\\\Form\\\\Mvc\\\\Persistence\\\\FormPersistenceManagerInterface\\:\\:getUniqueIdentifier\\(\\)\\.$#"

@@ -29,7 +29,7 @@ namespace TYPO3\CMS\Fluid\ViewHelpers\Form;
  *
  * Output::
  *
- *    <input type="password" name="myPassword" value="default value" />
+ *    <input type="password" name="myPassword" value="" />
  */
 final class PasswordViewHelper extends AbstractFormFieldViewHelper
 {
@@ -41,28 +41,7 @@ final class PasswordViewHelper extends AbstractFormFieldViewHelper
     public function initializeArguments(): void
     {
         parent::initializeArguments();
-        $this->registerTagAttribute(
-            'disabled',
-            'string',
-            'Specifies that the input element should be disabled when the page loads'
-        );
-        $this->registerTagAttribute(
-            'maxlength',
-            'int',
-            'The maxlength attribute of the input field (will not be validated)'
-        );
-        $this->registerTagAttribute('placeholder', 'string', 'The placeholder of the textfield');
-        $this->registerTagAttribute('readonly', 'string', 'The readonly attribute of the input field');
-        $this->registerTagAttribute('autocomplete', 'string', 'Specify the autocomplete behaviour for password managers');
-        $this->registerTagAttribute('size', 'int', 'The size of the input field');
-        $this->registerArgument(
-            'errorClass',
-            'string',
-            'CSS class to set if there are errors for this ViewHelper',
-            false,
-            'f3-form-error'
-        );
-        $this->registerUniversalTagAttributes();
+        $this->registerArgument('errorClass', 'string', 'CSS class to set if there are errors for this ViewHelper', false, 'f3-form-error');
     }
 
     public function render(): string

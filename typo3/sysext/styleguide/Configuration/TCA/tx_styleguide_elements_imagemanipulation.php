@@ -23,55 +23,6 @@ return [
     ],
 
     'columns' => [
-
-        'hidden' => [
-            'config' => [
-                'type' => 'check',
-                'items' => [
-                    ['label' => 'Disable'],
-                ],
-            ],
-        ],
-        'sys_language_uid' => [
-            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
-            'config' => [
-                'type' => 'language',
-            ],
-        ],
-        'l10n_parent' => [
-            'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
-            'config' => [
-                'type' => 'select',
-                'renderType' => 'selectSingle',
-                'items' => [
-                    ['label' => '', 'value' => 0],
-                ],
-                'foreign_table' => 'tx_styleguide_elements_group',
-                'foreign_table_where' => 'AND {#tx_styleguide_elements_group}.{#pid}=###CURRENT_PID### AND {#tx_styleguide_elements_group}.{#sys_language_uid} IN (-1,0)',
-                'default' => 0,
-            ],
-        ],
-        'l10n_source' => [
-            'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'label' => 'Translation source',
-            'config' => [
-                'type' => 'select',
-                'renderType' => 'selectSingle',
-                'items' => [
-                    ['label' => '', 'value' => 0],
-                ],
-                'foreign_table' => 'tx_styleguide_elements_group',
-                'foreign_table_where' => 'AND {#tx_styleguide_elements_group}.{#pid}=###CURRENT_PID### AND {#tx_styleguide_elements_group}.{#uid}!=###THIS_UID###',
-                'default' => 0,
-            ],
-        ],
-        'l10n_diffsource' => [
-            'config' => [
-                'type' => 'passthrough',
-                'default' => '',
-            ],
-        ],
         'group_db_1' => [
             'label' => 'group_db_1',
             'config' => [
@@ -141,6 +92,10 @@ return [
                             '16:9' => [
                                 'title' => '16 / 9',
                                 'value' => 16 / 9,
+                            ],
+                            '1:7.50 [special {characters}]' => [
+                                'title' => '1:7.50 [special {characters}]',
+                                'value' => 1 / 7.5,
                             ],
                             '3:2' => [
                                 'title' => '3 / 2',
@@ -287,6 +242,74 @@ return [
                 ],
             ],
         ],
+        'crop_9' => [
+            'label' => 'crop_9',
+            'description' => 'crop variant with multiple cover areas',
+            'config' => [
+                'type' => 'imageManipulation',
+                'file_field' => 'group_db_3',
+                'cropVariants' => [
+                    'desktop_wide' => [
+                        'title' => 'Desktop wide',
+                        'allowedAspectRatios' => [
+                            'default' => [
+                                'title' => 'Default',
+                                'value' => 1920 / 680,
+                            ],
+                        ],
+                        'selectedRatio' => 'default',
+                        'coverAreas' => [
+                            [
+                                'x' => 0,
+                                'y' => 0,
+                                'width' => 1,
+                                'height' => 0.25,
+                            ],
+                            [
+                                'x' => 0.2,
+                                'y' => 0.35,
+                                'width' => 0.25,
+                                'height' => 0.5,
+                            ],
+                        ],
+                    ],
+                    'desktop' => [
+                        'title' => 'Desktop',
+                        'allowedAspectRatios' => [
+                            'default' => [
+                                'title' => 'Default',
+                                'value' => 1370 / 680,
+                            ],
+                        ],
+                        'selectedRatio' => 'default',
+                        'coverAreas' => [
+                            [
+                                'x' => 0,
+                                'y' => 0,
+                                'width' => 1,
+                                'height' => 0.25,
+                            ],
+                            [
+                                'x' => 0.08,
+                                'y' => 0.35,
+                                'width' => 0.45,
+                                'height' => 0.5,
+                            ],
+                        ],
+                    ],
+                    'small' => [
+                        'title' => 'Tablet / Smartphone',
+                        'allowedAspectRatios' => [
+                            'default' => [
+                                'title' => 'Default',
+                                'value' => 16 / 9,
+                            ],
+                        ],
+                        'selectedRatio' => 'default',
+                    ],
+                ],
+            ],
+        ],
     ],
 
     'types' => [
@@ -294,7 +317,7 @@ return [
             'showitem' => '
                 --div--;crop,
                     group_db_1, crop_1, group_db_2, crop_2, crop_4, group_db_3,
-                    crop_3, crop_5, crop_6, crop_7, crop_8,
+                    crop_3, crop_5, crop_6, crop_7, crop_8, crop_9,
                 --div--;meta,
                     disable, sys_language_uid, l10n_parent, l10n_source,
             ',
