@@ -36,6 +36,12 @@ export class ContentBlockEditorRightPane extends LitElement {
   @property()
     position?: number;
 
+  @property()
+    level?: number;
+
+  @property()
+    parent?: number;
+
   protected render(): TemplateResult {
     console.log('Render right pane')
     if (this.schema) {
@@ -64,6 +70,7 @@ export class ContentBlockEditorRightPane extends LitElement {
 
   protected renderFormField(fieldTypeProperty: FieldTypeProperty): TemplateResult {
     // https://lit.dev/docs/templates/directives/#live
+    console.log('Render form field', fieldTypeProperty);
     switch (fieldTypeProperty.dataType) {
       case 'text':
         return html `<input @blur="${this.dispatchBlurEvent}" type="text" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default || '')}" class="form-control" />`;
@@ -93,6 +100,8 @@ export class ContentBlockEditorRightPane extends LitElement {
       composed: true,
       detail: {
         position: this.position,
+        level: this.level,
+        parent: this.parent,
         values: this.values,
       },
     }));

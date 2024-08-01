@@ -29,6 +29,7 @@ export interface ContentBlockField {
   valuePicker?: Array<FieldTypeItems>;
   allowedTypes?: Array<FieldTypeItems>;
   ignoreIfNotInPalette?: boolean;
+  fields?: Array<ContentBlockField>;
 }
 
 /*interface ContentBlockNumberField extends ContentBlockField {

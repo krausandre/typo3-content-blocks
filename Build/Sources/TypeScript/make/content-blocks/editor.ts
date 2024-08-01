@@ -56,6 +56,10 @@ export class ContentBlockEditor extends LitElement {
     rightPaneActiveSchema: FieldTypeSetting;
   @property()
     rightPaneActivePosition: number;
+  @property()
+    rightPaneActiveLevel: number;
+  @property()
+    rightPaneActiveParent: number;
 
   @property()
     dragActive?: boolean = false;
@@ -101,6 +105,8 @@ export class ContentBlockEditor extends LitElement {
               .schema="${this.rightPaneActiveSchema}"
               .values="${this.fieldSettingsValues}"
               .position="${this.rightPaneActivePosition}"
+              .level="${this.rightPaneActiveLevel}"
+              .parent="${this.rightPaneActiveParent}"
               @updateCbFieldData="${this.updateFieldDataEventListener}"
             >
             </content-block-editor-right-pane>
@@ -136,52 +142,99 @@ export class ContentBlockEditor extends LitElement {
 
   protected fieldTypeDroppedListener(event: CustomEvent) {
     this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === event.detail.data.type)[0];
-    const newIdentifier = event.detail.data.type + '_' + this.cbDefinition.yaml.fields.length;
-    if(this.cbDefinition.yaml.fields.filter((fieldType) => fieldType.identifier === event.detail.data.identifier).length > 0) {
-      const existingFieldPosition = this.cbDefinition.yaml.fields.findIndex((fieldType) => fieldType.identifier === event.detail.data.identifier);
-      const movedField = this.cbDefinition.yaml.fields[existingFieldPosition];
-      const tempFields = [
-        ...this.cbDefinition.yaml.fields.slice(0, existingFieldPosition),
-        ...this.cbDefinition.yaml.fields.slice(existingFieldPosition + 1)
-      ];
-
-      this.cbDefinition.yaml.fields = [
-        ...tempFields.slice(0, event.detail.position),
-        movedField,
-        ...tempFields.slice(event.detail.position)
-      ];
-      this.fieldSettingsValues = this.cbDefinition.yaml.fields[existingFieldPosition];
-      this.rightPaneActivePosition = this.cbDefinition.yaml.fields.findIndex((fieldType) => fieldType.identifier === event.detail.data.identifier);
+    console.log(event.detail);
+    if(event.detail.level > 0) {
+      const selectedLevel = this.getSelectedLevel(event.detail.level);
+      const newIdentifier = event.detail.data.type + '_' + event.detail.parent + '_' + selectedLevel[event.detail.parent].fields.length;
+      console.log(selectedLevel);
+      console.log(newIdentifier);
+      if(selectedLevel.filter((fieldType) => fieldType.identifier === event.detail.data.identifier).length > 0) {
+        this.updateContentBlockField(newIdentifier, event.detail.position, selectedLevel);
+      } else {
+        this.addNewContentBlockField(newIdentifier, event.detail.data.type, event.detail.position + 1, selectedLevel[event.detail.parent].fields);
+      }
     } else {
-      const newField: ContentBlockField = {
-        identifier: newIdentifier,
-        type: event.detail.data.type,
-        label: event.detail.data.type + this.cbDefinition.yaml.fields.length,
-      };
-      this.fieldSettingsValues = newField;
-      this.cbDefinition.yaml.fields.splice(event.detail.position, 0, newField);
-      this.rightPaneActivePosition = event.detail.position;
+      const newIdentifier = event.detail.data.type + '_' + this.cbDefinition.yaml.fields.length;
+      if(this.cbDefinition.yaml.fields.filter((fieldType) => fieldType.identifier === event.detail.data.identifier).length > 0) {
+        this.updateContentBlockField(newIdentifier, event.detail.position, this.cbDefinition.yaml.fields);
+      } else {
+        this.addNewContentBlockField(newIdentifier, event.detail.data.type, event.detail.position, this.cbDefinition.yaml.fields);
+      }
     }
   }
 
+  protected addNewContentBlockField(identifier: string, type: string, position: number, fields: ContentBlockField[]): void {
+    const newField: ContentBlockField = {
+      identifier: identifier,
+      type: type,
+      label: type + fields.length,
+    };
+    if (type === 'Collection') {
+      newField.fields = [];
+    }
+    this.fieldSettingsValues = newField;
+    fields.splice(position, 0, newField);
+    this.rightPaneActivePosition = position;
+  }
+
+  protected updateContentBlockField(identifier: string, position: number, fields: ContentBlockField[]): void {
+    const existingFieldPosition = fields.findIndex((fieldType) => fieldType.identifier === identifier);
+    const movedField = fields[existingFieldPosition];
+    const tempFields = [
+      ...fields.slice(0, existingFieldPosition),
+      ...fields.slice(existingFieldPosition + 1)
+    ];
+
+    fields = [
+      ...tempFields.slice(0, position),
+      movedField,
+      ...tempFields.slice(position)
+    ];
+    this.fieldSettingsValues = fields[existingFieldPosition];
+    this.rightPaneActivePosition = position;
+  }
+
   protected updateFieldDataEventListener(event: CustomEvent) {
-    const clone = structuredClone(this.cbDefinition);
-    clone.yaml.fields[event.detail.position] = event.detail.values;
-    this.cbDefinition = clone;
+    const selectedLevel = this.getSelectedLevel(event.detail.level);
+    //const clone = structuredClone(this.cbDefinition);
+    selectedLevel[event.detail.position] = event.detail.values;
+    this.cbDefinition = structuredClone(this.cbDefinition);
     this.fieldSettingsValues = event.detail.values;
   }
   protected removeFieldTypeEventListener(event: CustomEvent) {
-    const clone = structuredClone(this.cbDefinition);
-    clone.yaml.fields.splice(event.detail.position, 1);
-    this.cbDefinition = clone;
+    const selectedLevel = this.getSelectedLevel(event.detail.level);
+    selectedLevel.splice(event.detail.position, 1);
+    console.log(selectedLevel);
+    this.cbDefinition.yaml.fields = structuredClone(this.cbDefinition.yaml.fields);
     this.fieldSettingsValues = { identifier: '', label: '', type: '' };
-    this.rightPaneActiveSchema = null;
+    // this.rightPaneActiveSchema = null;
   }
 
   protected activateFieldSettings(event: CustomEvent) {
-    this.fieldSettingsValues = this.cbDefinition.yaml.fields.filter((fieldType) => fieldType.identifier === event.detail.identifier)[0] as ContentBlockField;
-    this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
-    this.rightPaneActivePosition = event.detail.position;
+    const selectedLevel = this.getSelectedLevel(event.detail.level);
+    this.fieldSettingsValues = selectedLevel.filter((fieldType) => fieldType.identifier === event.detail.identifier)[0] as ContentBlockField;
+    console.log(this.fieldSettingsValues);
+    if(this.fieldSettingsValues !== undefined) {
+      this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
+      this.rightPaneActivePosition = event.detail.position;
+      this.rightPaneActiveLevel = event.detail.level;
+      this.rightPaneActiveParent = event.detail.parent;
+    } else {
+      this.rightPaneActiveSchema = null;
+      this.rightPaneActivePosition = 0;
+      this.rightPaneActiveLevel = 0;
+      this.rightPaneActiveParent = 0;
+    }
+  }
+
+  protected getSelectedLevel(level: number): ContentBlockField[] {
+    let currentLevel = 1;
+    let selectedLevel: ContentBlockField[] = this.cbDefinition.yaml.fields;
+    while(currentLevel < level) {
+      selectedLevel = selectedLevel.filter((fieldType) => fieldType.type === 'Collection');
+      currentLevel++;
+    }
+    return selectedLevel;
   }
 
   private handleDragEnd(): void {

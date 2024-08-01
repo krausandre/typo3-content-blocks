@@ -34,6 +34,10 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     dragActive: boolean;
   @property()
     position: number;
+  @property()
+    level: number;
+  @property()
+    parent: number;
 
   protected render(): TemplateResult {
     console.log('Render middle pane')
@@ -59,12 +63,14 @@ export class ContentBlockEditorMiddlePane extends LitElement {
           <div id="cb-drop-zone-0"
                class="cb-drop-zone"
                data-position="0"
+               data-level="0"
+               data-parent="0"
                @dragover="${this.handleDragOver}"
                @drop="${this.handleDrop}">
           </div>
         </li>
         ${this.fieldList.map((item, index) => html`
-          ${this.renderFieldArea(item, index + 1 )}
+          ${this.renderFieldArea(item, index + 1 , 0, 0)}
         `)}
       </ul>
       <pre>
@@ -73,24 +79,83 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     `;
   }
 
-  protected renderFieldArea(cbField: ContentBlockField, position: number): TemplateResult {
+  protected renderFieldArea(cbField: ContentBlockField, position: number, level: number, parent: number): TemplateResult {
     const fieldType = this.fieldTypes.filter((fieldType) => fieldType.type === cbField.type)[0];
-    return html`
-      <li>
-        <draggable-field-type
-          .fieldTypeSetting="${fieldType}"
-          .fieldTypeInfo="${cbField}"
-          .position="${position - 1}"
-          showDeleteButton="true"
-        ></draggable-field-type>
-        <div id="cb-drop-zone-${position}"
+    if(cbField.type === 'Collection') {
+      return html`
+        ${this.renderDraggableFieldType(fieldType, cbField, position, level, parent, true, false)}
+        <li>
+          <ul>
+            ${this.renderDraggableFieldType(fieldType, cbField, 0, level + 1, position - 1, false, true)}
+            ${cbField.fields?.map((field, index) => html`
+              ${this.renderFieldArea(field, index + 1, level + 1, position - 1)}
+            `)}
+          </ul>
+        </li>
+        ${this.renderDraggableFieldType(fieldType, cbField, position, level, parent, false, true)}
+      `;
+    } else {
+      return this.renderDraggableFieldType(fieldType, cbField, position, level, parent);
+    }
+  }
+
+  protected renderDraggableFieldType(
+    fieldType: FieldTypeSetting,
+    fieldTypeInfo: ContentBlockField,
+    position: number,
+    level: number,
+    parent: number,
+    renderLabel: boolean = true,
+    renderDropZone: boolean = true
+  ): TemplateResult {
+    if(renderLabel && !renderDropZone) {
+      return html`
+        <li>
+          <draggable-field-type
+            .fieldTypeSetting="${fieldType}"
+            .fieldTypeInfo="${fieldTypeInfo}"
+            .position="${position - 1}"
+            .level="${level + 1}"
+            .parent="${parent}"
+            showDeleteButton="true"
+          ></draggable-field-type>
+        </li>
+      `;
+    }
+    if(!renderLabel && renderDropZone) {
+      return html`
+        <li>
+          <div id="cb-drop-zone-${position}-${level}-${parent}"
              class="cb-drop-zone"
              data-position="${position}"
+             data-level="${level}"
+             data-parent="${parent}"
              @dragover="${this.handleDragOver}"
              @drop="${this.handleDrop}">
-        </div>
-      </li>
-    `;
+          </div>
+        </li>
+      `;
+    }
+    return html`
+        <li>
+          <draggable-field-type
+            .fieldTypeSetting="${fieldType}"
+            .fieldTypeInfo="${fieldTypeInfo}"
+            .position="${position - 1}"
+            .level="${level + 1}"
+            .parent="${parent}"
+            showDeleteButton="true"
+          ></draggable-field-type>
+          <div id="cb-drop-zone-${position}-${level}-${parent}"
+               class="cb-drop-zone"
+               data-position="${position}"
+               data-level="${level}"
+               data-parent="${parent}"
+               @dragover="${this.handleDragOver}"
+               @drop="${this.handleDrop}">
+          </div>
+        </li>
+      `;
   }
 
   protected handleDragOver(event: DragEvent): void {
@@ -100,6 +165,8 @@ export class ContentBlockEditorMiddlePane extends LitElement {
   protected handleDrop(event: DragEvent): void {
     event.preventDefault();
     this.position = parseInt((event.target as HTMLElement).dataset.position || '0', 10);
+    this.level = parseInt((event.target as HTMLElement).dataset.level || '0', 10);
+    this.parent = parseInt((event.target as HTMLElement).dataset.parent || '0', 10);
     this._dispatchFieldTypeDroppedEvent(event.dataTransfer?.getData('text/plain'));
   }
   protected _dispatchFieldTypeDroppedEvent(data: string): void {
@@ -107,7 +174,9 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     this.dispatchEvent(new CustomEvent('fieldTypeDropped', {
       detail: {
         data: dataObject,
-        position: this.position
+        position: this.position,
+        level: this.level,
+        parent: this.parent,
       }
     }));
   }
@@ -117,4 +186,5 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;
   }
+
 }

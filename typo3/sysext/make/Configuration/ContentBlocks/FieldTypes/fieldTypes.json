@@ -106,5 +106,17 @@
 			{ "name": "placeholder", "dataType": "text" },
 			{ "name": "required", "dataType": "boolean", "default": false }
 		]
+	},
+	{
+		"icon": "content-menu-pages",
+		"type": "Collection",
+		"properties" : [
+			{ "name": "identifier", "dataType": "text", "required": true },
+			{ "name": "type", "dataType": "text", "required": true },
+			{ "name": "fields", "dataType": "array", "required": true, "default": [] },
+			{ "name": "labelField", "dataType": "text" },
+			{ "name": "maxitems", "dataType": "number" },
+			{ "name": "minitems", "dataType": "number" }
+		]
 	}
 ]
