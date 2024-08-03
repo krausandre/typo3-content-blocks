@@ -17,6 +17,29 @@
 				"type": "Textarea",
 				"label": "My Text",
 				"enableRichtext": true
+			},
+			{
+				"identifier": "Collection_2",
+				"type": "Collection",
+				"label": "Collection2",
+				"fields": [
+					{
+						"identifier": "Number_0",
+						"type": "Number",
+						"label": "Number0"
+					},
+					{
+						"identifier": "Text_1",
+						"type": "Text",
+						"label": "Text1"
+					},
+					{
+						"identifier": "Collection_2",
+						"type": "Collection",
+						"label": "Collection2",
+						"fields": []
+					}
+				]
 			}
 		],
 		"table": "tt_content",

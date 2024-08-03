@@ -17,7 +17,7 @@ var __decorate=function(e,t,o,r){var l,n=arguments.length,a=n<3?t:null===r?r=Obj
         ${"boolean"===e.dataType?this.renderFormField(e):""}
         <label for="${e.name}" class="${"boolean"===e.dataType?"form-check-label fw-bold":"form-label"}">Property '${e.name}'</label>
         ${"boolean"!==e.dataType?this.renderFormField(e):""}
-      </div>`}renderFormField(e){switch(console.log("Render form field",e),e.dataType){case"text":return html`<input @blur="${this.dispatchBlurEvent}" type="text" id="${e.name}" .value="${live(this.values[e.name]||e.default||"")}" class="form-control" />`;case"number":return html`<input @blur="${this.dispatchBlurEvent}" type="number" id="${e.name}" .value="${live(this.values[e.name]||e.default)}" class="form-control" />`;case"select":return html`<select @blur="${this.dispatchBlurEvent}" class="form-control" id="${e.name}" >
+      </div>`}renderFormField(e){switch(e.dataType){case"text":return html`<input @blur="${this.dispatchBlurEvent}" type="text" id="${e.name}" .value="${live(this.values[e.name]||e.default||"")}" class="form-control" />`;case"number":return html`<input @blur="${this.dispatchBlurEvent}" type="number" id="${e.name}" .value="${live(this.values[e.name]||e.default)}" class="form-control" />`;case"select":return html`<select @blur="${this.dispatchBlurEvent}" class="form-control" id="${e.name}" >
           <option value="">Choose...</option>
           ${e.items.map((e=>html`
             <option .value="${live(e.value)}">${e.label}</option>`))}

@@ -81,3 +81,13 @@ export interface ContentBlockDefinition {
   name: string;
   yaml: ContentBlocksYaml;
 }
+
+export interface DropField {
+  data: {
+    identifier: string,
+    type: string
+  },
+  position: number,
+  level: number,
+  parent?: ContentBlockField
+}

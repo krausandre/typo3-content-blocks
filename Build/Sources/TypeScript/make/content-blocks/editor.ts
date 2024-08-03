@@ -20,7 +20,11 @@ import '@typo3/make/content-blocks/editor/right-pane';
 import MultiStepWizard from '@typo3/backend/multi-step-wizard';
 import Severity from '@typo3/backend/severity';
 import { FieldTypeSetting } from '@typo3/make/content-blocks/interface/field-type-setting';
-import { ContentBlockDefinition, ContentBlockField } from '@typo3/make/content-blocks/interface/content-block-definition';
+import {
+  ContentBlockDefinition,
+  ContentBlockField,
+  DropField
+} from '@typo3/make/content-blocks/interface/content-block-definition';
 import { GroupDefinition } from '@typo3/make/content-blocks/interface/group-definition';
 import { ExtensionDefinition } from '@typo3/make/content-blocks/interface/extension-definition';
 
@@ -59,7 +63,7 @@ export class ContentBlockEditor extends LitElement {
   @property()
     rightPaneActiveLevel: number;
   @property()
-    rightPaneActiveParent: number;
+    rightPaneActiveParent: ContentBlockField;
 
   @property()
     dragActive?: boolean = false;
@@ -141,79 +145,106 @@ export class ContentBlockEditor extends LitElement {
   }
 
   protected fieldTypeDroppedListener(event: CustomEvent) {
-    this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === event.detail.data.type)[0];
     console.log(event.detail);
+    this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === event.detail.data.type)[0];
+    let newIdentifier = event.detail.data.type + '_' + this.cbDefinition.yaml.fields.length;
     if(event.detail.level > 0) {
-      const selectedLevel = this.getSelectedLevel(event.detail.level);
-      const newIdentifier = event.detail.data.type + '_' + event.detail.parent + '_' + selectedLevel[event.detail.parent].fields.length;
-      console.log(selectedLevel);
-      console.log(newIdentifier);
-      if(selectedLevel.filter((fieldType) => fieldType.identifier === event.detail.data.identifier).length > 0) {
-        this.updateContentBlockField(newIdentifier, event.detail.position, selectedLevel);
-      } else {
-        this.addNewContentBlockField(newIdentifier, event.detail.data.type, event.detail.position + 1, selectedLevel[event.detail.parent].fields);
-      }
+      newIdentifier = event.detail.data.type + '_' + event.detail.parent.fields.length;
+    }
+    this.handleFieldAction(newIdentifier, event.detail);
+  }
+
+  protected handleFieldAction(newIdentifier: string, eventData: DropField) {
+    let fields = this.cbDefinition.yaml.fields;
+    if(eventData.parent !== null) {
+      fields = eventData.parent.fields;
+    }
+    if(fields.filter((fieldType) => fieldType.identifier === eventData.data.identifier).length > 0) {
+      this.updateContentBlockField(eventData.data.identifier, eventData.position, eventData.level, eventData.parent);
     } else {
-      const newIdentifier = event.detail.data.type + '_' + this.cbDefinition.yaml.fields.length;
-      if(this.cbDefinition.yaml.fields.filter((fieldType) => fieldType.identifier === event.detail.data.identifier).length > 0) {
-        this.updateContentBlockField(newIdentifier, event.detail.position, this.cbDefinition.yaml.fields);
-      } else {
-        this.addNewContentBlockField(newIdentifier, event.detail.data.type, event.detail.position, this.cbDefinition.yaml.fields);
-      }
+      this.addNewContentBlockField(newIdentifier, eventData.data.type, eventData.position, eventData.level, eventData.parent);
     }
   }
 
-  protected addNewContentBlockField(identifier: string, type: string, position: number, fields: ContentBlockField[]): void {
+  protected addNewContentBlockField(identifier: string, type: string, position: number, level: number, parent: ContentBlockField): void {
     const newField: ContentBlockField = {
       identifier: identifier,
       type: type,
-      label: type + fields.length,
+      label: type + position,
     };
     if (type === 'Collection') {
       newField.fields = [];
     }
+    if(level > 0) {
+      parent.fields.splice(position, 0, newField);
+    } else {
+      this.cbDefinition.yaml.fields.splice(position, 0, newField);
+    }
     this.fieldSettingsValues = newField;
-    fields.splice(position, 0, newField);
     this.rightPaneActivePosition = position;
+    this.rightPaneActiveLevel = level;
+    this.rightPaneActiveParent = parent;
   }
 
-  protected updateContentBlockField(identifier: string, position: number, fields: ContentBlockField[]): void {
-    const existingFieldPosition = fields.findIndex((fieldType) => fieldType.identifier === identifier);
+  protected updateContentBlockField(identifier: string, position: number, level: number, parent: ContentBlockField): void {
+    let fields: ContentBlockField[] = this.cbDefinition.yaml.fields;
+    if(parent !== null) {
+      fields = parent.fields;
+    }
+    const existingFieldPosition = fields.findIndex((fieldType: ContentBlockField) => fieldType.identifier === identifier);
     const movedField = fields[existingFieldPosition];
     const tempFields = [
       ...fields.slice(0, existingFieldPosition),
       ...fields.slice(existingFieldPosition + 1)
     ];
-
     fields = [
       ...tempFields.slice(0, position),
       movedField,
       ...tempFields.slice(position)
     ];
+    if(parent !== null) {
+      parent.fields = fields;
+    } else {
+      this.cbDefinition.yaml.fields = fields;
+    }
     this.fieldSettingsValues = fields[existingFieldPosition];
     this.rightPaneActivePosition = position;
+    this.rightPaneActiveLevel = level;
+    this.rightPaneActiveParent = parent;
+    this.cbDefinition = structuredClone(this.cbDefinition);
   }
 
   protected updateFieldDataEventListener(event: CustomEvent) {
+    console.log(event.detail);
     const selectedLevel = this.getSelectedLevel(event.detail.level);
-    //const clone = structuredClone(this.cbDefinition);
     selectedLevel[event.detail.position] = event.detail.values;
-    this.cbDefinition = structuredClone(this.cbDefinition);
     this.fieldSettingsValues = event.detail.values;
   }
   protected removeFieldTypeEventListener(event: CustomEvent) {
-    const selectedLevel = this.getSelectedLevel(event.detail.level);
-    selectedLevel.splice(event.detail.position, 1);
-    console.log(selectedLevel);
-    this.cbDefinition.yaml.fields = structuredClone(this.cbDefinition.yaml.fields);
+    let fields: ContentBlockField[] = this.cbDefinition.yaml.fields;
+    // TODO: check why parent is set for Collection on level 0
+    // if(event.detail.parent !== null) {
+    if(event.detail.level > 0) {
+      fields = event.detail.parent.fields;
+    }
+    fields.splice(event.detail.position, 1);
+    if(event.detail.level > 0) {
+      event.detail.parent.fields = fields;
+    } else {
+      this.cbDefinition.yaml.fields = fields;
+    }
+    this.cbDefinition = structuredClone(this.cbDefinition);
     this.fieldSettingsValues = { identifier: '', label: '', type: '' };
-    // this.rightPaneActiveSchema = null;
+    this.rightPaneActiveSchema = null;
   }
 
   protected activateFieldSettings(event: CustomEvent) {
-    const selectedLevel = this.getSelectedLevel(event.detail.level);
-    this.fieldSettingsValues = selectedLevel.filter((fieldType) => fieldType.identifier === event.detail.identifier)[0] as ContentBlockField;
-    console.log(this.fieldSettingsValues);
+    console.log(event.detail);
+    let fields: ContentBlockField[] = this.cbDefinition.yaml.fields;
+    if(event.detail.parent !== null) {
+      fields = event.detail.parent.fields;
+    }
+    this.fieldSettingsValues = fields.filter((fieldType) => fieldType.identifier === event.detail.identifier)[0] as ContentBlockField;
     if(this.fieldSettingsValues !== undefined) {
       this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
       this.rightPaneActivePosition = event.detail.position;
@@ -223,7 +254,7 @@ export class ContentBlockEditor extends LitElement {
       this.rightPaneActiveSchema = null;
       this.rightPaneActivePosition = 0;
       this.rightPaneActiveLevel = 0;
-      this.rightPaneActiveParent = 0;
+      this.rightPaneActiveParent = null;
     }
   }
 

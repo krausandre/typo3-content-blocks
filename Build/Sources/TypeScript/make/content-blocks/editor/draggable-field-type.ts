@@ -47,7 +47,7 @@ export class DraggableFieldType extends LitElement {
     level?: number = 0;
 
   @property()
-    parent?: number = 0;
+    parent?: ContentBlockField = null;
 
   @property()
     showDeleteButton?: boolean = false;
@@ -106,7 +106,7 @@ export class DraggableFieldType extends LitElement {
       this.dispatchEvent(new CustomEvent('activateSettings', {
         detail: {
           identifier: identifier,
-          position: this.position,
+          position: this.position - 1,
           level: this.level,
           parent: this.parent,
         },
@@ -118,7 +118,7 @@ export class DraggableFieldType extends LitElement {
   protected removeFieldType(): void {
     this.dispatchEvent(new CustomEvent('removeFieldType', {
       detail: {
-        position: this.position,
+        position: this.position - 1,
         level: this.level,
         parent: this.parent,
       },

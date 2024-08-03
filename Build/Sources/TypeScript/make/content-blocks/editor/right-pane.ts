@@ -70,7 +70,6 @@ export class ContentBlockEditorRightPane extends LitElement {
 
   protected renderFormField(fieldTypeProperty: FieldTypeProperty): TemplateResult {
     // https://lit.dev/docs/templates/directives/#live
-    console.log('Render form field', fieldTypeProperty);
     switch (fieldTypeProperty.dataType) {
       case 'text':
         return html `<input @blur="${this.dispatchBlurEvent}" type="text" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default || '')}" class="form-control" />`;
