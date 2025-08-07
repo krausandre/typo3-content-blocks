@@ -19,9 +19,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { html, LitElement, TemplateResult, css } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import { ContentBlocksYaml } from '@friendsoftypo3/content-blocks-gui/interface/content-block-definition';
-import { GroupDefinition } from '@friendsoftypo3/content-blocks-gui/interface/group-definition';
-import { ExtensionDefinition } from '@friendsoftypo3/content-blocks-gui/interface/extension-definition';
+import { ExtensionDefinition, GroupDefinition, ContentBlocksYaml } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *

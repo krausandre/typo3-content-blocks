@@ -19,14 +19,14 @@ import '@friendsoftypo3/content-blocks-gui/editor/middle-pane';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane';
 import MultiStepWizard from '@typo3/backend/multi-step-wizard';
 import Severity from '@typo3/backend/severity';
-import { FieldTypeSetting } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 import {
+  FieldTypeSetting,
   ContentBlockDefinition,
   ContentBlockField,
-  DropField
-} from '@friendsoftypo3/content-blocks-gui/interface/content-block-definition';
-import { GroupDefinition } from '@friendsoftypo3/content-blocks-gui/interface/group-definition';
-import { ExtensionDefinition } from '@friendsoftypo3/content-blocks-gui/interface/extension-definition';
+  DropField,
+  GroupDefinition,
+  ExtensionDefinition
+} from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui

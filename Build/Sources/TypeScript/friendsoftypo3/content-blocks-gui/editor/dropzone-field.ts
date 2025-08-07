@@ -14,7 +14,7 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import { ContentBlockField } from '@friendsoftypo3/content-blocks-gui/interface/content-block-definition';
+import { ContentBlockField } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui

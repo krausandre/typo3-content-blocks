@@ -17,10 +17,7 @@ import '@typo3/backend/element/icon-element';
 import '@friendsoftypo3/content-blocks-gui/editor/left-pane-content-block-settings';
 import '@friendsoftypo3/content-blocks-gui/editor/left-pane-components';
 import '@friendsoftypo3/content-blocks-gui/editor/left-pane-basics';
-import { ContentBlocksYaml } from '@friendsoftypo3/content-blocks-gui/interface/content-block-definition';
-import { GroupDefinition } from '@friendsoftypo3/content-blocks-gui/interface/group-definition';
-import { ExtensionDefinition } from '@friendsoftypo3/content-blocks-gui/interface/extension-definition';
-import { FieldTypeSetting } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
+import { ExtensionDefinition,GroupDefinition,ContentBlocksYaml,FieldTypeSetting } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui

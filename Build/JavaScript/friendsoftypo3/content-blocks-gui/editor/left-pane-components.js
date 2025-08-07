@@ -20,7 +20,7 @@ import { html, LitElement, TemplateResult, css } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
 import '@friendsoftypo3/content-blocks-gui/editor/draggable-field-type';
-import { FieldTypeSetting } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
+import { FieldTypeSetting } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
