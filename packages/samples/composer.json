@@ -1,0 +1,20 @@
+{
+	"name": "contentblocks/samples",
+	"type": "typo3-cms-extension",
+	"version": "1.0.0",
+	"description": "Example content blocks for TYPO3 CMS Content Blocks.",
+	"homepage": "https://typo3.org",
+	"license": ["GPL-2.0-or-later"],
+	"authors": [{
+		"name": "TYPO3 Content Types Team",
+		"role": "Developer"
+	}],
+	"require": {
+		"friendsoftypo3/content-blocks": "^1.3"
+	},
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "samples"
+		}
+	}
+}

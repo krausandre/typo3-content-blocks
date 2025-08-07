@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "71302b8996965e91c5b766980e68a7db",
+    "content-hash": "a8fe991efa55309705373785237e0e03",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -118,6 +118,38 @@
                 "source": "https://github.com/ChristianRiesen/base32/tree/1.6.0"
             },
             "time": "2021-02-26T10:19:33+00:00"
+        },
+        {
+            "name": "contentblocks/samples",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "./packages/samples",
+                "reference": "e3bf98f84e86ae330aceb65f2390c32d0cc7ed68"
+            },
+            "require": {
+                "friendsoftypo3/content-blocks": "^1.3"
+            },
+            "type": "typo3-cms-extension",
+            "extra": {
+                "typo3/cms": {
+                    "extension-key": "samples"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "TYPO3 Content Types Team",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Example content blocks for TYPO3 CMS Content Blocks.",
+            "homepage": "https://typo3.org",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "dasprid/enum",

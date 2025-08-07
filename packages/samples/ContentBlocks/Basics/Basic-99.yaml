@@ -1,0 +1,12 @@
+identifier: basic-99/basic-99
+fields:
+  -
+    identifier: links_palette_test
+    type: Palette
+    fields:
+      -
+        identifier: sectionIndex
+        useExistingField: true
+      -
+        identifier: linkToTop
+        useExistingField: true

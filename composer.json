@@ -41,7 +41,8 @@
 		"typo3/cms-webhooks": "^13.4",
 
         "friendsoftypo3/content-blocks": "^1.3",
-        "friendsoftypo3/content-blocks-gui": "^1.0"
+        "friendsoftypo3/content-blocks-gui": "^1.0",
+        "contentblocks/samples": "^1.0"
 	},
 	"repositories": [
 		{
