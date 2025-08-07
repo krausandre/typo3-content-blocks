@@ -1,0 +1,85 @@
+/*
+ * This file is part of the TYPO3 CMS project.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * The TYPO3 project - inspiring people to share!
+ */
+import DocumentService from '@typo3/core/document-service';
+import Notification from '@typo3/backend/notification';
+import RegularEvent from '@typo3/core/event/regular-event';
+import SortableTable from '@typo3/backend/sortable-table';
+var Selectors;
+(function (Selectors) {
+    // Check
+    Selectors["linktypesSelectorCheck"] = ".t3js-linkvalidator-settings input[type=\"checkbox\"].options-by-type-check";
+    Selectors["actionButtonSelectorCheck"] = ".t3js-linkvalidator-action-button-check";
+    // Report
+    Selectors["toggleAllLinktypesSelectorReport"] = ".t3js-linkvalidator-settings input[type=\"checkbox\"].options-by-type-toggle-all-report";
+    Selectors["linktypesSelectorReport"] = ".t3js-linkvalidator-settings input[type=\"checkbox\"].options-by-type-report";
+    Selectors["actionButtonSelectorReport"] = ".t3js-linkvalidator-action-button-report";
+})(Selectors || (Selectors = {}));
+var Identifier;
+(function (Identifier) {
+    Identifier["toggleAllLinktypesIdReport"] = "options-by-type-toggle-all-report";
+    Identifier["brokenLinksTableIdReport"] = "typo3-broken-links-table";
+})(Identifier || (Identifier = {}));
+/**
+ * Module: @typo3/linkvalidator/linkvalidator
+ */
+class Linkvalidator {
+    constructor() {
+        DocumentService.ready().then(() => {
+            const linkList = document.getElementById(Identifier.brokenLinksTableIdReport);
+            if (linkList !== null) {
+                if (linkList instanceof HTMLTableElement) {
+                    new SortableTable(linkList);
+                }
+            }
+        });
+        this.initializeEvents();
+    }
+    static allCheckBoxesAreChecked(checkBoxes) {
+        const checkboxArray = Array.from(checkBoxes);
+        return checkBoxes.length === checkboxArray.filter((checkBox) => checkBox.checked).length;
+    }
+    toggleActionButtonReport() {
+        document.querySelector(Selectors.actionButtonSelectorReport)?.toggleAttribute('disabled', !document.querySelectorAll('input[type="checkbox"]:checked').length);
+    }
+    /**
+     * Enables the "Toggle all" checkbox on document load if all child checkboxes are checked
+     */
+    toggleTriggerCheckBoxReport() {
+        const checkBoxes = document.querySelectorAll(Selectors.linktypesSelectorReport);
+        document.getElementById(Identifier.toggleAllLinktypesIdReport).checked = Linkvalidator.allCheckBoxesAreChecked(checkBoxes);
+    }
+    initializeEvents() {
+        // toggleAll (checkboxes): on change
+        new RegularEvent('change', (e, currentTarget) => {
+            const checkBoxes = document.querySelectorAll(Selectors.linktypesSelectorReport);
+            const checkIt = !Linkvalidator.allCheckBoxesAreChecked(checkBoxes);
+            checkBoxes.forEach((checkBox) => {
+                checkBox.checked = checkIt;
+            });
+            currentTarget.checked = checkIt;
+            this.toggleActionButtonReport();
+        }).delegateTo(document, Selectors.toggleAllLinktypesSelectorReport);
+        // toggle (checkbox): on change
+        new RegularEvent('change', () => {
+            this.toggleTriggerCheckBoxReport();
+            this.toggleActionButtonReport();
+        }).delegateTo(document, Selectors.linktypesSelectorReport);
+        new RegularEvent('click', (e, actionButton) => {
+            Notification.success(actionButton.dataset.notificationMessage || 'Event triggered', '', 2);
+        }).delegateTo(document, Selectors.actionButtonSelectorCheck);
+        new RegularEvent('click', (e, actionButton) => {
+            Notification.success(actionButton.dataset.notificationMessage || 'Event triggered', '', 2);
+        }).delegateTo(document, Selectors.actionButtonSelectorReport);
+    }
+}
+export default new Linkvalidator();

@@ -1,0 +1,28 @@
+// Table
+.widget-table-wrapper {
+    margin: calc(-1 * var(--widget-padding));
+}
+
+.widget-table {
+    margin: 0;
+
+    th,
+    td {
+        &:first-child {
+            padding-inline-start: var(--widget-padding);
+        }
+
+        &:last-child {
+            padding-inline-end: var(--widget-padding);
+        }
+    }
+
+    tbody:last-child {
+        tr:last-child {
+            th,
+            td {
+                border-bottom: none;
+            }
+        }
+    }
+}

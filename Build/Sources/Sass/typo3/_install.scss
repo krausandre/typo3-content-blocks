@@ -1,0 +1,80 @@
+.typo3-install-container {
+    margin: 0 auto;
+    padding: 4rem 1rem;
+    max-width: 620px;
+}
+
+.typo3-install-content {
+    color: var(--typo3-component-color);
+    background-color: var(--typo3-component-bg);
+    box-shadow: var(--typo3-component-box-shadow-strong);
+    border-radius: 1rem;
+    border: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    overflow: hidden;
+
+    > div {
+        > *:first-child {
+            margin-top: 0;
+        }
+
+        > *:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+.typo3-install-content-header {
+    padding: 2rem;
+}
+
+.typo3-install-content-header-logo {
+    margin: 0 auto;
+    margin-bottom: 1rem;
+}
+
+.typo3-install-content-progress {
+    padding: 1rem 2rem;
+    border-top: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    background-color: color-mix(in srgb, var(--typo3-component-bg), var(--typo3-component-color) 3%);
+}
+
+.typo3-install-content-body {
+    border-top: var(--typo3-component-border-width) solid var(--typo3-component-border-color);
+    padding: 2rem;
+
+    > *:first-child {
+        margin-top: 0;
+    }
+
+    > *:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.typo3-install-content-spacer {
+    margin-top: 2rem;
+}
+
+.typo3-install-content-spacer-small {
+    margin-top: 1rem;
+}
+
+.extensionConfiguration-form {
+    .tab-content {
+        margin-bottom: 1rem;
+    }
+}
+
+.t3-install-form-password-toggle {
+    &[data-toggle-state="invisible"] {
+        .icon-actions-eye {
+            display: none;
+        }
+    }
+
+    &[data-toggle-state="visible"] {
+        .icon-actions-lock {
+            display: none;
+        }
+    }
+}

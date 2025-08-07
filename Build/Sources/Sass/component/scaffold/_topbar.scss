@@ -1,0 +1,162 @@
+//
+// Topbar
+// ======
+//
+.topbar {
+    --topbar-site-bg: transparent;
+    --topbar-item-color-state: initial;
+    --topbar-item-bg-state: initial;
+    --topbar-item-border-color-state: initial;
+    --topbar-item-color: var(--scaffold-header-color);
+    --topbar-item-bg: var(--scaffold-header-bg);
+    --topbar-item-border-color: transparent;
+    --topbar-item-height: var(--scaffold-header-item-height);
+    --topbar-item-width: var(--scaffold-header-item-width);
+    --topbar-item-border-radius: var(--scaffold-header-item-border-radius);
+    --topbar-workspace-bg: light-dark(var(--token-color-blue-20), var(--token-color-blue-80));
+    position: relative;
+    display: flex;
+    align-items: center;
+    contain: inline-size;
+    flex-grow: 1;
+    gap: .5rem;
+}
+
+//
+// Buttons
+//
+.topbar-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--topbar-item-color-state, var(--topbar-item-color));
+    background-color: var(--topbar-item-bg-state, var(--topbar-item-bg));
+    border: 1px solid var(--topbar-item-border-color-state, var(--topbar-item-border-color));
+    height: var(--topbar-item-height);
+    width: var(--topbar-item-width);
+    border-radius: var(--topbar-item-border-radius);
+    outline-offset: 0;
+    isolation: isolate;
+    transition: var(--typo3-transition-color);
+
+    @media (prefers-reduced-motion) {
+        transition: none;
+    }
+
+    &:hover {
+        --topbar-item-color-state: var(--typo3-state-default-hover-color);
+        --topbar-item-bg-state: var(--typo3-state-default-hover-bg);
+        --topbar-item-border-color: var(--typo3-state-default-hover-border-color);
+    }
+
+    &:focus {
+        --topbar-item-color-state: var(--typo3-state-default-focus-color);
+        --topbar-item-bg-state: var(--typo3-state-default-focus-bg);
+        --topbar-item-border-color: var(--typo3-state-default-focus-border-color);
+    }
+
+    &:focus,
+    &:hover {
+        z-index: 1;
+    }
+
+    &:focus-visible {
+        outline: var(--typo3-outline-width) var(--typo3-outline-style) color-mix(in srgb, var(--topbar-item-border-color), transparent var(--typo3-outline-transparent-mix));
+        z-index: 2;
+    }
+
+    &[disabled],
+    &[disabled]:focus,
+    &[disabled]:hover {
+        cursor: not-allowed;
+        opacity: .5;
+    }
+
+    &.topbar-button-modulemenu {
+        inset-inline-start: 0;
+    }
+
+    &.topbar-button-toolbar {
+        inset-inline-end: var(--topbar-item-width);
+    }
+
+    &.topbar-button-search {
+        inset-inline-end: 0;
+    }
+}
+
+@include media-breakpoint-up('lg') {
+    .topbar-button-toolbar,
+    .topbar-button-search {
+        display: none;
+    }
+}
+
+//
+// Header
+//
+.topbar-site-container {
+    flex-grow: 1;
+    contain: inline-size;
+}
+
+.topbar-site {
+    display: inline-flex;
+    height: var(--topbar-item-height);
+    align-items: center;
+    white-space: nowrap;
+    line-height: 1.2;
+    gap: .5rem;
+    border-radius: var(--topbar-item-border-radius);
+    max-width: 100%;
+
+    &,
+    &:focus,
+    &:hover {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    &:focus,
+    &:hover {
+        .topbar-site-title {
+            text-underline-offset: .1em;
+            text-decoration: underline;
+            text-decoration-color: color-mix(in srgb, currentColor, transparent 50%);
+        }
+    }
+
+    &:focus-visible {
+        outline: var(--typo3-outline-width) var(--typo3-outline-style) color-mix(in srgb, var(--typo3-state-default-focus-border-color), transparent var(--typo3-outline-transparent-mix));
+    }
+}
+
+.topbar-site-logo {
+    display: none;
+
+    img {
+        max-width: 180px;
+        max-height: 35px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    @media (min-width: 320px) {
+        display: block;
+    }
+}
+
+.topbar-site-title {
+    overflow: hidden;
+}
+
+.topbar-site-name,
+.topbar-site-version {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.topbar-site-version {
+    color: var(--typo3-text-color-variant);
+}

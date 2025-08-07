@@ -1,0 +1,8 @@
+//
+// User settings
+//
+#SetupModuleController .form-section > .form-group {
+    @include media-breakpoint-up('lg') {
+        width: 50%;
+    }
+}

@@ -1,0 +1,15 @@
+@import "../../node_modules/bootstrap/scss/functions";
+@import "variables/main";
+
+// BASE
+@import "dashboard/header";
+@import "dashboard/empty";
+@import "dashboard/grid";
+@import "dashboard/button";
+
+// WIDGETS
+@import "dashboard/widget";
+@import "dashboard/widget_table";
+@import "dashboard/widget_cta";
+@import "dashboard/widget_doughnut_chart";
+@import "dashboard/widget_number";

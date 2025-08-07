@@ -1,0 +1,349 @@
+:root {
+    --settings-color: var(--typo3-component-color);
+    --settings-padding: calc(var(--typo3-spacing) * 2);
+    --settings-bg: var(--typo3-component-bg);
+    --settings-border-width: var(--typo3-component-border-width);
+    --settings-border-color: var(--typo3-component-border-color);
+    --settings-border-radius: var(--typo3-component-border-radius);
+    --settings-box-shadow: var(--typo3-component-box-shadow);
+    --settings-highlight: var(--typo3-component-primary-color);
+    --settings-indicator-bg: transparent;
+    --settings-item-color: var(--settings-color);
+    --settings-item-bg: var(--settings-bg);
+    --settings-search-height: 80px;
+    --settings-nav-height-correction: 100px;
+    --settings-nav-item-padding-x: var(--typo3-list-item-padding-x);
+    --settings-nav-item-padding-y: var(--typo3-list-item-padding-y);
+    --settings-parent-offset: 0;
+}
+
+.module-body typo3-backend-settings-editor {
+    --settings-parent-offset: var(--module-body-padding-y);
+}
+
+.modal-body typo3-backend-settings-editor {
+    --settings-parent-offset: var(--typo3-modal-padding);
+}
+
+.settings-container {
+    container-type: inline-size;
+}
+
+.settings {
+    display: grid;
+    grid-template-columns: 1fr;
+    color: var(--settings-color);
+    box-shadow: var(--settings-box-shadow);
+    border: var(--settings-border-width) solid var(--settings-border-color);
+    background-color: var(--settings-bg);
+    gap: var(--settings-border-width);
+    border-radius: var(--settings-border-radius);
+
+    &-search {
+        position: sticky;
+        top: calc(var(--settings-parent-offset) * -1);
+        z-index: 5;
+        height: var(--settings-search-height);
+        display: flex;
+        align-items: center;
+        border-start-start-radius: calc(var(--settings-border-radius) - var(--settings-border-width));
+        border-start-end-radius: calc(var(--settings-border-radius) - var(--settings-border-width));
+        background-color: color-mix(in srgb, var(--settings-bg), currentColor 1%);
+        padding-inline: calc(var(--settings-padding) - .3rem);
+
+        &:has(+ :not([hidden])) {
+            border-bottom: var(--settings-border-width) solid var(--settings-border-color);
+        }
+    }
+
+    &-navigation {
+        display: none;
+        position: relative;
+    }
+
+    &-navigation-inner {
+        padding: calc(var(--settings-padding) - .3rem);
+    }
+
+    &-body-inner {
+        padding: var(--settings-padding);
+    }
+}
+
+@container (min-width: 780px) {
+    .settings:has(.settings-navigation) {
+        grid-template-columns: 300px 1fr;
+
+        .settings-search {
+            grid-column: span 2;
+        }
+
+        .settings-navigation {
+            display: flex;
+            flex-direction: column;
+
+            &-inner {
+                position: sticky;
+                top: calc(var(--settings-parent-offset) * -1);
+                overflow-y: auto;
+                scrollbar-gutter: stable;
+                flex-grow: 1;
+            }
+        }
+
+        &:has(.settings-search) {
+            .settings-navigation-inner {
+                top: calc(var(--settings-search-height) - var(--settings-parent-offset));
+            }
+        }
+    }
+}
+
+.settings-navigation {
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin-top: 1px;
+        }
+
+        ul {
+            padding-inline-start: 1rem;
+        }
+    }
+
+    > ul:first-child > li:first-child {
+        margin-top: 0;
+    }
+
+    [identifier="actions-chevron-left"],
+    [identifier="actions-chevron-right"] {
+        opacity: .5;
+    }
+}
+
+.settings-navigation-item {
+    color: var(--typo3-component-color);
+    position: relative;
+    display: flex;
+    width: 100%;
+    background-color: transparent;
+    border-radius: calc(var(--typo3-component-border-radius) - var(--typo3-component-border-width));
+    gap: .5em;
+    padding: var(--settings-nav-item-padding-y) var(--settings-nav-item-padding-x);
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    text-align: start;
+
+    &.active,
+    &:hover,
+    &:focus {
+        z-index: 1;
+        outline-offset: -1px;
+        text-decoration: none;
+    }
+
+    &:hover {
+        color: var(--typo3-component-hover-color);
+        background-color: var(--typo3-component-hover-bg);
+        outline: 1px solid var(--typo3-component-hover-border-color);
+    }
+
+    &:focus-visible {
+        outline: 1px solid var(--typo3-component-focus-border-color);
+    }
+
+    &.active {
+        color: var(--typo3-component-focus-color);
+        background-color: var(--typo3-component-focus-bg);
+        outline: 1px solid var(--typo3-component-focus-border-color);
+    }
+
+    &-icon {
+        user-select: none;
+        flex-shrink: 0;
+        flex-grow: 0;
+        width: var(--icon-size-small);
+    }
+
+    &-label {
+        user-select: none;
+        flex-grow: 1;
+    }
+}
+
+.settings-category {
+    text-wrap: balance;
+    z-index: 10;
+
+    &-headline {
+        display: flex;
+        align-items: center;
+        gap: .5em;
+
+        > typo3-backend-icon {
+            color: var(--typo3-text-color-primary);
+        }
+    }
+
+    &-headline,
+    &-description {
+        max-width: 600px;
+    }
+
+    &-list + &-list {
+        margin-top: calc(var(--typo3-spacing) * 2);
+    }
+}
+
+.settings-item {
+    position: relative;
+    contain: inline-size;
+    color: var(--settings-item-color);
+    background: var(--settings-item-bg);
+    border-radius: var(--settings-border-radius);
+    padding-block: var(--typo3-component-padding-y);
+    padding-inline-start: calc(var(--typo3-component-padding-x) + 4px);
+    padding-inline-end: calc(var(--typo3-component-padding-x) + 3rem);
+    margin-inline-start: calc(-1 * var(--typo3-component-padding-x));
+    margin-inline-end: calc(-1 * var(--typo3-component-padding-x));
+
+    &:focus-within,
+    &:focus-within * {
+        --settings-item-bg: var(--typo3-component-focus-bg);
+        --settings-item-color: var(--typo3-component-focus-color);
+    }
+
+    &:focus-within {
+        outline-offset: -1px;
+        outline: 1px solid var(--typo3-component-focus-border-color);
+    }
+
+    &:hover,
+    &:focus,
+    &:focus-within {
+        .settings-item-actions {
+            opacity: 1;
+        }
+    }
+
+    &-indicator {
+        position: absolute;
+        background: var(--settings-indicator-bg);
+        inset-inline-start: var(--settings-border-width);
+        inset-block-start: var(--settings-border-width);
+        inset-block-end: var(--settings-border-width);
+        border-start-start-radius: calc(var(--settings-border-radius) - var(--settings-border-width));
+        border-end-start-radius: calc(var(--settings-border-radius) - var(--settings-border-width));
+        width: .3rem;
+    }
+
+    &[data-status="modified"],
+    &[data-status="modified"] * {
+        --settings-indicator-bg: var(--typo3-state-info-bg);
+    }
+
+    &[data-status="error"],
+    &[data-status="error"] * {
+        --settings-indicator-bg: var(--typo3-state-danger-bg);
+    }
+
+    &-actions {
+        opacity: 0;
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        inset-inline-end: 0;
+        inset-block-start: 0;
+        inset-block-end: 0;
+        padding-block: var(--typo3-component-padding-y);
+        width: 3rem;
+        transition: opacity .3s ease-in-out;
+
+        & > .dropdown > button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: transparent;
+            border: none;
+            color: inherit;
+            outline: none;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            margin-top: -4px;
+            border-radius: 50%;
+
+            &:hover {
+                background: color-mix(in srgb, var(--settings-item-bg), var(--settings-item-color) 10%);
+            }
+
+            &:focus {
+                background: color-mix(in srgb, var(--typo3-component-focus-bg), var(--typo3-component-focus-border-color) 20%);
+                color: var(--typo3-component-focus-color);
+            }
+
+            &:after {
+                display: none;
+            }
+        }
+    }
+
+    &-title {
+        margin-bottom: calc(var(--typo3-spacing) / 2);
+    }
+
+    &-label {
+        font-weight: bold;
+        margin-bottom: calc(var(--typo3-spacing) * .25);
+    }
+
+    &-description {
+        color: color-mix(in srgb, var(--settings-color), var(--settings-bg) 25%);
+    }
+
+    &-key {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: var(--typo3-font-family-code);
+        color: var(--settings-highlight);
+    }
+
+    &-message {
+        margin-top: calc(var(--typo3-spacing) / 2);
+
+        &:empty {
+            display: none;
+        }
+    }
+}
+
+:is(.settings-item-description, .settings-category-description) {
+    :is(p, dl, ol, ul, blockquote, pre) {
+        margin-bottom: calc(var(--typo3-spacing) * .25);
+    }
+
+    :is(ol, ul) {
+        padding-left: 0;
+        padding-right: 0;
+        padding-inline-start: calc(var(--typo3-spacing) * .25 + 1rem);
+    }
+
+    blockquote {
+        padding: calc(var(--typo3-spacing) * .25);
+        padding-inline-start: calc(var(--typo3-spacing) * .5);
+        border-inline-start: .25rem solid color-mix(in srgb, var(--typo3-text-color-base), transparent 75%);
+        margin-bottom: calc(var(--typo3-spacing) * .25);
+    }
+
+    code {
+        padding: .2em .4em;
+        white-space: break-spaces;
+        background: light-dark(var(--token-color-neutral-7), var(--token-color-neutral-90));
+        border-radius: var(--typo3-component-border-radius);
+    }
+}

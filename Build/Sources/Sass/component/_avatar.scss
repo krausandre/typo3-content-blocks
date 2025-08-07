@@ -1,0 +1,118 @@
+//
+// Avatar
+// ======
+// Display user profile images
+//
+//
+// Empty Usage - Fallback image provided
+// -------------------------------------
+//
+// <span class="avatar">
+//   <span class="avatar-image"></span>
+// </span>
+//
+//
+// Normal Usage
+// ------------
+//
+// <span class="avatar avatar-size-small">
+//   <span class="avatar-image">
+//     <img src="">
+//   </span>
+// </span>
+//
+//
+// Avatar with RecordIcon
+// ------------
+//
+// <span class="avatar avatar-size-medium">
+//   <span class="avatar-image">
+//     <img src="...">
+//   </span>
+//   <span class="avatar-icon">
+//     <span class="t3js-icon icon icon-size-small icon-state-default icon-status-user-admin" data-identifier="status-user-admin" aria-hidden="true">...</span>
+//   </span>
+// </span>
+//
+//
+
+//
+// Variables
+//
+$avatar-size-small: 16px !default;
+$avatar-size-medium: 32px !default;
+$avatar-size-large: 48px !default;
+$avatar-size-mega: 64px !default;
+
+:root {
+    --avatar-size-small: #{$avatar-size-small};
+    --avatar-size-medium: #{$avatar-size-medium};
+    --avatar-size-large: #{$avatar-size-large};
+    --avatar-size-mega: #{$avatar-size-mega};
+}
+
+//
+// Component
+//
+.avatar {
+    position: relative;
+    display: block;
+    height: var(--avatar-size, 1em);
+    width: var(--avatar-size, 1em);
+    line-height: var(--avatar-size, 1em);
+}
+
+.avatar-image {
+    display: block;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 50%;
+
+    &:after {
+        display: block;
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, .1);
+    }
+
+    > img {
+        display: block;
+        width: 100% !important;
+        height: auto !important;
+    }
+}
+
+.avatar-size-small {
+    --avatar-size: var(--avatar-size-small);
+}
+
+.avatar-size-medium {
+    --avatar-size: var(--avatar-size-medium);
+}
+
+.avatar-size-large {
+    --avatar-size: var(--avatar-size-large);
+}
+
+.avatar-size-mega {
+    --avatar-size: var(--avatar-size-mega);
+}
+
+.avatar-icon {
+    position: absolute;
+    bottom: 0;
+    inset-inline-end: 0;
+    height: calc(var(--avatar-size, 1em) * .5);
+    width: calc(var(--avatar-size, 1em) * .5);
+
+    .icon {
+        --icon-size: calc(var(--avatar-size, 1em) * .5);
+        display: block;
+    }
+}

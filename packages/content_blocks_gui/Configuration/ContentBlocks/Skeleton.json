@@ -1,0 +1,27 @@
+{
+	"name": "",
+	"yaml": {
+		"table": "tt_content",
+		"typeField": "CType",
+		"name": "",
+		"typeName": "",
+		"title": "",
+		"description": "Description for ContentBlock",
+		"group": "common",
+		"prefixFields": true,
+		"prefixType": "full",
+		"fields": []
+	},
+	"icon": {
+		"iconPath": "",
+		"iconProvider": "",
+		"iconIdentifier": ""
+	},
+	"iconHideInMenu": {
+		"iconPath": "",
+		"iconProvider": "",
+		"iconIdentifier": ""
+	},
+	"hostExtension": "",
+	"extPath": ""
+}

@@ -1,0 +1,80 @@
+cgl pre-merge:
+  stage: main
+  tags:
+    - metal2
+  except:
+    refs:
+      - schedules
+      - "13.4"
+  script:
+    - Build/Scripts/runTests.sh -s composerInstall -p 8.2
+    - Build/Scripts/runTests.sh -s cglGit -n -p 8.2
+    - Build/Scripts/runTests.sh -s cglHeaderGit -n -p 8.2
+
+integration various php 8.2 pre-merge:
+  stage: main
+  tags:
+    - metal2
+  except:
+    refs:
+      - schedules
+      - "13.4"
+  script:
+    - Build/Scripts/runTests.sh -s composerValidate -p 8.2
+    - Build/Scripts/runTests.sh -s composerTestDistribution -p 8.2
+    - Build/Scripts/runTests.sh -s composerInstall -p 8.2
+    - Build/Scripts/runTests.sh -s checkGitSubmodule -p 8.2
+    - Build/Scripts/runTests.sh -s checkPermissions -p 8.2
+    - Build/Scripts/runTests.sh -s checkRst -p 8.2
+    - Build/Scripts/runTests.sh -s checkFilePathLength -p 8.2
+    - Build/Scripts/runTests.sh -s checkExtensionScannerRst -p 8.2
+    - Build/Scripts/runTests.sh -s checkBom -p 8.2
+    - Build/Scripts/runTests.sh -s checkComposer -p 8.2
+    - Build/Scripts/runTests.sh -s checkIntegrityPhp -p 8.2
+    - Build/Scripts/runTests.sh -s checkIntegritySetLabels -p 8.2
+    - Build/Scripts/runTests.sh -s lintServicesYaml -p 8.2
+    - Build/Scripts/runTests.sh -s lintYaml -p 8.2
+    - Build/Scripts/runTests.sh -s checkFilesAndPathsForSpaces -p 8.2
+
+lint php pre-merge:
+  stage: main
+  tags:
+    - metal2
+  except:
+    refs:
+      - schedules
+      - "13.4"
+  script:
+    - Build/Scripts/runTests.sh -s lintPhp -p 8.2
+    - Build/Scripts/runTests.sh -s lintPhp -p 8.4
+
+grunt scss ts html pre-merge:
+  stage: main
+  tags:
+    - metal2
+  except:
+    refs:
+      - schedules
+      - "13.4"
+  cache:
+    key: 13.4-js
+    paths:
+      - .cache
+  script:
+    - Build/Scripts/runTests.sh -s checkGruntClean
+    - Build/Scripts/runTests.sh -s lintScss
+    - Build/Scripts/runTests.sh -s lintTypescript
+    - Build/Scripts/runTests.sh -s lintHtml
+
+phpstan php 8.2 pre-merge:
+  stage: main
+  tags:
+    - metal2
+  except:
+    refs:
+      - schedules
+      - "13.4"
+  script:
+    - Build/Scripts/runTests.sh -s composerInstall -p 8.2
+    - Build/Scripts/runTests.sh -s phpstan -p 8.2
+

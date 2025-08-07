@@ -1,0 +1,132 @@
+//
+// Notes
+// ============
+//
+//
+// Minimal Usage
+// -------------
+//
+// <div class="note">
+//     <div class="note-header">
+//         <div class="note-header-bar">
+//             <div class="note-title">
+//                 ...
+//             </div>
+//             <div class="note-actions">
+//                 ...
+//             </div>
+//         </div>
+//     </div>
+//     <div class="note-body">
+//         <p>...</p>
+//     </div>
+// </div>
+//
+
+//
+// Component
+//
+.note-list {
+    display: grid;
+    gap: var(--typo3-spacing);
+    margin-bottom: var(--typo3-spacing);
+
+    .note {
+        margin-bottom: 0;
+    }
+}
+
+.note {
+    --typo3-note-color: var(--typo3-component-color);
+    --typo3-note-bg: var(--typo3-component-bg);
+    --typo3-note-border-color: color-mix(in srgb, var(--typo3-note-bg), var(--typo3-note-color) var(--typo3-border-mix));
+    --typo3-note-border-width: var(--typo3-component-border-width);
+    --typo3-note-border-radius: var(--typo3-component-border-radius);
+    --typo3-note-padding-y: 1rem;
+    --typo3-note-padding-x: 1rem;
+    --typo3-note-header-bg: var(--typo3-surface-container-low);
+    --typo3-note-header-color: var(--typo3-text-color-base);
+    --typo3-note-header-padding-y: .5rem;
+    --typo3-note-header-padding-x: 1rem;
+    --typo3-note-box-shadow: var(--typo3-component-box-shadow);
+
+    @each $state in $base-variants {
+        --typo3-note-#{$state}-header-color: var(--typo3-surface-container-#{$state}-text);
+        --typo3-note-#{$state}-header-bg: var(--typo3-surface-container-#{$state});
+        --typo3-note-#{$state}-border-color: color-mix(in srgb, var(--typo3-note-#{$state}-header-bg), var(--typo3-note-#{$state}-header-color) var(--typo3-border-mix));
+    }
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    color: var(--typo3-note-color);
+    background-color: var(--typo3-note-bg);
+    border-radius: var(--typo3-note-border-radius);
+    border: var(--typo3-note-border-width) solid var(--typo3-note-border-color);
+    margin-bottom: var(--typo3-spacing);
+    box-shadow: var(--typo3-note-box-shadow);
+}
+
+.note-header {
+    color: var(--typo3-note-header-color);
+    background-color: var(--typo3-note-header-bg);
+    padding: var(--typo3-note-header-padding-y) var(--typo3-note-header-padding-x);
+}
+
+.note-header-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.note-actions {
+    margin-inline-start: auto;
+}
+
+.note-body {
+    padding: var(--typo3-note-padding-y) var(--typo3-note-padding-x);
+
+    > *:first-child {
+        margin-top: 0;
+    }
+
+    > *:last-child {
+        margin-bottom: 0;
+    }
+}
+
+//
+// Variants
+//
+@each $variant in $base-variants {
+    .note-#{$variant} {
+        --typo3-note-header-color: var(--typo3-note-#{$variant}-header-color);
+        --typo3-note-header-bg: var(--typo3-note-#{$variant}-header-bg);
+        --typo3-note-border-color: var(--typo3-note-#{$variant}-border-color);
+    }
+}
+
+// Default
+.note-category-0 {
+    @extend .note-default;
+}
+
+// Instruction
+.note-category-1 {
+    @extend .note-info;
+}
+
+// Template
+.note-category-2 {
+    @extend .note-warning;
+}
+
+// Notice
+.note-category-3 {
+    @extend .note-notice;
+}
+
+// Todo
+.note-category-4 {
+    @extend .note-success;
+}

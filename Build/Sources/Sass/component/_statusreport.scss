@@ -1,0 +1,143 @@
+//
+// Statusreport
+// ============
+//
+// Minimal Usage
+// -------------
+// <div class="statusreport-wrapper">
+//     <div class="statusreport" data-severity="success">
+//         <div class="statusreport-indicator">
+//             <div class="statusreport-indicator-icon">
+//                 <core:icon identifier="actions-check" size="default" />
+//             </div>
+//         </div>
+//         <div class="statusreport-title">
+//             ...
+//         </div>
+//         <div class="statusreport-body">
+//             ...
+//         </div>
+//     </div>
+// </div>
+//
+//
+// List Usage
+// ----------
+//
+// <div class="statusreport-wrapper">
+//     <div class="statusreport" data-severity="success">
+//         ....
+//     </div>
+//     <div class="statusreport" data-severity="error">
+//         ....
+//     </div>
+// </div>
+//
+.statusreport {
+    --typo3-statusreport-color: var(--typo3-component-color);
+    --typo3-statusreport-bg: var(--typo3-component-bg);
+    --typo3-statusreport-border-color: color-mix(in srgb, var(--typo3-statusreport-bg), var(--typo3-statusreport-color) var(--typo3-border-mix));
+    --typo3-statusreport-border-radius: var(--typo3-component-border-radius);
+    --typo3-statusreport-box-shadow: var(--typo3-component-box-shadow);
+    --typo3-statusreport-spacing: .5rem;
+    --typo3-statusreport-icon-size: 16px;
+    --typo3-statusreport-icon-color: var(--typo3-state-default-color);
+    --typo3-statusreport-icon-bg: var(--typo3-state-default-bg);
+
+    @each $state in $base-variants {
+        --typo3-statusreport-icon-#{$state}-color: var(--typo3-state-#{$state}-color);
+        --typo3-statusreport-icon-#{$state}-bg: var(--typo3-state-#{$state}-bg);
+    }
+    display: grid;
+    grid-template: 'statusreport-indicator statusreport-title statusreport-body' / calc(var(--typo3-statusreport-icon-size) * 1.5) 400px auto;
+    color: var(--typo3-statusreport-color);
+    padding: calc(var(--typo3-statusreport-spacing) * 1.5);
+    gap: var(--typo3-statusreport-spacing);
+    background-color: var(--typo3-statusreport-bg);
+    width: 100%;
+    border: 1px solid var(--typo3-statusreport-border-color);
+
+    &-indicator {
+        display: flex;
+        justify-content: center;
+        grid-area: statusreport-indicator;
+    }
+
+    &-title {
+        grid-area: statusreport-title;
+    }
+
+    &-body {
+        grid-area: statusreport-body;
+    }
+
+    @include link-reset();
+
+    .statusreport-indicator-icon {
+        position: relative;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--typo3-statusreport-icon-color);
+        font-size: var(--typo3-statusreport-icon-size);
+        height: var(--typo3-statusreport-icon-size);
+        width: var(--typo3-statusreport-icon-size);
+
+        &:before {
+            position: absolute;
+            content: ' ';
+            top: 50%;
+            left: 50%;
+            height: calc(var(--typo3-statusreport-icon-size) * 1.5);
+            width: calc(var(--typo3-statusreport-icon-size) * 1.5);
+            background-color: var(--typo3-statusreport-icon-bg);
+            transform: translate(calc(-50% * var(--typo3-position-modifier)), -50%);
+            border-radius: 50%;
+        }
+    }
+}
+
+.statusreport-wrapper {
+    border-radius: var(--typo3-statusreport-border-radius);
+    box-shadow: var(--typo3-statusreport-box-shadow);
+    margin-bottom: var(--typo3-spacing);
+
+    .statusreport {
+        &:first-child {
+            border-top-left-radius: var(--typo3-statusreport-border-radius);
+            border-top-right-radius: var(--typo3-statusreport-border-radius);
+        }
+
+        &:last-child {
+            border-bottom-left-radius: var(--typo3-statusreport-border-radius);
+            border-bottom-right-radius: var(--typo3-statusreport-border-radius);
+        }
+
+        + .statusreport {
+            margin-top: -1px;
+        }
+    }
+}
+
+@each $state, $value in $theme-colors {
+    .statusreport[data-severity=#{$state}] {
+        --typo3-statusreport-icon-bg: var(--typo3-statusreport-icon-#{$state}-bg);
+        --typo3-statusreport-icon-color: var(--typo3-statusreport-icon-#{$state}-color);
+    }
+}
+
+.statusreport-wrapper {
+    container-type: inline-size;
+}
+
+@container (max-width: 800px) {
+    .statusreport {
+        grid-template: 'statusreport-indicator statusreport-title statusreport-body' / calc(var(--typo3-statusreport-icon-size) * 1.5) 200px auto;
+    }
+}
+
+@container (max-width: 500px) {
+    .statusreport {
+        grid-template: 'statusreport-indicator statusreport-title' 'statusreport-indicator statusreport-body' / calc(var(--typo3-statusreport-icon-size) * 1.5) auto;
+    }
+}

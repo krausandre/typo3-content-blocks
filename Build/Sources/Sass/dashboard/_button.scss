@@ -1,0 +1,9 @@
+.btn-dashboard-add-widget {
+    --typo3-btn-padding-y: 1rem;
+    --typo3-btn-padding-x: 1rem;
+    position: fixed;
+    inset-inline-end: 24px;
+    bottom: 24px;
+    z-index: 2;
+    box-shadow: var(--typo3-component-box-shadow-flyout);
+}

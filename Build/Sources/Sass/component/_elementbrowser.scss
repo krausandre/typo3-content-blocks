@@ -1,0 +1,168 @@
+//
+// Element Browser
+//
+
+//
+// Usage
+// --------------
+//
+// <div class="element-browser">
+//     <div class="element-browser-header">
+//         <div class="element-browser-header-title">
+//             ...
+//         </div>
+//         <div class="element-browser-header-actions">
+//             ...
+//         </div>
+//     </div>
+//     <div class="element-browser-tabs">
+//         <ul class="nav nav-pills" role="tablist">
+//             <li class="active"><a href="#">Page 1</a></li>
+//             <li class="active"><a href="#">Page 2</a></li>
+//             <li class="active"><a href="#">Page 3</a></li>
+//         </ul>
+//     </div>
+//     <div class="element-browser-main">
+//         <div class="element-browser-main-sidebar">
+//             ...
+//         </div>
+//         <div class="element-browser-main-content">
+//             <div class="element-browser-attributes">
+//                 ...
+//             </div>
+//             <div class="element-browser-body">
+//                 ...
+//             </div>
+//         </div>
+//     </div>
+// </div>
+//
+
+//
+// Component
+//
+.element-browser {
+    display: flex;
+    flex-flow: nowrap column;
+    width: 100%;
+    height: 100dvh;
+    contain: strict;
+
+    h3 {
+        font-size: 1.2em;
+    }
+}
+
+.element-browser-header {
+    // Workaround to keep matching height even if no button is present
+    min-height: 42px;
+    padding: calc(var(--typo3-spacing) / 2) var(--typo3-spacing);
+    background-color: var(--module-docheader-bg);
+    display: flex;
+    gap: var(--typo3-spacing);
+    align-items: center;
+}
+
+.element-browser-header-title {
+    flex-grow: 1;
+}
+
+.element-browser-nav {
+    padding: calc(var(--typo3-spacing) / 2) var(--typo3-spacing);
+    background-color: var(--module-docheader-bg);
+    border-bottom: 1px solid var(--module-docheader-border-color);
+
+    .element-browser-header + & {
+        padding-top: 0;
+    }
+}
+
+.element-browser-body {
+    overflow: unset;
+    padding: var(--typo3-spacing);
+
+    > *:first-child {
+        margin-top: 0;
+    }
+
+    > *:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.element-browser-attributes {
+    padding: var(--typo3-spacing);
+    background-color: var(--module-docheader-bg);
+    border-bottom: 1px solid var(--module-docheader-border-color);
+
+    > *:first-child {
+        margin-top: 0;
+    }
+
+    > *:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.element-browser-main {
+    color: var(--typo3-text-color-base);
+    background-color: var(--typo3-surface-base);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-grow: 1;
+}
+
+.element-browser-main-sidebar {
+    background-color: var(--module-docheader-bg);
+    height: 100%;
+    flex-shrink: 0;
+
+    .scaffold-content-navigation-available & {
+        display: none;
+    }
+
+    .scaffold-content-navigation-available.scaffold-content-navigation-expanded & {
+        display: flex;
+    }
+}
+
+.element-browser-main-content {
+    flex-grow: 1;
+    overflow: auto;
+
+    @media (max-width: 499px) {
+        min-width: calc(100% - 38px);
+    }
+}
+
+.element-browser-main-content {
+    container-type: inline-size;
+}
+
+.element-browser-form-group {
+    margin-bottom: calc(var(--typo3-spacing) / 2);
+
+    .form-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+@container (min-width: 500px) {
+    .element-browser-form-group {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--typo3-spacing) / 2);
+
+        .form-label {
+            width: 180px;
+            flex-shrink: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 0 !important;
+        }
+    }
+}

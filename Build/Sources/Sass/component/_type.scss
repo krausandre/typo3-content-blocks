@@ -1,0 +1,114 @@
+//
+// Type Adjustments
+//
+h1 {
+    font-family: var(--typo3-header-font-family);
+    font-variant: normal;
+    font-weight: 400;
+}
+
+h1,
+h2,
+h3 {
+    &.headline-spaced,
+    &:not(:first-child):not([class]) {
+        margin-top: calc(var(--typo3-spacing) * 2);
+    }
+}
+
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+    font-family: inherit;
+}
+
+//
+// Links
+//
+a {
+    color: var(--typo3-text-color-link);
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    &:not([href]):not([class]),
+    &:not([href]):not([class]):hover {
+        color: inherit;
+        text-decoration: none;
+    }
+}
+
+//
+// Colors
+//
+.text-base,
+.text-base-emphasis {
+    color: var(--typo3-text-color-base) !important;
+}
+
+.text-muted,
+.text-muted-emphasis,
+.text-variant,
+.text-variant-emphasis {
+    color: var(--typo3-text-color-variant) !important;
+}
+
+.text-primary,
+.text-primary-emphasis {
+    color: var(--typo3-text-color-primary) !important;
+}
+
+.text-secondary,
+.text-secondary-emphasis {
+    color: var(--typo3-text-color-secondary) !important;
+}
+
+.text-info,
+.text-info-emphasis {
+    color: var(--typo3-text-color-info) !important;
+}
+
+.text-success,
+.text-success-emphasis {
+    color: var(--typo3-text-color-success) !important;
+}
+
+.text-warning,
+.text-warning-emphasis {
+    color: var(--typo3-text-color-warning) !important;
+}
+
+.text-danger,
+.text-danger-emphasis {
+    color: var(--typo3-text-color-danger) !important;
+}
+
+.text-notice,
+.text-notice-emphasis {
+    color: var(--typo3-text-color-notice) !important;
+}
+
+.text-default,
+.text-default-emphasis {
+    color: var(--typo3-text-color-default) !important;
+}
+
+.text-highlight {
+    color: inherit !important;
+    background-color: var(--typo3-component-match-highlight-bg) !important;
+}
+
+code,
+.text-code,
+.text-code-emphasis {
+    color: var(--typo3-text-color-code) !important;
+}
+
+.text-reset {
+    color: inherit !important;
+}

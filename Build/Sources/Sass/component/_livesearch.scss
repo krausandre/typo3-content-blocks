@@ -1,0 +1,232 @@
+//
+// Livesearch
+//
+typo3-backend-live-search {
+    --typo3-livesearch-padding: var(--typo3-modal-padding);
+    --typo3-livesearch-border-width: var(--typo3-component-border-width);
+    --typo3-livesearch-border-color: var(--typo3-component-border-color);
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+
+    .search-option-badge {
+        position: absolute;
+        transform: translate(calc(-50% * var(--typo3-position-modifier)), -50%);
+        top: 0 !important;
+        inset-inline-start: 100%;
+        isolation: isolate;
+    }
+
+    form {
+        padding: var(--typo3-livesearch-padding);
+        border-bottom: var(--typo3-livesearch-border-width) solid var(--typo3-livesearch-border-color);
+    }
+}
+
+typo3-backend-live-search-hint {
+    display: flex;
+    gap: 1ch;
+
+    p {
+        // @todo: this can be removed once the markdown module can render inline texts (excluding the wrapping <p> tag)
+        margin-bottom: 0;
+    }
+}
+
+typo3-backend-live-search-result-pagination {
+    nav {
+        padding: var(--typo3-livesearch-padding);
+        border-top: var(--typo3-livesearch-border-width) solid var(--typo3-livesearch-border-color);
+
+        > *:first-child {
+            margin-top: 0;
+        }
+
+        > *:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+typo3-backend-live-search-result-page {
+    cursor: pointer;
+}
+
+typo3-backend-live-search-result-container {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    contain: size;
+
+    > .alert {
+        flex: 1 1 auto;
+        align-self: flex-start;
+        margin: var(--typo3-livesearch-padding);
+    }
+}
+
+typo3-backend-live-search-result-item-container,
+typo3-backend-live-search-result-item-detail-container {
+    position: relative;
+    flex-grow: 1;
+    flex-basis: 50%;
+    overflow: auto;
+    padding: var(--typo3-livesearch-padding);
+}
+
+typo3-backend-live-search-result-item-container {
+    padding-top: 0;
+}
+
+typo3-backend-live-search-result-list,
+typo3-backend-live-search-result-action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+typo3-backend-live-search-result-list {
+    .livesearch-result-item-group-label {
+        color: var(--typo3-text-color-base);
+        background-color: var(--typo3-surface-base);
+        border-bottom: 1px solid var(--typo3-component-border-color);
+        font-weight: bold;
+        line-height: inherit;
+        padding-top: var(--typo3-livesearch-padding);
+        padding-bottom: var(--typo3-list-item-padding-y);
+        margin-bottom: var(--typo3-list-item-padding-y);
+        z-index: 1;
+
+        &.sticky {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+    }
+}
+
+typo3-backend-live-search-result-item-detail-container {
+    .livesearch-detail-preamble {
+        text-align: center;
+        padding: var(--typo3-livesearch-padding) 0;
+        margin-bottom: var(--typo3-livesearch-padding);
+        border-bottom: var(--typo3-livesearch-border-width) solid var(--typo3-livesearch-border-color);
+
+        h3 {
+            margin-top: var(--typo3-spacing) !important;
+        }
+
+        p {
+            margin-bottom: 0;
+        }
+    }
+
+    .livesearch-detail-preamble-type {
+        opacity: .5;
+    }
+}
+
+typo3-backend-live-search-result-item,
+typo3-backend-live-search-result-item-action {
+    --typo3-livesearch-result-item-padding-y: var(--typo3-list-item-padding-y);
+    --typo3-livesearch-result-item-padding-x: var(--typo3-list-item-padding-x);
+    --typo3-livesearch-result-item-color: var(--typo3-component-color);
+    --typo3-livesearch-result-item-bg: var(--typo3-component-bg);
+    --typo3-livesearch-result-item-border-color: var(--typo3-component-border-color);
+    --typo3-livesearch-result-iten-border-width: var(--typo3-component-border-width);
+    --typo3-livesearch-result-item-border-radius: var(--typo3-component-border-radius);
+    display: flex;
+    gap: var(--typo3-spacing);
+    font-size: var(--typo3-component-font-size);
+    line-height: var(--typo3-component-line-height);
+    padding: var(--typo3-livesearch-result-item-padding-y) var(--typo3-livesearch-result-item-padding-x);
+    border-radius: var(--typo3-livesearch-result-item-border-radius);
+    border: var(--typo3-livesearch-result-iten-border-width) solid var(--typo3-livesearch-result-item-border-color);
+    color: var(--typo3-livesearch-result-item-color);
+    background-color: var(--typo3-livesearch-result-item-bg);
+    cursor: pointer;
+    outline-offset: 0;
+
+    &:hover,
+    &:focus,
+    &.active {
+        z-index: 1;
+    }
+
+    &:hover {
+        --typo3-livesearch-result-item-color: var(--typo3-component-hover-color);
+        --typo3-livesearch-result-item-bg: var(--typo3-component-hover-bg);
+        --typo3-livesearch-result-item-border-color: var(--typo3-component-hover-border-color);
+    }
+
+    &:focus,
+    &.active {
+        --typo3-livesearch-result-item-color: var(--typo3-component-focus-color);
+        --typo3-livesearch-result-item-bg: var(--typo3-component-focus-bg);
+        --typo3-livesearch-result-item-border-color: var(--typo3-component-focus-border-color);
+    }
+
+    &:focus-within {
+        outline: var(--typo3-outline-width) var(--typo3-outline-style) color-mix(in srgb, var(--typo3-livesearch-result-item-border-color), transparent 25%);
+    }
+
+    .livesearch-expand-action {
+        flex: 0;
+        display: flex;
+        align-items: center;
+        margin: calc(var(--typo3-livesearch-result-item-padding-y) * -1) calc(var(--typo3-livesearch-result-item-padding-x) * -1);
+        padding: var(--typo3-livesearch-result-item-padding-y) var(--typo3-livesearch-result-item-padding-x);
+        border-inline-start: var(--typo3-component-border-width) solid transparent;
+
+        &:hover {
+            border-inline-start-color: var(--typo3-livesearch-result-item-border-color);
+        }
+    }
+}
+
+typo3-backend-live-search-result-item,
+typo3-backend-live-search-result-item-action {
+    width: 100%;
+    overflow: hidden;
+
+    > *:first-child {
+        display: flex;
+        gap: .5em;
+        overflow: hidden;
+        flex-grow: 1;
+
+        .livesearch-result-item-icon,
+        .livesearch-result-item-indicator {
+            display: flex;
+            gap: .5em;
+            flex-grow: 0;
+            flex-shrink: 0;
+            align-items: center;
+        }
+
+        .livesearch-result-item-summary {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            gap: .25em;
+
+            small {
+                opacity: .5;
+            }
+        }
+
+        .livesearch-result-item-title {
+            display: flex;
+            flex-grow: 1;
+            gap: .5em;
+            align-items: center;
+
+            &-contentlabel {
+                overflow: hidden;
+                text-wrap: nowrap;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+}

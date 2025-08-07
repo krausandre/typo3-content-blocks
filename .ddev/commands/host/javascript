@@ -1,0 +1,14 @@
+#!/bin/bash
+
+## Description: compiles ts to js
+## Usage: javascript
+## Example: ddev javascript
+
+
+cd Build
+
+node_modules/grunt/bin/grunt clear-build && node_modules/grunt/bin/grunt scripts --force
+
+ddev exec cp -r /var/www/html/typo3/sysext/make/Resources/Public/JavaScript/content-blocks /var/www/html/packages/content_blocks_gui/Resources/Public/JavaScript
+
+ddev typo3 cache:flush

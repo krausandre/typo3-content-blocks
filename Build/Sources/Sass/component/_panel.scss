@@ -1,0 +1,479 @@
+//
+// Panel
+// ======
+// Additions and enhancements of the bootstrap panel component. This file
+// needs to be included directly after the bootstrap panel definitions.
+//
+//
+// Normal Usage
+// ------------
+//
+// <div class="panel panel-default">
+//   <div class="panel-heading">
+//       <a href="#panelContentId" class="panel-heading-collapse" role="button" data-bs-toggle="collapse" aria-expanded="true">
+//         <span class="t3js-icon icon icon-size-small icon-state-default icon-actions-view-list-collapse" data-identifier="actions-view-list-collapse">
+//           ... IconAPI ...
+//         </span>
+//       </a>
+//   </div>
+//   <div id="panelContentId" class="panel-collapse collapse show" aria-expanded="true">
+//     <div class="panel-body">
+//       ... Content ...
+//     </div>
+//   </div>
+// </div>
+//
+.panel {
+    --typo3-panel-color: var(--typo3-component-color);
+    --typo3-panel-bg: var(--typo3-component-bg);
+    --typo3-panel-border-color: color-mix(in srgb, var(--typo3-panel-bg), var(--typo3-panel-color) var(--typo3-border-mix));
+    --typo3-panel-border-width: var(--typo3-component-border-width);
+    --typo3-panel-border-radius: var(--typo3-component-border-radius);
+    --typo3-panel-border-radius-top: var(--typo3-panel-border-radius);
+    --typo3-panel-border-radius-bottom: var(--typo3-panel-border-radius);
+    --typo3-panel-border-radius-inner-top: max(0px, calc(var(--typo3-panel-border-radius-top) - var(--typo3-panel-border-width)));
+    --typo3-panel-border-radius-inner-bottom: max(0px, calc(var(--typo3-panel-border-radius-bottom) - var(--typo3-panel-border-width)));
+    --typo3-panel-padding-y: .75rem;
+    --typo3-panel-padding-x: 1rem;
+    --typo3-panel-sm-padding-y: .5rem;
+    --typo3-panel-sm-padding-x: .75rem;
+    --typo3-panel-header-bg: var(--typo3-surface-container-low);
+    --typo3-panel-header-color: var(--typo3-text-color-base);
+    --typo3-panel-box-shadow: var(--typo3-component-box-shadow);
+    --typo3-panel-progress-bg: var(--typo3-state-primary-bg);
+
+    @each $state in $base-variants {
+        --typo3-panel-#{$state}-header-color: var(--typo3-surface-container-#{$state}-text);
+        --typo3-panel-#{$state}-header-bg: var(--typo3-surface-container-#{$state});
+        --typo3-panel-#{$state}-border-color: color-mix(in srgb, var(--typo3-panel-#{$state}-header-bg), var(--typo3-panel-#{$state}-header-color) var(--typo3-border-mix));
+    }
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-clip: border-box;
+    color: var(--typo3-panel-color);
+    background-color: var(--typo3-panel-bg);
+    border: var(--typo3-panel-border-width) solid var(--typo3-panel-border-color);
+    border-radius: var(--typo3-panel-border-radius-top) var(--typo3-panel-border-radius-top) var(--typo3-panel-border-radius-bottom) var(--typo3-panel-border-radius-bottom);
+    box-shadow: var(--typo3-panel-box-shadow);
+    margin-block-end: var(--typo3-spacing);
+    position: relative;
+
+    > .table-fit,
+    .panel-collapse > .table-fit {
+        box-shadow: none;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    > .table-fit:last-child {
+        border-end-start-radius: var(--typo3-panel-border-radius-inner-bottom);
+        border-end-end-radius: var(--typo3-panel-border-radius-inner-bottom);
+    }
+}
+
+//
+// Loader
+//
+// <div class="panel panel-default">
+//   <div class="panel-loader">
+//     <typo3-backend-spinner size="small"></typo3-backend-spinner>
+//   </div>
+// </div>
+//
+.panel-loader {
+    padding: var(--typo3-panel-padding-y) var(--typo3-panel-padding-x);
+}
+
+//
+// Progress
+//
+// <div class="panel panel-default panel-has-progress">
+//   <div class="panel-progress">
+//     <div class="panel-progress-bar" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%;">
+//       <span class="visually-hidden">50%</span>
+//     </div>
+//   </div>
+// </div>
+//
+.panel:has(.panel-progress) {
+    min-height: 5px;
+}
+
+.panel-progress {
+    display: none;
+    position: absolute;
+    top: 0;
+    inset-inline-start: 0;
+    height: 3px;
+    width: 100%;
+    z-index: 1;
+    background-color: transparent;
+    overflow: hidden;
+    border-radius: var(--typo3-panel-border-radius-inner-top) var(--typo3-panel-border-radius-inner-top) 0 0;
+
+    .panel-progress-bar {
+        display: block;
+        height: 100%;
+        background-color: var(--typo3-panel-progress-bg);
+    }
+}
+
+.panel-has-progress {
+    > .panel-progress {
+        display: block;
+    }
+}
+
+//
+// Button
+//
+.panel-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    text-align: start;
+    padding: 0;
+    gap: .25rem;
+    background: transparent;
+    border: none;
+    flex-grow: 1;
+    width: 100%;
+
+    &:after {
+        position: absolute;
+        content: '';
+        left: 0;
+        right: 0;
+        top: calc(var(--typo3-panel-padding-y) * -1);
+        bottom: calc(var(--typo3-panel-padding-y) * -1);
+    }
+}
+
+//
+// Heading
+//
+.panel-heading {
+    font-size: var(--typo3-font-size);
+    font-weight: normal;
+    position: relative;
+    color: var(--typo3-panel-header-color);
+    background-color: var(--typo3-panel-header-bg);
+    padding: var(--typo3-panel-padding-y) var(--typo3-panel-padding-x);
+    border-radius: var(--typo3-panel-border-radius-inner-top) var(--typo3-panel-border-radius-inner-top) var(--typo3-panel-border-radius-inner-bottom) var(--typo3-panel-border-radius-inner-bottom);
+    outline-offset: 0;
+    margin: 0;
+
+    &:not(:last-child):not(.collapsed):not(:has(.collapsed)):not(:has(+ .collapse)) {
+        --typo3-panel-border-radius-inner-bottom: 0;
+    }
+
+    [data-bs-toggle="collapse"] {
+        outline: none;
+    }
+
+    &:has([data-bs-toggle="collapse"]:focus-visible) {
+        z-index: 1;
+        outline: var(--typo3-outline-width) var(--typo3-outline-style) color-mix(in srgb, var(--typo3-panel-border-color), transparent 25%);
+    }
+
+    .caret {
+        --typo3-caret-color: var(--typo3-panel-header-color);
+    }
+
+    &.collapsed,
+    &:has(.collapsed),
+    &:has(.form-irre-header-button[aria-expanded="false"]) {
+        .caret {
+            --typo3-caret-rotation: calc(-90deg * var(--typo3-position-modifier));
+        }
+    }
+}
+
+.panel-heading-row {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    max-width: 100%;
+    gap: .5rem;
+
+    .panel-button {
+        width: auto;
+    }
+
+    &-spread {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+}
+
+.panel-heading-column {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+//
+// Title
+//
+// <div class="panel panel-default panel-has-progress">
+//   <h2 class="panel-heading">
+//     Panel Title
+//   </h2>
+// </div>
+//
+.panel-title {
+    font-size: var(--typo3-font-size);
+    margin-top: 0;
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+.panel-heading:has([data-bs-toggle="collapse"]:hover) {
+    .panel-title {
+        text-decoration: underline;
+    }
+}
+
+//
+// Elements
+//
+.panel-icon,
+.panel-badge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.panel-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .25rem;
+}
+
+//
+// Body
+//
+// <div class="panel panel-default">
+//   <div class="panel-body">
+//     ...
+//   </div>
+// </div>
+//
+.panel-body {
+    padding: var(--typo3-panel-padding-y) var(--typo3-panel-padding-x);
+
+    &:last-child {
+        border-end-start-radius: var(--typo3-panel-border-radius-inner-bottom);
+        border-end-end-radius: var(--typo3-panel-border-radius-inner-bottom);
+    }
+
+    > *:first-child {
+        margin-top: 0;
+    }
+
+    > *:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.panel-body-overflow {
+    overflow: auto;
+    max-width: 100%;
+}
+
+//
+// Collapse
+//
+.panel-collapse {
+    overflow: hidden;
+
+    &:last-child {
+        border-end-start-radius: var(--typo3-panel-border-radius-inner-bottom);
+        border-end-end-radius: var(--typo3-panel-border-radius-inner-bottom);
+    }
+}
+
+//
+// Footer
+//
+// <div class="panel panel-default">
+//   <div class="panel-body">
+//     ...
+//   </div>
+//   <div class="panel-footer">
+//     ...
+//   </div>
+// </div>
+//
+.panel-footer {
+    padding: var(--typo3-panel-padding-y) var(--typo3-panel-padding-x);
+}
+
+//
+// List
+//
+// <div class="panel panel-default">
+//   <div class="panel-body">
+//     <ul class="panel-list">
+//       <li>Item 1</li>
+//       <li>Item 2</li>
+//       <li>Item 3</li>
+//     </ul>
+//   </div>
+// </div>
+//
+.panel-list {
+    padding-left: var(--typo3-panel-padding-x);
+
+    > li + li {
+        margin-top: .2rem;
+    }
+}
+
+//
+// Condensed
+//
+// <div class="panel panel-default panel-condensed">
+//   <div class="panel-body">
+//     ...
+//   </div>
+//   <div class="panel-footer">
+//     ...
+//   </div>
+// </div>
+//
+.panel-condensed {
+    --typo3-panel-padding-y: var(--typo3-panel-sm-padding-y);
+    --typo3-panel-padding-x: var(--typo3-panel-sm-padding-x);
+}
+
+//
+// Collapse
+//
+.panel-collapsed {
+    .panel-collapse {
+        display: none;
+        visibility: hidden;
+    }
+}
+
+//
+// Colors
+//
+@each $variant in $base-variants {
+    .panel-#{$variant} {
+        --typo3-panel-header-color: var(--typo3-panel-#{$variant}-header-color);
+        --typo3-panel-header-bg: var(--typo3-panel-#{$variant}-header-bg);
+        --typo3-panel-border-color: var(--typo3-panel-#{$variant}-border-color);
+    }
+}
+
+.panel-active {
+    @extend .panel-primary;
+}
+
+.panel-feature {
+    @extend .panel-success;
+}
+
+.panel-important {
+    @extend .panel-info;
+}
+
+.panel-deprecation {
+    @extend .panel-warning;
+}
+
+.panel-breaking {
+    @extend .panel-danger;
+}
+
+//
+// Group
+//
+.panel-group {
+    --typo3-panel-group-border-radius: var(--typo3-component-border-radius);
+    --typo3-panel-group-border-radius-top: var(--typo3-panel-group-border-radius);
+    --typo3-panel-group-border-radius-bottom: var(--typo3-panel-group-border-radius);
+    --typo3-panel-group-box-shadow: var(--typo3-component-box-shadow);
+    display: flex;
+    flex-flow: column;
+    margin-bottom: var(--typo3-spacing);
+    border-radius: var(--typo3-panel-group-border-radius-top) var(--typo3-panel-group-border-radius-top) var(--typo3-panel-group-border-radius-bottom) var(--typo3-panel-group-border-radius-bottom);
+    box-shadow: var(--typo3-panel-group-box-shadow);
+
+    &:empty {
+        display: none;
+    }
+
+    > .panel {
+        // Disable stylelint to preserve units
+        /* stylelint-disable */
+        --typo3-panel-border-radius-top: 0px;
+        --typo3-panel-border-radius-bottom: 0px;
+        /* stylelint-enable */
+        margin-bottom: 0;
+        box-shadow: none;
+        margin-top: calc(var(--typo3-panel-border-width) * -1);
+
+        &:first-child {
+            margin-top: 0;
+            --typo3-panel-border-radius-top: var(--typo3-panel-group-border-radius);
+        }
+
+        &:last-child {
+            --typo3-panel-border-radius-bottom: var(--typo3-panel-group-border-radius);
+        }
+    }
+}
+
+//
+// Animation
+//
+.panel,
+.panel-heading {
+    transition: all .2s ease-in-out;
+    transition-property: box-shadow, border, border-radius, transform;
+}
+
+//
+// LEGACY
+// This section is responsible for a lot of small corrections
+// that need to be resolved and removed in future patches
+//
+.panel,
+.panel-collapse {
+    > .alert {
+        margin: 0;
+        border: none;
+        border-top: var(--typo3-panel-border-width) solid var(--typo3-panel-border-color);
+        --typo3-alert-border-radius: 0;
+    }
+
+    > .form-section,
+    > .tab-content > .form-section,
+    > .tab-content > .tab-pane > .form-section,
+    > [role="tabpanel"] > .tab-content > .form-section,
+    > [role="tabpanel"] > .tab-content > .tab-pane > .form-section {
+        border-inline-start: 0;
+        border-inline-end: 0;
+        border-bottom: 0;
+    }
+
+    > [role="tabpanel"] > .nav-tabs,
+    > .nav-tabs {
+        border-top: 1px solid var(--typo3-panel-border-color);
+        padding-top: 8px;
+
+        > li {
+            margin-inline-start: -1px;
+        }
+    }
+}

@@ -1,0 +1,263 @@
+/*
+ * This file is part of the TYPO3 CMS project.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * The TYPO3 project - inspiring people to share!
+ */
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { customElement, property, state } from 'lit/decorators';
+import { LitElement, html, nothing } from 'lit';
+import { classMap } from 'lit/directives/class-map';
+let LanguageMatrixElement = class LanguageMatrixElement extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.configurationIsWritable = false;
+        this.data = null;
+        this.addLanguagesActive = false;
+    }
+    createRenderRoot() {
+        // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
+        return this;
+    }
+    render() {
+        return html `
+      <div>
+        <h2>Active languages</h2>
+        <div class="table-fit">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>
+                  <div class="btn-group">
+                    ${this.globalActions()}
+                  </div>
+                </th>
+                <th>Locale</th>
+                <th>Dependencies</th>
+                <th>Last update</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${this.renderLanguages()}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    }
+    globalActions() {
+        const updateButtonClasses = {
+            'btn': true,
+            'btn-default': true,
+            'update-all': true,
+            'disabled': !this.hasActiveLanguages()
+        };
+        return html `
+      ${this.configurationIsWritable ? html `
+        <button class="btn btn-default t3js-languagePacks-addLanguage-toggle"
+          @click=${() => this.addLanguagesActive = !this.addLanguagesActive}>
+          <typo3-backend-icon identifier=${this.addLanguagesActive ? 'actions-minus' : 'actions-plus'} size="small"></typo3-backend-icon>
+          Add language
+        </button>
+      ` : nothing}
+      <button class=${classMap(updateButtonClasses)} ?disabled=${!this.hasActiveLanguages()}
+        @click=${() => this.dispatchEvent(new CustomEvent('download-packs'))}>
+        <typo3-backend-icon identifier="actions-download" size="small"></typo3-backend-icon>
+        Update all
+      </button>
+    `;
+    }
+    renderLanguageActions(language) {
+        const actions = [];
+        const { iso } = language;
+        const eventData = { detail: { iso } };
+        if (language.active) {
+            if (this.configurationIsWritable) {
+                actions.push(html `
+          <button class="btn btn-default" title="Deactivate"
+            @click=${() => this.dispatchEvent(new CustomEvent('deactivate-language', eventData))}>
+            <typo3-backend-icon identifier="actions-minus" size="small"></typo3-backend-icon>
+          </button>
+        `);
+            }
+            actions.push(html `
+        <button class="btn btn-default" title="Download language packs"
+          @click=${() => this.dispatchEvent(new CustomEvent('download-packs', eventData))}>
+          <typo3-backend-icon identifier="actions-download" size="small"></typo3-backend-icon>
+        </button>
+      `);
+        }
+        else {
+            if (this.configurationIsWritable) {
+                actions.push(html `
+          <button class="btn btn-default" title="Activate"
+            @click=${() => this.dispatchEvent(new CustomEvent('activate-language', eventData))}>
+            <typo3-backend-icon identifier="actions-plus" size="small"></typo3-backend-icon>
+          </button>
+        `);
+            }
+        }
+        return actions;
+    }
+    renderLanguages() {
+        return this.data.languages
+            .filter(language => this.addLanguagesActive ? !language.active : language.active)
+            .map(language => html `
+        <tr class=${classMap({ 't3-languagePacks-inactive': !language.active })}>
+          <td>
+            <div class="btn-group">
+              ${this.renderLanguageActions(language)}
+            </div>
+            ${language.name}
+          </td>
+          <td>${language.iso}</td>
+          <td>${language.dependencies.join(', ')}</td>
+          <td>${language.lastUpdate === null ? '' : language.lastUpdate}</td>
+        </tr>
+      `);
+    }
+    hasActiveLanguages() {
+        return Array.isArray(this.data.activeLanguages) && this.data.activeLanguages.length;
+    }
+};
+__decorate([
+    property({ type: Boolean })
+], LanguageMatrixElement.prototype, "configurationIsWritable", void 0);
+__decorate([
+    property({ type: Object })
+], LanguageMatrixElement.prototype, "data", void 0);
+__decorate([
+    state()
+], LanguageMatrixElement.prototype, "addLanguagesActive", void 0);
+LanguageMatrixElement = __decorate([
+    customElement('typo3-install-language-matrix')
+], LanguageMatrixElement);
+export { LanguageMatrixElement };
+let ExtensionMatrixElement = class ExtensionMatrixElement extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.data = null;
+    }
+    createRenderRoot() {
+        // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
+        return this;
+    }
+    render() {
+        if (this.data.extensions.length === 0) {
+            return html `
+        <typo3-install-infobox
+          severity="0"
+          subject="Language packs have been found for every installed extension."
+          content="To download the latest changes, use the refresh button in the list above.">
+        </typo3-install-infobox>
+      `;
+        }
+        return html `
+      <div>
+        <h2>Translation status</h2>
+        <div class="table-fit">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Extension</th>
+                <th>Key</th>
+                ${this.headerActions()}
+            </thead>
+            <tbody>
+              ${this.renderExtensions()}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    }
+    headerActions() {
+        return this.data.activeLanguages.map(activeLanguage => html `
+      <th>
+        <button class="btn btn-default" title="Download and update all language packs"
+          @click=${() => this.dispatchEvent(new CustomEvent('download-packs', { detail: { iso: activeLanguage } }))}>
+          <typo3-backend-icon identifier="actions-download" size="small"></typo3-backend-icon>
+          ${activeLanguage}
+        </button>
+      </th>
+    `);
+    }
+    renderExtensions() {
+        return this.data.extensions.map(extension => html `
+      <tr>
+        <td>
+          ${extension.icon ? html `
+            <img src="${extension.icon}" alt="${extension.title}" style="max-height: 16px; max-width: 16px;">
+          ` : nothing}
+          ${extension.title}
+        </td>
+        <td>${extension.key}</td>
+        ${this.renderExtensionActions(extension)}
+      </tr>
+    `);
+    }
+    renderExtensionActions(extension) {
+        const cells = [];
+        this.data.activeLanguages.forEach((language) => {
+            let cell = nothing;
+            extension.packs.forEach((pack) => {
+                if (pack.iso !== language) {
+                    return;
+                }
+                let tooltip;
+                if (pack.exists !== true) {
+                    if (pack.lastUpdate !== null) {
+                        tooltip = 'No language pack available for ' + pack.iso + ' when tried at ' + pack.lastUpdate + '. Click to re-try.';
+                    }
+                    else {
+                        tooltip = 'Language pack not downloaded. Click to download';
+                    }
+                }
+                else if (pack.lastUpdate === null) {
+                    tooltip = 'Downloaded. Click to renew';
+                }
+                else {
+                    tooltip = 'Language pack downloaded at ' + pack.lastUpdate + '. Click to renew';
+                }
+                const eventData = {
+                    detail: {
+                        iso: pack.iso,
+                        extension: extension.key
+                    }
+                };
+                cell = html `
+          <td>
+            <button class="btn btn-default" title=${tooltip}
+              @click=${() => this.dispatchEvent(new CustomEvent('download-packs', eventData))}>
+              <typo3-backend-icon identifier="actions-download" size="small"></typo3-backend-icon>
+            </button>
+          </td>
+        `;
+            });
+            // Render empty colum to avoid disturbed table build up if pack was not found for language.
+            if (cell === nothing) {
+                cell = html `<td></td>`;
+            }
+            cells.push(cell);
+        });
+        return cells;
+    }
+};
+__decorate([
+    property({ type: Object })
+], ExtensionMatrixElement.prototype, "data", void 0);
+ExtensionMatrixElement = __decorate([
+    customElement('typo3-install-extension-matrix')
+], ExtensionMatrixElement);
+export { ExtensionMatrixElement };

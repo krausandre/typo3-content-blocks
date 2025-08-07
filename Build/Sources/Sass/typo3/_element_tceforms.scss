@@ -1,0 +1,117 @@
+//
+// TCEforms
+//
+.typo3-TCEforms {
+    width: 100%;
+}
+
+.sortableHandle {
+    cursor: move !important;
+}
+
+// preview image in sys_file records
+img.t3-tceforms-sysfile-imagepreview {
+    float: var(--typo3-position-start);
+    margin-inline-end: 10px;
+    margin-bottom: 10px;
+}
+
+.typo3-TCEforms span.typo3-TCEforms-newToken {
+    color: #900;
+    font-weight: bold;
+}
+
+// show text of default language under the translated input field
+.t3-form-original-language {
+    color: var(--typo3-state-default-color);
+    background-color: var(--typo3-state-default-bg);
+    border: var(--typo3-input-border-width) solid var(--typo3-state-default-border-color);
+    padding: calc(var(--typo3-input-padding-y) / 2) var(--typo3-input-padding-x);
+    border-radius: var(--typo3-input-border-radius);
+    font-size: .625rem;
+    word-break: break-all;
+}
+
+.t3-form-original-language-diff {
+    border: 1px solid var(--typo3-state-default-border-color);
+    font-size: .625rem;
+    margin-top: 4px;
+}
+
+.t3-form-original-language-diffheader {
+    font-weight: bold;
+    padding: 2px;
+}
+
+.t3-form-original-language-diffcontent {
+    padding: 2px;
+}
+
+.t3-form-original-language .icon {
+    margin-inline-end: 5px;
+}
+
+//
+// TCEforms Flexforms
+//
+div.t3-form-field-container:first-child .t3-form-field-label-flex {
+    border-top: 0;
+}
+
+.form-irre-object,
+.t3-flex-section {
+    transition: opacity .5s;
+    opacity: 1;
+
+    &--deleted {
+        opacity: 0 !important;
+    }
+}
+
+//
+// TCEforms Inline-Relational-Record-Editing
+//
+.t3-form-field-container-inline-hidden,
+.t3-form-field-container-inline-placeHolder,
+.t3-form-field-container-files-hidden,
+.t3-form-field-container-files-placeHolder {
+    & > .panel-heading {
+        background-color: transparent;
+    }
+    opacity: .5;
+    border-style: dashed;
+
+    &:hover,
+    &:focus-within {
+        opacity: 1;
+    }
+}
+
+//
+// TCEforms Sections
+//
+.t3-form-field-disable {
+    display: none;
+}
+
+.formengine-field-item.disabled {
+    .t3-form-field-disable {
+        z-index: 10;
+        background: var(--typo3-form-section-bg);
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: .5;
+    }
+
+    // z-index must be higher as .t3-form-field-disable z-index
+    // this is required for the eval=null field checkbox
+    .form-description,
+    .t3-form-field-eval-null-checkbox {
+        z-index: 20;
+        position: relative;
+    }
+}

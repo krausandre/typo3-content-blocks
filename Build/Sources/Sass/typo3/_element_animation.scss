@@ -1,0 +1,20 @@
+//
+// Collapse horizontal
+//
+.collapse-horizontal {
+    height: auto;
+    width: 0;
+    vertical-align: middle;
+    overflow: hidden;
+
+    &.show {
+        display: inline-block;
+        width: auto;
+    }
+
+    &.collapsing {
+        display: inline-block;
+        transition-property: width, visibility;
+        width: 0;
+    }
+}

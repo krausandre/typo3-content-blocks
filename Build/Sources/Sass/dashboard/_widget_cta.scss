@@ -1,0 +1,44 @@
+.widget-cta {
+    --widget-cta-padding: 8px;
+    --widget-cta-bg: var(--typo3-state-secondary-bg);
+    --widget-cta-color: var(--typo3-state-secondary-color);
+    --widget-cta-hover-bg: var(--typo3-state-primary-hover-bg);
+    --widget-cta-hover-color: var(--typo3-state-primary-hover-color);
+    --widget-cta-focus-bg: var(--typo3-state-primary-focus-bg);
+    --widget-cta-focus-color: var(--typo3-state-primary-focus-color);
+    --widget-cta-border-radius: var(--typo3-component-border-radius);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--widget-cta-bg);
+    color: var(--widget-cta-color);
+    border-radius: var(--widget-cta-border-radius);
+    padding: var(--widget-cta-padding);
+    outline-offset: 0;
+
+    &:hover {
+        --widget-cta-color: var(--widget-cta-hover-color);
+        --widget-cta-bg: var(--widget-cta-hover-bg);
+        text-decoration: none;
+    }
+
+    &:focus {
+        --widget-cta-color: var(--widget-cta-focus-color);
+        --widget-cta-bg: var(--widget-cta-focus-bg);
+        text-decoration: none;
+    }
+
+    &:focus-visible {
+        outline: var(--typo3-outline-width) var(--typo3-outline-style) color-mix(in srgb, var(--widget-cta-bg), transparent 25%);
+    }
+}
+
+.widget-cta-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 18px;
+    height: 18px;
+    margin-inline-end: 12px;
+    color: var(--widget-cta-color);
+}

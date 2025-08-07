@@ -1,0 +1,471 @@
+/*
+ * This file is part of the TYPO3 CMS project.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * The TYPO3 project - inspiring people to share!
+ */
+import 'bootstrap';
+import { AbstractInteractableModule } from '../abstract-interactable-module';
+import Notification from '@typo3/backend/notification';
+import AjaxRequest from '@typo3/core/ajax/ajax-request';
+import SecurityUtility from '@typo3/core/security-utility';
+import { FlashMessage } from '../../renderable/flash-message';
+import { InfoBox } from '../../renderable/info-box';
+import Severity from '../../renderable/severity';
+import Router from '../../router';
+import RegularEvent from '@typo3/core/event/regular-event';
+var Identifiers;
+(function (Identifiers) {
+    Identifiers["outputWizardsContainer"] = ".t3js-upgradeWizards-wizards-output";
+    Identifiers["outputMessagesContainer"] = ".t3js-upgradeWizards-wizards-messages-output";
+    Identifiers["outputDoneContainer"] = ".t3js-upgradeWizards-done-output";
+    Identifiers["wizardsBlockingAddsTemplate"] = "#t3js-upgradeWizards-blocking-adds-template";
+    Identifiers["wizardsBlockingAddsRows"] = ".t3js-upgradeWizards-blocking-adds-rows";
+    Identifiers["wizardsBlockingAddsExecute"] = ".t3js-upgradeWizards-blocking-adds-execute";
+    Identifiers["wizardsBlockingCharsetTemplate"] = "#t3js-upgradeWizards-blocking-charset-template";
+    Identifiers["wizardsBlockingCharsetFix"] = ".t3js-upgradeWizards-blocking-charset-fix";
+    Identifiers["wizardsDoneBodyTemplate"] = "#t3js-upgradeWizards-done-body-template";
+    Identifiers["wizardsDoneRows"] = ".t3js-upgradeWizards-done-rows";
+    Identifiers["wizardsDoneRowTemplate"] = "#t3js-upgradeWizards-done-row-template";
+    Identifiers["wizardsDoneRowMarkUndone"] = ".t3js-upgradeWizards-done-markUndone";
+    Identifiers["wizardsDoneRowTitle"] = ".t3js-upgradeWizards-done-title";
+    Identifiers["wizardsListTemplate"] = "#t3js-upgradeWizards-list-template";
+    Identifiers["wizardsListRows"] = ".t3js-upgradeWizards-list-rows";
+    Identifiers["wizardsListRowTemplate"] = "#t3js-upgradeWizards-list-row-template";
+    Identifiers["wizardsListRowTitle"] = ".t3js-upgradeWizards-list-row-title";
+    Identifiers["wizardsListRowExplanation"] = ".t3js-upgradeWizards-list-row-explanation";
+    Identifiers["wizardsListRowExecute"] = ".t3js-upgradeWizards-list-row-execute";
+    Identifiers["wizardsInputTemplate"] = "#t3js-upgradeWizards-input";
+    Identifiers["wizardsInputTitle"] = ".t3js-upgradeWizards-input-title";
+    Identifiers["wizardsInputDescription"] = ".t3js-upgradeWizards-input-description";
+    Identifiers["wizardsInputHtml"] = ".t3js-upgradeWizards-input-html";
+    Identifiers["wizardsInputPerform"] = ".t3js-upgradeWizards-input-perform";
+    Identifiers["wizardsInputAbort"] = ".t3js-upgradeWizards-input-abort";
+})(Identifiers || (Identifiers = {}));
+/**
+ * Module: @typo3/install/module/upgrade-wizards
+ */
+class UpgradeWizards extends AbstractInteractableModule {
+    constructor() {
+        super();
+        this.securityUtility = new SecurityUtility();
+    }
+    static removeLoadingMessage(container) {
+        container.querySelectorAll('typo3-backend-progress-bar').forEach((progressBar) => progressBar.remove());
+    }
+    initialize(currentModal) {
+        super.initialize(currentModal);
+        Promise.all([
+            this.loadModuleFrameAgnostic('@typo3/install/renderable/info-box.js'),
+            this.loadModuleFrameAgnostic('@typo3/install/renderable/flash-message.js')
+        ]).then(async () => {
+            await this.getData();
+            this.doneUpgrades();
+        });
+        // Mark a done wizard undone
+        new RegularEvent('click', (event, target) => {
+            target.disabled = true;
+            this.markUndone(target.dataset.identifier);
+        }).delegateTo(currentModal, Identifiers.wizardsDoneRowMarkUndone);
+        // Execute "fix default mysql connection db charset" blocking wizard
+        new RegularEvent('click', () => {
+            this.blockingUpgradesDatabaseCharsetFix();
+        }).delegateTo(currentModal, Identifiers.wizardsBlockingCharsetFix);
+        // Execute "add required fields + tables" blocking wizard
+        new RegularEvent('click', () => {
+            this.blockingUpgradesDatabaseAddsExecute();
+        }).delegateTo(currentModal, Identifiers.wizardsBlockingAddsExecute);
+        // Get user input of a single upgrade wizard
+        new RegularEvent('click', (event, target) => {
+            this.wizardInput(target.dataset.identifier, target.dataset.title);
+        }).delegateTo(currentModal, Identifiers.wizardsListRowExecute);
+        // Execute one upgrade wizard
+        new RegularEvent('click', (event, target) => {
+            this.wizardExecute(target.dataset.identifier, target.dataset.title);
+        }).delegateTo(currentModal, Identifiers.wizardsInputPerform);
+        // Abort upgrade wizard
+        new RegularEvent('click', () => {
+            this.findInModal(Identifiers.outputWizardsContainer).innerHTML = '';
+            this.wizardsList();
+        }).delegateTo(currentModal, Identifiers.wizardsInputAbort);
+    }
+    getData() {
+        const modalContent = this.getModalBody();
+        const outputContainer = this.findInModal(Identifiers.outputWizardsContainer);
+        return (new AjaxRequest(Router.getUrl('upgradeWizardsGetData')))
+            .get({ cache: 'no-cache' })
+            .then(async (response) => {
+            const data = await response.resolve();
+            if (data.success === true) {
+                modalContent.innerHTML = data.html;
+                this.blockingUpgradesDatabaseCharsetTest();
+            }
+            else {
+                Notification.error('Something went wrong', 'The request was not processed successfully. Please check the browser\'s console and TYPO3\'s log.');
+            }
+        }, (error) => {
+            Router.handleAjaxError(error, outputContainer);
+        });
+    }
+    blockingUpgradesDatabaseCharsetTest() {
+        const modalContent = this.getModalBody();
+        const outputContainer = this.findInModal(Identifiers.outputWizardsContainer);
+        this.renderProgressBar(outputContainer, {
+            label: 'Checking database charset...'
+        });
+        (new AjaxRequest(Router.getUrl('upgradeWizardsBlockingDatabaseCharsetTest')))
+            .get({ cache: 'no-cache' })
+            .then(async (response) => {
+            const data = await response.resolve();
+            if (data.success === true) {
+                if (data.needsUpdate === true) {
+                    UpgradeWizards.removeLoadingMessage(outputContainer);
+                    modalContent.querySelector(Identifiers.outputWizardsContainer)
+                        .appendChild(modalContent.querySelector(Identifiers.wizardsBlockingCharsetTemplate).content.cloneNode(true));
+                }
+                else {
+                    this.blockingUpgradesDatabaseAdds();
+                }
+            }
+        }, (error) => {
+            Router.handleAjaxError(error, outputContainer);
+        });
+    }
+    blockingUpgradesDatabaseCharsetFix() {
+        const outputContainer = this.findInModal(Identifiers.outputWizardsContainer);
+        this.renderProgressBar(outputContainer, {
+            label: 'Setting database charset to UTF-8...'
+        });
+        (new AjaxRequest(Router.getUrl('upgradeWizardsBlockingDatabaseCharsetFix')))
+            .get({ cache: 'no-cache' })
+            .then(async (response) => {
+            const data = await response.resolve();
+            if (data.success === true) {
+                if (Array.isArray(data.status) && data.status.length > 0) {
+                    data.status.forEach((element) => {
+                        outputContainer.append(InfoBox.create(element.severity, element.title, element.message));
+                    });
+                }
+            }
+            else {
+                UpgradeWizards.removeLoadingMessage(outputContainer);
+                outputContainer.append(FlashMessage.create(Severity.error, 'Something went wrong'));
+            }
+        }, (error) => {
+            Router.handleAjaxError(error, outputContainer);
+        });
+    }
+    blockingUpgradesDatabaseAdds() {
+        const modalContent = this.getModalBody();
+        const outputContainer = this.findInModal(Identifiers.outputWizardsContainer);
+        this.renderProgressBar(outputContainer, {
+            label: 'Check for missing mandatory database tables and fields...'
+        });
+        (new AjaxRequest(Router.getUrl('upgradeWizardsBlockingDatabaseAdds')))
+            .get({ cache: 'no-cache' })
+            .then(async (response) => {
+            const data = await response.resolve();
+            if (data.success === true) {
+                if (data.needsUpdate === true) {
+                    const adds = modalContent.querySelector(Identifiers.wizardsBlockingAddsTemplate).content.cloneNode(true);
+                    if (typeof (data.adds.tables) === 'object') {
+                        data.adds.tables.forEach((element) => {
+                            const title = 'Table: ' + this.securityUtility.encodeHtml(element.table);
+                            adds.querySelector(Identifiers.wizardsBlockingAddsRows).append(title, document.createElement('br'));
+                        });
+                    }
+                    if (typeof (data.adds.columns) === 'object') {
+                        data.adds.columns.forEach((element) => {
+                            const title = 'Table: ' + this.securityUtility.encodeHtml(element.table)
+                                + ', Field: ' + this.securityUtility.encodeHtml(element.field);
+                            adds.querySelector(Identifiers.wizardsBlockingAddsRows).append(title, document.createElement('br'));
+                        });
+                    }
+                    if (typeof (data.adds.indexes) === 'object') {
+                        data.adds.indexes.forEach((element) => {
+                            const title = 'Table: ' + this.securityUtility.encodeHtml(element.table)
+                                + ', Index: ' + this.securityUtility.encodeHtml(element.index);
+                            adds.querySelector(Identifiers.wizardsBlockingAddsRows).append(title, document.createElement('br'));
+                        });
+                    }
+                    modalContent.querySelector(Identifiers.outputWizardsContainer).appendChild(adds);
+                }
+                else {
+                    this.wizardsList();
+                }
+            }
+            else {
+                UpgradeWizards.removeLoadingMessage(outputContainer);
+                Notification.error('Something went wrong', 'The request was not processed successfully. Please check the browser\'s console and TYPO3\'s log.');
+            }
+        }, (error) => {
+            Router.handleAjaxError(error, outputContainer);
+        });
+    }
+    blockingUpgradesDatabaseAddsExecute() {
+        const outputContainer = this.findInModal(Identifiers.outputWizardsContainer);
+        this.renderProgressBar(outputContainer, {
+            label: 'Adding database tables and fields...'
+        });
+        (new AjaxRequest(Router.getUrl('upgradeWizardsBlockingDatabaseExecute')))
+            .get({ cache: 'no-cache' })
+            .then(async (response) => {
+            const data = await response.resolve();
+            if (Array.isArray(data.status) && data.status.length > 0) {
+                data.status.forEach((element) => {
+                    outputContainer.append(InfoBox.create(element.severity, element.title, element.message));
+                });
+            }
+            if (data.success === true) {
+                this.wizardsList();
+            }
+            else if (!Array.isArray(data.status) || data.status.length === 0) {
+                outputContainer.append(FlashMessage.create(Severity.error, 'Something went wrong'));
+            }
+            else {
+                const toolbar = document.createElement('div');
+                toolbar.classList.add('btn-toolbar', 'mt-3', 'mb-4');
+                const retryButton = document.createElement('button');
+                retryButton.classList.add('btn', 'btn-default');
+                retryButton.innerText = 'Retry database migration';
+                const proceedButton = document.createElement('button');
+                proceedButton.classList.add('btn', 'btn-danger');
+                proceedButton.innerText = 'Proceed despite of errors';
+                new RegularEvent('click', () => {
+                    this.blockingUpgradesDatabaseAddsExecute();
+                }).bindTo(retryButton);
+                new RegularEvent('click', () => {
+                    toolbar.remove();
+                    this.wizardsList();
+                }).bindTo(proceedButton);
+                toolbar.appendChild(retryButton);
+                toolbar.appendChild(proceedButton);
+                outputContainer.appendChild(toolbar);
+            }
+        }, (error) => {
+            Router.handleAjaxError(error, outputContainer);
+        });
+    }
+    wizardsList() {
+        const modalContent = this.getModalBody();
+        const outputContainer = this.findInModal(Identifiers.outputWizardsContainer);
+        this.renderProgressBar(outputContainer, {
+            label: 'Loading upgrade wizards...',
+        });
+        (new AjaxRequest(Router.getUrl('upgradeWizardsList')))
+            .get({ cache: 'no-cache' })
+            .then(async (response) => {
+            const data = await response.resolve();
+            UpgradeWizards.removeLoadingMessage(outputContainer);
+            const list = modalContent.querySelector(Identifiers.wizardsListTemplate).content.cloneNode(true);
+            if (data.success === true) {
+                let numberOfWizardsTodo = 0;
+                let numberOfWizards = 0;
+                if (Array.isArray(data.wizards) && data.wizards.length > 0) {
+                    numberOfWizards = data.wizards.length;
+                    data.wizards.forEach((element) => {
+                        if (element.shouldRenderWizard === true) {
+                            const aRow = modalContent.querySelector(Identifiers.wizardsListRowTemplate).content.cloneNode(true);
+                            numberOfWizardsTodo = numberOfWizardsTodo + 1;
+                            aRow.querySelector(Identifiers.wizardsListRowTitle).innerText = element.title;
+                            aRow.querySelector(Identifiers.wizardsListRowExplanation).innerText = element.explanation;
+                            aRow.querySelector(Identifiers.wizardsListRowExecute).setAttribute('data-identifier', element.identifier);
+                            aRow.querySelector(Identifiers.wizardsListRowExecute).setAttribute('data-title', element.title);
+                            list.querySelector(Identifiers.wizardsListRows).append(aRow);
+                        }
+                    });
+                }
+                let percent = 100;
+                const upgradeWizardProgress = list.querySelector('typo3-backend-progress-bar');
+                if (numberOfWizardsTodo > 0) {
+                    percent = Math.round((numberOfWizards - numberOfWizardsTodo) / data.wizards.length * 100);
+                }
+                else {
+                    upgradeWizardProgress.severity = Severity.ok;
+                }
+                upgradeWizardProgress.value = percent;
+                upgradeWizardProgress.label = `${numberOfWizards - numberOfWizardsTodo} of ${numberOfWizards} upgrade wizards executed`;
+                modalContent.querySelector(Identifiers.outputWizardsContainer).appendChild(list);
+            }
+            else {
+                Notification.error('Something went wrong', 'The request was not processed successfully. Please check the browser\'s console and TYPO3\'s log.');
+            }
+        }, (error) => {
+            Router.handleAjaxError(error, outputContainer);
+        });
+    }
+    wizardInput(identifier, title) {
+        const executeToken = this.getModuleContent().dataset.upgradeWizardsInputToken;
+        const modalContent = this.getModalBody();
+        const outputContainer = this.findInModal(Identifiers.outputWizardsContainer);
+        this.renderProgressBar(outputContainer, {
+            label: 'Loading "' + title + '"...'
+        });
+        modalContent.animate({
+            scrollTop: modalContent.scrollTop - Math.abs(modalContent.querySelector('.t3js-upgrade-status-section').getBoundingClientRect().top),
+        }, 250);
+        (new AjaxRequest(Router.getUrl('upgradeWizardsInput')))
+            .post({
+            install: {
+                action: 'upgradeWizardsInput',
+                token: executeToken,
+                identifier: identifier,
+            },
+        })
+            .then(async (response) => {
+            const data = await response.resolve();
+            outputContainer.innerHTML = '';
+            const input = modalContent.querySelector(Identifiers.wizardsInputTemplate).content.cloneNode(true);
+            if (data.success === true) {
+                if (Array.isArray(data.status)) {
+                    data.status.forEach((element) => {
+                        outputContainer.append(FlashMessage.create(element.severity, element.title, element.message));
+                    });
+                }
+                if (data.userInput.wizardHtml.length > 0) {
+                    input.querySelector(Identifiers.wizardsInputHtml).innerHTML = data.userInput.wizardHtml;
+                }
+                input.querySelector(Identifiers.wizardsInputTitle).innerText = data.userInput.title;
+                input.querySelector(Identifiers.wizardsInputDescription).innerHTML = this.securityUtility.stripHtml(data.userInput.description).replace(/\n/g, '<br>');
+                const selectorWizardsInputPerform = input.querySelector(Identifiers.wizardsInputPerform);
+                selectorWizardsInputPerform.setAttribute('data-identifier', data.userInput.identifier);
+                selectorWizardsInputPerform.setAttribute('data-title', data.userInput.title);
+            }
+            modalContent.querySelector(Identifiers.outputWizardsContainer).appendChild(input);
+        }, (error) => {
+            Router.handleAjaxError(error, outputContainer);
+        });
+    }
+    wizardExecute(identifier, title) {
+        const executeToken = this.getModuleContent().dataset.upgradeWizardsExecuteToken;
+        const modalContent = this.getModalBody();
+        const postData = {
+            'install[action]': 'upgradeWizardsExecute',
+            'install[token]': executeToken,
+            'install[identifier]': identifier,
+        };
+        const formData = new FormData(this.findInModal(Identifiers.outputWizardsContainer + ' form'));
+        for (const [name, value] of formData) {
+            postData[name] = value.toString();
+        }
+        const outputContainer = this.findInModal(Identifiers.outputWizardsContainer);
+        const messagesContainer = this.findInModal(Identifiers.outputMessagesContainer);
+        this.renderProgressBar(outputContainer, {
+            label: 'Executing "' + title + '"...'
+        });
+        (new AjaxRequest(Router.getUrl()))
+            .post(postData)
+            .then(async (response) => {
+            const data = await response.resolve();
+            messagesContainer.replaceChildren();
+            if (data.success === true) {
+                if (Array.isArray(data.status)) {
+                    const messages = [];
+                    data.status.forEach((element) => {
+                        messages.push(InfoBox.create(element.severity, element.title, element.message));
+                    });
+                    messagesContainer.append(...messages);
+                }
+                this.wizardsList();
+                modalContent.querySelector(Identifiers.outputDoneContainer).innerHTML = '';
+                this.doneUpgrades();
+            }
+            else {
+                Notification.error('Something went wrong', 'The request was not processed successfully. Please check the browser\'s console and TYPO3\'s log.');
+            }
+        }, (error) => {
+            Router.handleAjaxError(error, outputContainer);
+        });
+    }
+    doneUpgrades() {
+        const modalContent = this.getModalBody();
+        const outputContainer = modalContent.querySelector(Identifiers.outputDoneContainer);
+        this.renderProgressBar(outputContainer, {
+            label: 'Loading executed upgrade wizards...'
+        });
+        (new AjaxRequest(Router.getUrl('upgradeWizardsDoneUpgrades')))
+            .get({ cache: 'no-cache' })
+            .then(async (response) => {
+            const data = await response.resolve();
+            UpgradeWizards.removeLoadingMessage(outputContainer);
+            if (data.success === true) {
+                if (Array.isArray(data.status) && data.status.length > 0) {
+                    data.status.forEach((element) => {
+                        outputContainer.append(InfoBox.create(element.severity, element.title, element.message));
+                    });
+                }
+                const body = modalContent.querySelector(Identifiers.wizardsDoneBodyTemplate).content.cloneNode(true);
+                const wizardsDoneContainer = body.querySelector(Identifiers.wizardsDoneRows);
+                let hasBodyContent = false;
+                if (Array.isArray(data.wizardsDone) && data.wizardsDone.length > 0) {
+                    data.wizardsDone.forEach((element) => {
+                        hasBodyContent = true;
+                        const aRow = modalContent.querySelector(Identifiers.wizardsDoneRowTemplate).content.cloneNode(true);
+                        aRow.querySelector(Identifiers.wizardsDoneRowMarkUndone).setAttribute('data-identifier', element.identifier);
+                        aRow.querySelector(Identifiers.wizardsDoneRowTitle).innerText = element.title;
+                        wizardsDoneContainer.appendChild(aRow);
+                    });
+                }
+                if (Array.isArray(data.rowUpdatersDone) && data.rowUpdatersDone.length > 0) {
+                    data.rowUpdatersDone.forEach((element) => {
+                        hasBodyContent = true;
+                        const aRow = modalContent.querySelector(Identifiers.wizardsDoneRowTemplate).content.cloneNode(true);
+                        aRow.querySelector(Identifiers.wizardsDoneRowMarkUndone).setAttribute('data-identifier', element.identifier);
+                        aRow.querySelector(Identifiers.wizardsDoneRowTitle).innerText = element.title;
+                        wizardsDoneContainer.appendChild(aRow);
+                    });
+                }
+                if (hasBodyContent) {
+                    modalContent.querySelector(Identifiers.outputDoneContainer).appendChild(body);
+                }
+            }
+            else {
+                Notification.error('Something went wrong', 'The request was not processed successfully. Please check the browser\'s console and TYPO3\'s log.');
+            }
+        }, (error) => {
+            Router.handleAjaxError(error, outputContainer);
+        });
+    }
+    markUndone(identifier) {
+        const executeToken = this.getModuleContent().dataset.upgradeWizardsMarkUndoneToken;
+        const modalContent = this.getModalBody();
+        const messagesContainer = this.findInModal(Identifiers.outputMessagesContainer);
+        const outputContainer = this.findInModal(Identifiers.outputDoneContainer);
+        this.renderProgressBar(outputContainer, {
+            label: 'Marking upgrade wizard as undone...'
+        });
+        (new AjaxRequest(Router.getUrl()))
+            .post({
+            install: {
+                action: 'upgradeWizardsMarkUndone',
+                token: executeToken,
+                identifier: identifier,
+            },
+        })
+            .then(async (response) => {
+            const data = await response.resolve();
+            messagesContainer.replaceChildren();
+            outputContainer.replaceChildren();
+            modalContent.querySelector(Identifiers.outputDoneContainer).replaceChildren();
+            if (data.success === true && Array.isArray(data.status)) {
+                data.status.forEach((element) => {
+                    Notification.success(element.title, element.message);
+                    this.doneUpgrades();
+                    this.blockingUpgradesDatabaseCharsetTest();
+                });
+            }
+            else {
+                Notification.error('Something went wrong', 'The request was not processed successfully. Please check the browser\'s console and TYPO3\'s log.');
+            }
+        }, (error) => {
+            Router.handleAjaxError(error, outputContainer);
+        });
+    }
+}
+export default new UpgradeWizards();

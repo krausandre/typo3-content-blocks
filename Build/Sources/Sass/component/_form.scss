@@ -1,0 +1,31 @@
+@import "forms/form-section";
+@import "forms/form-group";
+@import "forms/form-row";
+@import "forms/form-label";
+@import "forms/form-control";
+@import "forms/form-select";
+@import "forms/form-range";
+@import "forms/form-check";
+@import "forms/form-text";
+@import "forms/form-validation";
+@import "forms/form-hint";
+@import "forms/form-wizard";
+@import "forms/form-clearable";
+@import "forms/input-group";
+
+//
+// Form
+//
+.form {
+    margin-bottom: var(--typo3-spacing);
+}
+
+.form-inline {
+    display: inline;
+}
+
+// Search results can be displayed as badges next to the search input field. Wrap the search
+// result with a .form-group.form-group-search-result to properly align the output.
+.form-group-search-result {
+    padding-bottom: 7px;
+}

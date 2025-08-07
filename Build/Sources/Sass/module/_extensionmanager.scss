@@ -1,0 +1,133 @@
+//
+// Extensionmanager
+//
+
+.extensionmanager-is-loading {
+    opacity: 0 !important;
+}
+
+.extensionmanager-is-hidden {
+    display: none !important;
+}
+
+.extensionmanager-is-shown {
+    display: block !important;
+}
+
+// Extension List
+.extension-list-last-updated {
+    font-weight: bold;
+    padding-inline-end: .4em;
+    cursor: help;
+}
+
+.extension-list {
+    th {
+        &:nth-child(1),
+        &:nth-child(2) {
+            width: 4%;
+        }
+
+        &:nth-child(3),
+        &:nth-child(4) {
+            width: 30%;
+        }
+
+        &:nth-child(5),
+        &:nth-child(6),
+        &:nth-child(7) {
+            width: 7%;
+        }
+
+        &:nth-child(8) {
+            width: 11%;
+        }
+    }
+}
+
+.extension-list-search {
+    padding-inline-end: 2.3em;
+}
+
+.extension-icon {
+    height: 32px;
+    width: 32px;
+    margin-inline-end: 1em;
+    border-radius: 4px;
+}
+
+// Loader
+#terTableWrapper {
+    position: relative;
+    margin-top: 1em;
+
+    .splash-receivedata {
+        display: none;
+        position: absolute;
+        top: 50px;
+        left: 0;
+        right: 0;
+        text-align: center;
+    }
+}
+
+// Distributions List
+.distribution-official-badge {
+    position: absolute;
+    bottom: 0;
+    inset-inline-end: .75em;
+    transform: translate(0, 25%);
+
+    img {
+        width: 50px;
+        display: block;
+
+        @include media-breakpoint-up('md') {
+            width: 64px;
+        }
+    }
+}
+
+.distribution-image {
+    display: block;
+    max-height: 225px;
+    overflow: hidden;
+}
+
+// Distribution Detail
+.distribution-detail-previewpane {
+    margin-bottom: 2em;
+    max-width: 100%;
+
+    @include media-breakpoint-up('md') {
+        float: var(--typo3-position-start);
+        margin-inline-end: 3em;
+    }
+}
+
+.distribution-detail-body {
+    overflow: hidden;
+    zoom: 1;
+}
+
+.distribution-detail-header {
+    h1 {
+        margin-bottom: .5em;
+    }
+
+    p {
+        padding: 0;
+        max-width: 500px;
+        margin-bottom: 1.25em;
+    }
+    margin-bottom: 2.5em;
+}
+
+.distribution-detail-actions {
+    list-style: none;
+    padding: 0;
+
+    li {
+        margin: .25em 0;
+    }
+}

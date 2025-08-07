@@ -1,0 +1,440 @@
+//
+// Basic table
+//
+.table {
+    --typo3-table-font-size: var(--typo3-font-size);
+    --typo3-table-color: var(--typo3-component-color);
+    --typo3-table-bg: var(--typo3-component-bg);
+    --typo3-table-bg-type: initial;
+    --typo3-table-bg-state: initial;
+    --typo3-table-border-style: none;
+    --typo3-table-border-width: var(--typo3-component-border-width);
+    --typo3-table-border-color: var(--typo3-component-border-color);
+    --typo3-table-padding-y: .75rem;
+    --typo3-table-padding-x: 1rem;
+    --typo3-table-sm-font-size: var(--typo3-font-size-small);
+    --typo3-table-sm-padding-y: .5rem;
+    --typo3-table-sm-padding-x: .75rem;
+
+    @each $state in $base-variants {
+        --typo3-table-#{$state}-color: var(--typo3-surface-container-#{$state}-text);
+        --typo3-table-#{$state}-bg: var(--typo3-surface-container-#{$state});
+        --typo3-table-#{$state}-border-color: var(--typo3-state-#{$state}-border-color);
+    }
+    font-size: var(--typo3-table-font-size);
+    width: 100%;
+    border-color: var(--typo3-table-border-color);
+    margin-bottom: var(--typo3-spacing);
+
+    > :not(caption) > * > * {
+        padding: var(--typo3-table-padding-y) calc(var(--typo3-table-padding-x) / 2);
+        color: var(--typo3-table-color);
+        background-color: var(--typo3-table-bg-state, var(--typo3-table-bg-type, var(--typo3-table-bg)));
+        border-color: var(--typo3-table-border-color);
+        border-bottom-width: var(--typo3-table-border-width);
+        vertical-align: middle;
+
+        > *:last-child {
+            margin-bottom: 0;
+        }
+
+        &:is(th) {
+            white-space: nowrap;
+        }
+
+        &:first-child {
+            padding-inline-start: var(--typo3-table-padding-x);
+        }
+
+        &:last-child {
+            padding-inline-end: var(--typo3-table-padding-x);
+        }
+    }
+
+    > :not(caption) > * {
+        &.inactive > * {
+            color: color-mix(in srgb, var(--typo3-table-color), transparent 50%);
+        }
+    }
+
+    caption {
+        padding-top: var(--typo3-table-padding-y);
+        padding-bottom: var(--typo3-table-padding-y);
+        color: var(--typo3-text-color-variant);
+    }
+
+    .col-icon,
+    .col-checkbox,
+    .col-avatar {
+        padding-inline-end: 0;
+    }
+
+    .col-50 {
+        width: 50%;
+    }
+
+    .col-title,
+    .col-task {
+        width: 99%;
+    }
+
+    .col-title-flexible {
+        min-width: 200px;
+        max-width: 40ch;
+    }
+
+    .col-checkbox {
+        .form-check {
+            --typo3-form-check-top-correction: 0;
+            --typo3-form-check-margin-bottom: 0;
+        }
+    }
+
+    .col-checkbox,
+    .col-icon {
+        width: 16px;
+        min-width: 16px;
+        white-space: nowrap;
+        box-sizing: content-box;
+    }
+
+    .col-time {
+        width: 8ch;
+        white-space: nowrap;
+        box-sizing: content-box;
+    }
+
+    .col-datetime {
+        width: 14ch;
+        white-space: nowrap;
+        box-sizing: content-box;
+    }
+
+    .col-avatar {
+        width: 32px;
+        box-sizing: content-box;
+    }
+
+    .col-username,
+    .col-action {
+        width: 15ch;
+    }
+
+    .col-fieldname {
+        min-width: 200px;
+        width: 200px;
+
+        @include media-breakpoint-up('md') {
+            width: 250px;
+        }
+    }
+
+    .col-language {
+        width: 200px;
+    }
+
+    .col-recordtitle {
+        width: 250px;
+    }
+
+    .col-path {
+        white-space: wrap;
+        min-width: 200px;
+        max-width: 40ch;
+        word-wrap: break-word;
+        word-break: break-all;
+    }
+
+    .col-state,
+    .col-recordtitle,
+    .col-action,
+    .col-language {
+        min-width: 120px;
+    }
+
+    .col-task,
+    .col-differences {
+        min-width: 400px;
+    }
+
+    .col-nowrap,
+    .col-control,
+    .col-clipboard,
+    .col-radiogroup {
+        white-space: nowrap !important;
+    }
+
+    .col-control,
+    .col-clipboard {
+        text-align: end;
+    }
+
+    .col-border-left {
+        border-inline-start: var(--typo3-table-border-width) solid var(--typo3-table-border-color);
+    }
+
+    .col-min {
+        min-width: 150px;
+    }
+
+    // Column contents are cut off with an ellipsis if they get too large.
+    // The overflow is limited to the td cells,to avoid clipping dropdowns in the header.
+    td.col-responsive {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .col-word-break {
+        @include media-breakpoint-up('md') {
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+    }
+
+    .col-white-space-normal {
+        white-space: normal;
+    }
+
+    .col-progress {
+        padding-top: calc(var(--typo3-table-padding-y) * .75);
+        padding-bottom: calc(var(--typo3-table-padding-y) * .75);
+    }
+}
+
+//
+// Condensed table
+//
+.table-sm {
+    --typo3-table-font-size: var(--typo3-table-sm-font-size);
+    --typo3-table-padding-x: var(--typo3-table-sm-padding-x);
+}
+
+//
+// Change placement of captions with a class
+//
+.caption-top {
+    caption-side: top;
+}
+
+//
+// Zebra-striping
+//
+.table-striped {
+    > tbody > tr:nth-of-type(odd) > * {
+        --typo3-table-bg-type: color-mix(in srgb, var(--typo3-table-bg), var(--typo3-table-color) 3%);
+    }
+}
+
+.table-striped-columns {
+    > :not(caption) > tr > :nth-child(even) {
+        --typo3-table-bg-type: color-mix(in srgb, var(--typo3-table-bg), var(--typo3-table-color) 3%);
+    }
+}
+
+//
+// Hover effect
+//
+.table-hover {
+    > tbody > tr:hover > * {
+        --typo3-table-bg-state: color-mix(in srgb, var(--typo3-table-bg-type, var(--typo3-table-bg)), var(--typo3-table-color) 6%);
+    }
+}
+
+//
+// Bordered
+//
+.table-bordered {
+    > :not(caption) > * {
+        border-width: var(--typo3-table-border-width) 0;
+
+        > * {
+            border-width: 0 var(--typo3-table-border-width);
+        }
+    }
+}
+
+//
+// Options
+//
+.table-transparent {
+    --typo3-table-bg: transparent;
+}
+
+.table-vertical-top {
+    > :not(caption) > * > * {
+        vertical-align: top;
+    }
+}
+
+.table-center {
+    > :not(caption) > * > * {
+        text-align: center;
+    }
+}
+
+//
+// Fits the table in the viewport and makes overflow possible
+//
+.table-fit {
+    --typo3-table-color: var(--typo3-component-color);
+    --typo3-table-bg: var(--typo3-component-bg);
+    --typo3-table-border-width: var(--typo3-component-border-width);
+    --typo3-table-border-color: var(--typo3-component-border-color);
+    width: 100%;
+    color: var(--typo3-table-color);
+    border-radius: var(--typo3-component-border-radius);
+    box-shadow: var(--typo3-component-box-shadow);
+    margin-bottom: var(--typo3-spacing);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    border: 1px solid var(--typo3-table-border-color);
+    background-color: var(--typo3-table-bg);
+
+    td & {
+        margin-bottom: 0;
+    }
+
+    caption {
+        border-top: var(--typo3-table-border-width) solid var(--typo3-table-border-color);
+        padding-inline-start: var(--typo3-component-padding-x);
+        padding-inline-end: var(--typo3-component-padding-x);
+    }
+
+    .caption-top {
+        caption {
+            border-top: 0;
+            border-bottom: var(--typo3-table-border-width) solid var(--typo3-table-border-color);
+        }
+    }
+
+    > .table {
+        margin-bottom: 0;
+
+        > colgroup:first-child + *,
+        > *:first-child {
+            > * {
+                border-top-width: 0;
+            }
+        }
+
+        > * > * > * {
+            &:first-child {
+                border-inline-start: 0;
+            }
+
+            &:last-child {
+                border-inline-end: 0;
+            }
+        }
+
+        > *:last-child {
+            > *:last-child,
+            > *:last-child > * {
+                border-bottom-width: 0;
+            }
+        }
+    }
+}
+
+.table-fit-wrap {
+    th,
+    td {
+        white-space: normal;
+    }
+}
+
+.table-fit-inline-block {
+    max-width: 100%;
+    width: auto;
+    display: inline-block;
+    margin: 0;
+
+    > .table {
+        width: auto;
+    }
+}
+
+//
+// Sorting
+//
+// @deprecated since 13.4 and will be removed in v15, not used in core
+//
+.table-sorting-button {
+    padding: 0;
+    border: 0;
+    font-weight: inherit;
+    font-size: inherit;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: .25em;
+}
+
+.table-sorting-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--typo3-light-secondary-color);
+
+    .table-sorting-button-active & {
+        color: var(--typo3-light-primary-color);
+    }
+}
+
+//
+// Variants
+//
+@each $state, $value in $base-variants {
+    .table-#{$state},
+    .table .#{$state} {
+        --typo3-table-color: var(--typo3-table-#{$state}-color);
+        --typo3-table-bg: var(--typo3-table-#{$state}-bg);
+        --typo3-table-border-color: color-mix(in srgb, var(--typo3-table-bg), var(--typo3-table-color) 10%);
+    }
+}
+
+.table-active,
+.table .active {
+    --typo3-table-color: var(--typo3-table-primary-color);
+    --typo3-table-bg: var(--typo3-table-primary-bg);
+    --typo3-table-border-color: var(--typo3-table-primary-border-color);
+}
+
+.table-selected,
+.table .selected {
+    --typo3-table-color: var(--typo3-table-info-color);
+    --typo3-table-bg: var(--typo3-table-info-bg);
+    --typo3-table-border-color: var(--typo3-table-info-border-color);
+}
+
+.table-installed,
+.table .installed {
+    --typo3-table-color: var(--typo3-table-success-color);
+    --typo3-table-bg: var(--typo3-table-success-bg);
+    --typo3-table-border-color: var(--typo3-table-success-border-color);
+}
+
+.table-insecure,
+.table .insecure {
+    --typo3-table-color: var(--typo3-table-danger-color);
+    --typo3-table-bg: var(--typo3-table-danger-bg);
+    --typo3-table-border-color: var(--typo3-table-danger-border-color);
+}
+
+.table-outdated,
+.table .outdated {
+    --typo3-table-color: var(--typo3-table-warning-color);
+    --typo3-table-bg: var(--typo3-table-warning-bg);
+    --typo3-table-border-color: var(--typo3-table-warning-border-color);
+}
+
+.table-available,
+.table .available {
+    --typo3-table-color: var(--typo3-table-info-color);
+    --typo3-table-bg: var(--typo3-table-info-bg);
+    --typo3-table-border-color: var(--typo3-table-info-border-color);
+}

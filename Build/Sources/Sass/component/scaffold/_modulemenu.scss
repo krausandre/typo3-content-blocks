@@ -1,0 +1,198 @@
+//
+// Module Menu
+// ===========
+//
+
+//
+// Component
+//
+.modulemenu {
+    --modulemenu-padding-x: .5rem;
+    --modulemenu-padding-y: .75rem;
+    --modulemenu-group-spacer: .5rem;
+    --modulemenu-icon-size: 32px;
+    --modulemenu-icon-border-radius: 4px;
+    --modulemenu-action-bg-state: initial;
+    --modulemenu-action-color-state: initial;
+    --modulemenu-action-border-color-state: initial;
+    --modulemenu-action-bg: transparent;
+    --modulemenu-action-color: inherit;
+    --modulemenu-action-border-width: 1px;
+    --modulemenu-action-border-color: transparent;
+    --modulemenu-action-min-width: 42px;
+    --modulemenu-action-padding: 4px;
+    --modulemenu-action-border-radius: 5px;
+    margin: 0;
+    padding: var(--modulemenu-padding-y) var(--modulemenu-padding-x);
+    list-style: none;
+
+    > ul {
+        min-width: var(--modulemenu-action-min-width);
+        display: grid;
+        gap: var(--modulemenu-group-spacer);
+    }
+}
+
+//
+// Action
+//
+.modulemenu-action {
+    container-type: inline-size;
+    display: flex;
+    min-width: var(--modulemenu-action-min-width);
+    padding: var(--modulemenu-action-padding);
+    align-items: center;
+    overflow: hidden;
+    border-radius: var(--modulemenu-action-border-radius);
+    text-align: start;
+    color: var(--modulemenu-action-color-state, var(--modulemenu-action-color));
+    border: var(--modulemenu-action-border-width) solid var(--modulemenu-action-border-color-state, var(--modulemenu-action-border-color));
+    background-color: var(--modulemenu-action-bg-state, var(--modulemenu-action-bg));
+    outline-offset: 0;
+    transition: var(--typo3-transition-color);
+
+    @media (prefers-reduced-motion) {
+        transition: none;
+    }
+
+    &:focus,
+    &:hover {
+        color: inherit;
+        text-decoration: none;
+        outline: none;
+    }
+
+    &:hover,
+    &:focus-visible {
+        --modulemenu-action-color-state: var(--typo3-state-default-hover-color);
+        --modulemenu-action-bg-state: var(--typo3-state-default-hover-bg);
+        --modulemenu-action-border-color-state: var(--typo3-state-default-hover-border-color);
+    }
+
+    &:focus-visible {
+        outline: var(--typo3-outline-width) var(--typo3-outline-style) color-mix(in srgb, var(--modulemenu-action-border-color-state, var(--modulemenu-action-border-color)), transparent var(--typo3-outline-transparent-mix));
+    }
+
+    &.modulemenu-action-active:not(:has(~ ul.collapse.show)) {
+        --modulemenu-action-color-state: var(--typo3-state-default-focus-color);
+        --modulemenu-action-bg-state: var(--typo3-state-default-focus-bg);
+        --modulemenu-action-border-color-state: var(--typo3-state-default-focus-border-color);
+    }
+}
+
+//
+// Icon
+//
+.modulemenu-icon {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: var(--modulemenu-icon-size);
+    height: var(--modulemenu-icon-size);
+    border-radius: var(--modulemenu-icon-border-radius);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+//
+// Name
+//
+.modulemenu-name {
+    flex-grow: 1;
+    margin-inline-start: 1em;
+    text-overflow: ellipsis;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+@container (min-width: 60px) {
+    .modulemenu-name {
+        position: static;
+        margin: 0;
+        margin-inline-start: 1em;
+        width: auto;
+        height: auto;
+    }
+}
+
+//
+// Indicator
+//
+.modulemenu-group > button:not(:disabled) {
+    .modulemenu-indicator {
+        display: none;
+        position: relative;
+        flex-grow: 0;
+        flex-shrink: 0;
+        height: 16px;
+        width: 16px;
+        margin: 8px;
+        color: inherit;
+
+        &:before,
+        &:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            height: 0;
+            width: 6px;
+            border-top: 1px solid currentColor;
+            transition: transform .25s ease-in-out;
+        }
+
+        &:before {
+            inset-inline-start: 3px;
+            transform: rotate(45deg);
+        }
+
+        &:after {
+            inset-inline-end: 3px;
+            transform: rotate(-45deg);
+        }
+    }
+}
+
+@container (min-width: 60px) {
+    .modulemenu-indicator {
+        display: block !important;
+    }
+}
+
+//
+// Group
+//
+.modulemenu-group-container {
+    display: grid;
+    gap: 1px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.modulemenu-group-spacer {
+    margin: 0;
+    border-top: 1px dashed color-mix(in srgb, currentColor, transparent 75%);
+}
+
+.modulemenu-group {
+    display: grid;
+    gap: 1px;
+}
+
+button[aria-expanded="true"]:not(:disabled) {
+    .modulemenu-indicator {
+        &:before {
+            transform: rotate(-45deg);
+        }
+
+        &:after {
+            transform: rotate(45deg);
+        }
+    }
+}

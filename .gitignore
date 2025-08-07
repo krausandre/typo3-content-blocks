@@ -1,0 +1,12 @@
+.DS_Store
+.idea
+nbproject
+/var/*
+!/var/labels
+/vendor
+t3-core
+/t3-core/*
+/public/
+/typo3/*
+!packages/
+**/node_modules

@@ -1,0 +1,30 @@
+.widget-number {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.widget-number-icon {
+    display: flex;
+    align-items: center;
+    width: 42px;
+    margin-inline-end: 20px;
+}
+
+.widget-number-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.widget-number-title {
+    line-height: 1.3;
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.widget-number-number {
+    line-height: 1.3;
+    font-weight: 900;
+    font-size: 24px;
+}

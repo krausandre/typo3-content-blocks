@@ -1,0 +1,119 @@
+//
+// Callout
+// =======
+// Use to display static contextual messages.
+//
+//
+// Minimal Usage
+// -------------
+//
+// <div class="callout callout-info">
+//   <div class="callout-content">
+//     <div class="callout-title">Web&gt;Page module</div>
+//     <div class="callout-body">
+//       <p>Please click the page title in the page tree to the left to edit page content.</p>
+//     </div>
+//   </div>
+// </div>
+//
+//
+// Advanced Usage
+// --------------
+//
+// <div class="callout callout-info">
+//   <div class="callout-icon">
+//     <span class="icon-emphasized">
+//       <span class="t3js-icon icon icon-size-small icon-state-default icon-actions-info" data-identifier="actions-info">
+//         <span class="icon-markup">
+//           <svg class="icon-color"><use xlink:href="/typo3/sysext/core/Resources/Public/Icons/T3Icons/sprites/actions.svg#actions-info"></use></svg>
+//         </span>
+//       </span>
+//     </span>
+//   </div>
+//   <div class="callout-content">
+//     <div class="callout-title">...</div>
+//     <div class="callout-body">
+//       <p>..</p>
+//     </div>
+//   </div>
+// </div>
+//
+
+//
+// Component
+//
+.callout {
+    --typo3-callout-color: var(--typo3-surface-container-default-text);
+    --typo3-callout-bg: var(--typo3-surface-container-default-bg);
+    --typo3-callout-border-color: var(--typo3-state-default-bg);
+    --typo3-callout-icon-color: var(--typo3-state-default-color);
+    --typo3-callout-icon-bg: var(--typo3-state-default-bg);
+    --typo3-callout-border-radius: var(--typo3-component-border-radius);
+    --typo3-callout-padding-y: 1rem;
+    --typo3-callout-padding-x: 1rem;
+    display: flex;
+    gap: calc(var(--typo3-callout-padding-x) * .75);
+    color: var(--typo3-callout-color);
+    background-color: var(--typo3-callout-bg);
+    border-inline-start: .5rem solid var(--typo3-callout-border-color);
+    border-radius: var(--typo3-callout-border-radius);
+    margin-bottom: var(--typo3-spacing);
+    padding: var(--typo3-callout-padding-y) var(--typo3-callout-padding-x);
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.callout-icon {
+    margin-top: -2px;
+}
+
+.callout-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    > * {
+        width: 100%;
+    }
+}
+
+.callout-title {
+    font-size: 1.2em;
+    line-height: 1.2;
+    margin-bottom: .5em;
+}
+
+.callout-body {
+    > *:last-child {
+        margin-bottom: 0;
+    }
+}
+
+//
+// Size Variants
+//
+.callout-sm {
+    --typo3-callout-padding-y: .5rem;
+    --typo3-callout-padding-x: .5rem;
+
+    .callout-title {
+        font-size: 1em;
+        margin: 0;
+    }
+}
+
+//
+// Color Variants
+//
+@each $state in $base-variants {
+    .callout-#{$state} {
+        --typo3-callout-color: var(--typo3-surface-container-#{$state}-text);
+        --typo3-callout-bg: var(--typo3-surface-container-#{$state});
+        --typo3-callout-border-color: var(--typo3-state-#{$state}-bg);
+        --typo3-callout-icon-color: var(--typo3-state-#{$state}-color);
+        --typo3-callout-icon-bg: var(--typo3-state-#{$state}-bg);
+    }
+}

@@ -1,0 +1,73 @@
+//
+// Table
+//
+td {
+    &.permission-column-name {
+        white-space: nowrap;
+    }
+
+    &.permission-column-list {
+        white-space: nowrap;
+        width: 106px;
+    }
+
+    &.permission-column-group {
+        padding-inline-start: 0;
+        width: 200px;
+        white-space: nowrap;
+    }
+}
+
+//
+// Legend
+//
+.access-legend {
+    --typo3-access-legend-guide-color: var(--typo3-text-color-base);
+    --typo3-access-legend-number-border-color: var(--typo3-text-color-base);
+    margin-bottom: 18px;
+
+    .number {
+        border: 1px solid var(--typo3-access-legend-number-border-color);
+        border-radius: 2px;
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+        text-align: center;
+        margin-inline: 10px 5px;
+        line-height: 14px;
+        font-weight: bold;
+    }
+
+    .edge span {
+        width: 1px;
+        height: 10px;
+        background: var(--typo3-access-legend-guide-color);
+        display: block;
+        margin-top: 8px;
+        margin-inline-start: 6px;
+
+        span {
+            width: 10px;
+            height: 1px;
+            margin-inline-start: 1px;
+        }
+    }
+
+    .hr span {
+        width: 20px;
+        height: 1px;
+        background: var(--typo3-access-legend-guide-color);
+        display: block;
+        margin-top: -1px;
+        margin-inline-start: -4px;
+    }
+
+    .t3-vr span {
+        width: 1px;
+        height: 20px;
+        background: var(--typo3-access-legend-guide-color);
+        margin-top: -2px;
+        margin-inline-start: 6px;
+        display: block;
+    }
+}

@@ -1,0 +1,79 @@
+@import "../../../node_modules/@typo3/icons/dist/icons.scss";
+
+//
+// Mixins
+//
+@mixin icon-background($icon, $iconColor: $white) {
+    content: '';
+    vertical-align: middle;
+    mask: escape-svg($icon);
+    background-color: $iconColor;
+    background-size: contain;
+    display: inline-block;
+}
+
+//
+// Icon alignment
+//
+.icon {
+    vertical-align: -22%;
+}
+
+//
+// Special icons
+//
+.icon-actions-edit-copy-release,
+.icon-actions-edit-cut-release,
+.icon-status-status-current,
+.icon-status-dialog-error,
+.icon-status-status-permission-denied {
+    --icon-color-primary: var(--typo3-text-color-danger);
+}
+
+.icon-status-status-sorting-asc,
+.icon-status-status-sorting-desc {
+    --icon-color-primary: var(--typo3-text-color-variant);
+}
+
+.icon-status-dialog-information {
+    --icon-color-primary: var(--typo3-text-color-info);
+}
+
+.icon-status-dialog-ok,
+.icon-status-status-permission-granted {
+    --icon-color-primary: var(--typo3-text-color-success);
+}
+
+.icon-status-dialog-notification {
+    --icon-color-primary: var(--typo3-text-color-notice);
+}
+
+.icon-status-dialog-warning {
+    --icon-color-primary: var(--typo3-text-color-warning);
+}
+
+//
+// Emphasized
+//
+.icon-emphasized {
+    --icon-emphasized-color: var(--typo3-state-default-color);
+    --icon-emphasized-bg: var(--typo3-state-default-bg);
+    color: var(--icon-emphasized-color);
+    background-color: var(--icon-emphasized-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 100%;
+
+    .alert & {
+        --icon-emphasized-color: var(--typo3-alert-icon-color);
+        --icon-emphasized-bg: var(--typo3-alert-icon-bg);
+    }
+
+    .callout & {
+        --icon-emphasized-color: var(--typo3-callout-icon-color);
+        --icon-emphasized-bg: var(--typo3-callout-icon-bg);
+    }
+}

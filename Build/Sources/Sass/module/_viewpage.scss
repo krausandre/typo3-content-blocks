@@ -1,0 +1,118 @@
+//
+// Viewpage
+// ========
+//
+
+//
+// Module
+//
+[data-module-id="typo3-module-viewpage"] {
+    --viewpage-topbar-height: 40px;
+    --viewpage-resizable-size: 5px;
+    --viewpage-item-radius: 5px;
+
+    .module-body {
+        text-align: center;
+
+        .typo3-messages {
+            text-align: start;
+        }
+    }
+
+    .resizable-w,
+    .resizable-s,
+    .resizable-e {
+        position: absolute;
+        z-index: 90;
+    }
+
+    .resizable-w {
+        top: 0;
+        left: calc(var(--viewpage-resizable-size) * -1);
+        height: 100%;
+        width: var(--viewpage-resizable-size);
+    }
+
+    .resizable-s {
+        bottom: calc(var(--viewpage-resizable-size) * -1);
+        height: var(--viewpage-resizable-size);
+        width: 100%;
+    }
+
+    .resizable-e {
+        top: 0;
+        right: calc(var(--viewpage-resizable-size) * -1);
+        height: 100%;
+        width: var(--viewpage-resizable-size);
+    }
+}
+
+//
+// Item
+//
+.viewpage-item {
+    position: relative;
+    display: inline-block;
+    background-color: var(--typo3-surface-container-highest);
+    box-shadow: var(--typo3-component-box-shadow-tooltip);
+    color: var(--typo3-text-color-base);
+    border-radius: var(--viewpage-item-radius);
+
+    iframe {
+        display: block;
+        border-radius: 0 0 var(--viewpage-item-radius) var(--viewpage-item-radius);
+    }
+}
+
+//
+// Topbar
+//
+.viewpage-topbar {
+    height: var(--viewpage-topbar-height);
+    flex-shrink: 0;
+    padding: .75em 1em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.viewpage-topbar-orientation {
+    a {
+        color: inherit;
+        opacity: .5;
+        transition: all .2s ease-in-out;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+.viewpage-topbar-size {
+    direction: ltr;
+
+    input {
+        background-color: transparent;
+        padding-left: 0;
+        padding-right: 0;
+        border: 0;
+        border-bottom: 1px solid rgba($primary, .5);
+        transition: all .5s ease-in-out;
+        color: inherit;
+
+        &:focus,
+        &:hover {
+            outline: 0;
+            border-bottom-color: rgba($primary, 1);
+        }
+    }
+}
+
+//
+// Resizeable
+//
+.viewpage-resizeable {
+    background-color: var(--typo3-surface-container-low);
+    border-radius: 0 var(--viewpage-item-radius) var(--viewpage-item-radius);
+}

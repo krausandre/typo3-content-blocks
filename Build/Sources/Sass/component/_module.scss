@@ -1,0 +1,130 @@
+//
+// ModuleTemplate
+// ======
+// General component for backend modules.
+//
+
+//
+// Variables
+//
+:root {
+    --module-bg: var(--typo3-surface-base);
+    --module-color: var(--typo3-text-color-base);
+    --module-docheader-padding-y: .5rem;
+    --module-docheader-padding-x: 1.5rem;
+    --module-docheader-padding: var(--module-docheader-padding-y) var(--module-docheader-padding-x);
+    --module-docheader-spacing-y: 4px;
+    --module-docheader-spacing-x: 8px;
+    --module-docheader-spacing: var(--module-docheader-spacing-y) var(--module-docheader-spacing-x);
+    --module-docheader-bg: var(--typo3-surface-container-high);
+    --module-docheader-border-color: color-mix(in srgb, var(--module-docheader-bg), var(--module-color) 10%);
+    --module-docheader-border-width: 1px;
+    --module-docheader-bar-height: 28.5px;
+    --module-docheader-scroll-offset: calc(-1 * (var(--module-docheader-bar-height) + var(--module-docheader-padding-y)));
+    --module-docheader-height: calc(var(--module-docheader-bar-height) * 2 + var(--module-docheader-padding-y) * 2 + var(--module-docheader-spacing-y) + var(--module-docheader-border-width));
+    --module-body-padding-y: 1.5rem;
+    --module-body-padding-x: 1.5rem;
+    --module-body-padding: var(--module-body-padding-y) var(--module-body-padding-x);
+}
+
+//
+// Template
+//
+.module {
+    display: grid;
+    grid-template-areas:
+        "moduleDocHeader"
+        "moduleBody";
+    grid-template-rows: auto 1fr;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background-color: var(--module-bg);
+    color: var(--module-color);
+
+    body > & {
+        height: 100dvh;
+    }
+}
+
+//
+// Loading indicator
+//
+.module-loading-indicator {
+    position: fixed;
+    min-height: 5px;
+    width: 100%;
+    z-index: 999999;
+
+    &.nprogress-custom-parent {
+        position: fixed;
+        top: 0;
+    }
+}
+
+//
+// Docheader
+//
+.module-docheader {
+    grid-area: moduleDocHeader;
+    display: flex;
+    flex-direction: column;
+    min-height: var(--module-docheader-height);
+    background-color: var(--module-docheader-bg);
+    border-bottom: 1px solid var(--module-docheader-border-color);
+    padding: var(--module-docheader-padding);
+    gap: var(--module-docheader-spacing);
+
+    .module-docheader-bar {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: var(--module-docheader-spacing);
+        min-height: var(--module-docheader-bar-height);
+        line-height: var(--module-docheader-bar-height);
+
+        label {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .form-group {
+            margin: 0;
+        }
+
+        &-container {
+            display: flex;
+            gap: var(--module-docheader-spacing);
+            flex-wrap: wrap;
+        }
+
+        .dropdown-menu {
+            max-height: calc(100dvh - var(--scaffold-topbar-height) - var(--module-docheader-height));
+            overflow-y: auto;
+        }
+    }
+}
+
+//
+// Body
+//
+.module-body {
+    grid-area: moduleBody;
+    position: relative;
+    padding: var(--module-body-padding);
+    overflow: auto;
+
+    > .container {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .container-small {
+        max-width: 768px;
+        margin: 0 auto;
+    }
+
+    > *:last-child {
+        margin-bottom: 0;
+    }
+}

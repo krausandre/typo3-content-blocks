@@ -1,0 +1,51 @@
+//
+// TYPO3 styles for basic elements
+//
+video {
+    background-color: #000;
+}
+
+//
+// Various classes
+//
+.nowrap {
+    white-space: nowrap;
+}
+
+.nowrap-disabled {
+    white-space: normal !important;
+}
+
+//
+// Various classes
+//
+.section {
+    margin-bottom: 15px;
+}
+
+.media-gallery__list {
+    .media-gallery__item {
+        display: inline-block;
+        float: none;
+        margin-bottom: 15px;
+        margin-inline-end: -4px;
+        vertical-align: top;
+
+        .media-object {
+            max-height: 158px;
+            overflow: hidden;
+        }
+
+        img.thumbnail {
+            height: auto;
+            margin-bottom: 0;
+            max-height: 150px;
+            max-width: 100%;
+        }
+
+        span.thumbnail {
+            display: inline-block;
+            margin-bottom: 0;
+        }
+    }
+}

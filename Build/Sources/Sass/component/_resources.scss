@@ -1,0 +1,208 @@
+//
+// Tiles
+//
+.resource-tiles {
+    --typo3-resource-tiles-grid-spacing: .5rem;
+    --typo3-resource-tiles-grid-width: 150px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, var(--typo3-resource-tiles-grid-width));
+    gap: var(--typo3-resource-tiles-grid-spacing);
+    user-select: none;
+}
+
+.resource-tiles-container {
+    container-type: inline-size;
+    margin-bottom: var(--typo3-spacing);
+}
+
+@container (min-width: 480px) {
+    .resource-tiles {
+        --typo3-resource-tiles-grid-width: 169px;
+    }
+}
+
+@container (min-width: 768px) {
+    .resource-tiles {
+        --typo3-resource-tiles-grid-width: 200px;
+    }
+}
+
+.resource-tile {
+    --typo3-resource-tile-spacing: 1rem;
+    --typo3-resource-tile-border-radius: var(--typo3-component-border-radius);
+    --typo3-resource-tile-nameplate-size: 12px;
+    --typo3-resource-tile-nameplate-activity-size: 10px;
+    --typo3-resource-tile-checkbox-size: 16px;
+    --typo3-resource-tile-color-state: initial;
+    --typo3-resource-tile-bg-state: initial;
+    --typo3-resource-tile-color: var(--typo3-component-color);
+    --typo3-resource-tile-bg: var(--typo3-component-bg);
+    --typo3-resource-tile-border-color: color-mix(in srgb, var(--typo3-resource-tile-bg-state, var(--typo3-resource-tile-bg)), var(--typo3-resource-tile-color-state, var(--typo3-resource-tile-color)) var(--typo3-border-mix));
+
+    @each $variant in $base-variants {
+        --typo3-resource-tile-#{$variant}-color: var(--typo3-surface-container-#{$variant}-text);
+        --typo3-resource-tile-#{$variant}-bg: var(--typo3-surface-container-#{$variant});
+    }
+    position: relative;
+    padding-top: 98%;
+    color: var(--typo3-resource-tile-color-state, var(--typo3-resource-tile-color));
+    background-color: var(--typo3-resource-tile-bg-state, var(--typo3-resource-tile-bg));
+    border: 1px solid var(--typo3-resource-tile-border-color);
+    border-radius: var(--typo3-resource-tile-border-radius);
+}
+
+.resource-tile:hover {
+    --typo3-resource-tile-bg-state: color-mix(in srgb, var(--typo3-resource-tile-bg), var(--typo3-resource-tile-color) 6%);
+    --typo3-resource-tile-color-state: var(--typo3-resource-tile-color);
+    text-decoration: none;
+}
+
+.resource-tile:focus-within {
+    outline: var(--typo3-outline-width) var(--typo3-outline-style) color-mix(in srgb, var(--typo3-resource-tile-border-color), transparent 25%);
+}
+
+.resource-tile.active {
+    --typo3-resource-tile-color: var(--typo3-resource-tile-primary-color);
+    --typo3-resource-tile-bg: var(--typo3-resource-tile-primary-bg);
+}
+
+.resource-tile.selected,
+.resource-tile.info {
+    --typo3-resource-tile-color: var(--typo3-resource-tile-info-color);
+    --typo3-resource-tile-bg: var(--typo3-resource-tile-info-bg);
+}
+
+.resource-tile.success {
+    --typo3-resource-tile-color: var(--typo3-resource-tile-success-color);
+    --typo3-resource-tile-bg: var(--typo3-resource-tile-success-bg);
+}
+
+.resource-tile.danger {
+    --typo3-resource-tile-color: var(--typo3-resource-tile-danger-color);
+    --typo3-resource-tile-bg: var(--typo3-resource-tile-danger-bg);
+}
+
+.resource-tile.warning {
+    --typo3-resource-tile-color: var(--typo3-resource-tile-warning-color);
+    --typo3-resource-tile-bg: var(--typo3-resource-tile-warning-bg);
+}
+
+.resource-tile.active,
+.resource-tile.selected,
+.resource-tile:hover,
+.resource-tile:focus-within {
+    .resource-tile-checkbox {
+        display: block;
+    }
+}
+
+.resource-tile > a,
+.resource-tile > button {
+    width: 100%;
+    color: inherit;
+    border: none;
+    background: none;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    outline: none;
+    align-items: unset;
+}
+
+.resource-tile-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.resource-tile-preview {
+    flex: 1;
+    position: relative;
+    margin: var(--typo3-resource-tile-spacing);
+    margin-bottom: 0;
+}
+
+.resource-tile-preview-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.resource-tile-icon {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.resource-tile-image {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.resource-tile-image img {
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    outline: 2px solid var(--typo3-resource-tile-border-color);
+    outline-offset: 0;
+    border-radius: 2px;
+    box-shadow: var(--typo3-component-box-shadow-strong);
+}
+
+.resource-tile-image-icon {
+    position: absolute;
+    top: calc(var(--typo3-resource-tile-spacing) * -.5);
+    inset-inline-start: calc(var(--typo3-resource-tile-spacing) * -.5);
+}
+
+.resource-tile-nameplate {
+    display: flex;
+    flex-direction: column;
+    padding: var(--typo3-resource-tile-spacing);
+    text-align: center;
+    font-size: var(--typo3-resource-tile-nameplate-size);
+    width: 100%;
+}
+
+.resource-tile-nameplate-label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.resource-tile-nameplate-activity {
+    font-size: var(--typo3-resource-tile-nameplate-activity-size);
+    opacity: .75;
+}
+
+.resource-tile-checkbox {
+    display: none;
+    position: absolute;
+    font-size: var(--typo3-resource-tile-checkbox-size);
+    inset-inline-end: calc(var(--typo3-resource-tile-spacing) / 2);
+    top: calc(var(--typo3-resource-tile-spacing) / 2);
+
+    .form-check-input {
+        margin-top: 0;
+    }
+}

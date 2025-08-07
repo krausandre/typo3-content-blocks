@@ -1,0 +1,425 @@
+//
+// Card
+//
+// Cards are flexible content containers that are meant to be used for organizing groups of elements.
+// Each card is a collection of the container and corresponding child elements, that can be used as needed.
+// Child Elements are optional but combining those will bring the best experience.
+//
+// Styleguide component.card
+//
+
+//
+// Examples
+//
+// Markup:
+// <div class="card-container">
+//     <div class="card card-size-medium">
+//         <div class="card-header">
+//             <h1 class="card-title">Simple Card</h1>
+//             <span class="card-subtitle">Subtitle</span>
+//         </div>
+//         <div class="card-body">
+//             <p class="card-text">
+//                 Nulla at mattis lectus. Duis pulvinar sollicitudin aliquam. Praesent id convallis ante, id auctor sem. Duis vestibulum nisl sit amet feugiat blandit. Cras in neque sit amet eros iaculis dapibus sed sit amet tortor.
+//             </p>
+//         </div>
+//     </div>
+//     <div class="card card-size-medium">
+//         <div class="card-header">
+//             <div class="card-icon">
+//                 <img src="http://via.placeholder.com/32x32" height="32" width="32">
+//             </div>
+//             <div class="card-header-body">
+//                 <h1 class="card-title">Icon Card</h1>
+//                 <span class="card-subtitle">Subtitle</span>
+//                 <div class="card-longdesc">
+//                     <p class="card-text">
+//                         Nulla at mattis lectus. Duis pulvinar sollicitudin aliquam. Praesent id convallis ante, id auctor sem. Duis vestibulum nisl sit amet feugiat blandit. Cras in neque sit amet eros iaculis dapibus sed sit amet tortor.
+//                     </p>
+//                 </div>
+//             </div>
+//         </div>
+//     </div>
+//     <div class="card card-size-medium">
+//         <div class="card-header">
+//             <h1 class="card-title">Action Card</h1>
+//         </div>
+//         <div class="card-body">
+//             <p class="card-text">
+//                 Etiam posuere tristique arcu, a elementum justo semper eget. Etiam malesuada consectetur risus nec hendrerit. Mauris velit arcu, efficitur at erat eget, luctus consequat felis.
+//             </p>
+//         </div>
+//         <div class="card-footer">
+//             <a class="btn btn-primary" href="#">
+//                 Action 1
+//             </a>
+//             <a class="btn btn-default" href="#">
+//                 Action 2
+//             </a>
+//         </div>
+//     </div>
+//     <div class="card card-size-medium">
+//         <div class="card-image">
+//             <img src="http://via.placeholder.com/300x120" height="120" width="300">
+//         </div>
+//         <div class="card-header">
+//             <h1 class="card-title">Product Card</h1>
+//             <span class="card-subtitle">Subtitle</span>
+//         </div>
+//         <div class="card-body">
+//             <p class="card-text">
+//                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse erat justo, hendrerit vitae arcu eget.
+//             </p>
+//         </div>
+//         <div class="card-footer">
+//             <a class="btn btn-default" href="#">
+//                 Action 1
+//             </a>
+//             <a class="btn btn-link" href="#">
+//                 Link 2
+//             </a>
+//         </div>
+//     </div>
+// </div>
+//
+// Styleguide component.card.1
+//
+
+//
+// Flexible Sizes
+//
+// .card-size-small            - Small
+// .card-size-medium           - Medium
+// .card-size-large            - Large
+//
+// Markup:
+// <div class="card $modifierClass">
+//     <div class="card-image">
+//         <img src="http://via.placeholder.com/300x225" height="225" width="300">
+//     </div>
+//     <div class="card-header">
+//         <h1 class="card-title">The official Introduction Package</h1>
+//         <span class="card-subtitle">introduction</span>
+//     </div>
+//     <div class="card-body">
+//         <p class="card-text">
+//             This package delivers a new website (page tree) and shows all out-of-the-box features of TYPO3, and includes a theme based on Twitter Bootstrap 3, and...
+//         </p>
+//     </div>
+//     <div class="card-footer">
+//         <a class="btn btn-default" href="#">
+//             Install
+//         </a>
+//         <a class="btn btn-link" href="#">
+//             Show Details
+//         </a>
+//     </div>
+// </div>
+//
+// Styleguide component.card.2
+//
+
+//
+// Fixed Sizes
+//
+// .card-size-fixed-small      - Small
+//
+// Markup:
+// <div class="card $modifierClass">
+//     <div class="card-image">
+//         <img src="http://via.placeholder.com/300x225" height="225" width="300">
+//     </div>
+//     <div class="card-header">
+//         <h1 class="card-title">The official Introduction Package</h1>
+//         <span class="card-subtitle">introduction</span>
+//     </div>
+//     <div class="card-body">
+//         <p class="card-text">
+//             This package delivers a new website (page tree) and shows all out-of-the-box features of TYPO3, and includes a theme based on Twitter Bootstrap 3, and...
+//         </p>
+//     </div>
+//     <div class="card-footer">
+//         <a class="btn btn-default" href="#">
+//             Install
+//         </a>
+//         <a class="btn btn-link" href="#">
+//             Show Details
+//         </a>
+//     </div>
+// </div>
+//
+// Styleguide component.card.3
+//
+
+//
+// Collection
+//
+// The card container groups multiple card elements and ensures that these elements always share
+// the same height for elements in a row. Each group is wrapped with `<div class="card-container">|</div>`
+//
+// Markup:
+// <div class="card-container">
+//     <div class="card card-size-medium">
+//         <div class="card-image">
+//             <img src="http://via.placeholder.com/300x100" height="100" width="300">
+//         </div>
+//         <div class="card-header">
+//             <h1 class="card-title">Card with a lot of content</h1>
+//         </div>
+//         <div class="card-body">
+//             <p class="card-text">
+//                 Curabitur semper tellus ac odio dignissim, maximus ornare eros tempor. Integer tempus vestibulum leo, elementum cursus arcu euismod non. Aenean quam nisi, laoreet vitae diam eget, posuere efficitur eros. Curabitur id arcu purus. Suspendisse ullamcorper dictum neque ut pellentesque. Integer pharetra dui eu justo rutrum accumsan. Aenean vehicula dictum purus, sit amet consequat ante malesuada vitae. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+//             </p>
+//         </div>
+//     </div>
+//     <div class="card card-size-medium">
+//         <div class="card-image">
+//             <img src="http://via.placeholder.com/300x100" height="100" width="300">
+//         </div>
+//         <div class="card-header">
+//             <h1 class="card-title">Card with little to none content</h1>
+//         </div>
+//         <div class="card-body">
+//             <p class="card-text">
+//                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+//             </p>
+//         </div>
+//     </div>
+// </div>
+//
+// Styleguide component.card.4
+//
+
+:root {
+    --typo3-card-grid-gap: 1rem;
+    --typo3-card-padding: 1rem;
+}
+
+//
+// Component
+//
+.card {
+    --typo3-card-color: var(--typo3-text-color-base);
+    --typo3-card-color-subtle: var(--typo3-text-color-variant);
+    --typo3-card-bg: var(--typo3-surface-container-low);
+    --typo3-card-border-radius: var(--typo3-component-border-radius);
+    --typo3-card-border-color: color-mix(in srgb, var(--typo3-card-bg), var(--typo3-card-color) var(--typo3-border-mix));
+    color: var(--typo3-card-color);
+    background: var(--typo3-card-bg);
+    border: 1px solid var(--typo3-card-border-color);
+    border-radius: var(--typo3-card-border-radius);
+    box-shadow: var(--typo3-component-box-shadow);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin-bottom: var(--typo3-spacing);
+    transition: all .2s ease-in-out;
+    transition-property: box-shadow, border, transform;
+
+    .table-fit {
+        box-shadow: none;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    .table-fit:not(:first-child) {
+        margin-top: var(--typo3-card-padding);
+    }
+}
+
+.card-container {
+    container-type: inline-size;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--typo3-card-grid-gap) 0;
+    margin-left: calc(var(--typo3-card-grid-gap) / 2 * -1);
+    margin-right: calc(var(--typo3-card-grid-gap) / 2 * -1);
+    margin-bottom: var(--typo3-spacing);
+
+    .card {
+        margin-left: calc(var(--typo3-card-grid-gap) / 2);
+        margin-right: calc(var(--typo3-card-grid-gap) / 2);
+        margin-bottom: 0;
+    }
+}
+
+//
+// Sizes
+//
+.card-size-small,
+.card-size-medium,
+.card-size-large {
+    width: calc(100% - var(--typo3-card-grid-gap));
+}
+
+//
+// Small
+//
+@include container-breakpoint-up('md') {
+    .card-size-small {
+        width: calc(50% - var(--typo3-card-grid-gap));
+    }
+}
+
+@include container-breakpoint-up('lg') {
+    .card-size-small {
+        width: calc(25% - var(--typo3-card-grid-gap));
+    }
+}
+
+//
+// Medium
+//
+@include container-breakpoint-up('md') {
+    .card-size-medium {
+        width: calc(50% - var(--typo3-card-grid-gap));
+    }
+}
+
+//
+// Fixed sizes
+//
+.card-size-fixed-small {
+    width: calc(100% - var(--typo3-card-grid-gap));
+}
+
+@include container-breakpoint-up('sm') {
+    .card-size-fixed-small {
+        width: calc(50% - var(--typo3-card-grid-gap));
+    }
+}
+
+@include container-breakpoint-up('md') {
+    .card-size-fixed-small {
+        width: 300px;
+    }
+}
+
+//
+// Components
+//
+.card-image,
+.card-header,
+.card-body,
+.card-footer {
+    padding: var(--typo3-card-padding) var(--typo3-card-padding) 0 var(--typo3-card-padding);
+
+    &:last-child {
+        padding-bottom: var(--typo3-card-padding);
+    }
+
+    > *:first-child:not(.row) {
+        margin-top: 0;
+    }
+
+    > *:last-child {
+        margin-bottom: 0;
+    }
+}
+
+//
+// Image
+//
+.card-image {
+    position: relative;
+    padding-left: 0;
+    padding-right: 0;
+
+    &:first-child {
+        padding-top: 0;
+
+        .card-image-badge {
+            top: calc(var(--typo3-card-padding) * .5);
+        }
+    }
+
+    &:last-child {
+        padding-bottom: 0;
+    }
+
+    .card-image-badge {
+        position: absolute;
+        top: var(--typo3-card-padding);
+        inset-inline-end: calc(var(--typo3-card-padding) * .5);
+    }
+
+    img {
+        display: block;
+        height: auto;
+        width: 100%;
+        margin: 0 auto;
+    }
+}
+
+//
+// Header
+//
+.card-header {
+    border-bottom: none;
+
+    .card-icon {
+        float: var(--typo3-position-start);
+        margin-inline-end: calc(var(--typo3-card-padding) * .5);
+    }
+
+    .card-header-body {
+        display: block;
+        overflow: hidden;
+    }
+
+    .card-title {
+        font-family: inherit;
+        font-weight: 500;
+        display: block;
+        font-size: 1.35em;
+        line-height: 1.2em;
+        margin: 0;
+    }
+
+    .card-subtitle {
+        color: var(--typo3-card-color-subtle);
+        display: block;
+        margin-top: .5em;
+        font-size: 1em;
+        line-height: 1.2em;
+    }
+
+    .card-longdesc {
+        margin-top: 1em;
+    }
+}
+
+//
+// Body
+//
+.card-body {
+    flex: 1 1 auto;
+}
+
+//
+// Footer
+//
+.card-footer {
+    border-top: none;
+}
+
+//
+// Variants
+//
+.card-disabled {
+    opacity: .4;
+}
+
+//
+// Color Variants
+//
+@each $variant in $base-variants {
+    .card-#{$variant} {
+        --typo3-card-color: var(--typo3-surface-container-#{$variant}-text);
+        --typo3-card-bg: var(--typo3-surface-container-#{$variant});
+    }
+}

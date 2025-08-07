@@ -1,0 +1,115 @@
+//
+// Treeline Icons
+//
+.treeline-icon {
+    position: relative;
+    display: inline-block;
+    margin-top: -.75rem;
+    margin-bottom: -.75rem;
+    margin-inline-end: 2px;
+    padding: 0;
+    height: 54px;
+    width: 16px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    vertical-align: middle;
+
+    &:after,
+    &:before {
+        position: absolute;
+        content: '';
+        inset-inline-start: 50%;
+    }
+
+    &:before {
+        top: 0;
+        height: 100%;
+        width: 2px;
+        margin-inline-start: -1px;
+        border-inline-start: 1px solid var(--treelist-border-color);
+    }
+
+    &:after {
+        border-top: 1px solid var(--treelist-border-color);
+        height: 2px;
+        width: 100%;
+        top: 50%;
+        margin-top: -1px;
+    }
+}
+
+.treeline-icon-jointop:before {
+    top: 50%;
+}
+
+.treeline-icon-joinbottom:before {
+    top: -50%;
+}
+
+.treeline-icon-line:after {
+    display: none;
+}
+
+.treeline-icon-blank {
+    display: none;
+}
+
+.treeline-icon-clear {
+    &:before,
+    &:after {
+        display: none;
+    }
+}
+
+/**
+ * Tree line inside a table
+ */
+.treeline-container {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--typo3-spacing) * .25);
+}
+
+//
+// AJAX Page Tree
+//
+body#typo3-pagetree {
+    margin: 0;
+    padding: 0;
+}
+
+#typo3-pagetree #typo3-inner-docbody {
+    padding: 10px 0;
+}
+
+span.dragIcon {
+    display: inline-block;
+    height: 16px;
+}
+
+#dragIcon {
+    position: absolute;
+    visibility: hidden;
+    z-index: 20;
+    opacity: .5;
+    white-space: nowrap;
+}
+
+//
+// Tree
+//
+.scaffold-content-navigation-component {
+    &,
+    .tree,
+    .tree > div,
+    .navigation-tree-container {
+        flex: 1 0 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tree-wrapper {
+        flex: 1 0 0;
+    }
+}

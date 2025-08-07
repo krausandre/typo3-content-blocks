@@ -1,0 +1,17 @@
+$fieldset-padding: $padding-small-vertical;
+$option-margin-bottom: $padding-small-horizontal;
+
+.localization-wizard {
+    .option {
+        margin-bottom: $option-margin-bottom;
+    }
+}
+
+.localization-fieldset {
+    display: grid;
+    gap: calc(var(--typo3-spacing) / 4);
+
+    & + & {
+        margin-top: var(--typo3-spacing);
+    }
+}

@@ -1,0 +1,205 @@
+//
+// Global Variables
+// ================
+
+//
+// Icons
+//
+@import "../../../node_modules/@typo3/icons/dist/scss/icons-variables-actions.scss";
+
+//
+// TYPO3
+// =====
+//
+$natural-base: #000;
+$neutral-shades: (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100);
+$base-colors: (
+    'blue': #205eb5,
+    'purple': #5e4db2,
+    'teal': #abdced,
+    'green': #247554,
+    'magenta': #c6398f,
+    'yellow': #fc3,
+    'orange': #ee6d11,
+    'red': #d13a2e,
+);
+$base-shades: (3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 96, 97);
+$base-variants: (
+    'primary',
+    'secondary',
+    'info',
+    'success',
+    'warning',
+    'danger',
+    'notice',
+    'default',
+);
+
+//
+// Bootstrap
+// =========
+//
+
+// gray-color-variables
+$white: #fff;
+$gray-100: rgb(245, 245, 245);
+$gray-200: rgb(238, 238, 238);
+$gray-300: rgb(215, 215, 215);
+$gray-400: rgb(204, 204, 204);
+$gray-500: rgb(187, 187, 187);
+$gray-600: rgb(115, 115, 115);
+$gray-700: rgb(90, 90, 90);
+$gray-800: rgb(51, 51, 51);
+$gray-900: rgb(30, 30, 30);
+$black: #000;
+
+// color-variables
+$blue: map-get($base-colors, 'blue');
+$purple: map-get($base-colors, 'purple');
+$pink: map-get($base-colors, 'magenta');
+$red: map-get($base-colors, 'red');
+$orange: map-get($base-colors, 'orange');
+$yellow: map-get($base-colors, 'yellow');
+$green: map-get($base-colors, 'green');
+$teal: map-get($base-colors, 'teal');
+
+// theme-color-variables
+$primary: $blue;
+$secondary: $gray-600;
+$success: $green;
+$info: $teal;
+$warning: $yellow;
+$danger: $red;
+$light: $gray-100;
+$default: $gray-200;
+$notice: $gray-800;
+$dark: $gray-900;
+$min-contrast-ratio: 3;
+
+// theme-colors-map
+$theme-colors: (
+    "primary": $primary,
+    "secondary": $secondary,
+    "success": $success,
+    "info": $info,
+    "warning": $warning,
+    "danger": $danger,
+    "light": $light,
+    "default": $light,
+    "notice": $notice,
+    "dark": $dark
+);
+
+// Options
+$enable-shadows: true;
+
+// Body
+$body-bg: #fff;
+$body-color: $black;
+
+// Links
+$link-color: #212424;
+$link-decoration: none;
+$link-hover-decoration: underline;
+
+// Typography
+$font-family-sans-serif: Verdana, Arial, Helvetica, sans-serif;
+$font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+$font-size-root: 1rem;
+$font-size-base: .75rem;
+$font-size-large: 1rem;
+$font-size-small: .6875rem;
+$h1-font-size: 28px;
+$h2-font-size: 20px;
+$h3-font-size: 16px;
+$h4-font-size: 14px;
+
+// Spacings
+$headings-margin-bottom: calc(var(--typo3-spacing) / 2);
+$paragraph-margin-bottom: var(--typo3-spacing);
+
+// Components
+$padding-base-vertical: .375rem;
+$padding-base-horizontal: .375rem;
+$padding-large-vertical: .75rem;
+$padding-large-horizontal: .75rem;
+$padding-small-vertical: .25rem;
+$padding-small-horizontal: .25rem;
+$padding-xs-vertical: .125rem;
+$padding-xs-horizontal: .25rem;
+$line-height-large: 1.3333333;
+$line-height-small: 1.5;
+$border-radius: .125rem;
+$border-radius-sm: $border-radius;
+$border-radius-lg: $border-radius;
+
+// Tables
+$table-bg: $white;
+$table-border-color: $gray-400;
+$table-bg-scale: -85%;
+$table-striped-bg-factor: .025;
+$table-hover-bg-factor: .035;
+$table-active-bg-factor: .045;
+$table-border-factor: .1;
+
+// Navbar
+$navbar-height: 45px;
+$navbar-default-bg: #f8f8f8;
+$navbar-default-link-hover-bg: darken($navbar-default-bg, 5%);
+$navbar-default-link-active-bg: darken($navbar-default-bg, 10%);
+$navbar-default-link-disabled-bg: darken($navbar-default-bg, 15%);
+$navbar-inverse-color: #999;
+$navbar-inverse-bg: #111;
+$navbar-inverse-border: none;
+$navbar-inverse-link-color: #ddd;
+$navbar-inverse-link-bg: lighten($navbar-inverse-bg, 7.5%);  // TYPO3 SPECIFIC
+$navbar-inverse-link-hover-color: rgb(200, 200, 200);
+$navbar-inverse-link-hover-bg: rgb(50, 50, 50);
+$navbar-inverse-link-active-color: #fff;
+$navbar-inverse-link-active-bg: $navbar-inverse-link-hover-bg;
+$navbar-inverse-link-disabled-color: darken($navbar-inverse-color, 30%);
+$navbar-inverse-link-disabled-bg: darken($navbar-inverse-bg, 20%);
+
+// Panels
+$panel-default-border: #ccc;
+$panel-default-heading-bg: #ddd;
+
+// Type
+$hr-border: #7a7a7a;
+$hr-opacity: 1;
+
+// Popover
+$popover-box-shadow: var(--typo3-component-box-shadow-flyout);
+
+// Card
+$card-cap-bg: transparent;
+
+// Overwrite Progress bar background color
+$progress-bg: #dedede;
+$progress-height: 1.25rem;
+$progress-font-size: $font-size-base * .9;
+$utilities: (
+    "float": (
+        property: float,
+        class: float,
+        values: (
+            start: var(--typo3-position-start),
+            end: var(--typo3-position-end),
+            none: none,
+        )
+    ),
+    "text-align": (
+        responsive: true,
+        property: text-align,
+        class: text,
+        values: (
+            start: start,
+            end: end,
+            center: center,
+        )
+    ),
+    // disable bootstrap color utilities
+    "color": (),
+    "text-color": (),
+    "text-opacity": (),
+);

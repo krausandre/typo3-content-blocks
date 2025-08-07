@@ -1,0 +1,329 @@
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { html, LitElement } from 'lit';
+import { customElement, property, queryAssignedElements } from 'lit/decorators';
+import AjaxRequest from '@typo3/core/ajax/ajax-request';
+import DebounceEvent from '@typo3/core/event/debounce-event';
+import { prefixAndRebaseCss } from '@typo3/rte-ckeditor/css-prefixer';
+import { ClassicEditor } from '@ckeditor/ckeditor5-editor-classic';
+const defaultPlugins = [
+    { module: '@ckeditor/ckeditor5-block-quote', exports: ['BlockQuote'] },
+    { module: '@ckeditor/ckeditor5-essentials', exports: ['Essentials'] },
+    { module: '@ckeditor/ckeditor5-find-and-replace', exports: ['FindAndReplace'] },
+    { module: '@ckeditor/ckeditor5-heading', exports: ['Heading'] },
+    { module: '@ckeditor/ckeditor5-indent', exports: ['Indent', 'IndentBlock'] },
+    { module: '@ckeditor/ckeditor5-link', exports: ['Link'] },
+    { module: '@ckeditor/ckeditor5-list', exports: ['List'] },
+    { module: '@ckeditor/ckeditor5-paragraph', exports: ['Paragraph'] },
+    { module: '@ckeditor/ckeditor5-clipboard', exports: ['PastePlainText'] },
+    { module: '@ckeditor/ckeditor5-paste-from-office', exports: ['PasteFromOffice'] },
+    { module: '@ckeditor/ckeditor5-remove-format', exports: ['RemoveFormat'] },
+    { module: '@ckeditor/ckeditor5-table', exports: ['Table', 'TableToolbar', 'TableProperties', 'TableCellProperties', 'TableCaption'] },
+    { module: '@ckeditor/ckeditor5-typing', exports: ['TextTransformation'] },
+    { module: '@ckeditor/ckeditor5-source-editing', exports: ['SourceEditing'] },
+    { module: '@ckeditor/ckeditor5-alignment', exports: ['Alignment'] },
+    { module: '@ckeditor/ckeditor5-style', exports: ['Style'] },
+    { module: '@ckeditor/ckeditor5-html-support', exports: ['GeneralHtmlSupport'] },
+    { module: '@ckeditor/ckeditor5-basic-styles', exports: ['Bold', 'Italic', 'Subscript', 'Superscript', 'Strikethrough', 'Underline'] },
+    { module: '@ckeditor/ckeditor5-special-characters', exports: ['SpecialCharacters', 'SpecialCharactersEssentials'] },
+    { module: '@ckeditor/ckeditor5-horizontal-line', exports: ['HorizontalLine'] },
+];
+/**
+ * Module: @typo3/rte_ckeditor/ckeditor5
+ *
+ * @example
+ * <typo3-rte-ckeditor-ckeditor5
+ *    options="[JSON]"
+ * ></typo3-rte-ckeditor-ckeditor5>
+ */
+let CKEditor5Element = class CKEditor5Element extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.options = {};
+        this.styleSheets = new Map();
+    }
+    connectedCallback() {
+        super.connectedCallback();
+        this.prefixAndLoadContentsCss();
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        document.adoptedStyleSheets = document.adoptedStyleSheets.filter(styleSheet => !this.styleSheets.has(styleSheet));
+        this.styleSheets.clear();
+    }
+    firstUpdated() {
+        if (this.target[0] instanceof HTMLTextAreaElement) {
+            this.initCKEditor();
+        }
+        else {
+            this.renderRoot.querySelector('slot[name="textarea"]').addEventListener('slotchange', () => this.initCKEditor(), { once: true });
+        }
+    }
+    async initCKEditor() {
+        if (!(this.target[0] instanceof HTMLTextAreaElement)) {
+            throw new Error('No rich-text <textarea> content target found.');
+        }
+        const { 
+        // options handled by this wrapper
+        importModules, removeImportModules, width, height, readOnly, debug, 
+        // options forwarded to CKEditor5
+        toolbar, placeholder, htmlSupport, wordCount, typo3link, removePlugins, ...otherOptions } = this.options;
+        if ('extraPlugins' in otherOptions) {
+            // Drop CKEditor4 style extraPlugins which we do not support for CKEditor5
+            // as this string-based list of plugin names works only for bundled plugins.
+            // `config.importModules` is used for CKEditor5 instead
+            delete otherOptions.extraPlugins;
+        }
+        if ('contentsCss' in otherOptions) {
+            // Consumed in connectedCallback
+            delete otherOptions.contentsCss;
+        }
+        let fullscreenConfiguration = {};
+        if ('fullscreen' in otherOptions) {
+            fullscreenConfiguration = otherOptions.fullscreen;
+            delete otherOptions.fullscreen;
+        }
+        // Set `.module-body` as the parent container to let users reach controls, e.g. the "Save" button
+        fullscreenConfiguration.container = document.querySelector('.module-body');
+        const plugins = await this.resolvePlugins(defaultPlugins, importModules, removeImportModules);
+        const config = {
+            licenseKey: 'GPL',
+            ...otherOptions,
+            // link.defaultProtocol: 'https://'
+            toolbar,
+            plugins,
+            placeholder,
+            wordCount,
+            typo3link: typo3link || null,
+            removePlugins: removePlugins || [],
+            fullscreen: fullscreenConfiguration
+        };
+        if (htmlSupport !== undefined) {
+            config.htmlSupport = convertPseudoRegExp(htmlSupport);
+        }
+        if (config?.typing?.transformations !== undefined) {
+            // Implement variant of CKEditor's native buildQuotesRegExp() method.
+            // This allows to convert a 'pattern' sub-object into the proper object.
+            config.typing.transformations = convertPseudoRegExp(config.typing.transformations);
+        }
+        ClassicEditor
+            .create(this.target[0], config)
+            .then((editor) => {
+            this.applyEditableElementStyles(editor, width, height);
+            this.handleWordCountPlugin(editor, wordCount);
+            this.applyReadOnly(editor, readOnly);
+            editor.model.document.on('change:data', () => {
+                editor.updateSourceElement();
+                this.target[0].dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
+            });
+            if (editor.plugins.has('SourceEditing')) {
+                const sourceEditingPlugin = editor.plugins.get('SourceEditing');
+                sourceEditingPlugin.on('change:isSourceEditingMode', (eventInfo, eventName, isEnabled) => {
+                    for (const [rootName] of editor.editing.view.domRoots) {
+                        // Behold, CKEditor doesn't exposes events for the edit textarea that replaces the editor UI
+                        // therefore we have to register an `input` event handler ourselves.
+                        // The neat thing: if the user switches back to wysiwyg mode, the textarea is disposed,
+                        // we don't have to remove the event handler by ourselves.
+                        if (isEnabled) {
+                            const sourceEditingTextarea = editor.ui.getEditableElement(`sourceEditing:${rootName}`);
+                            if (sourceEditingTextarea instanceof HTMLTextAreaElement) {
+                                new DebounceEvent('input', () => {
+                                    // Force editor model update on input, this will dispatch `change:data`
+                                    sourceEditingPlugin.updateEditorData();
+                                }, 100).bindTo(sourceEditingTextarea);
+                            }
+                            else {
+                                throw new Error('Cannot find textarea related to source editing. Has CKEditor been upgraded?');
+                            }
+                        }
+                    }
+                });
+            }
+            if (debug) {
+                import('@ckeditor/ckeditor5-inspector').then(({ default: CKEditorInspector }) => CKEditorInspector.attach(editor, { isCollapsed: true }));
+            }
+        });
+    }
+    render() {
+        return html `
+      <slot name="textarea"></slot>
+      <slot></slot>
+    `;
+    }
+    async resolvePlugins(defaultPlugins, importModulesOption, removeImportModulesOption) {
+        const removeImportModules = normalizeImportModules(removeImportModulesOption || []);
+        const importModules = normalizeImportModules([
+            ...defaultPlugins,
+            ...(importModulesOption || []),
+        ]).map((moduleDescriptor) => {
+            const { module } = moduleDescriptor;
+            let { exports } = moduleDescriptor;
+            for (const toRemove of removeImportModules) {
+                if (toRemove.module === module) {
+                    exports = exports.filter(el => !toRemove.exports.includes(el));
+                }
+            }
+            return { module, exports };
+        });
+        const pluginModules = await Promise.all(importModules
+            .map(async (moduleDescriptor) => {
+            try {
+                return {
+                    module: await import(moduleDescriptor.module),
+                    exports: moduleDescriptor.exports,
+                };
+            }
+            catch (e) {
+                console.error(`Failed to load CKEditor5 module ${moduleDescriptor.module}`, e);
+                return {
+                    module: null,
+                    exports: []
+                };
+            }
+        }));
+        const declaredPlugins = [];
+        pluginModules.forEach(({ module, exports }) => {
+            for (const exportName of exports) {
+                if (exportName in module) {
+                    declaredPlugins.push(module[exportName]);
+                }
+                else {
+                    console.error(`CKEditor5 plugin export "${exportName}" not available in`, module);
+                }
+            }
+        });
+        // plugins that were overridden by other custom plugin implementations
+        const overriddenPlugins = declaredPlugins
+            .filter(plugin => plugin.overrides?.length > 0)
+            .map(plugin => plugin.overrides)
+            .flat(1);
+        // plugins, without those that have been overridden
+        return declaredPlugins
+            .filter(plugin => !overriddenPlugins.includes(plugin));
+    }
+    async prefixAndLoadContentsCss() {
+        if (!Array.isArray(this.options.contentsCss)) {
+            return;
+        }
+        const styleSheetStates = await Promise.allSettled(this.options.contentsCss.map(url => this.prefixContentsCss(url, this.getAttribute('id'))));
+        const styleSheets = styleSheetStates
+            .map(state => state.status === 'fulfilled' ? state.value : null)
+            .filter(v => v !== null);
+        styleSheets.forEach(styleSheet => this.styleSheets.set(styleSheet, true));
+        document.adoptedStyleSheets = [...document.adoptedStyleSheets, ...styleSheets];
+    }
+    async prefixContentsCss(url, fieldId) {
+        let content;
+        try {
+            const response = await new AjaxRequest(url).get();
+            content = await response.resolve();
+        }
+        catch (e) {
+            console.error(`Failed to fetch CSS content for CKEditor5 prefixing: "${url}"`, e);
+            throw new Error();
+        }
+        // see https://ckeditor.com/docs/ckeditor5/latest/installation/advanced/content-styles.html
+        const newParents = [
+            // Prefix custom stylesheets with id of the container element and a required `.ck-content` selector
+            `#${fieldId} .ck-content`,
+        ];
+        if (this.options.toolbar.items.includes('fullscreen')) {
+            // If the "fullscreen" action is available, prefix custom stylesheets with fullscreen class and a required `.ck-content` selector
+            newParents.push('.ck-fullscreen__editable .ck-content');
+        }
+        let prefixedCss = '';
+        for (const newParent of newParents) {
+            prefixedCss += prefixAndRebaseCss(content, url, newParent);
+        }
+        const styleSheet = new CSSStyleSheet();
+        await styleSheet.replace(prefixedCss);
+        return styleSheet;
+    }
+    applyEditableElementStyles(editor, width, height) {
+        const view = editor.editing.view;
+        const styles = {
+            'min-height': height,
+            'min-width': width,
+        };
+        Object.keys(styles).forEach((key) => {
+            const _assignment = styles[key];
+            if (!_assignment) {
+                return;
+            }
+            let assignment;
+            if (typeof _assignment === 'number' || !Number.isNaN(Number(assignment))) {
+                assignment = `${_assignment}px`;
+            }
+            else {
+                assignment = _assignment;
+            }
+            view.change((writer) => {
+                writer.setStyle(key, assignment, view.document.getRoot());
+            });
+        });
+    }
+    /**
+     * see https://ckeditor.com/docs/ckeditor5/latest/features/word-count.html
+     */
+    handleWordCountPlugin(editor, wordCount) {
+        if (editor.plugins.has('WordCount') && (wordCount?.displayWords || wordCount?.displayCharacters)) {
+            const wordCountPlugin = editor.plugins.get('WordCount');
+            this.appendChild(wordCountPlugin.wordCountContainer);
+        }
+    }
+    /**
+     * see https://ckeditor.com/docs/ckeditor5/latest/features/read-only.html
+     */
+    applyReadOnly(editor, readOnly) {
+        if (readOnly) {
+            editor.enableReadOnlyMode('typo3-lock');
+        }
+    }
+};
+__decorate([
+    property({ type: Object })
+], CKEditor5Element.prototype, "options", void 0);
+__decorate([
+    queryAssignedElements({ slot: 'textarea' })
+], CKEditor5Element.prototype, "target", void 0);
+CKEditor5Element = __decorate([
+    customElement('typo3-rte-ckeditor-ckeditor5')
+], CKEditor5Element);
+export { CKEditor5Element };
+function walkObj(data, proc) {
+    if (typeof data === 'object') {
+        if (Array.isArray(data)) {
+            return data.map((element) => proc(element) ?? walkObj(element, proc));
+        }
+        const newData = {};
+        for (const [key, value] of Object.entries(data)) {
+            newData[key] = proc(value) ?? walkObj(value, proc);
+        }
+        return newData;
+    }
+    return data;
+}
+function convertPseudoRegExp(data) {
+    return walkObj(data, (entry) => {
+        if (typeof entry === 'object' && 'pattern' in entry && typeof entry.pattern === 'string') {
+            const pseudoRegExp = entry;
+            return new RegExp(pseudoRegExp.pattern, pseudoRegExp.flags || undefined);
+        }
+        return null;
+    });
+}
+function normalizeImportModules(modules) {
+    return modules.map(moduleDescriptor => {
+        if (typeof moduleDescriptor === 'string') {
+            return {
+                module: moduleDescriptor,
+                exports: ['default'],
+            };
+        }
+        return moduleDescriptor;
+    });
+}

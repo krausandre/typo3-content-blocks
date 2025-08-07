@@ -1,0 +1,281 @@
+/*
+ * This file is part of the TYPO3 CMS project.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * The TYPO3 project - inspiring people to share!
+ */
+import 'bootstrap';
+import { AbstractInteractableModule } from '../abstract-interactable-module';
+import AjaxRequest from '@typo3/core/ajax/ajax-request';
+import { FlashMessage } from '../../renderable/flash-message';
+import { InfoBox } from '../../renderable/info-box';
+import '../../renderable/language-packs';
+import Severity from '../../renderable/severity';
+import Router from '../../router';
+var Identifiers;
+(function (Identifiers) {
+    Identifiers["outputContainer"] = ".t3js-languagePacks-output";
+    Identifiers["contentContainer"] = ".t3js-languagePacks-mainContent";
+    Identifiers["notifications"] = ".t3js-languagePacks-notifications";
+})(Identifiers || (Identifiers = {}));
+/**
+ * Module: @typo3/install/module/language-packs
+ */
+class LanguagePacks extends AbstractInteractableModule {
+    constructor() {
+        super(...arguments);
+        this.activeLanguages = [];
+        this.activeExtensions = [];
+        this.packsUpdateDetails = {
+            toHandle: 0,
+            handled: 0,
+            updated: 0,
+            new: 0,
+            failed: 0,
+            skipped: 0,
+        };
+        this.notifications = [];
+    }
+    static pluralize(count, word = 'pack', suffix = 's', additionalCount = 0) {
+        return count !== 1 && additionalCount !== 1 ? word + suffix : word;
+    }
+    initialize(currentModal) {
+        super.initialize(currentModal);
+        Promise.all([
+            this.loadModuleFrameAgnostic('@typo3/install/renderable/info-box.js'),
+            this.loadModuleFrameAgnostic('@typo3/install/renderable/flash-message.js'),
+            this.loadModuleFrameAgnostic('@typo3/install/renderable/language-packs.js')
+        ]).then(() => {
+            this.getData();
+        });
+    }
+    getData() {
+        const modalContent = this.getModalBody();
+        (new AjaxRequest(Router.getUrl('languagePacksGetData')))
+            .get({ cache: 'no-cache' })
+            .then(async (response) => {
+            const data = await response.resolve();
+            const { success, html, ...state } = data;
+            if (success === true) {
+                this.activeLanguages = data.activeLanguages;
+                this.activeExtensions = data.activeExtensions;
+                modalContent.innerHTML = html;
+                const contentContainer = modalContent.parentElement.querySelector(Identifiers.contentContainer);
+                contentContainer.innerHTML = '';
+                const documentRef = window.location !== window.parent.location ? parent.document : document;
+                const languageMatrix = documentRef.createElement('typo3-install-language-matrix');
+                languageMatrix.data = state;
+                if (this.getModuleContent().dataset.configurationIsWritable === 'true') {
+                    languageMatrix.setAttribute('configurationIsWritable', '');
+                }
+                languageMatrix.addEventListener('activate-language', (e) => {
+                    this.activateLanguage(e.detail.iso);
+                });
+                languageMatrix.addEventListener('deactivate-language', (e) => {
+                    this.deactivateLanguage(e.detail.iso);
+                });
+                languageMatrix.addEventListener('download-packs', (e) => {
+                    this.updatePacks(e.detail?.iso || undefined, undefined);
+                });
+                const extensionMatrix = documentRef.createElement('typo3-install-extension-matrix');
+                extensionMatrix.data = state;
+                extensionMatrix.addEventListener('download-packs', (e) => {
+                    this.updatePacks(e.detail?.iso || undefined, e.detail?.extension || undefined);
+                });
+                contentContainer.append(languageMatrix, extensionMatrix);
+            }
+            else {
+                this.addNotification(InfoBox.create(Severity.error, 'Something went wrong'));
+            }
+            this.renderNotifications();
+        }, (error) => {
+            Router.handleAjaxError(error, modalContent);
+        });
+    }
+    activateLanguage(iso) {
+        const modalContent = this.getModalBody();
+        const outputContainer = this.findInModal(Identifiers.outputContainer);
+        this.renderProgressBar(outputContainer);
+        this.getNotificationBox().innerHTML = '';
+        (new AjaxRequest(Router.getUrl()))
+            .post({
+            install: {
+                action: 'languagePacksActivateLanguage',
+                token: this.getModuleContent().dataset.languagePacksActivateLanguageToken,
+                iso: iso,
+            },
+        })
+            .then(async (response) => {
+            const data = await response.resolve();
+            outputContainer.innerHTML = '';
+            if (data.success === true && Array.isArray(data.status)) {
+                data.status.forEach((element) => {
+                    this.addNotification(InfoBox.create(element.severity, element.title, element.message));
+                });
+            }
+            else {
+                this.addNotification(InfoBox.create(Severity.error, 'Something went wrong'));
+            }
+            this.getData();
+        }, (error) => {
+            Router.handleAjaxError(error, modalContent);
+        });
+    }
+    deactivateLanguage(iso) {
+        const modalContent = this.getModalBody();
+        const outputContainer = this.findInModal(Identifiers.outputContainer);
+        this.renderProgressBar(outputContainer);
+        this.getNotificationBox().innerHTML = '';
+        (new AjaxRequest(Router.getUrl()))
+            .post({
+            install: {
+                action: 'languagePacksDeactivateLanguage',
+                token: this.getModuleContent().dataset.languagePacksDeactivateLanguageToken,
+                iso: iso,
+            },
+        })
+            .then(async (response) => {
+            const data = await response.resolve();
+            outputContainer.innerHTML = '';
+            if (data.success === true && Array.isArray(data.status)) {
+                data.status.forEach((element) => {
+                    this.addNotification(InfoBox.create(element.severity, element.title, element.message));
+                });
+            }
+            else {
+                this.addNotification(InfoBox.create(Severity.error, 'Something went wrong'));
+            }
+            this.getData();
+        }, (error) => {
+            Router.handleAjaxError(error, modalContent);
+        });
+    }
+    updatePacks(iso, extension) {
+        const outputContainer = this.findInModal(Identifiers.outputContainer);
+        const contentContainer = this.findInModal(Identifiers.contentContainer);
+        const isos = iso === undefined ? this.activeLanguages : [iso];
+        let updateIsoTimes = true;
+        let extensions = this.activeExtensions;
+        if (extension !== undefined) {
+            extensions = [extension];
+            updateIsoTimes = false;
+        }
+        this.packsUpdateDetails = {
+            toHandle: isos.length * extensions.length,
+            handled: 0,
+            updated: 0,
+            new: 0,
+            failed: 0,
+            skipped: 0,
+        };
+        const progressBar = this.renderProgressBar(outputContainer, this.packsUpdateDetails.toHandle === 1 ? undefined : {
+            value: 0,
+            max: this.packsUpdateDetails.toHandle,
+            label: '0 of ' + this.packsUpdateDetails.toHandle + ' language ' +
+                LanguagePacks.pluralize(this.packsUpdateDetails.toHandle) + ' updated'
+        });
+        contentContainer.innerHTML = '';
+        isos.forEach((isoCode) => {
+            extensions.forEach((extensionKey) => {
+                this.getNotificationBox().innerHTML = '';
+                (new AjaxRequest(Router.getUrl()))
+                    .post({
+                    install: {
+                        action: 'languagePacksUpdatePack',
+                        token: this.getModuleContent().dataset.languagePacksUpdatePackToken,
+                        iso: isoCode,
+                        extension: extensionKey,
+                    },
+                })
+                    .then(async (response) => {
+                    const data = await response.resolve();
+                    if (data.success === true) {
+                        this.packsUpdateDetails.handled++;
+                        if (data.packResult === 'new') {
+                            this.packsUpdateDetails.new++;
+                        }
+                        else if (data.packResult === 'update') {
+                            this.packsUpdateDetails.updated++;
+                        }
+                        else if (data.packResult === 'skipped') {
+                            this.packsUpdateDetails.skipped++;
+                        }
+                        else {
+                            this.packsUpdateDetails.failed++;
+                        }
+                        this.packUpdateDone(updateIsoTimes, isos, progressBar);
+                    }
+                    else {
+                        this.packsUpdateDetails.handled++;
+                        this.packsUpdateDetails.failed++;
+                        this.packUpdateDone(updateIsoTimes, isos, progressBar);
+                    }
+                }, () => {
+                    this.packsUpdateDetails.handled++;
+                    this.packsUpdateDetails.failed++;
+                    this.packUpdateDone(updateIsoTimes, isos, progressBar);
+                });
+            });
+        });
+    }
+    packUpdateDone(updateIsoTimes, isos, progressBar) {
+        const modalContent = this.getModalBody();
+        if (this.packsUpdateDetails.handled === this.packsUpdateDetails.toHandle) {
+            // All done - create summary, update 'last update' of iso list, render main view
+            this.addNotification(InfoBox.create(Severity.ok, 'Language packs updated', this.packsUpdateDetails.new + ' new language ' + LanguagePacks.pluralize(this.packsUpdateDetails.new) + ' downloaded, ' +
+                this.packsUpdateDetails.updated + ' language ' + LanguagePacks.pluralize(this.packsUpdateDetails.updated) + ' updated, ' +
+                this.packsUpdateDetails.skipped + ' language ' + LanguagePacks.pluralize(this.packsUpdateDetails.skipped) + ' skipped, ' +
+                this.packsUpdateDetails.failed + ' language ' + LanguagePacks.pluralize(this.packsUpdateDetails.failed) + ' not available'));
+            if (updateIsoTimes === true) {
+                (new AjaxRequest(Router.getUrl()))
+                    .post({
+                    install: {
+                        action: 'languagePacksUpdateIsoTimes',
+                        token: this.getModuleContent().dataset.languagePacksUpdateIsoTimesToken,
+                        isos: isos,
+                    },
+                })
+                    .then(async (response) => {
+                    const data = await response.resolve();
+                    if (data.success === true) {
+                        this.getData();
+                    }
+                    else {
+                        this.addNotification(FlashMessage.create(Severity.error, 'Something went wrong'));
+                    }
+                }, (error) => {
+                    Router.handleAjaxError(error, modalContent);
+                });
+            }
+            else {
+                this.getData();
+            }
+        }
+        else {
+            // Update progress bar
+            progressBar.value = this.packsUpdateDetails.handled;
+            progressBar.label = this.packsUpdateDetails.handled + ' of ' + this.packsUpdateDetails.toHandle + ' language ' +
+                LanguagePacks.pluralize(this.packsUpdateDetails.handled, 'pack', 's', this.packsUpdateDetails.toHandle) + ' updated';
+        }
+    }
+    getNotificationBox() {
+        return this.findInModal(Identifiers.notifications);
+    }
+    addNotification(notification) {
+        this.notifications.push(notification);
+    }
+    renderNotifications() {
+        const $notificationBox = this.getNotificationBox();
+        for (const notification of this.notifications) {
+            $notificationBox.appendChild(notification);
+        }
+        this.notifications = [];
+    }
+}
+export default new LanguagePacks();

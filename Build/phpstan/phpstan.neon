@@ -1,0 +1,40 @@
+includes:
+  - phpstan-baseline.neon
+  - ../../vendor/bnf/phpstan-psr-container/extension.neon
+  - ../../vendor/phpstan/phpstan-phpunit/extension.neon
+  - ../../vendor/phpstan/phpstan-phpunit/rules.neon
+
+services:
+  -
+    class: TYPO3\CMS\PHPStan\Rules\Classes\UnneededInstanceOfRule
+    arguments:
+      # treatPhpDocTypesAsCertain is explicitly disabled as long as we have ignored errors
+      # in our baseline, as that we MUST not trust doc types 100%.
+      # We can switch to the global parameter `%treatPhpDocTypesAsCertain%` once that's fixed.
+      treatPhpDocTypesAsCertain: false
+    tags:
+      - phpstan.rules.rule
+
+parameters:
+  # Use local .cache dir instead of /tmp
+  tmpDir: ../../.cache/phpstan
+
+  level: 5
+
+  bootstrapFiles:
+    - phpstan-constants.php
+
+  paths:
+    - ../../typo3/sysext/
+
+  excludePaths:
+    # Checking acceptance Cest and Support files is cumbersome due to codeception dynamic mixin generation
+    - ../../typo3/sysext/core/Tests/Acceptance/*
+    # These test fixtures *could* be streamlined but currently generate lots of failures
+    - ../../typo3/sysext/install/Tests/Unit/ExtensionScanner/Php/Matcher/Fixtures/*
+    # ext_emconf.php get the $_EXTKEY set from outsite. We'll ignore all of them
+    - ../../typo3/sysext/*/ext_emconf.php
+    # contains broken syntax for testing-purpose, which cannot be disabled directly
+    - ../../typo3/sysext/extbase/Tests/Unit/Reflection/Fixture/DummyController.php
+    # contains broken syntax for testing-purpose, which cannot be disabled directly
+    - ../../typo3/sysext/extbase/Tests/Unit/Reflection/Fixture/DummyControllerWithIgnoreValidationDoctrineAnnotation.php

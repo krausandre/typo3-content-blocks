@@ -1,0 +1,11 @@
+{
+  "index.html": {
+    "file": "index.js",
+    "isEntry": true,
+    "src": "index.html"
+  },
+  "style.css": {
+    "file": "index.css",
+    "src": "style.css"
+  }
+}

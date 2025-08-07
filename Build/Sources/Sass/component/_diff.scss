@@ -1,0 +1,124 @@
+//
+// Diff
+// ====
+// Used for comparision of records
+//
+//
+// Example Usage
+// -------------
+//
+// <div class="diff">
+//   <div class="div-item">
+//     <div class="diff-title">
+//       ...
+//     </div>
+//     <div class="diff-result">
+//       ...
+//     </div>
+//   </div>
+// </div>
+//
+// <span class="diff-inline"><del>old</del><ins>new</ins></span>
+//
+.diff,
+.diff-inline {
+    --typo3-diff-padding-y: var(--typo3-component-padding-y);
+    --typo3-diff-padding-x: var(--typo3-component-padding-x);
+    --typo3-diff-bg: var(--typo3-component-bg);
+    --typo3-diff-color: var(--typo3-component-color);
+    --typo3-diff-border-color: var(--typo3-component-border-color);
+    --typo3-diff-border-width: var(--typo3-component-border-width);
+    --typo3-diff-title-bg: color-mix(in srgb, var(--typo3-diff-bg), var(--typo3-diff-color) 15%);
+    --typo3-diff-del-bg: var(--typo3-surface-container-danger);
+    --typo3-diff-del-color: var(--typo3-surface-container-danger-text);
+    --typo3-diff-ins-bg: var(--typo3-surface-container-success);
+    --typo3-diff-ins-color: var(--typo3-surface-container-success-text);
+}
+
+.diff {
+    color: var(--typo3-diff-color);
+    background-color: var(--typo3-component-bg);
+    border: var(--typo3-diff-border-width) solid var(--typo3-diff-border-color);
+    display: table;
+
+    .diff-item-title,
+    .diff-item-result,
+    .diff-item-button,
+    .diff-item-text {
+        display: table-cell;
+        padding: var(--typo3-diff-padding-y) var(--typo3-component-padding-x);
+    }
+
+    .diff-item {
+        display: table-row;
+
+        + .diff-item .diff-item-title,
+        + .diff-item .diff-item-result,
+        + .diff-item .diff-item-button,
+        + .diff-item .diff-item-text {
+            border-top: var(--typo3-diff-border-width) solid var(--typo3-diff-border-color);
+        }
+    }
+}
+
+.diff-item-title {
+    background-color: var(--typo3-diff-title-bg);
+    padding-inline-end: 10px;
+    font-style: italic;
+    white-space: nowrap;
+}
+
+.diff-item-result {
+    font-family: var(--typo3-font-family-monospace);
+    width: 100%;
+    white-space: pre-wrap;
+    word-break: break-word;
+    word-wrap: break-word;
+
+    del {
+        color: var(--typo3-diff-del-color);
+        background-color: var(--typo3-diff-del-bg);
+        text-decoration: none;
+    }
+
+    ins {
+        color: var(--typo3-diff-ins-color);
+        background-color: var(--typo3-diff-ins-bg);
+        text-decoration: none;
+    }
+
+    &.diff-item-result-inline {
+        white-space: normal;
+    }
+}
+
+.diff-group {
+    border-inline-start: 5px solid var(--typo3-component-border-color);
+    border-bottom: 1px dotted var(--typo3-component-border-color);
+    margin-bottom: var(--typo3-spacing);
+    padding-inline-start: var(--typo3-component-padding-x);
+    padding-bottom: var(--typo3-component-padding-y);
+
+    > *:last-child {
+        margin-bottom: 0;
+    }
+}
+
+//
+// Inline
+//
+.diff-inline {
+    font-family: var(--typo3-font-family-monospace);
+
+    del {
+        color: var(--typo3-diff-del-color);
+        background-color: var(--typo3-diff-del-bg);
+        text-decoration: none;
+    }
+
+    ins {
+        color: var(--typo3-diff-ins-color);
+        background-color: var(--typo3-diff-ins-bg);
+        text-decoration: none;
+    }
+}

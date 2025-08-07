@@ -1,0 +1,30 @@
+// Empty
+.dashboard-empty {
+    position: relative;
+}
+
+.dashboard-empty-content {
+    background-color: var(--typo3-component-bg);
+    border: var(--typo3-component-border-width) dashed var(--typo3-component-border-color);
+    border-radius: var(--typo3-component-border-radius);
+    padding: 2.5em;
+    text-align: center;
+
+    h3 {
+        font-size: 1.5em;
+        margin-bottom: .5em;
+    }
+
+    p {
+        font-size: 1.25em;
+        margin-bottom: 1em;
+    }
+
+    > *:first-child {
+        margin-top: 0;
+    }
+
+    > *:last-child {
+        margin-bottom: 0;
+    }
+}

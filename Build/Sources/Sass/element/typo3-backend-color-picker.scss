@@ -1,0 +1,9 @@
+//
+// CSS for custom element:
+// <typo3-backend-color-picker>
+//
+typo3-backend-color-picker {
+    .form-control {
+        padding-inline-start: calc(1.25rem + calc(var(--typo3-input-sm-padding-x) * 2));
+    }
+}
