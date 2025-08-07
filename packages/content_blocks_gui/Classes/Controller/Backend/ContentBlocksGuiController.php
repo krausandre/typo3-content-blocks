@@ -76,8 +76,8 @@ final class ContentBlocksGuiController
 //            'basics' => $sampleData['basics'],
         ]);
         // return $this->contentBlocksUtility->getAvailableContentBlocks();
-        $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/content-blocks/content-blocks-gui-module.js');
-        $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/content-blocks/list.js');
+        $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/content-blocks-gui-module.js');
+        $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/list.js');
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:content_blocks_gui/Resources/Private/Language/locallang.xlf');
 
         $this->buttonBarUtility->addIndexButtonBar($this->moduleTemplate);
@@ -117,7 +117,7 @@ final class ContentBlocksGuiController
      */
     protected function handleAction(ServerRequestInterface $request): void
     {
-        $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/content-blocks/editor.js');
+        $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/editor.js');
         $queryParams = $request->getQueryParams();
         if (!isset($queryParams['name'])) {
             throw new RouteNotFoundException('Missing required content block name');
