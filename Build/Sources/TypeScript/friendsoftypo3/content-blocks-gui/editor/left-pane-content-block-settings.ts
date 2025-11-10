@@ -33,6 +33,8 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
     extensions: Array<ExtensionDefinition>;
   @property()
     contentBlockYaml: ContentBlocksYaml;
+  @property()
+    hostExtension: string;
 
   protected render(): TemplateResult {
     return html`
@@ -41,7 +43,7 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
         <select class="form-control" id="extension">
           <option value="0">Choose...</option>
           ${this.extensions.map((extension: ExtensionDefinition) => html`
-            <option value="${extension.package}">${extension.extension}</option>
+            <option value="${extension.package}" ?selected="${extension.package === this.hostExtension}">${extension.extension}</option>
           `)}
         </select>
       </div>
@@ -55,7 +57,7 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
       </div>
       <div class="form-group">
         <label for="title" class="form-label">Title</label>
-        <input type="text" id="title" class="form-control" value="${this.contentBlockYaml.title}" />
+        <input type="text" id="title" class="form-control" value="${this.contentBlockYaml.title || ''}" />
       </div>
       <div class="form-group">
         <input type="checkbox" id="prefix" class="form-check-input" ?checked=${this.contentBlockYaml.prefixFields} />
@@ -71,18 +73,18 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
       </div>
       <div class="form-group">
         <label for="vendor-prefix" class="form-label">Vendor prefix</label>
-        <input type="text" id="vendor-prefix" class="form-control" value="${this.contentBlockYaml.vendorPrefix}" />
+        <input type="text" id="vendor-prefix" class="form-control" value="${this.contentBlockYaml.vendorPrefix || ''}" />
       </div>
       <div class="form-group">
         <label for="priority" class="form-label">Priority</label>
-        <input type="number" id="priority" class="form-control" value="${this.contentBlockYaml.priority}" />
+        <input type="number" id="priority" class="form-control" value="${this.contentBlockYaml.priority || ''}" />
       </div>
       <div class="form-group">
         <label for="group" class="form-label">Group</label>
         <select class="form-control" id="group">
           <option value="">Choose...</option>
           ${this.groups.map((group: GroupDefinition) => html`
-            <option value="${group.key}">${group.label}</option>
+            <option value="${group.key}" ?selected="${group.key === this.contentBlockYaml.group}">${group.label}</option>
           `)}
         </select>
       </div>

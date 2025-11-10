@@ -38,6 +38,8 @@ export class ContentBlockEditorLeftPane extends LitElement {
     contentBlockYaml: ContentBlocksYaml;
   @property()
     fieldTypes: Array<FieldTypeSetting>;
+  @property()
+    hostExtension: string;
 
   protected render(): TemplateResult {
     const isShowSettings = this.activeTab === 'settings';
@@ -101,7 +103,7 @@ export class ContentBlockEditorLeftPane extends LitElement {
   protected renderTab(): TemplateResult {
     switch (this.activeTab) {
       case 'settings':
-        return html`<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}" .groups="${this.groups}" .extensions="${this.extensions}"></editor-left-pane-content-block-settings>`;
+        return html`<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}" .groups="${this.groups}" .extensions="${this.extensions}" .hostExtension="${this.hostExtension}"></editor-left-pane-content-block-settings>`;
       case 'components':
         return html`<editor-left-pane-components .fieldTypes="${this.fieldTypes}"></editor-left-pane-components>`;
       case 'basics':

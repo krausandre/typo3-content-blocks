@@ -93,7 +93,7 @@ let ContentBlockEditorLeftPane = class ContentBlockEditorLeftPane extends LitEle
     renderTab() {
         switch (this.activeTab) {
             case 'settings':
-                return html `<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}" .groups="${this.groups}" .extensions="${this.extensions}"></editor-left-pane-content-block-settings>`;
+                return html `<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}" .groups="${this.groups}" .extensions="${this.extensions}" .hostExtension="${this.hostExtension}"></editor-left-pane-content-block-settings>`;
             case 'components':
                 return html `<editor-left-pane-components .fieldTypes="${this.fieldTypes}"></editor-left-pane-components>`;
             case 'basics':
@@ -121,6 +121,9 @@ __decorate([
 __decorate([
     property()
 ], ContentBlockEditorLeftPane.prototype, "fieldTypes", void 0);
+__decorate([
+    property()
+], ContentBlockEditorLeftPane.prototype, "hostExtension", void 0);
 ContentBlockEditorLeftPane = __decorate([
     customElement('content-block-editor-left-pane')
 ], ContentBlockEditorLeftPane);

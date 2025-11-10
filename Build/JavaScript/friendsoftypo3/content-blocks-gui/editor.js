@@ -55,6 +55,7 @@ let ContentBlockEditor = class ContentBlockEditor extends LitElement {
               .groups="${this.groupList}"
               .extensions="${this.extensionList}"
               .fieldTypes="${this.fieldTypeList}"
+              .hostExtension="${this.cbDefinition.hostExtension}"
               @dragStart="${this.handleDragStart}"
               @dragEnd="${this.handleDragEnd}"
             >
@@ -94,7 +95,7 @@ let ContentBlockEditor = class ContentBlockEditor extends LitElement {
         this.groupList = JSON.parse(this.groups);
         this.extensionList = JSON.parse(this.extensions);
         this.init = true;
-        console.log(this.cbDefinition);
+        console.log(this.cbDefinition.hostExtension);
         document.querySelectorAll('[data-action="save-content-block"]').forEach((deleteButton) => {
             deleteButton.addEventListener('click', (event) => {
                 event.preventDefault();
