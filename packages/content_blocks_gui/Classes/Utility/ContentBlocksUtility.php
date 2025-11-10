@@ -130,18 +130,17 @@ class ContentBlocksUtility
     public function deleteContentBlock(string $name): array
     {
         try {
-            // $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath(
-            //     $this->contentBlockRegistry->getContentBlockExtPath($name)
-            // );
-            $absoluteContentBlockPath = '/var/www/html/packages/samples/ContentBlocks/ContentElements/test-12';
-            // $this->contentBlockLoader->loadUncached();
+             $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath(
+                 $this->contentBlockRegistry->getContentBlockExtPath($name)
+             );
+            return $this->deleteDirectoryRecursively($absoluteContentBlockPath);
 //                return new DataAnswer(
 //                    'list',
 //                    $notDeletedFilePaths
 //                );
-            return $this->deleteDirectoryRecursively($absoluteContentBlockPath);
         } catch (Exception $e) {
             $this->logger->error($e->getMessage());
+//            TODO: get user notified
             //return new ErrorUnknownContentBlockPathAnswer($parsedBody['name']);
             return [];
         }
