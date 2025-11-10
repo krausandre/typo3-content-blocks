@@ -55,27 +55,12 @@ final class ContentBlocksGuiController
     public function indexAction(ServerRequestInterface $request): ResponseInterface
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/listCbAction.json');
-        $sampleData = json_decode($sampleJson, true);
-        $contentBlocks = $sampleData['contentBlocks'];
-        foreach ($contentBlocks as $key => $contentBlock) {
-            $contentBlocks[$key]['editUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_edit', [
-                'type' => 'edit',
-                'name' => $contentBlock['name']
-            ]);
-            $contentBlocks[$key]['duplicateUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_edit', [
-                'type' => 'duplicate',
-                'name' => $contentBlock['name']
-            ]);
-            $contentBlocks[$key]['deleteUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_delete', [
-                'name' => $contentBlock['name'],
-            ]);
-        }
+        $contentBlocks = $this->contentBlocksUtility->getAvailableContentBlocks();
         $this->moduleTemplate->assignMultiple([
             'contentBlocks' => $contentBlocks,
 //            'basics' => $sampleData['basics'],
         ]);
-        // return $this->contentBlocksUtility->getAvailableContentBlocks();
+
         $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/content-blocks-gui-module.js');
         $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/list.js');
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:content_blocks_gui/Resources/Private/Language/locallang.xlf');

@@ -21,20 +21,18 @@
                     </tr>
                 </thead>
                 <tbody>
-
-                <f:for each="{contentBlocks}" as="block">
+                <f:for each="{contentBlocks.CONTENT_ELEMENT}" as="block">
                     <tr>
                         <td class="col-icon">
-                            <span title="id=fsd">
-                                <span
-                                    aria-hidden="true"
-                                    class="t3js-icon icon icon-size-small icon-state-default icon-content-form"
-                                    data-identifier="content-form">
-                                    <span class="icon-markup">
-                                        <core:icon identifier="content-heart" />
-                                    </span>
-                                </span>
-                            </span>
+                            <f:if condition="{block.icon}">
+                                <f:then>
+                                    <core:icon identifier="{block.icon}" size="small" />
+                                </f:then>
+                                <f:else>
+                                    <core:icon identifier="content-extension" size="small" />
+                                </f:else>
+                            </f:if>
+
                         </td>
                         <td class="col">
                             <a href="{block.editUrl}"
@@ -56,12 +54,7 @@
                                     <f:then>
                                         <a class="btn btn-default content-block-edit" href="{block.editUrl}"
                                            title="Edit this content block">
-                                            <span
-                                                aria-hidden="true"
-                                                class="t3js-icon icon icon-size-small"
-                                                data-identifier="content-block-edit">
-                                                <core:icon identifier="actions-open"/>
-                                            </span>
+                                            <core:icon identifier="actions-open"/>
                                         </a>
                                     </f:then>
                                     <f:else>
@@ -71,12 +64,7 @@
 
                                 <a class="btn btn-default content-block-duplicate" href="{block.duplicateUrl}"
                                    title="Duplicate this content block">
-                                    <span
-                                        aria-hidden="true"
-                                        class="t3js-icon icon icon-size-small"
-                                        data-identifier="content-block-duplicate">
-                                        <core:icon identifier="actions-duplicate"/>
-                                    </span>
+                                    <core:icon identifier="actions-duplicate"/>
                                 </a>
 
                                 <a class="btn btn-default content-block-download"
@@ -84,24 +72,14 @@
                                    title="Download this content block"
                                    data-name="{block.name}"
                                 >
-                                    <span
-                                        aria-hidden="true"
-                                        class="t3js-icon icon icon-size-small"
-                                        data-identifier="content-block-download">
-                                        <core:icon identifier="actions-download"/>
-                                    </span>
+                                    <core:icon identifier="actions-download"/>
                                 </a>
 
                                 <f:if condition="{block.editable}">
                                     <f:then>
                                         <a class="btn btn-default content-block-delete" href="{block.deleteUrl}"
                                            title="Delete this content block">
-                                            <span
-                                                aria-hidden="true"
-                                                class="t3js-icon icon icon-size-small"
-                                                data-identifier="content-block-delete">
-                                                <core:icon identifier="actions-delete"/>
-                                            </span>
+                                            <core:icon identifier="actions-delete"/>
                                         </a>
                                     </f:then>
                                     <f:else>

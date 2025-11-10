@@ -64,18 +64,18 @@ class ContentBlocksUtility
         protected readonly LoggerInterface $logger,
         protected readonly ResponseFactory $responseFactory,
         protected readonly StreamFactory $streamFactory,
-//        protected readonly TableDefinitionCollection $tableDefinitionCollection,
-//        protected readonly ContentBlockRegistry $contentBlockRegistry,
-//        protected readonly ContentBlockPathUtility $contentBlockPathUtility,
-//        protected readonly LanguageFileRegistry $languageFileRegistry,
-//        protected readonly BasicsRegistry $basicsRegistry,
-//        protected readonly BasicsLoader $basicsLoader,
-//        protected readonly PackageResolver $packageResolver,
-//        protected readonly ContentBlockBuilder $contentBlockBuilder,
-//        protected readonly ContentTypeService $contentTypeService,
-//        protected readonly ContentBlockLoader $contentBlockLoader,
-//        protected readonly UsageFactory $usageFactory,
-//        protected readonly ExtensionUtility $extensionUtility
+        protected readonly TableDefinitionCollection $tableDefinitionCollection,
+        protected readonly ContentBlockRegistry $contentBlockRegistry,
+        protected readonly ContentBlockPathUtility $contentBlockPathUtility,
+        protected readonly LanguageFileRegistry $languageFileRegistry,
+        protected readonly BasicsRegistry $basicsRegistry,
+        protected readonly BasicsLoader $basicsLoader,
+        protected readonly PackageResolver $packageResolver,
+        protected readonly ContentBlockBuilder $contentBlockBuilder,
+        protected readonly ContentTypeService $contentTypeService,
+        protected readonly ContentBlockLoader $contentBlockLoader,
+        protected readonly UsageFactory $usageFactory,
+        protected readonly ExtensionUtility $extensionUtility
     ) {
     }
 
@@ -225,7 +225,7 @@ class ContentBlocksUtility
         return $fileName;
     }
 
-    public function getAvailableContentBlocks(): AnswerInterface
+    public function getAvailableContentBlocks(): array // AnswerInterface
     {
         $resultList = [];
         foreach ($this->contentBlockRegistry->getAll() as $contentBlock) {
@@ -233,13 +233,15 @@ class ContentBlocksUtility
             $resultList[$contentType->name][$contentBlock->getName()] = $this->loadedContentBlockToArray($contentBlock);
         }
         $resultList['BASICS'] = $this->getLoadedBasicForList();
-        if (empty($resultList)) {
-            return new ErrorNoContentBlocksAvailableAnswer();
-        }
-        return new DataAnswer(
-            'list',
-            $resultList
-        );
+        return $resultList;
+
+//        if (empty($resultList)) {
+//            return new ErrorNoContentBlocksAvailableAnswer();
+//        }
+//        return new DataAnswer(
+//            'list',
+//            $resultList
+//        );
     }
 
     protected function loadedContentBlockToArray(LoadedContentBlock $contentBlock): array
@@ -250,11 +252,7 @@ class ContentBlocksUtility
         $usages = $this->usageFactory->countUsages($contentBlock->getContentType(), $typeName, $table);
 
         $tableDefinition = $this->tableDefinitionCollection->getTable($table);
-        if ($tableDefinition->hasTypeField()) {
-            $typeDefinition = $tableDefinition->getContentTypeDefinitionCollection()->getType($typeName);
-        } else {
-            $typeDefinition = $tableDefinition->getDefaultTypeDefinition();
-        }
+        $typeDefinition = $tableDefinition->getDefaultTypeDefinition();
         $label = $this->getLanguageService()->sL($typeDefinition->getLanguagePathTitle());
 
         $result = [
@@ -264,6 +262,7 @@ class ContentBlocksUtility
             'editable' => $this->extensionUtility->isEditable($contentBlock->getHostExtension()),
             'deletable' => $this->extensionUtility->isEditable($contentBlock->getHostExtension()),
             'usages' => $usages,
+            'icon' => $typeDefinition->getTypeIcon()->toArray()['iconIdentifier'],
         ];
 
         return $result;

@@ -46,30 +46,35 @@ class ExtensionUtility
         $availablePackages = $this->packageResolver->getAvailablePackages();
         $availableExtensions = [];
         foreach ($availablePackages as $packageKey => $package) {
-
+            if($availablePackages[$packageKey]->isProtected()) {
+                continue;
+            }
             $requiredPackages = $package->getValueFromComposerManifest('require');
             $requiredContentBlocksPackage = false;
             foreach ($requiredPackages as $package => $version) {
-                if($package === 'contentblocks/content-blocks' || $package === 'typo3/cms-content-blocks') {
+                if($package === 'friendsoftypo3/content-blocks') {
                     $requiredContentBlocksPackage = true;
                 }
             }
-            // TODO: show system extensions only for testing
-//            if(!$requiredContentBlocksPackage) {
-//                continue;
-//            }
+
+            if(!$requiredContentBlocksPackage ||
+                (explode('/', $availablePackages[$packageKey]->getValueFromComposerManifest('name'))[0] === 'friendsoftypo3' &&
+                explode('/', $availablePackages[$packageKey]->getValueFromComposerManifest('name'))[1] === 'content-blocks-gui')
+            ) {
+                continue;
+            }
             $availableExtensions[] = [
                 'vendor' => explode('/', $availablePackages[$packageKey]->getValueFromComposerManifest('name'))[0],
                 'package' => explode('/', $availablePackages[$packageKey]->getValueFromComposerManifest('name'))[1],
                 'extension' => $packageKey,
-                'icon' => PathUtility::getAbsoluteWebPath(ExtensionManagementUtility::getExtensionIcon($availablePackages[$packageKey]->getPackagePath(), true))
+                'icon' => $availablePackages[$packageKey]->getPackageIcon() ? PathUtility::getAbsoluteWebPath($availablePackages[$packageKey]->getPackageIcon()) : '',
             ];
         }
         return $availableExtensions;
     }
 
-    public function isEditable(string $extension): bool
+    public function isEditable(string $packageKey): bool
     {
-        return array_key_exists($extension, $this->findAvailableExtensions());
+        return $this->packageResolver->isPackageAvailable($packageKey);
     }
 }
