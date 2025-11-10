@@ -20,6 +20,7 @@ namespace FriendsOfTYPO3\ContentBlocksGui\Utility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Yaml\Yaml;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsLoader;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsRegistry;
@@ -75,7 +76,8 @@ class ContentBlocksUtility
         protected readonly ContentTypeService $contentTypeService,
         protected readonly ContentBlockLoader $contentBlockLoader,
         protected readonly UsageFactory $usageFactory,
-        protected readonly ExtensionUtility $extensionUtility
+        protected readonly ExtensionUtility $extensionUtility,
+        protected readonly UriBuilder $backendUriBuilder
     ) {
     }
 
@@ -259,11 +261,19 @@ class ContentBlocksUtility
             'name' => $contentBlock->getName(),
             'label' => $label,
             'extension' => $contentBlock->getHostExtension(),
-            'editable' => $this->extensionUtility->isEditable($contentBlock->getHostExtension()),
-            'deletable' => $this->extensionUtility->isEditable($contentBlock->getHostExtension()),
             'usages' => $usages,
             'icon' => $typeDefinition->getTypeIcon()->toArray()['iconIdentifier'],
         ];
+
+        if ($this->extensionUtility->isEditable($contentBlock->getHostExtension())) {
+            $result['editUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
+                'type' => 'edit',
+                'name' => $contentBlock->getName()
+            ]);
+            $result['deleteUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_delete', [
+                'name' => $contentBlock->getName()
+            ]);
+        }
 
         return $result;
     }

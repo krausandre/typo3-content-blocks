@@ -108,14 +108,14 @@ final class ContentBlocksGuiController
             throw new RouteNotFoundException('Missing required content block name');
         }
         $mode = 'new';
-        if($request->getUri()->getPath() === '/typo3/make/content-blocks/gui/new') {
+        if($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/new') {
             $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
             $contentBlocksData = json_decode($skeletonJson, true);
-        } elseif ($request->getUri()->getPath() === '/typo3/make/content-blocks/gui/edit') {
+        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/edit') {
             $mode = 'edit';
             $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
             $contentBlocksData = json_decode($sampleJson, true);
-        } elseif ($request->getUri()->getPath() === '/typo3/make/content-blocks/gui/duplicate') {
+        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/duplicate') {
             $mode = 'duplicate';
             $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
             $contentBlocksData = json_decode($sampleJson, true);
@@ -129,6 +129,7 @@ final class ContentBlocksGuiController
             'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),
             'fieldconfig' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getFieldTypes(), false),
         ], true);
+
         $this->moduleTemplate->assignMultiple([
             'contentBlockEditorData' => $contentBlockEditorData,
         ]);

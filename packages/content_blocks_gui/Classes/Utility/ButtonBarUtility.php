@@ -26,7 +26,7 @@ class ButtonBarUtility
         $buttonBar = $moduleTemplate->getDocHeaderComponent()->getButtonBar();
         $addContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
-            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('make_content_block_edit', [
+            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
                 'type' => 'new',
                 'name' => ''
             ]))

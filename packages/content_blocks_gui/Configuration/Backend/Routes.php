@@ -1,12 +1,12 @@
 <?php
 
 return [
-    'make_content_block_edit' => [
-        'path' => '/make/content-blocks/gui/{type}',
+    'content_block_gui_content_block_modify' => [
+        'path' => '/content-block-gui/content-block/modify/{type}',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::editAction'
     ],
-    'make_content_block_delete' => [
-        'path' => '/make/content-blocks/gui/delete',
+    'content_block_gui_content_block_delete' => [
+        'path' => '/content-block-gui/content-block/delete',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::deleteAction'
     ],
 ];
