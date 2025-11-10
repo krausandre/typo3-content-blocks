@@ -52,8 +52,10 @@ let EditorLeftPaneContentBlockSettings = class EditorLeftPaneContentBlockSetting
         <input type="text" id="title" class="form-control" value="${this.contentBlockYaml.title || ''}" />
       </div>
       <div class="form-group">
-        <input type="checkbox" id="prefix" class="form-check-input" ?checked=${this.contentBlockYaml.prefixFields} />
-        <label for="prefix" class="form-check-label">Prefix fields?</label>
+        <div class="form-check">
+          <input type="checkbox" id="prefix" class="form-check-input" ?checked=${this.contentBlockYaml.prefixFields} />
+          <label for="prefix" class="form-check-label">Prefix fields?</label>
+        </div>
       </div>
       <div class="form-group">
         <label for="prefix-type" class="form-label">Prefix type</label>
