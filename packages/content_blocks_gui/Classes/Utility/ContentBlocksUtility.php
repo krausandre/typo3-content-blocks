@@ -61,12 +61,13 @@ use FriendsOfTYPO3\ContentBlocksGui\Utility\ExtensionUtility;
 
 class ContentBlocksUtility
 {
+    protected readonly ContentBlockRegistry $contentBlockRegistry;
+
     public function __construct(
         protected readonly LoggerInterface $logger,
         protected readonly ResponseFactory $responseFactory,
         protected readonly StreamFactory $streamFactory,
         protected readonly TableDefinitionCollection $tableDefinitionCollection,
-        protected readonly ContentBlockRegistry $contentBlockRegistry,
         protected readonly ContentBlockPathUtility $contentBlockPathUtility,
         protected readonly LanguageFileRegistry $languageFileRegistry,
         protected readonly BasicsRegistry $basicsRegistry,
@@ -79,6 +80,7 @@ class ContentBlocksUtility
         protected readonly ExtensionUtility $extensionUtility,
         protected readonly UriBuilder $backendUriBuilder
     ) {
+        $this->contentBlockRegistry = $this->contentBlockLoader->loadUncached();
     }
 
     public function saveContentType(object|array|null $getParsedBody): AnswerInterface
