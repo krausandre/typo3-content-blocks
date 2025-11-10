@@ -128,6 +128,7 @@ export class ContentBlockEditor extends LitElement {
     this.groupList = JSON.parse(this.groups);
     this.extensionList = JSON.parse(this.extensions);
     this.init = true;
+    console.log(this.cbDefinition);
 
     document.querySelectorAll('[data-action="save-content-block"]').forEach((deleteButton) => {
       deleteButton.addEventListener('click', (event) => {

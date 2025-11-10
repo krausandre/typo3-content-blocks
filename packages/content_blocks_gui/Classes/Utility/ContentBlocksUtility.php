@@ -294,16 +294,17 @@ class ContentBlocksUtility
         return $list;
     }
 
-    public function getContentBlockByName(null|array|object $parsedBody): AnswerInterface
+    public function getContentBlockByName(null|array|object $parsedBody): array|AnswerInterface
     {
         if (array_key_exists('name', $parsedBody)) {
             if ($this->contentBlockRegistry->hasContentBlock($parsedBody['name'])) {
                 $loadedContentBlock = $this->contentBlockRegistry->getContentBlock($parsedBody['name']);
                 $contentBlockAsArray = $loadedContentBlock->toArray();
-                return new DataAnswer(
-                    'contentBlock',
-                    $contentBlockAsArray
-                );
+                return $contentBlockAsArray;
+//                return new DataAnswer(
+//                    'contentBlock',
+//                    $contentBlockAsArray
+//                );
             }
             return new ErrorContentBlockNotFoundAnswer($parsedBody['name']);
         }

@@ -113,8 +113,9 @@ final class ContentBlocksGuiController
             $contentBlocksData = json_decode($skeletonJson, true);
         } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/edit') {
             $mode = 'edit';
-            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
-            $contentBlocksData = json_decode($sampleJson, true);
+//            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
+//            $contentBlocksData = json_decode($sampleJson, true);
+            $contentBlocksData = $this->contentBlocksUtility->getContentBlockByName($queryParams);
         } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/duplicate') {
             $mode = 'duplicate';
             $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
