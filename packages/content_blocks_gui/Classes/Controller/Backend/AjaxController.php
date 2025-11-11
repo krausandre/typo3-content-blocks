@@ -127,5 +127,43 @@ final class AjaxController
             $request->getParsedBody()
         )->getResponse();
     }
+
+    /**
+     * AJAX endpoint for fetching content blocks by type with counts
+     */
+    public function listByTypeAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $queryParams = $request->getQueryParams();
+        $type = $queryParams['type'] ?? 'content-element';
+
+        $allContentBlocks = $this->contentBlocksUtility->getAvailableContentBlocks();
+
+        // Get counts for all types
+        $counts = [
+            'content-element' => isset($allContentBlocks['CONTENT_ELEMENT']) ? count($allContentBlocks['CONTENT_ELEMENT']) : 0,
+            'page-type' => isset($allContentBlocks['PAGE_TYPE']) ? count($allContentBlocks['PAGE_TYPE']) : 0,
+            'record-type' => isset($allContentBlocks['RECORD_TYPE']) ? count($allContentBlocks['RECORD_TYPE']) : 0,
+            'basic' => isset($allContentBlocks['BASICS']) ? count($allContentBlocks['BASICS']) : 0,
+        ];
+
+        // Get items for requested type
+        $items = match($type) {
+            'content-element' => $allContentBlocks['CONTENT_ELEMENT'] ?? [],
+            'page-type' => $allContentBlocks['PAGE_TYPE'] ?? [],
+            'record-type' => $allContentBlocks['RECORD_TYPE'] ?? [],
+            'basic' => $allContentBlocks['BASICS'] ?? [],
+            default => []
+        };
+
+        // Convert associative array to indexed array for frontend
+        $itemsList = array_values($items);
+
+        return new JsonResponse([
+            'type' => $type,
+            'items' => $itemsList,
+            'counts' => $counts,
+            'total' => count($itemsList)
+        ]);
+    }
 }
 

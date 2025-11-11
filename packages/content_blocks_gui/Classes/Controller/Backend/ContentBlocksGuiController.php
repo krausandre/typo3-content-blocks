@@ -61,7 +61,7 @@ final class ContentBlocksGuiController
 //            'basics' => $sampleData['basics'],
         ]);
 
-        // $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/content-blocks-gui-module.js');
+        // Load the list component
         $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/list.js');
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:content_blocks_gui/Resources/Private/Language/locallang.xlf');
 

@@ -377,18 +377,33 @@ class ContentBlocksUtility
         return $result;
     }
 
+    /**
+     * @throws RouteNotFoundException
+     */
     protected function getLoadedBasicForList(): array
     {
         $list = [];
         $this->basicsLoader->load();
         foreach ($this->basicsRegistry->getAllBasics() as $basic) {
+            $isEditable = $this->extensionUtility->isEditable($basic->getHostExtension());
             $list[$basic->getIdentifier()] = [
                 'name' => $basic->getIdentifier(),
                 'label' => $basic->getIdentifier(),
                 'extension' => $basic->getHostExtension(),
-                'editable' => true,
-                'deletable' => true,
+                'editable' => $isEditable, // TODO: if host extension is content_blocks, disable edit
+                'deletable' => $isEditable, // TODO: if host extension is content_blocks, disable delete
+                'editUrl' => $isEditable ? (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_modify', [
+                    'type' => 'edit',
+                    'identifier' => $basic->getIdentifier()
+                ]) : null,
+                'deleteUrl' => $isEditable ? (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_delete', [
+                    'identifier' => $basic->getIdentifier()
+                ]) : null,
+                'duplicateUrl' => $isEditable ? (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_duplicate', [
+                    'sourceIdentifier' => $basic->getIdentifier()
+                ]) : null,
             ];
+
         }
         return $list;
     }
