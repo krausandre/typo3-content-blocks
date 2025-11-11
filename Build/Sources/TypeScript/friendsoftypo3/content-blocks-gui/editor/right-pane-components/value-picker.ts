@@ -56,7 +56,7 @@ export class ContentBlockEditorValuePicker extends LitElement {
             ?checked="${live(this.isValuePickerEnabled)}" 
             class="form-check-input" />
           <label class="form-check-label" for="valuePicker_enabled">
-            Enable Value Picker
+            Add Value Picker
           </label>
         </div>
         ${this.isValuePickerEnabled ? html`
