@@ -3,7 +3,7 @@
 	<file source-language="en" datatype="plaintext" original="EXT:content_blocks_gui/Resources/Private/Language/locallang_mod.xlf" date="2023-03-29T10:11:32Z" product-name="make">
 		<header/>
 		<body>
-			<trans-unit id="content-blocks-gui" resname="content-blocks-gui">
+			<trans-unit id="content-blocks-gui">
 				<source>Content Blocks</source>
 			</trans-unit>
 		</body>
