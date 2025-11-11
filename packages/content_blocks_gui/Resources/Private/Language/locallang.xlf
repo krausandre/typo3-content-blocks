@@ -3,22 +3,22 @@
 	<file source-language="en" datatype="plaintext" original="EXT:content_blocks_gui/Resources/Private/Language/locallang.xlf" date="2023-03-29T10:11:32Z" product-name="make">
 		<header/>
 		<body>
-			<trans-unit id="content-blocks-gui" resname="content-blocks-gui">
+			<trans-unit id="content-blocks-gui">
 				<source>Content Blocks GUI</source>
 			</trans-unit>
-			<trans-unit id="make.add.button.ok" resname="make.add.button.ok" xml:space="preserve">
+			<trans-unit id="make.add.button.ok">
 				<source>Add content block</source>
 			</trans-unit>
-			<trans-unit id="make.remove.button.close" resname="make.remove.button.close" xml:space="preserve">
+			<trans-unit id="make.remove.button.close">
 				<source>Close</source>
 			</trans-unit>
-			<trans-unit id="make.remove.button.ok" resname="make.remove.button.ok" xml:space="preserve">
+			<trans-unit id="make.remove.button.ok">
 				<source>Remove</source>
 			</trans-unit>
-			<trans-unit id="make.remove.confirm.title" resname="make.remove.confirm.title" xml:space="preserve">
+			<trans-unit id="make.remove.confirm.title">
 				<source>Remove content block</source>
 			</trans-unit>
-			<trans-unit id="make.remove.confirm.message" resname="make.remove.confirm.message" xml:space="preserve">
+			<trans-unit id="make.remove.confirm.message">
 				<source>Are you sure you want to remove this content block?</source>
 			</trans-unit>
 		</body>
