@@ -1,13 +1,188 @@
 /*
- * This file is part of the TYPO3 CMS project.
+* This file is part of the TYPO3 CMS project.
+*
+* It is free software; you can redistribute it and/or modify it under
+* the terms of the GNU General Public License, either version 2
+* of the License, or any later version.
+*
+* For the full copyright and license information, please read the
+* LICENSE.txt file that was distributed with this source code.
+*
+* The TYPO3 project - inspiring people to share!
+*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { html, LitElement } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
+import { live } from 'lit/directives/live.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-selector.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/slider-selector.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/allowed-types.js';
+/**
+ * Module: @typo3/module/web/ContentBlocksGui
  *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
+ * @example
+ * <content-block-editor-right-pane></content-block-editor-right-pane>
  */
-import{LitElement as v,html as a}from"lit";import{property as o,customElement as p}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import{live as l}from"lit/directives/live.js";import"@friendsoftypo3/content-blocks-gui/interface/field-type-setting.js";import"@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker.js";import"@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-selector.js";import"@friendsoftypo3/content-blocks-gui/editor/right-pane-components/slider-selector.js";import"@friendsoftypo3/content-blocks-gui/editor/right-pane-components/allowed-types.js";var n=function(r,e,t,c){var u=arguments.length,s=u<3?e:c===null?c=Object.getOwnPropertyDescriptor(e,t):c,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,e,t,c);else for(var h=r.length-1;h>=0;h--)(d=r[h])&&(s=(u<3?d(s):u>3?d(e,t,s):d(e,t))||s);return u>3&&s&&Object.defineProperty(e,t,s),s};let i=class extends v{render(){return this.schema?a`<div class=content-block-field-configuration><div class=field-properties>${this.schema.properties.map(e=>a`${this.renderFormFieldset(e)}`)}</div></div>`:a`<div class=no-selection-state><div class="alert alert-info"><strong>No field selected</strong><br>Please select a field to configure its properties.</div></div>`}renderFormFieldset(e){const t=this.formatFieldLabel(e.name);return a`<div class="form-section mb-2"><div class=form-section-content>${e.dataType==="boolean"?a`<div class=form-check>${this.renderFormField(e)} <label for=${e.name} class=form-check-label>${t}</label></div>`:a`<label for=${e.name} class=form-label>${t}</label> ${this.renderFormField(e)}`}</div></div>`}renderFormField(e){switch(e.dataType){case"text":return a`<input @blur=${this.dispatchBlurEvent} type=text id=${e.name} .value=${l(this.values[e.name]||e.default||"")} class=form-control>`;case"number":return a`<input @blur=${this.dispatchBlurEvent} type=number id=${e.name} .value=${l(this.values[e.name]||e.default)} class=form-control>`;case"select":return a`<select @blur=${this.dispatchBlurEvent} class=form-select id=${e.name}><option value>Choose...</option>${e.items.map(t=>a`<option .value=${l(t.value)} ?selected=${l(this.values[e.name]===t.value)}>${t.label}</option>`)}</select>`;case"boolean":return a`<input @blur=${this.dispatchBlurEvent} type=checkbox id=${e.name} ?checked=${l(this.values[e.name]||e.default)} class=form-check-input>`;case"textarea":return a`<textarea @blur=${this.dispatchBlurEvent} id=${e.name} class=form-control>${l(e.default)}</textarea>`;case"array":switch(e.name){case"valuePicker":return a`<content-block-editor-value-picker .fieldTypeProperty=${e} .values=${this.values} .position=${this.position} .level=${this.level} .parent=${this.parent} @updateCbFieldData=${this.dispatchUpdateEvent}></content-block-editor-value-picker>`;case"range":return a`<content-block-editor-range-selector .fieldTypeProperty=${e} .values=${this.values} .position=${this.position} .level=${this.level} .parent=${this.parent} @updateCbFieldData=${this.dispatchUpdateEvent}></content-block-editor-range-selector>`;case"slider":return a`<content-block-editor-slider-selector .fieldTypeProperty=${e} .values=${this.values} .position=${this.position} .level=${this.level} .parent=${this.parent} @updateCbFieldData=${this.dispatchUpdateEvent}></content-block-editor-slider-selector>`;case"allowedTypes":return a`<content-block-editor-allowed-types .fieldTypeProperty=${e} .values=${this.values} .position=${this.position} .level=${this.level} .parent=${this.parent} @updateCbFieldData=${this.dispatchUpdateEvent}></content-block-editor-allowed-types>`;default:return a`Array field type for property ${e.name} is not yet implemented.`}default:return a`Unknown field type property ${e.name}.`}}dispatchUpdateEvent(){this.dispatchEvent(new CustomEvent("updateCbFieldData",{bubbles:!0,composed:!0,detail:{position:this.position,level:this.level,parent:this.parent,values:this.values}}))}formatFieldLabel(e){return e.replace(/([A-Z])/g," $1").replace(/^./,t=>t.toUpperCase()).trim()}dispatchBlurEvent(e){e.preventDefault();const t=e.target;this.values[t.id]=t.type==="checkbox"?t.checked:t.value,this.dispatchEvent(new CustomEvent("updateCbFieldData",{bubbles:!0,composed:!0,detail:{position:this.position,level:this.level,parent:this.parent,values:this.values}}))}createRenderRoot(){return this}};n([o()],i.prototype,"values",void 0),n([o()],i.prototype,"schema",void 0),n([o()],i.prototype,"position",void 0),n([o()],i.prototype,"level",void 0),n([o()],i.prototype,"parent",void 0),i=n([p("content-block-editor-right-pane")],i);export{i as ContentBlockEditorRightPane};
+let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitElement {
+    render() {
+        if (this.schema) {
+            return html `
+        <div class="content-block-field-configuration">
+          <div class="field-properties">
+            ${this.schema.properties.map((item) => html ` ${this.renderFormFieldset(item)}`)}
+          </div>
+        </div>
+      `;
+        }
+        return html `
+      <div class="no-selection-state">
+        <div class="alert alert-info">
+          <strong>No field selected</strong><br>
+          Please select a field to configure its properties.
+        </div>
+      </div>`;
+    }
+    renderFormFieldset(fieldTypeProperty) {
+        const fieldLabel = this.formatFieldLabel(fieldTypeProperty.name);
+        return html `
+      <div class="form-section mb-2">
+        <div class="form-section-content">
+          ${fieldTypeProperty.dataType === 'boolean' ? html `
+            <div class="form-check">
+              ${this.renderFormField(fieldTypeProperty)}
+              <label for="${fieldTypeProperty.name}" class="form-check-label">${fieldLabel}</label>
+            </div>
+          ` : html `
+            <label for="${fieldTypeProperty.name}" class="form-label">${fieldLabel}</label>
+            ${this.renderFormField(fieldTypeProperty)}
+          `}
+        </div>
+      </div>`;
+    }
+    renderFormField(fieldTypeProperty) {
+        // https://lit.dev/docs/templates/directives/#live
+        switch (fieldTypeProperty.dataType) {
+            case 'text':
+                return html `<input @blur="${this.dispatchBlurEvent}" type="text" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default || '')}" class="form-control" />`;
+            case 'number':
+                return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default)}" class="form-control" />`;
+            case 'select':
+                return html `<select @blur="${this.dispatchBlurEvent}" class="form-select" id="${fieldTypeProperty.name}" >
+          <option value="">Choose...</option>
+          ${fieldTypeProperty.items.map((option) => html `
+            <option .value="${live(option.value)}" ?selected="${live(this.values[fieldTypeProperty.name] === option.value)}">${option.label}</option>`)}
+        </select>`;
+            case 'boolean':
+                return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default)} class="form-check-input" />`;
+            case 'textarea':
+                return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${live(fieldTypeProperty.default)}</textarea>`;
+            case 'array':
+                switch (fieldTypeProperty.name) {
+                    case 'valuePicker':
+                        return html `<content-block-editor-value-picker
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-value-picker>`;
+                    case 'range':
+                        return html `<content-block-editor-range-selector
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-range-selector>`;
+                    case 'slider':
+                        return html `<content-block-editor-slider-selector
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-slider-selector>`;
+                    case 'allowedTypes':
+                        return html `<content-block-editor-allowed-types
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-allowed-types>`;
+                    default:
+                        return html `Array field type for property ${fieldTypeProperty.name} is not yet implemented.`;
+                }
+            default:
+                return html `Unknown field type property ${fieldTypeProperty.name}.`;
+        }
+    }
+    dispatchUpdateEvent() {
+        this.dispatchEvent(new CustomEvent('updateCbFieldData', {
+            bubbles: true,
+            composed: true,
+            detail: {
+                position: this.position,
+                level: this.level,
+                parent: this.parent,
+                values: this.values,
+            },
+        }));
+    }
+    formatFieldLabel(fieldName) {
+        return fieldName
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, str => str.toUpperCase())
+            .trim();
+    }
+    dispatchBlurEvent(event) {
+        event.preventDefault();
+        const target = event.target;
+        this.values[target.id] = target.type === 'checkbox' ? target.checked : target.value;
+        this.dispatchEvent(new CustomEvent('updateCbFieldData', {
+            bubbles: true,
+            composed: true,
+            detail: {
+                position: this.position,
+                level: this.level,
+                parent: this.parent,
+                values: this.values,
+            },
+        }));
+    }
+    createRenderRoot() {
+        // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
+        // const renderRoot = this.attachShadow({mode: 'open'});
+        return this;
+    }
+};
+__decorate([
+    property()
+], ContentBlockEditorRightPane.prototype, "values", void 0);
+__decorate([
+    property()
+], ContentBlockEditorRightPane.prototype, "schema", void 0);
+__decorate([
+    property()
+], ContentBlockEditorRightPane.prototype, "position", void 0);
+__decorate([
+    property()
+], ContentBlockEditorRightPane.prototype, "level", void 0);
+__decorate([
+    property()
+], ContentBlockEditorRightPane.prototype, "parent", void 0);
+ContentBlockEditorRightPane = __decorate([
+    customElement('content-block-editor-right-pane')
+], ContentBlockEditorRightPane);
+export { ContentBlockEditorRightPane };

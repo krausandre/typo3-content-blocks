@@ -16,16 +16,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { html, LitElement, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators';
-import '@typo3/backend/element/icon-element';
-import { live } from 'lit/directives/live';
-// import '@typo3/backend/element/info-box';
-import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
-import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker';
-import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-selector';
-import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/slider-selector';
-import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/allowed-types';
+import { html, LitElement } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
+import { live } from 'lit/directives/live.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-selector.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/slider-selector.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/allowed-types.js';
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *

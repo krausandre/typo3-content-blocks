@@ -16,10 +16,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { html, LitElement, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators';
-import '@typo3/backend/element/icon-element';
-import { ContentBlockField } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
+import { html, LitElement } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *

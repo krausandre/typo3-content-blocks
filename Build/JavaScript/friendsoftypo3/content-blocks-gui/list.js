@@ -10,13 +10,12 @@
 *
 * The TYPO3 project - inspiring people to share!
 */
-import AjaxRequest from '@typo3/core/ajax/ajax-request';
+import AjaxRequest from '@typo3/core/ajax/ajax-request.js';
 import Modal from '@typo3/backend/modal.js';
-import { lll } from '@typo3/core/lit-helper';
-import { SeverityEnum } from '@typo3/backend/enum/severity';
+import { lll } from '@typo3/core/lit-helper.js';
+import { SeverityEnum } from '@typo3/backend/enum/severity.js';
 class ContentBlockList {
     constructor() {
-        console.log('[ContentBlockList] Constructor called');
         this.init();
     }
     init() {
