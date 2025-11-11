@@ -39,7 +39,7 @@ export class DropzoneField extends LitElement {
         .cb-drop-zone {
           border: 1px dashed #ccc;
           height: 20px;
-          margin: 10px 0;
+          margin: 10px;
           background-color: #f9f9f9;
 
           &:focus {

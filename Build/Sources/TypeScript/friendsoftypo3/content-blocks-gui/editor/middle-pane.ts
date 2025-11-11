@@ -11,7 +11,7 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult } from 'lit';
+import { html, LitElement, TemplateResult, css } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
 import '@friendsoftypo3/content-blocks-gui/editor/dropzone-field'
@@ -25,6 +25,7 @@ import { FieldTypeSetting,ContentBlockField } from '@friendsoftypo3/content-bloc
  */
 @customElement('content-block-editor-middle-pane')
 export class ContentBlockEditorMiddlePane extends LitElement {
+
 
   @property()
     fieldList?: Array<ContentBlockField>;
@@ -40,45 +41,212 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     parent: ContentBlockField;
 
   protected render(): TemplateResult {
-    console.log('Render middle pane')
-      console.log(this.fieldList);
-      console.log(this.fieldTypes);
-    let cssClasses = '';
-    if (this.dragActive) {
-      cssClasses = 'drag-active';
-    }
+    const cssClasses = this.dragActive ? 'drag-active' : '';
+    
     return html`
-      <ul class="list-unstyled row ${cssClasses}">
-        <li>
-          <dropzone-field position="0" level="0"></dropzone-field>
-        </li>
-        ${this.fieldList.map((item, index) => html`
-          ${this.renderFieldArea(item, index + 1 , 0, null)}
-        `)}
-      </ul>
-      <pre>
-        ${cssClasses}
-      </pre>
+      <style>
+        .content-block-field-builder {
+          min-height: 400px;
+          background: #f8f9fa;
+          border-radius: 4px;
+          padding: 1rem;
+        }
+
+        .field-builder-container {
+          position: relative;
+        }
+
+        .initial-dropzone {
+          margin-bottom: 0.5rem;
+        }
+
+        .fields-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .field-item {
+          background: transparant;
+        }
+
+        .collection-field {
+          border: 1px solid #dee2e6;
+          border-radius: 4px;
+          background: #fff;
+        }
+
+        .collection-header {
+          background: #f8f9fa;
+          border-bottom: 1px solid #dee2e6;
+          border-radius: 4px 4px 0 0;
+        }
+
+        .collection-body {
+          padding: 1rem;
+          background: #fafbfc;
+        }
+
+        .collection-fields {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .field-item.collection-type {
+          border-left: 2px solid #007fff;
+          padding: 0.75rem;
+          background: #fff;
+          border-radius: 0 4px 4px 0;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+          transition: box-shadow 0.2s ease;
+        }
+
+        .field-item.collection-type:hover {
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .field-item.collection-type .field-with-dropzone .dropzone-wrapper {
+          margin-top: 0.75rem;
+          padding: 0.5rem;
+          background: rgba(0, 0, 0, 0.02);
+          border-radius: 4px;
+        }
+
+        .collection-field-item {
+          background: transparent;
+        }
+
+        .collection-field-item .field-item.collection-type {
+          border-left: 2px solid #28a745;
+          margin-left: 0.5rem;
+        }
+
+        .collection-footer {
+          border-top: 1px solid #dee2e6;
+          background: #f8f9fa;
+        }
+
+        .field-component {
+          position: relative;
+        }
+
+        .field-with-dropzone .field-wrapper {
+          position: relative;
+        }
+
+        .field-with-dropzone .dropzone-wrapper {
+          margin-top: 0.5rem;
+        }
+
+        .empty-state {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 300px;
+          text-align: center;
+        }
+
+        .empty-state-content {
+          color: #6c757d;
+        }
+
+        .empty-state-content h4 {
+          margin: 1rem 0 0.5rem 0;
+          font-size: 1.1rem;
+          font-weight: 500;
+        }
+
+        .empty-state-content p {
+          margin: 0;
+          font-size: 0.875rem;
+        }
+
+        .drag-active {
+          background: #e3f2fd !important;
+          border: 2px dashed #2196f3 !important;
+        }
+
+        .drag-active .field-item {
+          opacity: 0.7;
+        }
+
+        .standard-field {
+          position: relative;
+        }
+
+        [data-level="1"] {
+          margin-left: 0.5rem;
+        }
+
+        [data-level="2"] {
+          margin-left: 1rem;
+        }
+
+        [data-level="3"] {
+          margin-left: 1.5rem;
+        }
+      </style>
+      <div class="content-block-field-builder ${cssClasses}">
+        <div class="field-builder-container">
+          <div class="initial-dropzone">
+            <dropzone-field position="0" level="0"></dropzone-field>
+          </div>
+          <div class="fields-list">
+            ${this.fieldList?.map((item, index) => html`
+              <div class="field-item ${item.type === 'Collection' ? 'collection-type' : ''}" data-field-index="${index}">
+                ${this.renderFieldArea(item, index + 1, 0, null)}
+              </div>
+            `)}
+          </div>
+          ${this.fieldList?.length === 0 ? html`
+            <div class="empty-state">
+              <div class="empty-state-content">
+                <typo3-backend-icon identifier="content-elements-container" size="large"></typo3-backend-icon>
+                <h4>No fields added yet</h4>
+                <p>Drag field types from the left panel to start building your content block.</p>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      </div>
     `;
   }
 
   protected renderFieldArea(cbField: ContentBlockField, position: number, level: number, parent: ContentBlockField): TemplateResult {
-    const fieldType = this.fieldTypes.filter((fieldType) => fieldType.type === cbField.type)[0];
-    if(cbField.type === 'Collection') {
+    const fieldType = this.fieldTypes?.filter((fieldType) => fieldType.type === cbField.type)[0];
+    
+    if (cbField.type === 'Collection') {
       return html`
-        ${this.renderDraggableFieldType(fieldType, cbField, position, level, cbField, true, false)}
-        <li>
-          <ul>
-            ${this.renderDraggableFieldType(fieldType, cbField, 0, level + 1, cbField, false, true)}
-            ${cbField.fields?.map((field, index) => html`
-              ${this.renderFieldArea(field, index + 1, level + 1, cbField)}
-            `)}
-          </ul>
-        </li>
-        ${this.renderDraggableFieldType(fieldType, cbField, position, level, cbField, false, true)}
+        <div class="collection-field" data-level="${level}">
+          <div class="collection-header">
+            ${this.renderDraggableFieldType(fieldType, cbField, position, level, cbField, true, false)}
+          </div>
+          <div class="collection-body">
+            <div class="collection-fields">
+              <div class="collection-initial-dropzone">
+                ${this.renderDraggableFieldType(fieldType, cbField, 0, level + 1, cbField, false, true)}
+              </div>
+              ${cbField.fields?.map((field, index) => html`
+                <div class="collection-field-item" data-field-index="${index}">
+                  <div class="field-item ${field.type === 'Collection' ? 'collection-type' : ''}" data-field-index="${index}">
+                    ${this.renderFieldArea(field, index + 1, level + 1, cbField)}
+                  </div>
+                </div>
+              `)}
+            </div>
+          </div>
+          <div class="collection-footer">
+            ${this.renderDraggableFieldType(fieldType, cbField, position, level, cbField, false, true)}
+          </div>
+        </div>
       `;
     } else {
-      return this.renderDraggableFieldType(fieldType, cbField, position, level, parent);
+      return html`
+        <div class="standard-field" data-level="${level}">
+          ${this.renderDraggableFieldType(fieldType, cbField, position, level, parent)}
+        </div>
+      `;
     }
   }
 
@@ -91,9 +259,9 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     renderLabel: boolean = true,
     renderDropZone: boolean = true
   ): TemplateResult {
-    if(renderLabel && !renderDropZone) {
+    if (renderLabel && !renderDropZone) {
       return html`
-        <li>
+        <div class="field-component field-only">
           <draggable-field-type
             .fieldTypeSetting="${fieldType}"
             .fieldTypeInfo="${fieldTypeInfo}"
@@ -102,18 +270,21 @@ export class ContentBlockEditorMiddlePane extends LitElement {
             .parent="${parent}"
             showDeleteButton="true"
           ></draggable-field-type>
-        </li>
+        </div>
       `;
     }
-    if(!renderLabel && renderDropZone) {
+    
+    if (!renderLabel && renderDropZone) {
       return html`
-        <li>
+        <div class="field-component dropzone-only">
           <dropzone-field .position="${position}" .level="${level}" .parent="${parent}"></dropzone-field>
-        </li>
+        </div>
       `;
     }
+    
     return html`
-        <li>
+      <div class="field-component field-with-dropzone">
+        <div class="field-wrapper">
           <draggable-field-type
             .fieldTypeSetting="${fieldType}"
             .fieldTypeInfo="${fieldTypeInfo}"
@@ -122,32 +293,70 @@ export class ContentBlockEditorMiddlePane extends LitElement {
             .parent="${parent}"
             showDeleteButton="true"
           ></draggable-field-type>
+        </div>
+        <div class="dropzone-wrapper">
           <dropzone-field .position="${position}" .level="${level}" .parent="${parent}"></dropzone-field>
-        </li>
-      `;
+        </div>
+      </div>
+    `;
   }
 
   protected handleDragOver(event: DragEvent): void {
     event.preventDefault();
+    // Visual feedback for drag over
+    const target = event.target as HTMLElement;
+    const dropzone = target.closest('.cb-drop-zone, dropzone-field');
+    if (dropzone) {
+      dropzone.classList.add('drag-over');
+    }
+  }
+
+  protected handleDragLeave(event: DragEvent): void {
+    // Remove visual feedback when leaving
+    const target = event.target as HTMLElement;
+    const dropzone = target.closest('.cb-drop-zone, dropzone-field');
+    if (dropzone) {
+      dropzone.classList.remove('drag-over');
+    }
   }
 
   protected handleDrop(event: DragEvent): void {
     event.preventDefault();
+    
+    // Remove visual feedback
+    const target = event.target as HTMLElement;
+    const dropzone = target.closest('.cb-drop-zone, dropzone-field');
+    if (dropzone) {
+      dropzone.classList.remove('drag-over');
+    }
+    
+    // Extract position data from the closest dropzone element
     this.position = parseInt((event.target as HTMLElement).dataset.position || '0', 10);
     this.level = parseInt((event.target as HTMLElement).dataset.level || '0', 10);
     this.parent = (event.target as HTMLElement).dataset.parent as unknown as ContentBlockField;
-    this._dispatchFieldTypeDroppedEvent(event.dataTransfer?.getData('text/plain'));
+    
+    const dragData = event.dataTransfer?.getData('text/plain');
+    if (dragData) {
+      this._dispatchFieldTypeDroppedEvent(dragData);
+    }
   }
+
   protected _dispatchFieldTypeDroppedEvent(data: string): void {
-    const dataObject = JSON.parse(data);
-    this.dispatchEvent(new CustomEvent('fieldTypeDropped', {
-      detail: {
-        data: dataObject,
-        position: this.position,
-        level: this.level,
-        parent: this.parent,
-      }
-    }));
+    try {
+      const dataObject = JSON.parse(data);
+      this.dispatchEvent(new CustomEvent('fieldTypeDropped', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          data: dataObject,
+          position: this.position,
+          level: this.level,
+          parent: this.parent,
+        }
+      }));
+    } catch (error) {
+      console.error('Failed to parse drag data:', error);
+    }
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
