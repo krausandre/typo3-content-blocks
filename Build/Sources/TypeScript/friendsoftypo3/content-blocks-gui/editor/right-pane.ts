@@ -18,6 +18,7 @@ import { live } from 'lit/directives/live.js';
 // import '@typo3/backend/element/info-box';
 import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-selector';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -43,8 +44,6 @@ export class ContentBlockEditorRightPane extends LitElement {
   @property()
     parent?: number;
 
-  @property()
-    isRangeEnabled = false;
 
   protected render(): TemplateResult {
     console.log('Render right pane');
@@ -107,42 +106,14 @@ export class ContentBlockEditorRightPane extends LitElement {
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-value-picker>`;
             case 'range':
-                this.updateRangeEnabledState();
-                return html`
-                  <div class="range-container">
-                    <div class="form-check">
-                      <input @change="${this.handleRangeEnabledChange}" 
-                        type="checkbox" 
-                        id="range_enabled" 
-                        ?checked="${live(this.isRangeEnabled)}" 
-                        class="form-check-input" />
-                      <label class="form-check-label" for="range_enabled">
-                        Enable Range
-                      </label>
-                    </div>
-                    ${this.isRangeEnabled ? html`
-                      <div class="range-inputs mt-2">
-                        <div class="row">
-                          <div class="col-6">
-                            <label for="range_lower">Lower:</label>
-                            <input @blur="${this.handleRangeInputChange}" 
-                              type="number" 
-                              id="range_lower" 
-                              .value="${live(this.values['range']?.lower || 0)}" 
-                              class="form-control" />
-                          </div>
-                          <div class="col-6">
-                            <label for="range_upper">Upper:</label>
-                            <input @blur="${this.handleRangeInputChange}" 
-                              type="number" 
-                              id="range_upper" 
-                              .value="${live(this.values['range']?.upper || 100)}" 
-                              class="form-control" />
-                          </div>
-                        </div>
-                      </div>
-                    ` : ''}
-                  </div>`;
+                return html`<content-block-editor-range-selector
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-range-selector>`;
               default:
                 return html `Array field type for property ${fieldTypeProperty.name} is not yet implemented.`;
           }
@@ -181,68 +152,6 @@ export class ContentBlockEditorRightPane extends LitElement {
     }));
   }
 
-  protected updateRangeEnabledState(): void {
-    const range = this.values['range'];
-    this.isRangeEnabled = range?.enabled || false;
-  }
-
-  protected handleRangeEnabledChange(event: Event): void {
-    event.preventDefault();
-    const target = event.target as HTMLInputElement;
-    
-    if (!this.values['range']) {
-      this.values['range'] = {};
-    }
-    
-    this.isRangeEnabled = target.checked;
-    this.values['range'].enabled = target.checked;
-    
-    if (target.checked) {
-      if (this.values['range'].lower === undefined) {
-        this.values['range'].lower = 0;
-      }
-      if (this.values['range'].upper === undefined) {
-        this.values['range'].upper = 100;
-      }
-    }
-    
-    this.dispatchEvent(new CustomEvent('updateCbFieldData', {
-      bubbles: true,
-      composed: true,
-      detail: {
-        position: this.position,
-        level: this.level,
-        parent: this.parent,
-        values: this.values,
-      },
-    }));
-  }
-
-  protected handleRangeInputChange(event: Event): void {
-    event.preventDefault();
-    const target = event.target as HTMLInputElement;
-    
-    if (!this.values['range']) {
-      this.values['range'] = {};
-    }
-    
-    if (target.id === 'range_lower') {
-      this.values['range'].lower = parseInt(target.value);
-    } else if (target.id === 'range_upper') {
-      this.values['range'].upper = parseInt(target.value);
-    }
-    
-    this.dispatchEvent(new CustomEvent('updateCbFieldData', {
-      bubbles: true,
-      composed: true,
-      detail: {
-        position: this.position,
-        level: this.level,
-        parent: this.parent,
-        values: this.values,
-      },
-    }));
-  }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
