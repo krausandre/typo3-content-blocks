@@ -37,6 +37,7 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
           background: #f8f9fa;
           border-radius: 4px;
           padding: 1rem;
+          margin-top: 17px;
         }
 
         .field-builder-container {
@@ -57,10 +58,16 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
           background: transparant;
         }
 
+        .collection-container {
+          display: flex;
+          flex-direction: column;
+        }
+
         .collection-field {
-          border: 1px solid #dee2e6;
-          border-radius: 4px;
+          border-left: 2px solid #007fff;
+          border-radius: 5px;
           background: #fff;
+          margin-bottom: 0.5rem;
         }
 
         .collection-header {
@@ -70,8 +77,7 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
         }
 
         .collection-body {
-          padding: 1rem;
-          background: #fafbfc;
+          padding: 0.5rem;
         }
 
         .collection-fields {
@@ -81,37 +87,16 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
         }
 
         .field-item.collection-type {
-          border-left: 2px solid #007fff;
-          padding: 0.75rem;
-          background: #fff;
-          border-radius: 0 4px 4px 0;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-          transition: box-shadow 0.2s ease;
-        }
-
-        .field-item.collection-type:hover {
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-        }
-
-        .field-item.collection-type .field-with-dropzone .dropzone-wrapper {
-          margin-top: 0.75rem;
-          padding: 0.5rem;
-          background: rgba(0, 0, 0, 0.02);
-          border-radius: 4px;
+          background: transparent;
         }
 
         .collection-field-item {
           background: transparent;
         }
 
-        .collection-field-item .field-item.collection-type {
+        .collection-field-item .collection-field {
           border-left: 2px solid #28a745;
           margin-left: 0.5rem;
-        }
-
-        .collection-footer {
-          border-top: 1px solid #dee2e6;
-          background: #f8f9fa;
         }
 
         .field-component {
@@ -203,22 +188,24 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
         const fieldType = this.fieldTypes?.filter((fieldType) => fieldType.type === cbField.type)[0];
         if (cbField.type === 'Collection') {
             return html `
-        <div class="collection-field" data-level="${level}">
-          <div class="collection-header">
-            ${this.renderDraggableFieldType(fieldType, cbField, position, level, cbField, true, false)}
-          </div>
-          <div class="collection-body">
-            <div class="collection-fields">
-              <div class="collection-initial-dropzone">
-                ${this.renderDraggableFieldType(fieldType, cbField, 0, level + 1, cbField, false, true)}
-              </div>
-              ${cbField.fields?.map((field, index) => html `
-                <div class="collection-field-item" data-field-index="${index}">
-                  <div class="field-item ${field.type === 'Collection' ? 'collection-type' : ''}" data-field-index="${index}">
-                    ${this.renderFieldArea(field, index + 1, level + 1, cbField)}
-                  </div>
+        <div class="collection-container" data-level="${level}">
+          <div class="collection-field">
+            <div class="collection-header">
+              ${this.renderDraggableFieldType(fieldType, cbField, position, level, cbField, true, false)}
+            </div>
+            <div class="collection-body">
+              <div class="collection-fields">
+                <div class="collection-initial-dropzone">
+                  ${this.renderDraggableFieldType(fieldType, cbField, 0, level + 1, cbField, false, true)}
                 </div>
-              `)}
+                ${cbField.fields?.map((field, index) => html `
+                  <div class="collection-field-item" data-field-index="${index}">
+                    <div class="field-item ${field.type === 'Collection' ? 'collection-type' : ''}" data-field-index="${index}">
+                      ${this.renderFieldArea(field, index + 1, level + 1, cbField)}
+                    </div>
+                  </div>
+                `)}
+              </div>
             </div>
           </div>
           <div class="collection-footer">
