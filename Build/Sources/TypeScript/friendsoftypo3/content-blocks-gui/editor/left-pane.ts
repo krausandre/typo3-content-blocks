@@ -11,13 +11,14 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult, nothing } from 'lit';
-import { customElement, property } from 'lit/decorators';
-import '@typo3/backend/element/icon-element';
-import '@friendsoftypo3/content-blocks-gui/editor/left-pane-content-block-settings';
-import '@friendsoftypo3/content-blocks-gui/editor/left-pane-components';
-import '@friendsoftypo3/content-blocks-gui/editor/left-pane-basics';
-import { ExtensionDefinition,GroupDefinition,ContentBlocksYaml,FieldTypeSetting } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
+import { html, LitElement, nothing } from 'lit';
+import type { TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
+import '@friendsoftypo3/content-blocks-gui/editor/left-pane-content-block-settings.js';
+import '@friendsoftypo3/content-blocks-gui/editor/left-pane-components.js';
+import '@friendsoftypo3/content-blocks-gui/editor/left-pane-basics.js';
+import type { ExtensionDefinition, GroupDefinition, ContentBlocksYaml, FieldTypeSetting } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui

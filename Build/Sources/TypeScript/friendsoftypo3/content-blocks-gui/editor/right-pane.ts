@@ -11,13 +11,14 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators';
-import '@typo3/backend/element/icon-element';
+import { html, LitElement } from 'lit';
+import type { TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
 import { live } from 'lit/directives/live.js';
-// import '@typo3/backend/element/info-box';
-import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
-import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker';
+// import '@typo3/backend/element/info-box.js';
+import type { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker.js';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui

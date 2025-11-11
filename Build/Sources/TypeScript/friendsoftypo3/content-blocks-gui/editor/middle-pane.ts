@@ -11,11 +11,12 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators';
-import '@typo3/backend/element/icon-element';
-import '@friendsoftypo3/content-blocks-gui/editor/dropzone-field'
-import { FieldTypeSetting,ContentBlockField } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
+import { html, LitElement } from 'lit';
+import type { TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
+import '@friendsoftypo3/content-blocks-gui/editor/dropzone-field.js';
+import type { FieldTypeSetting, ContentBlockField } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui

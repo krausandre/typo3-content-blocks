@@ -11,10 +11,11 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult, css } from 'lit';
-import { customElement, property } from 'lit/decorators';
-import '@typo3/backend/element/icon-element';
-import { ExtensionDefinition,GroupDefinition,ContentBlocksYaml } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
+import { html, LitElement, css } from 'lit';
+import type { TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
+import type { ExtensionDefinition, GroupDefinition, ContentBlocksYaml } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 
 
 /**

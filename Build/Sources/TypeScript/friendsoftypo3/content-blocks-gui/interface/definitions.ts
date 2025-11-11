@@ -1,5 +1,5 @@
-import { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
-import type {ValuePicker} from "@typo3/backend/form-engine/field-wizard/value-picker";
+import type { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
+import type { ValuePicker } from '@typo3/backend/form-engine/field-wizard/value-picker.js';
 export interface ExtensionDefinition {
     vendor: string;
     package: string;

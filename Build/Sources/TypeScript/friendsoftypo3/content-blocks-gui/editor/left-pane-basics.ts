@@ -11,10 +11,11 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult, css } from 'lit';
-import { customElement } from 'lit/decorators';
-import '@typo3/backend/element/icon-element';
-// import '@typo3/backend/element/info-box';
+import { html, LitElement, css } from 'lit';
+import type { TemplateResult } from 'lit';
+import { customElement } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
+// import '@typo3/backend/element/info-box.js';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui

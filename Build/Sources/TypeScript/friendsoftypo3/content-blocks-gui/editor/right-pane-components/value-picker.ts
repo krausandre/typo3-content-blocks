@@ -11,10 +11,11 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators';
+import { html, LitElement } from 'lit';
+import type { TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import { live } from 'lit/directives/live.js';
-import { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
+import type { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
