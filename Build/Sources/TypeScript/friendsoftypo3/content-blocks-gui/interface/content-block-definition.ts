@@ -1,5 +1,10 @@
 import { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 
+export interface ValuePicker {
+  mode?: 'blank' | 'append' | 'prepend';
+  items: Array<[string, string]>;
+}
+
 export interface ContentBlockField {
   identifier: string;
   type: string;
@@ -26,7 +31,7 @@ export interface ContentBlockField {
   range?: Array<FieldTypeItems>;
   slider?: Array<FieldTypeItems>;
   size?: number;
-  valuePicker?: Array<FieldTypeItems>;
+  valuePicker?: ValuePicker;
   allowedTypes?: Array<FieldTypeItems>;
   ignoreIfNotInPalette?: boolean;
   fields?: Array<ContentBlockField>;

@@ -17,6 +17,7 @@ import '@typo3/backend/element/icon-element';
 import { live } from 'lit/directives/live.js';
 // import '@typo3/backend/element/info-box';
 import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -43,7 +44,9 @@ export class ContentBlockEditorRightPane extends LitElement {
     parent?: number;
 
   protected render(): TemplateResult {
-    console.log('Render right pane')
+    console.log('Render right pane');
+    console.log(this.schema);
+    console.log(this.values);
     if (this.schema) {
       return html `
         ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
@@ -60,15 +63,23 @@ export class ContentBlockEditorRightPane extends LitElement {
   }
 
   protected renderFormFieldset(fieldTypeProperty: FieldTypeProperty): TemplateResult {
+      console.log(fieldTypeProperty)
     return html `
       <div class="form-group">
-        ${fieldTypeProperty.dataType === 'boolean' ? this.renderFormField(fieldTypeProperty) : ''}
-        <label for="${fieldTypeProperty.name}" class="${fieldTypeProperty.dataType === 'boolean' ? 'form-check-label fw-bold' : 'form-label'}">Property '${fieldTypeProperty.name}'</label>
-        ${fieldTypeProperty.dataType !== 'boolean' ? this.renderFormField(fieldTypeProperty) : ''}
+        ${fieldTypeProperty.dataType === 'boolean' ? html`
+          <div class="form-check">
+            ${this.renderFormField(fieldTypeProperty)}
+            <label for="${fieldTypeProperty.name}" class="form-check-label fw-bold">Property '${fieldTypeProperty.name}'</label>
+          </div>
+        ` : html`
+          <label for="${fieldTypeProperty.name}" class="form-label">Property '${fieldTypeProperty.name}'</label>
+          ${this.renderFormField(fieldTypeProperty)}
+        `}
       </div>`;
   }
 
   protected renderFormField(fieldTypeProperty: FieldTypeProperty): TemplateResult {
+      console.log(fieldTypeProperty.dataType)
     // https://lit.dev/docs/templates/directives/#live
     switch (fieldTypeProperty.dataType) {
       case 'text':
@@ -82,18 +93,49 @@ export class ContentBlockEditorRightPane extends LitElement {
             <option .value="${live(option.value)}">${option.label}</option>` )}
         </select>`;
       case 'boolean':
-        return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(this.values[fieldTypeProperty.name] as boolean)} value="${fieldTypeProperty.default}" class="form-check-input" />`;
+        return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(this.values[fieldTypeProperty.name] as boolean || fieldTypeProperty.default)} class="form-check-input" />`;
       case 'textarea':
         return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${live(fieldTypeProperty.default)}</textarea>`;
+      case 'range':
+        return html `<input @blur="${this.dispatchBlurEvent}" type="range" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] as number || fieldTypeProperty.default)}" class="form-range" />`;
+      // case 'valuePicker':
+      case 'array':
+          switch (fieldTypeProperty.name) {
+            case 'valuePicker':
+                return html`<content-block-editor-value-picker
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-value-picker>`;
+              default:
+                return html `Array field type for property ${fieldTypeProperty.name} is not yet implemented.`;
+          }
       default:
         return html `Unknown field type property ${fieldTypeProperty.name}.`;
     }
   }
 
+
+  protected dispatchUpdateEvent(): void {
+    this.dispatchEvent(new CustomEvent('updateCbFieldData', {
+      bubbles: true,
+      composed: true,
+      detail: {
+        position: this.position,
+        level: this.level,
+        parent: this.parent,
+        values: this.values,
+      },
+    }));
+  }
+
   protected dispatchBlurEvent(event: Event): void {
     event.preventDefault();
     const target = event.target as HTMLInputElement;
-    this.values[target.id] = target.value;
+    this.values[target.id] = target.type === 'checkbox' ? target.checked : target.value;
     this.dispatchEvent(new CustomEvent('updateCbFieldData', {
       bubbles: true,
       composed: true,

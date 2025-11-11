@@ -6,4 +6,6 @@ title: Test 12 BCK
 fields:
   -
     identifier: header
-    useExistingField: true
+    type: Text
+    title: Header
+#    useExistingField: true

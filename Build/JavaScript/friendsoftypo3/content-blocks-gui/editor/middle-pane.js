@@ -30,6 +30,8 @@ import { FieldTypeSetting, ContentBlockField } from '@friendsoftypo3/content-blo
 let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends LitElement {
     render() {
         console.log('Render middle pane');
+        console.log(this.fieldList);
+        console.log(this.fieldTypes);
         let cssClasses = '';
         if (this.dragActive) {
             cssClasses = 'drag-active';

@@ -41,6 +41,8 @@ export class ContentBlockEditorMiddlePane extends LitElement {
 
   protected render(): TemplateResult {
     console.log('Render middle pane')
+      console.log(this.fieldList);
+      console.log(this.fieldTypes);
     let cssClasses = '';
     if (this.dragActive) {
       cssClasses = 'drag-active';

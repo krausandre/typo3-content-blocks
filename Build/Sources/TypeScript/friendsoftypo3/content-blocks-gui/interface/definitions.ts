@@ -1,4 +1,5 @@
 import { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
+import type {ValuePicker} from "@typo3/backend/form-engine/field-wizard/value-picker";
 export interface ExtensionDefinition {
     vendor: string;
     package: string;
@@ -64,7 +65,7 @@ export interface ContentBlockField {
     range?: Array<FieldTypeItems>;
     slider?: Array<FieldTypeItems>;
     size?: number;
-    valuePicker?: Array<FieldTypeItems>;
+    valuePicker?: ValuePicker;
     allowedTypes?: Array<FieldTypeItems>;
     ignoreIfNotInPalette?: boolean;
     fields?: Array<ContentBlockField>;
