@@ -145,6 +145,7 @@ final class ContentBlocksGuiController
             throw new RouteNotFoundException('Missing required content block name');
         }
         $mode = 'new';
+        // TODO: /typo3/ is hardcoded, needs to be dynamic since this is configurable in TYPO3 v13
         if($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/new') {
             $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
             $contentBlocksData = json_decode($skeletonJson, true);
