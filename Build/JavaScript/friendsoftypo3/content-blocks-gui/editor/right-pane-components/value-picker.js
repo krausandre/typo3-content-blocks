@@ -18,7 +18,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
-import { live } from 'lit/directives/live.js';
+import { live } from 'lit/directives/live';
 import { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -27,64 +27,91 @@ import { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/
  * <content-block-editor-value-picker></content-block-editor-value-picker>
  */
 let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.isValuePickerEnabled = false;
+    }
     render() {
+        this.updateValuePickerEnabledState();
         const currentValue = this.values[this.fieldTypeProperty.name] || { mode: 'blank', items: [] };
         return html `
-      <div class="value-picker-config">
-        <div class="form-group">
-          <label for="${this.fieldTypeProperty.name}_mode" class="form-label">Mode</label>
-          <select @change="${this.updateValuePickerMode}" class="form-control" id="${this.fieldTypeProperty.name}_mode" data-field="${this.fieldTypeProperty.name}">
-            <option value="blank" ?selected=${currentValue.mode === 'blank'}>Blank (replace)</option>
-            <option value="append" ?selected=${currentValue.mode === 'append'}>Append</option>
-            <option value="prepend" ?selected=${currentValue.mode === 'prepend'}>Prepend</option>
-          </select>
+      <div class="component-container">
+        <div class="component-header">
+          <div class="form-check">
+            <input @change="${this.handleValuePickerEnabledChange}" 
+              type="checkbox" 
+              id="valuePicker_enabled" 
+              ?checked="${live(this.isValuePickerEnabled)}" 
+              class="form-check-input" />
+            <label class="form-check-label" for="valuePicker_enabled">
+              Value Picker
+            </label>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Items</label>
-          <div class="value-picker-items">
-            ${(currentValue.items || []).map((item, index) => html `
-              <div class="row mb-2">
-                <div class="col-5">
-                  <input 
-                    @blur="${this.updateValuePickerItem}" 
-                    type="text" 
-                    placeholder="Label" 
-                    .value="${live(item[0] || '')}" 
-                    class="form-control" 
-                    data-field="${this.fieldTypeProperty.name}" 
-                    data-index="${index}" 
-                    data-part="label" />
-                </div>
-                <div class="col-5">
-                  <input 
-                    @blur="${this.updateValuePickerItem}" 
-                    type="text" 
-                    placeholder="Value" 
-                    .value="${live(item[1] || '')}" 
-                    class="form-control" 
-                    data-field="${this.fieldTypeProperty.name}" 
-                    data-index="${index}" 
-                    data-part="value" />
-                </div>
-                <div class="col-2">
+        ${this.isValuePickerEnabled ? html `
+          <div class="component-body">
+            <div class="form-group mb-3">
+              <label for="${this.fieldTypeProperty.name}_mode" class="form-label">Mode</label>
+              <select @change="${this.updateValuePickerMode}" class="form-select" id="${this.fieldTypeProperty.name}_mode" data-field="${this.fieldTypeProperty.name}">
+                <option value="blank" ?selected=${currentValue.mode === 'blank'}>Blank (replace)</option>
+                <option value="append" ?selected=${currentValue.mode === 'append'}>Append</option>
+                <option value="prepend" ?selected=${currentValue.mode === 'prepend'}>Prepend</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Items</label>
+              <div class="items-list">
+                ${(currentValue.items || []).map((item, index) => html `
+                  <div class="item-row">
+                    <div class="row g-2 align-items-center">
+                      <div class="col">
+                        <input 
+                          @blur="${this.updateValuePickerItem}" 
+                          type="text" 
+                          placeholder="Label" 
+                          .value="${live(item[0] || '')}" 
+                          class="form-control form-control-sm" 
+                          data-field="${this.fieldTypeProperty.name}" 
+                          data-index="${index}" 
+                          data-part="label" />
+                      </div>
+                      <div class="col">
+                        <input 
+                          @blur="${this.updateValuePickerItem}" 
+                          type="text" 
+                          placeholder="Value" 
+                          .value="${live(item[1] || '')}" 
+                          class="form-control form-control-sm" 
+                          data-field="${this.fieldTypeProperty.name}" 
+                          data-index="${index}" 
+                          data-part="value" />
+                      </div>
+                      <div class="col-auto">
+                        <button 
+                          @click="${this.removeValuePickerItem}" 
+                          class="btn btn-outline-danger btn-sm" 
+                          title="Remove item"
+                          data-field="${this.fieldTypeProperty.name}" 
+                          data-index="${index}">
+                          <typo3-backend-icon identifier="actions-delete" size="small"></typo3-backend-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                `)}
+                <div class="add-item-row">
                   <button 
-                    @click="${this.removeValuePickerItem}" 
-                    class="btn btn-danger btn-sm" 
-                    data-field="${this.fieldTypeProperty.name}" 
-                    data-index="${index}">
-                    ×
+                    @click="${this.addValuePickerItem}" 
+                    class="btn btn-outline-secondary btn-sm" 
+                    data-field="${this.fieldTypeProperty.name}">
+                    <typo3-backend-icon identifier="actions-add" size="small"></typo3-backend-icon>
+                    Add Item
                   </button>
                 </div>
               </div>
-            `)}
-            <button 
-              @click="${this.addValuePickerItem}" 
-              class="btn btn-secondary btn-sm" 
-              data-field="${this.fieldTypeProperty.name}">
-              Add Item
-            </button>
+            </div>
           </div>
-        </div>
+        ` : ''}
       </div>
     `;
     }
@@ -100,10 +127,16 @@ let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends 
     }
     updateValuePickerItem(event) {
         const target = event.target;
-        const fieldName = target.dataset.field;
+        const fieldName = this.fieldTypeProperty.name;
         const index = parseInt(target.dataset.index);
         const part = target.dataset.part;
-        const currentValue = this.values[fieldName] || { mode: 'blank', items: [] };
+        if (!this.values[fieldName]) {
+            this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
+        }
+        const currentValue = this.values[fieldName];
+        if (!currentValue.items) {
+            currentValue.items = [];
+        }
         if (!currentValue.items[index]) {
             currentValue.items[index] = ['', ''];
         }
@@ -113,9 +146,14 @@ let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends 
     }
     addValuePickerItem(event) {
         event.preventDefault();
-        const target = event.target;
-        const fieldName = target.dataset.field;
-        const currentValue = this.values[fieldName] || { mode: 'blank', items: [] };
+        const fieldName = this.fieldTypeProperty.name;
+        if (!this.values[fieldName]) {
+            this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
+        }
+        const currentValue = this.values[fieldName];
+        if (!currentValue.items) {
+            currentValue.items = [];
+        }
         currentValue.items.push(['', '']);
         this.values[fieldName] = currentValue;
         this.requestUpdate();
@@ -124,12 +162,38 @@ let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends 
     removeValuePickerItem(event) {
         event.preventDefault();
         const target = event.target;
-        const fieldName = target.dataset.field;
+        const fieldName = this.fieldTypeProperty.name;
         const index = parseInt(target.dataset.index);
-        const currentValue = this.values[fieldName] || { mode: 'blank', items: [] };
+        if (!this.values[fieldName] || !this.values[fieldName].items) {
+            return;
+        }
+        const currentValue = this.values[fieldName];
         currentValue.items.splice(index, 1);
         this.values[fieldName] = currentValue;
         this.requestUpdate();
+        this.dispatchUpdateEvent();
+    }
+    updateValuePickerEnabledState() {
+        const valuePicker = this.values[this.fieldTypeProperty.name];
+        this.isValuePickerEnabled = valuePicker?.enabled || false;
+    }
+    handleValuePickerEnabledChange(event) {
+        event.preventDefault();
+        const target = event.target;
+        const fieldName = this.fieldTypeProperty.name;
+        if (!this.values[fieldName]) {
+            this.values[fieldName] = { mode: 'blank', items: [] };
+        }
+        this.isValuePickerEnabled = target.checked;
+        this.values[fieldName].enabled = target.checked;
+        if (target.checked) {
+            if (!this.values[fieldName].mode) {
+                this.values[fieldName].mode = 'blank';
+            }
+            if (!this.values[fieldName].items) {
+                this.values[fieldName].items = [];
+            }
+        }
         this.dispatchUpdateEvent();
     }
     dispatchUpdateEvent() {
@@ -165,6 +229,9 @@ __decorate([
 __decorate([
     property()
 ], ContentBlockEditorValuePicker.prototype, "parent", void 0);
+__decorate([
+    property()
+], ContentBlockEditorValuePicker.prototype, "isValuePickerEnabled", void 0);
 ContentBlockEditorValuePicker = __decorate([
     customElement('content-block-editor-value-picker')
 ], ContentBlockEditorValuePicker);

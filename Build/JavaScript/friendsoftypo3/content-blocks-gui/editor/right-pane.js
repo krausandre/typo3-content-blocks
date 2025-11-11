@@ -19,10 +19,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import { live } from 'lit/directives/live.js';
+import { live } from 'lit/directives/live';
 // import '@typo3/backend/element/info-box';
 import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-selector';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/slider-selector';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/allowed-types';
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
@@ -31,40 +34,41 @@ import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-pi
  */
 let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitElement {
     render() {
-        console.log('Render right pane');
-        console.log(this.schema);
-        console.log(this.values);
         if (this.schema) {
             return html `
-        ${this.schema.properties.map((item) => html ` ${this.renderFormFieldset(item)}`)}
+        <div class="content-block-field-configuration">
+          <div class="field-properties">
+            ${this.schema.properties.map((item) => html ` ${this.renderFormFieldset(item)}`)}
+          </div>
+        </div>
       `;
         }
-        return html `No field was selected`;
-        // return html `
-        //   <typo3-infobox
-        //     severity="-1"
-        //     subject="No field was selected"
-        //     content="Please select a field first.">
-        //   </typo3-infobox>
-        // `;
+        return html `
+      <div class="no-selection-state">
+        <div class="alert alert-info">
+          <strong>No field selected</strong><br>
+          Please select a field to configure its properties.
+        </div>
+      </div>`;
     }
     renderFormFieldset(fieldTypeProperty) {
-        console.log(fieldTypeProperty);
+        const fieldLabel = this.formatFieldLabel(fieldTypeProperty.name);
         return html `
-      <div class="form-group">
-        ${fieldTypeProperty.dataType === 'boolean' ? html `
-          <div class="form-check">
+      <div class="form-section mb-2">
+        <div class="form-section-content">
+          ${fieldTypeProperty.dataType === 'boolean' ? html `
+            <div class="form-check">
+              ${this.renderFormField(fieldTypeProperty)}
+              <label for="${fieldTypeProperty.name}" class="form-check-label">${fieldLabel}</label>
+            </div>
+          ` : html `
+            <label for="${fieldTypeProperty.name}" class="form-label">${fieldLabel}</label>
             ${this.renderFormField(fieldTypeProperty)}
-            <label for="${fieldTypeProperty.name}" class="form-check-label fw-bold">Property '${fieldTypeProperty.name}'</label>
-          </div>
-        ` : html `
-          <label for="${fieldTypeProperty.name}" class="form-label">Property '${fieldTypeProperty.name}'</label>
-          ${this.renderFormField(fieldTypeProperty)}
-        `}
+          `}
+        </div>
       </div>`;
     }
     renderFormField(fieldTypeProperty) {
-        console.log(fieldTypeProperty.dataType);
         // https://lit.dev/docs/templates/directives/#live
         switch (fieldTypeProperty.dataType) {
             case 'text':
@@ -72,18 +76,15 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
             case 'number':
                 return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default)}" class="form-control" />`;
             case 'select':
-                return html `<select @blur="${this.dispatchBlurEvent}" class="form-control" id="${fieldTypeProperty.name}" >
+                return html `<select @blur="${this.dispatchBlurEvent}" class="form-select" id="${fieldTypeProperty.name}" >
           <option value="">Choose...</option>
           ${fieldTypeProperty.items.map((option) => html `
-            <option .value="${live(option.value)}">${option.label}</option>`)}
+            <option .value="${live(option.value)}" ?selected="${live(this.values[fieldTypeProperty.name] === option.value)}">${option.label}</option>`)}
         </select>`;
             case 'boolean':
                 return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default)} class="form-check-input" />`;
             case 'textarea':
                 return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${live(fieldTypeProperty.default)}</textarea>`;
-            case 'range':
-                return html `<input @blur="${this.dispatchBlurEvent}" type="range" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default)}" class="form-range" />`;
-            // case 'valuePicker':
             case 'array':
                 switch (fieldTypeProperty.name) {
                     case 'valuePicker':
@@ -95,6 +96,33 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-value-picker>`;
+                    case 'range':
+                        return html `<content-block-editor-range-selector
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-range-selector>`;
+                    case 'slider':
+                        return html `<content-block-editor-slider-selector
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-slider-selector>`;
+                    case 'allowedTypes':
+                        return html `<content-block-editor-allowed-types
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-allowed-types>`;
                     default:
                         return html `Array field type for property ${fieldTypeProperty.name} is not yet implemented.`;
                 }
@@ -113,6 +141,12 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
                 values: this.values,
             },
         }));
+    }
+    formatFieldLabel(fieldName) {
+        return fieldName
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, str => str.toUpperCase())
+            .trim();
     }
     dispatchBlurEvent(event) {
         event.preventDefault();

@@ -3,6 +3,24 @@ import type { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interfac
 export interface ValuePicker {
   mode?: 'blank' | 'append' | 'prepend';
   items: Array<[string, string]>;
+  enabled?: boolean;
+}
+
+export interface Range {
+  lower: number;
+  upper: number;
+  enabled?: boolean;
+}
+
+export interface Slider {
+    step: number;
+    width: number;
+    enabled?: boolean;
+}
+
+export interface AllowedTypes {
+  types: Array<'page' | 'url' | 'file' | 'folder' | 'email' | 'telephone' | 'record' | '*'>;
+  enabled?: boolean;
 }
 
 export interface ContentBlockField {
@@ -28,11 +46,11 @@ export interface ContentBlockField {
   renderType?: string;
   allowedCustomProperties?: Array<FieldTypeItems>;
   format?: string;
-  range?: Array<FieldTypeItems>;
-  slider?: Array<FieldTypeItems>;
+  range?: Range;
+  slider?: Slider;
   size?: number;
   valuePicker?: ValuePicker;
-  allowedTypes?: Array<FieldTypeItems>;
+  allowedTypes?: Array<string>;
   ignoreIfNotInPalette?: boolean;
   fields?: Array<ContentBlockField>;
 }
