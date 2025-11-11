@@ -42,7 +42,7 @@ let ContentBlockEditorRangeSelector = class ContentBlockEditorRangeSelector exte
             ?checked="${live(this.isRangeEnabled)}" 
             class="form-check-input" />
           <label class="form-check-label" for="range_enabled">
-            Enable Range
+            Add Range
           </label>
         </div>
         ${this.isRangeEnabled ? html `

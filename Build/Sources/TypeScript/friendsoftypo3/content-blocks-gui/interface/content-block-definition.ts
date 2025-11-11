@@ -18,6 +18,11 @@ export interface Slider {
     enabled?: boolean;
 }
 
+export interface AllowedTypes {
+  types: Array<'page' | 'url' | 'file' | 'folder' | 'email' | 'telephone' | 'record' | '*'>;
+  enabled?: boolean;
+}
+
 export interface ContentBlockField {
   identifier: string;
   type: string;
@@ -45,7 +50,7 @@ export interface ContentBlockField {
   slider?: Slider;
   size?: number;
   valuePicker?: ValuePicker;
-  allowedTypes?: Array<FieldTypeItems>;
+  allowedTypes?: Array<string>;
   ignoreIfNotInPalette?: boolean;
   fields?: Array<ContentBlockField>;
 }

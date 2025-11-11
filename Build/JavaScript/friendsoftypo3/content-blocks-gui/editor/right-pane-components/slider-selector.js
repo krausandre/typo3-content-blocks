@@ -42,7 +42,7 @@ let ContentBlockEditorSliderSelector = class ContentBlockEditorSliderSelector ex
             ?checked="${live(this.isSliderEnabled)}" 
             class="form-check-input" />
           <label class="form-check-label" for="slider_enabled">
-            Enable Slider
+            Add Slider
           </label>
         </div>
         ${this.isSliderEnabled ? html `

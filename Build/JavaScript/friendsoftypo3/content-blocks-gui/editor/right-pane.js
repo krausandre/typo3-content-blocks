@@ -25,6 +25,7 @@ import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoft
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-selector';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/slider-selector';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/allowed-types';
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
@@ -108,6 +109,15 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-slider-selector>`;
+                    case 'allowedTypes':
+                        return html `<content-block-editor-allowed-types
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-allowed-types>`;
                     default:
                         return html `Array field type for property ${fieldTypeProperty.name} is not yet implemented.`;
                 }
