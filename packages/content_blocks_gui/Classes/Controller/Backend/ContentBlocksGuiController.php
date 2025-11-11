@@ -61,7 +61,7 @@ final class ContentBlocksGuiController
 //            'basics' => $sampleData['basics'],
         ]);
 
-        $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/content-blocks-gui-module.js');
+        // $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/content-blocks-gui-module.js');
         $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/list.js');
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:content_blocks_gui/Resources/Private/Language/locallang.xlf');
 
@@ -95,6 +95,43 @@ final class ContentBlocksGuiController
             (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
             303
         );
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    public function duplicateAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $queryParams = $request->getQueryParams();
+
+        // Validate required parameters
+        if (empty($queryParams['sourceName']) || empty($queryParams['targetExtension'])
+            || empty($queryParams['targetVendor']) || empty($queryParams['targetName'])) {
+            throw new RouteNotFoundException('Missing required parameters for duplication');
+        }
+
+        $sourceName = $queryParams['sourceName'];
+        $targetExtension = $queryParams['targetExtension'];
+        $targetVendor = $queryParams['targetVendor'];
+        $targetName = $queryParams['targetName'];
+
+        try {
+            // Duplicate the content block
+            $this->contentBlocksUtility->duplicateContentBlock(
+                $sourceName,
+                $targetExtension,
+                $targetVendor,
+                $targetName
+            );
+
+            // Redirect back to list view
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                303
+            );
+        } catch (\Exception $e) {
+            throw new RouteNotFoundException('Failed to duplicate content block: ' . $e->getMessage());
+        }
     }
 
     /**
