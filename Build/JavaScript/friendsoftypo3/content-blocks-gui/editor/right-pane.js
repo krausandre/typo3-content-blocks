@@ -24,6 +24,7 @@ import { live } from 'lit/directives/live.js';
 import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-selector';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/slider-selector';
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
@@ -98,6 +99,15 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-range-selector>`;
+                    case 'slider':
+                        return html `<content-block-editor-slider-selector
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-slider-selector>`;
                     default:
                         return html `Array field type for property ${fieldTypeProperty.name} is not yet implemented.`;
                 }

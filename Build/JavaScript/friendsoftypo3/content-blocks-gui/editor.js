@@ -95,7 +95,6 @@ let ContentBlockEditor = class ContentBlockEditor extends LitElement {
         this.groupList = JSON.parse(this.groups);
         this.extensionList = JSON.parse(this.extensions);
         this.init = true;
-        console.log(this.cbDefinition.hostExtension);
         document.querySelectorAll('[data-action="save-content-block"]').forEach((deleteButton) => {
             deleteButton.addEventListener('click', (event) => {
                 event.preventDefault();
@@ -183,7 +182,6 @@ let ContentBlockEditor = class ContentBlockEditor extends LitElement {
         const selectedLevel = this.getSelectedLevel(event.detail.level);
         selectedLevel[event.detail.position] = event.detail.values;
         this.fieldSettingsValues = event.detail.values;
-        console.log(this.fieldSettingsValues);
         this.cbDefinition = structuredClone(this.cbDefinition);
     }
     removeFieldTypeEventListener(event) {
@@ -211,7 +209,6 @@ let ContentBlockEditor = class ContentBlockEditor extends LitElement {
             fields = event.detail.parent.fields;
         }
         this.fieldSettingsValues = fields.filter((fieldType) => fieldType.identifier === event.detail.identifier)[0];
-        console.log(this.fieldSettingsValues);
         if (this.fieldSettingsValues !== undefined) {
             this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
             this.rightPaneActivePosition = event.detail.position;

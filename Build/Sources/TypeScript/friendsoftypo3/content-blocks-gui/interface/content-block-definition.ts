@@ -3,6 +3,7 @@ import { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/fie
 export interface ValuePicker {
   mode?: 'blank' | 'append' | 'prepend';
   items: Array<[string, string]>;
+  enabled?: boolean;
 }
 
 export interface Range {

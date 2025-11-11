@@ -27,64 +27,83 @@ import { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/
  * <content-block-editor-value-picker></content-block-editor-value-picker>
  */
 let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.isValuePickerEnabled = false;
+    }
     render() {
+        this.updateValuePickerEnabledState();
         const currentValue = this.values[this.fieldTypeProperty.name] || { mode: 'blank', items: [] };
         return html `
-      <div class="value-picker-config">
-        <div class="form-group">
-          <label for="${this.fieldTypeProperty.name}_mode" class="form-label">Mode</label>
-          <select @change="${this.updateValuePickerMode}" class="form-control" id="${this.fieldTypeProperty.name}_mode" data-field="${this.fieldTypeProperty.name}">
-            <option value="blank" ?selected=${currentValue.mode === 'blank'}>Blank (replace)</option>
-            <option value="append" ?selected=${currentValue.mode === 'append'}>Append</option>
-            <option value="prepend" ?selected=${currentValue.mode === 'prepend'}>Prepend</option>
-          </select>
+      <div class="value-picker-container">
+        <div class="form-check">
+          <input @change="${this.handleValuePickerEnabledChange}" 
+            type="checkbox" 
+            id="valuePicker_enabled" 
+            ?checked="${live(this.isValuePickerEnabled)}" 
+            class="form-check-input" />
+          <label class="form-check-label" for="valuePicker_enabled">
+            Enable Value Picker
+          </label>
         </div>
-        <div class="form-group">
-          <label class="form-label">Items</label>
-          <div class="value-picker-items">
-            ${(currentValue.items || []).map((item, index) => html `
-              <div class="row mb-2">
-                <div class="col-5">
-                  <input 
-                    @blur="${this.updateValuePickerItem}" 
-                    type="text" 
-                    placeholder="Label" 
-                    .value="${live(item[0] || '')}" 
-                    class="form-control" 
-                    data-field="${this.fieldTypeProperty.name}" 
-                    data-index="${index}" 
-                    data-part="label" />
-                </div>
-                <div class="col-5">
-                  <input 
-                    @blur="${this.updateValuePickerItem}" 
-                    type="text" 
-                    placeholder="Value" 
-                    .value="${live(item[1] || '')}" 
-                    class="form-control" 
-                    data-field="${this.fieldTypeProperty.name}" 
-                    data-index="${index}" 
-                    data-part="value" />
-                </div>
-                <div class="col-2">
-                  <button 
-                    @click="${this.removeValuePickerItem}" 
-                    class="btn btn-danger btn-sm" 
-                    data-field="${this.fieldTypeProperty.name}" 
-                    data-index="${index}">
-                    ×
-                  </button>
-                </div>
+        ${this.isValuePickerEnabled ? html `
+          <div class="value-picker-config mt-2">
+            <div class="form-group">
+              <label for="${this.fieldTypeProperty.name}_mode" class="form-label">Mode</label>
+              <select @change="${this.updateValuePickerMode}" class="form-control" id="${this.fieldTypeProperty.name}_mode" data-field="${this.fieldTypeProperty.name}">
+                <option value="blank" ?selected=${currentValue.mode === 'blank'}>Blank (replace)</option>
+                <option value="append" ?selected=${currentValue.mode === 'append'}>Append</option>
+                <option value="prepend" ?selected=${currentValue.mode === 'prepend'}>Prepend</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Items</label>
+              <div class="value-picker-items">
+                ${(currentValue.items || []).map((item, index) => html `
+                  <div class="row mb-2">
+                    <div class="col-5">
+                      <input 
+                        @blur="${this.updateValuePickerItem}" 
+                        type="text" 
+                        placeholder="Label" 
+                        .value="${live(item[0] || '')}" 
+                        class="form-control" 
+                        data-field="${this.fieldTypeProperty.name}" 
+                        data-index="${index}" 
+                        data-part="label" />
+                    </div>
+                    <div class="col-5">
+                      <input 
+                        @blur="${this.updateValuePickerItem}" 
+                        type="text" 
+                        placeholder="Value" 
+                        .value="${live(item[1] || '')}" 
+                        class="form-control" 
+                        data-field="${this.fieldTypeProperty.name}" 
+                        data-index="${index}" 
+                        data-part="value" />
+                    </div>
+                    <div class="col-2">
+                      <button 
+                        @click="${this.removeValuePickerItem}" 
+                        class="btn btn-danger btn-sm" 
+                        data-field="${this.fieldTypeProperty.name}" 
+                        data-index="${index}">
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                `)}
+                <button 
+                  @click="${this.addValuePickerItem}" 
+                  class="btn btn-secondary btn-sm" 
+                  data-field="${this.fieldTypeProperty.name}">
+                  Add Item
+                </button>
               </div>
-            `)}
-            <button 
-              @click="${this.addValuePickerItem}" 
-              class="btn btn-secondary btn-sm" 
-              data-field="${this.fieldTypeProperty.name}">
-              Add Item
-            </button>
+            </div>
           </div>
-        </div>
+        ` : ''}
       </div>
     `;
     }
@@ -132,6 +151,29 @@ let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends 
         this.requestUpdate();
         this.dispatchUpdateEvent();
     }
+    updateValuePickerEnabledState() {
+        const valuePicker = this.values[this.fieldTypeProperty.name];
+        this.isValuePickerEnabled = valuePicker?.enabled || false;
+    }
+    handleValuePickerEnabledChange(event) {
+        event.preventDefault();
+        const target = event.target;
+        const fieldName = this.fieldTypeProperty.name;
+        if (!this.values[fieldName]) {
+            this.values[fieldName] = { mode: 'blank', items: [] };
+        }
+        this.isValuePickerEnabled = target.checked;
+        this.values[fieldName].enabled = target.checked;
+        if (target.checked) {
+            if (!this.values[fieldName].mode) {
+                this.values[fieldName].mode = 'blank';
+            }
+            if (!this.values[fieldName].items) {
+                this.values[fieldName].items = [];
+            }
+        }
+        this.dispatchUpdateEvent();
+    }
     dispatchUpdateEvent() {
         this.dispatchEvent(new CustomEvent('updateCbFieldData', {
             bubbles: true,
@@ -165,6 +207,9 @@ __decorate([
 __decorate([
     property()
 ], ContentBlockEditorValuePicker.prototype, "parent", void 0);
+__decorate([
+    property()
+], ContentBlockEditorValuePicker.prototype, "isValuePickerEnabled", void 0);
 ContentBlockEditorValuePicker = __decorate([
     customElement('content-block-editor-value-picker')
 ], ContentBlockEditorValuePicker);
