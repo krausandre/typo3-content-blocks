@@ -19,7 +19,6 @@ import { SeverityEnum } from '@typo3/backend/enum/severity.js';
 class ContentBlockList {
 
   constructor() {
-    console.log('[ContentBlockList] Constructor called');
     this.init();
   }
   protected init() {
