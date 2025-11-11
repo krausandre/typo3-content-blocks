@@ -149,6 +149,107 @@ class ContentBlocksUtility
     }
 
     /**
+     * Duplicate a content block by copying the directory
+     *
+     * @param string $sourceName The source content block name (vendor/name format)
+     * @param string $targetExtension The target extension
+     * @param string $targetVendor The target vendor name
+     * @param string $targetName The target content block name
+     * @throws \RuntimeException
+     */
+    public function duplicateContentBlock(
+        string $sourceName,
+        string $targetExtension,
+        string $targetVendor,
+        string $targetName
+    ): void {
+        // Check if source content block exists
+        if (!$this->contentBlockRegistry->hasContentBlock($sourceName)) {
+            throw new \RuntimeException('Source content block "' . $sourceName . '" does not exist.');
+        }
+
+        // Get source content block
+        $sourceContentBlock = $this->contentBlockRegistry->getContentBlock($sourceName);
+        $contentType = $sourceContentBlock->getContentType();
+
+        // Construct target name
+        $targetFullName = $targetVendor . '/' . $targetName;
+
+        // Check if target content block already exists
+        if ($this->contentBlockRegistry->hasContentBlock($targetFullName)) {
+            throw new \RuntimeException('Target content block "' . $targetFullName . '" already exists.');
+        }
+
+        // Get source and target paths
+        $sourceExtPath = $sourceContentBlock->getExtPath();
+        $sourceAbsolutePath = ExtensionManagementUtility::resolvePackagePath($sourceExtPath);
+
+        // Build target path based on content type
+        $contentTypeFolder = match ($contentType->name) {
+            'CONTENT_ELEMENT' => 'ContentElements',
+            'PAGE_TYPE' => 'PageTypes',
+            'RECORD_TYPE' => 'RecordTypes',
+            default => throw new \RuntimeException('Unsupported content type: ' . $contentType->name)
+        };
+
+        $targetExtPath = 'EXT:' . $targetExtension . '/ContentBlocks/' . $contentTypeFolder . '/' . $targetName . '/';
+        $targetAbsolutePath = ExtensionManagementUtility::resolvePackagePath($targetExtPath);
+
+        // Create target directory
+        if (!is_dir(dirname($targetAbsolutePath))) {
+            GeneralUtility::mkdir_deep(dirname($targetAbsolutePath));
+        }
+
+        // Copy the entire directory
+        $this->recursiveCopy($sourceAbsolutePath, $targetAbsolutePath);
+
+        // Update the EditorInterface.yaml with new name
+        $editorInterfaceFile = $targetAbsolutePath . 'config.yaml';
+        if (file_exists($editorInterfaceFile)) {
+            $yaml = Yaml::parseFile($editorInterfaceFile);
+            $yaml['name'] = $targetFullName;
+            if (isset($yaml['vendor'])) {
+                $yaml['vendor'] = $targetVendor;
+            }
+            file_put_contents($editorInterfaceFile, Yaml::dump($yaml, 10, 2));
+        }
+
+        // Reload content blocks to register the new one
+        $this->contentBlockLoader->loadUncached();
+    }
+
+    /**
+     * Recursively copy a directory
+     */
+    protected function recursiveCopy(string $source, string $destination): void
+    {
+        if (!is_dir($source)) {
+            throw new \RuntimeException('Source directory does not exist: ' . $source);
+        }
+
+        if (!is_dir($destination)) {
+            mkdir($destination, 0755, true);
+        }
+
+        $directory = opendir($source);
+        while (($file = readdir($directory)) !== false) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            $sourcePath = $source . '/' . $file;
+            $destinationPath = $destination . '/' . $file;
+
+            if (is_dir($sourcePath)) {
+                $this->recursiveCopy($sourcePath, $destinationPath);
+            } else {
+                copy($sourcePath, $destinationPath);
+            }
+        }
+        closedir($directory);
+    }
+
+    /**
      * @throws Exception
      */
     private function deleteDirectoryRecursively(string $path): array
@@ -267,6 +368,9 @@ class ContentBlocksUtility
             ]);
             $result['deleteUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_delete', [
                 'name' => $contentBlock->getName()
+            ]);
+            $result['duplicateUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_duplicate', [
+                'sourceName' => $contentBlock->getName()
             ]);
         }
 

@@ -1,13 +1,299 @@
 /*
- * This file is part of the TYPO3 CMS project.
+* This file is part of the TYPO3 CMS project.
+*
+* It is free software; you can redistribute it and/or modify it under
+* the terms of the GNU General Public License, either version 2
+* of the License, or any later version.
+*
+* For the full copyright and license information, please read the
+* LICENSE.txt file that was distributed with this source code.
+*
+* The TYPO3 project - inspiring people to share!
+*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { html, LitElement, TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators';
+import '@typo3/backend/element/icon-element';
+import '@friendsoftypo3/content-blocks-gui/editor/left-pane';
+import '@friendsoftypo3/content-blocks-gui/editor/middle-pane';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane';
+import MultiStepWizard from '@typo3/backend/multi-step-wizard';
+import Severity from '@typo3/backend/severity';
+import { FieldTypeSetting, ContentBlockDefinition, ContentBlockField, DropField, GroupDefinition, ExtensionDefinition } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
+/**
+ * Module: @typo3/module/web/ContentBlocksGui
  *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
+ * @example
+ * <content-block-editor></content-block-editor>
  */
-import{LitElement as v,html as u}from"lit";import{property as a,customElement as m}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import"@friendsoftypo3/content-blocks-gui/editor/left-pane.js";import"@friendsoftypo3/content-blocks-gui/editor/middle-pane.js";import"@friendsoftypo3/content-blocks-gui/editor/right-pane.js";import c from"@typo3/backend/multi-step-wizard.js";import f from"@typo3/backend/severity.js";import"@friendsoftypo3/content-blocks-gui/interface/definitions.js";var d=function(h,e,i,t){var s=arguments.length,l=s<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,i):t,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")l=Reflect.decorate(h,e,i,t);else for(var r=h.length-1;r>=0;r--)(o=h[r])&&(l=(s<3?o(l):s>3?o(e,i,l):o(e,i))||l);return s>3&&l&&Object.defineProperty(e,i,l),l};let n=class extends v{constructor(){super(...arguments),this.fieldSettingsValues={identifier:"",label:"",type:""},this.dragActive=!1,this.init=!1}render(){return this.initData(),this.mode==="copy"&&this._initMultiStepWizard(),u`<div class=row><div class=col-4><content-block-editor-left-pane .contentBlockYaml=${this.cbDefinition.yaml} .groups=${this.groupList} .extensions=${this.extensionList} .fieldTypes=${this.fieldTypeList} .hostExtension=${this.cbDefinition.hostExtension} @dragStart=${this.handleDragStart} @dragEnd=${this.handleDragEnd}></content-block-editor-left-pane></div><div class=col-4><content-block-editor-middle-pane .fieldList=${this.cbDefinition.yaml.fields} .fieldTypes=${this.fieldTypeList} .dragActive=${this.dragActive} @fieldTypeDropped=${this.fieldTypeDroppedListener} @activateSettings=${this.activateFieldSettings} @removeFieldType=${this.removeFieldTypeEventListener}></content-block-editor-middle-pane></div><div class="col-4 properties-pane p-4 bg-light"><content-block-editor-right-pane .schema=${this.rightPaneActiveSchema} .values=${this.fieldSettingsValues} .position=${this.rightPaneActivePosition} .level=${this.rightPaneActiveLevel} .parent=${this.rightPaneActiveParent} @updateCbFieldData=${this.updateFieldDataEventListener}></content-block-editor-right-pane></div></div>`}initData(){this.init||(this.cbDefinition=JSON.parse(this.data),this.fieldTypeList=JSON.parse(this.fieldconfig),this.groupList=JSON.parse(this.groups),this.extensionList=JSON.parse(this.extensions),this.init=!0,console.log(this.cbDefinition.hostExtension),document.querySelectorAll('[data-action="save-content-block"]').forEach(e=>{e.addEventListener("click",i=>{i.preventDefault(),console.log(this.cbDefinition.yaml)})}))}createRenderRoot(){return this}fieldTypeDroppedListener(e){console.log(e.detail),this.rightPaneActiveSchema=this.fieldTypeList.filter(t=>t.type===e.detail.data.type)[0];let i=e.detail.data.type+"_"+this.cbDefinition.yaml.fields.length;e.detail.level>0&&(i=e.detail.data.type+"_"+e.detail.parent.fields.length),this.handleFieldAction(i,e.detail)}handleFieldAction(e,i){let t=this.cbDefinition.yaml.fields;i.parent!==null&&(t=i.parent.fields),t.filter(s=>s.identifier===i.data.identifier).length>0?this.updateContentBlockField(i.data.identifier,i.position,i.level,i.parent):this.addNewContentBlockField(e,i.data.type,i.position,i.level,i.parent)}addNewContentBlockField(e,i,t,s,l){const o={identifier:e,type:i,label:i+t};i==="Collection"&&(o.fields=[]),s>0?l.fields.splice(t,0,o):this.cbDefinition.yaml.fields.splice(t,0,o),this.fieldSettingsValues=o,this.rightPaneActivePosition=t,this.rightPaneActiveLevel=s,this.rightPaneActiveParent=l}updateContentBlockField(e,i,t,s){let l=this.cbDefinition.yaml.fields;s!==null&&(l=s.fields);const o=l.findIndex(g=>g.identifier===e),r=l[o],p=[...l.slice(0,o),...l.slice(o+1)];l=[...p.slice(0,i),r,...p.slice(i)],s!==null?s.fields=l:this.cbDefinition.yaml.fields=l,this.fieldSettingsValues=l[o],this.rightPaneActivePosition=i,this.rightPaneActiveLevel=t,this.rightPaneActiveParent=s,this.cbDefinition=structuredClone(this.cbDefinition)}updateFieldDataEventListener(e){console.log(e.detail);const i=this.getSelectedLevel(e.detail.level);i[e.detail.position]=e.detail.values,this.fieldSettingsValues=e.detail.values}removeFieldTypeEventListener(e){let i=this.cbDefinition.yaml.fields;e.detail.level>0&&(i=e.detail.parent.fields),i.splice(e.detail.position,1),e.detail.level>0?e.detail.parent.fields=i:this.cbDefinition.yaml.fields=i,this.cbDefinition=structuredClone(this.cbDefinition),this.fieldSettingsValues={identifier:"",label:"",type:""},this.rightPaneActiveSchema=null}activateFieldSettings(e){console.log(e.detail);let i=this.cbDefinition.yaml.fields;e.detail.parent!==null&&(i=e.detail.parent.fields),this.fieldSettingsValues=i.filter(t=>t.identifier===e.detail.identifier)[0],this.fieldSettingsValues!==void 0?(this.rightPaneActiveSchema=this.fieldTypeList.filter(t=>t.type===this.fieldSettingsValues.type)[0],this.rightPaneActivePosition=e.detail.position,this.rightPaneActiveLevel=e.detail.level,this.rightPaneActiveParent=e.detail.parent):(this.rightPaneActiveSchema=null,this.rightPaneActivePosition=0,this.rightPaneActiveLevel=0,this.rightPaneActiveParent=null)}getSelectedLevel(e){let i=1,t=this.cbDefinition.yaml.fields;for(;i<e;)t=t.filter(s=>s.type==="Collection"),i++;return t}handleDragEnd(){this.dragActive=!1}handleDragStart(){this.dragActive=!0}_initMultiStepWizard(){c.addSlide("step-1","Step 1","",f.notice,"Step 1",async function(e,i){console.log(i),c.unlockNextStep(),e.html('<h2>Select vendor</h2><p><select><option value="1">Sample</option></select></p>')}),c.addSlide("step-2","Step 2","",f.notice,"Step 2",async function(e,i){console.log(i),e.html("Test 2"),c.unlockPrevStep()}),c.show()}};d([a()],n.prototype,"name",void 0),d([a()],n.prototype,"mode",void 0),d([a()],n.prototype,"data",void 0),d([a()],n.prototype,"extensions",void 0),d([a()],n.prototype,"groups",void 0),d([a()],n.prototype,"fieldconfig",void 0),d([a()],n.prototype,"fieldSettingsValues",void 0),d([a()],n.prototype,"rightPaneActiveSchema",void 0),d([a()],n.prototype,"rightPaneActivePosition",void 0),d([a()],n.prototype,"rightPaneActiveLevel",void 0),d([a()],n.prototype,"rightPaneActiveParent",void 0),d([a()],n.prototype,"dragActive",void 0),d([a()],n.prototype,"cbDefinition",void 0),n=d([m("content-block-editor")],n);export{n as ContentBlockEditor};
+let ContentBlockEditor = class ContentBlockEditor extends LitElement {
+    constructor() {
+        super(...arguments);
+        this.fieldSettingsValues = {
+            'identifier': '',
+            'label': '',
+            'type': '',
+        };
+        this.dragActive = false;
+        this.init = false;
+    }
+    render() {
+        this.initData();
+        if (this.mode === 'copy') {
+            this._initMultiStepWizard();
+        }
+        return html `
+        <div class="row">
+          <div class="col-4">
+            <content-block-editor-left-pane
+              .contentBlockYaml="${this.cbDefinition.yaml}"
+              .groups="${this.groupList}"
+              .extensions="${this.extensionList}"
+              .fieldTypes="${this.fieldTypeList}"
+              .hostExtension="${this.cbDefinition.hostExtension}"
+              @dragStart="${this.handleDragStart}"
+              @dragEnd="${this.handleDragEnd}"
+            >
+            </content-block-editor-left-pane>
+          </div>
+          <div class="col-4">
+            <content-block-editor-middle-pane
+              .fieldList="${this.cbDefinition.yaml.fields}"
+              .fieldTypes="${this.fieldTypeList}"
+              .dragActive="${this.dragActive}"
+              @fieldTypeDropped="${this.fieldTypeDroppedListener}"
+              @activateSettings="${this.activateFieldSettings}"
+              @removeFieldType="${this.removeFieldTypeEventListener}"
+            >
+            </content-block-editor-middle-pane>
+          </div>
+          <div class="col-4 properties-pane p-4 bg-light">
+            <content-block-editor-right-pane
+              .schema="${this.rightPaneActiveSchema}"
+              .values="${this.fieldSettingsValues}"
+              .position="${this.rightPaneActivePosition}"
+              .level="${this.rightPaneActiveLevel}"
+              .parent="${this.rightPaneActiveParent}"
+              @updateCbFieldData="${this.updateFieldDataEventListener}"
+            >
+            </content-block-editor-right-pane>
+          </div>
+        </div>
+      `;
+    }
+    initData() {
+        if (this.init) {
+            return;
+        }
+        this.cbDefinition = JSON.parse(this.data);
+        this.fieldTypeList = JSON.parse(this.fieldconfig);
+        this.groupList = JSON.parse(this.groups);
+        this.extensionList = JSON.parse(this.extensions);
+        this.init = true;
+        console.log(this.cbDefinition.hostExtension);
+        document.querySelectorAll('[data-action="save-content-block"]').forEach((deleteButton) => {
+            deleteButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                console.log(this.cbDefinition.yaml);
+                // this.handleRemove(deleteButton.getAttribute('href'));
+            });
+        });
+    }
+    createRenderRoot() {
+        // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
+        // const renderRoot = this.attachShadow({mode: 'open'});
+        return this;
+    }
+    fieldTypeDroppedListener(event) {
+        console.log(event.detail);
+        this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === event.detail.data.type)[0];
+        let newIdentifier = event.detail.data.type + '_' + this.cbDefinition.yaml.fields.length;
+        if (event.detail.level > 0) {
+            newIdentifier = event.detail.data.type + '_' + event.detail.parent.fields.length;
+        }
+        this.handleFieldAction(newIdentifier, event.detail);
+    }
+    handleFieldAction(newIdentifier, eventData) {
+        let fields = this.cbDefinition.yaml.fields;
+        if (eventData.parent !== null) {
+            fields = eventData.parent.fields;
+        }
+        if (fields.filter((fieldType) => fieldType.identifier === eventData.data.identifier).length > 0) {
+            this.updateContentBlockField(eventData.data.identifier, eventData.position, eventData.level, eventData.parent);
+        }
+        else {
+            this.addNewContentBlockField(newIdentifier, eventData.data.type, eventData.position, eventData.level, eventData.parent);
+        }
+    }
+    addNewContentBlockField(identifier, type, position, level, parent) {
+        const newField = {
+            identifier: identifier,
+            type: type,
+            label: type + position,
+        };
+        if (type === 'Collection') {
+            newField.fields = [];
+        }
+        if (level > 0) {
+            parent.fields.splice(position, 0, newField);
+        }
+        else {
+            this.cbDefinition.yaml.fields.splice(position, 0, newField);
+        }
+        this.fieldSettingsValues = newField;
+        this.rightPaneActivePosition = position;
+        this.rightPaneActiveLevel = level;
+        this.rightPaneActiveParent = parent;
+    }
+    updateContentBlockField(identifier, position, level, parent) {
+        let fields = this.cbDefinition.yaml.fields;
+        if (parent !== null) {
+            fields = parent.fields;
+        }
+        const existingFieldPosition = fields.findIndex((fieldType) => fieldType.identifier === identifier);
+        const movedField = fields[existingFieldPosition];
+        const tempFields = [
+            ...fields.slice(0, existingFieldPosition),
+            ...fields.slice(existingFieldPosition + 1)
+        ];
+        fields = [
+            ...tempFields.slice(0, position),
+            movedField,
+            ...tempFields.slice(position)
+        ];
+        if (parent !== null) {
+            parent.fields = fields;
+        }
+        else {
+            this.cbDefinition.yaml.fields = fields;
+        }
+        this.fieldSettingsValues = fields[existingFieldPosition];
+        this.rightPaneActivePosition = position;
+        this.rightPaneActiveLevel = level;
+        this.rightPaneActiveParent = parent;
+        this.cbDefinition = structuredClone(this.cbDefinition);
+    }
+    updateFieldDataEventListener(event) {
+        console.log(event.detail);
+        const selectedLevel = this.getSelectedLevel(event.detail.level);
+        selectedLevel[event.detail.position] = event.detail.values;
+        this.fieldSettingsValues = event.detail.values;
+    }
+    removeFieldTypeEventListener(event) {
+        let fields = this.cbDefinition.yaml.fields;
+        // TODO: check why parent is set for Collection on level 0
+        // if(event.detail.parent !== null) {
+        if (event.detail.level > 0) {
+            fields = event.detail.parent.fields;
+        }
+        fields.splice(event.detail.position, 1);
+        if (event.detail.level > 0) {
+            event.detail.parent.fields = fields;
+        }
+        else {
+            this.cbDefinition.yaml.fields = fields;
+        }
+        this.cbDefinition = structuredClone(this.cbDefinition);
+        this.fieldSettingsValues = { identifier: '', label: '', type: '' };
+        this.rightPaneActiveSchema = null;
+    }
+    activateFieldSettings(event) {
+        console.log(event.detail);
+        let fields = this.cbDefinition.yaml.fields;
+        if (event.detail.parent !== null) {
+            fields = event.detail.parent.fields;
+        }
+        this.fieldSettingsValues = fields.filter((fieldType) => fieldType.identifier === event.detail.identifier)[0];
+        if (this.fieldSettingsValues !== undefined) {
+            this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
+            this.rightPaneActivePosition = event.detail.position;
+            this.rightPaneActiveLevel = event.detail.level;
+            this.rightPaneActiveParent = event.detail.parent;
+        }
+        else {
+            this.rightPaneActiveSchema = null;
+            this.rightPaneActivePosition = 0;
+            this.rightPaneActiveLevel = 0;
+            this.rightPaneActiveParent = null;
+        }
+    }
+    getSelectedLevel(level) {
+        let currentLevel = 1;
+        let selectedLevel = this.cbDefinition.yaml.fields;
+        while (currentLevel < level) {
+            selectedLevel = selectedLevel.filter((fieldType) => fieldType.type === 'Collection');
+            currentLevel++;
+        }
+        return selectedLevel;
+    }
+    handleDragEnd() {
+        this.dragActive = false;
+    }
+    handleDragStart() {
+        this.dragActive = true;
+    }
+    // TODO: add logic and templates to handle a duplicated content block
+    _initMultiStepWizard() {
+        // const contentBlockData = this.data;
+        MultiStepWizard.addSlide('step-1', 'Step 1', '', Severity.notice, 'Step 1', async function (slide, settings) {
+            console.log(settings);
+            // contentBlockData.name = 'Test';
+            MultiStepWizard.unlockNextStep();
+            slide.html('<h2>Select vendor</h2><p><select><option value="1">Sample</option></select></p>');
+        });
+        MultiStepWizard.addSlide('step-2', 'Step 2', '', Severity.notice, 'Step 2', async function (slide, settings) {
+            console.log(settings);
+            slide.html('Test 2');
+            MultiStepWizard.unlockPrevStep();
+        });
+        MultiStepWizard.show();
+    }
+};
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "name", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "mode", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "data", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "extensions", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "groups", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "fieldconfig", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "fieldSettingsValues", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "rightPaneActiveSchema", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "rightPaneActivePosition", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "rightPaneActiveLevel", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "rightPaneActiveParent", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "dragActive", void 0);
+__decorate([
+    property()
+], ContentBlockEditor.prototype, "cbDefinition", void 0);
+ContentBlockEditor = __decorate([
+    customElement('content-block-editor')
+], ContentBlockEditor);
+export { ContentBlockEditor };
