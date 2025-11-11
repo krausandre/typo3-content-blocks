@@ -13,7 +13,7 @@
 
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
-import { live } from 'lit/directives/live.js';
+import { live } from 'lit/directives/live';
 import { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 
 /**
@@ -46,22 +46,24 @@ export class ContentBlockEditorRangeSelector extends LitElement {
   protected render(): TemplateResult {
     this.updateRangeEnabledState();
     return html`
-      <div class="range-container">
-        <div class="form-check">
-          <input @change="${this.handleRangeEnabledChange}" 
-            type="checkbox" 
-            id="range_enabled" 
-            ?checked="${live(this.isRangeEnabled)}" 
-            class="form-check-input" />
-          <label class="form-check-label" for="range_enabled">
-            Add Range
-          </label>
+      <div class="component-container">
+        <div class="component-header">
+          <div class="form-check">
+            <input @change="${this.handleRangeEnabledChange}" 
+              type="checkbox" 
+              id="range_enabled" 
+              ?checked="${live(this.isRangeEnabled)}" 
+              class="form-check-input" />
+            <label class="form-check-label" for="range_enabled">
+              Range Configuration
+            </label>
+          </div>
         </div>
         ${this.isRangeEnabled ? html`
-          <div class="range-inputs mt-2">
-            <div class="row">
+          <div class="component-body">
+            <div class="row g-3">
               <div class="col-6">
-                <label for="range_lower">Lower:</label>
+                <label for="range_lower" class="form-label">Lower</label>
                 <input @blur="${this.handleRangeInputChange}" 
                   type="number" 
                   id="range_lower" 
@@ -69,7 +71,7 @@ export class ContentBlockEditorRangeSelector extends LitElement {
                   class="form-control" />
               </div>
               <div class="col-6">
-                <label for="range_upper">Upper:</label>
+                <label for="range_upper" class="form-label">Upper</label>
                 <input @blur="${this.handleRangeInputChange}" 
                   type="number" 
                   id="range_upper" 

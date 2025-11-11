@@ -14,7 +14,7 @@
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import '@typo3/backend/element/icon-element';
-import { live } from 'lit/directives/live.js';
+import { live } from 'lit/directives/live';
 // import '@typo3/backend/element/info-box';
 import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker';
@@ -48,34 +48,39 @@ export class ContentBlockEditorRightPane extends LitElement {
 
 
   protected render(): TemplateResult {
-    console.log('Render right pane');
     if (this.schema) {
       return html `
-        ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
+        <div class="content-block-field-configuration">
+          <div class="field-properties">
+            ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
+          </div>
+        </div>
       `;
     }
-    return html `No field was selected`;
-    // return html `
-    //   <typo3-infobox
-    //     severity="-1"
-    //     subject="No field was selected"
-    //     content="Please select a field first.">
-    //   </typo3-infobox>
-    // `;
+    return html `
+      <div class="no-selection-state">
+        <div class="alert alert-info">
+          <strong>No field selected</strong><br>
+          Please select a field to configure its properties.
+        </div>
+      </div>`;
   }
 
   protected renderFormFieldset(fieldTypeProperty: FieldTypeProperty): TemplateResult {
+    const fieldLabel = this.formatFieldLabel(fieldTypeProperty.name);
     return html `
-      <div class="form-group">
-        ${fieldTypeProperty.dataType === 'boolean' ? html`
-          <div class="form-check">
+      <div class="form-section mb-2">
+        <div class="form-section-content">
+          ${fieldTypeProperty.dataType === 'boolean' ? html`
+            <div class="form-check">
+              ${this.renderFormField(fieldTypeProperty)}
+              <label for="${fieldTypeProperty.name}" class="form-check-label">${fieldLabel}</label>
+            </div>
+          ` : html`
+            <label for="${fieldTypeProperty.name}" class="form-label">${fieldLabel}</label>
             ${this.renderFormField(fieldTypeProperty)}
-            <label for="${fieldTypeProperty.name}" class="form-check-label fw-bold">Property '${fieldTypeProperty.name}'</label>
-          </div>
-        ` : html`
-          <label for="${fieldTypeProperty.name}" class="form-label">Property '${fieldTypeProperty.name}'</label>
-          ${this.renderFormField(fieldTypeProperty)}
-        `}
+          `}
+        </div>
       </div>`;
   }
 
@@ -87,10 +92,10 @@ export class ContentBlockEditorRightPane extends LitElement {
       case 'number':
         return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] as number || fieldTypeProperty.default)}" class="form-control" />`;
       case 'select':
-        return html `<select @blur="${this.dispatchBlurEvent}" class="form-control" id="${fieldTypeProperty.name}" >
+        return html `<select @blur="${this.dispatchBlurEvent}" class="form-select" id="${fieldTypeProperty.name}" >
           <option value="">Choose...</option>
           ${fieldTypeProperty.items.map( (option: FieldTypeItems) => html`
-            <option .value="${live(option.value)}">${option.label}</option>` )}
+            <option .value="${live(option.value)}" ?selected="${live(this.values[fieldTypeProperty.name] === option.value)}">${option.label}</option>` )}
         </select>`;
       case 'boolean':
         return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(this.values[fieldTypeProperty.name] as boolean || fieldTypeProperty.default)} class="form-check-input" />`;
@@ -154,6 +159,13 @@ export class ContentBlockEditorRightPane extends LitElement {
         values: this.values,
       },
     }));
+  }
+
+  protected formatFieldLabel(fieldName: string): string {
+    return fieldName
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
+      .trim();
   }
 
   protected dispatchBlurEvent(event: Event): void {

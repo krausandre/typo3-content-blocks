@@ -13,7 +13,7 @@
 
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
-import { live } from 'lit/directives/live.js';
+import { live } from 'lit/directives/live';
 import { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 
 /**
@@ -48,22 +48,24 @@ export class ContentBlockEditorValuePicker extends LitElement {
     const currentValue = this.values[this.fieldTypeProperty.name] as any || { mode: 'blank', items: [] };
     
     return html`
-      <div class="value-picker-container">
-        <div class="form-check">
-          <input @change="${this.handleValuePickerEnabledChange}" 
-            type="checkbox" 
-            id="valuePicker_enabled" 
-            ?checked="${live(this.isValuePickerEnabled)}" 
-            class="form-check-input" />
-          <label class="form-check-label" for="valuePicker_enabled">
-            Add Value Picker
-          </label>
+      <div class="component-container">
+        <div class="component-header">
+          <div class="form-check">
+            <input @change="${this.handleValuePickerEnabledChange}" 
+              type="checkbox" 
+              id="valuePicker_enabled" 
+              ?checked="${live(this.isValuePickerEnabled)}" 
+              class="form-check-input" />
+            <label class="form-check-label" for="valuePicker_enabled">
+              Value Picker
+            </label>
+          </div>
         </div>
         ${this.isValuePickerEnabled ? html`
-          <div class="value-picker-config mt-2">
-            <div class="form-group">
+          <div class="component-body">
+            <div class="form-group mb-3">
               <label for="${this.fieldTypeProperty.name}_mode" class="form-label">Mode</label>
-              <select @change="${this.updateValuePickerMode}" class="form-control" id="${this.fieldTypeProperty.name}_mode" data-field="${this.fieldTypeProperty.name}">
+              <select @change="${this.updateValuePickerMode}" class="form-select" id="${this.fieldTypeProperty.name}_mode" data-field="${this.fieldTypeProperty.name}">
                 <option value="blank" ?selected=${currentValue.mode === 'blank'}>Blank (replace)</option>
                 <option value="append" ?selected=${currentValue.mode === 'append'}>Append</option>
                 <option value="prepend" ?selected=${currentValue.mode === 'prepend'}>Prepend</option>
@@ -71,48 +73,54 @@ export class ContentBlockEditorValuePicker extends LitElement {
             </div>
             <div class="form-group">
               <label class="form-label">Items</label>
-              <div class="value-picker-items">
+              <div class="items-list">
                 ${(currentValue.items || []).map((item: [string, string], index: number) => html`
-                  <div class="row mb-2">
-                    <div class="col-5">
-                      <input 
-                        @blur="${this.updateValuePickerItem}" 
-                        type="text" 
-                        placeholder="Label" 
-                        .value="${live(item[0] || '')}" 
-                        class="form-control" 
-                        data-field="${this.fieldTypeProperty.name}" 
-                        data-index="${index}" 
-                        data-part="label" />
-                    </div>
-                    <div class="col-5">
-                      <input 
-                        @blur="${this.updateValuePickerItem}" 
-                        type="text" 
-                        placeholder="Value" 
-                        .value="${live(item[1] || '')}" 
-                        class="form-control" 
-                        data-field="${this.fieldTypeProperty.name}" 
-                        data-index="${index}" 
-                        data-part="value" />
-                    </div>
-                    <div class="col-2">
-                      <button 
-                        @click="${this.removeValuePickerItem}" 
-                        class="btn btn-danger btn-sm" 
-                        data-field="${this.fieldTypeProperty.name}" 
-                        data-index="${index}">
-                        ×
-                      </button>
+                  <div class="item-row">
+                    <div class="row g-2 align-items-center">
+                      <div class="col">
+                        <input 
+                          @blur="${this.updateValuePickerItem}" 
+                          type="text" 
+                          placeholder="Label" 
+                          .value="${live(item[0] || '')}" 
+                          class="form-control form-control-sm" 
+                          data-field="${this.fieldTypeProperty.name}" 
+                          data-index="${index}" 
+                          data-part="label" />
+                      </div>
+                      <div class="col">
+                        <input 
+                          @blur="${this.updateValuePickerItem}" 
+                          type="text" 
+                          placeholder="Value" 
+                          .value="${live(item[1] || '')}" 
+                          class="form-control form-control-sm" 
+                          data-field="${this.fieldTypeProperty.name}" 
+                          data-index="${index}" 
+                          data-part="value" />
+                      </div>
+                      <div class="col-auto">
+                        <button 
+                          @click="${this.removeValuePickerItem}" 
+                          class="btn btn-outline-danger btn-sm" 
+                          title="Remove item"
+                          data-field="${this.fieldTypeProperty.name}" 
+                          data-index="${index}">
+                          <typo3-backend-icon identifier="actions-delete" size="small"></typo3-backend-icon>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 `)}
-                <button 
-                  @click="${this.addValuePickerItem}" 
-                  class="btn btn-secondary btn-sm" 
-                  data-field="${this.fieldTypeProperty.name}">
-                  Add Item
-                </button>
+                <div class="add-item-row">
+                  <button 
+                    @click="${this.addValuePickerItem}" 
+                    class="btn btn-outline-secondary btn-sm" 
+                    data-field="${this.fieldTypeProperty.name}">
+                    <typo3-backend-icon identifier="actions-add" size="small"></typo3-backend-icon>
+                    Add Item
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -136,10 +144,18 @@ export class ContentBlockEditorValuePicker extends LitElement {
 
   protected updateValuePickerItem(event: Event): void {
     const target = event.target as HTMLInputElement;
-    const fieldName = target.dataset.field!;
+    const fieldName = this.fieldTypeProperty.name;
     const index = parseInt(target.dataset.index!);
     const part = target.dataset.part!;
-    const currentValue = this.values[fieldName] as any || { mode: 'blank', items: [] };
+    
+    if (!this.values[fieldName]) {
+      this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
+    }
+    
+    const currentValue = this.values[fieldName] as any;
+    if (!currentValue.items) {
+      currentValue.items = [];
+    }
     
     if (!currentValue.items[index]) {
       currentValue.items[index] = ['', ''];
@@ -153,9 +169,16 @@ export class ContentBlockEditorValuePicker extends LitElement {
 
   protected addValuePickerItem(event: Event): void {
     event.preventDefault();
-    const target = event.target as HTMLButtonElement;
-    const fieldName = target.dataset.field!;
-    const currentValue = this.values[fieldName] as any || { mode: 'blank', items: [] };
+    const fieldName = this.fieldTypeProperty.name;
+    
+    if (!this.values[fieldName]) {
+      this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
+    }
+    
+    const currentValue = this.values[fieldName] as any;
+    if (!currentValue.items) {
+      currentValue.items = [];
+    }
     
     currentValue.items.push(['', '']);
     this.values[fieldName] = currentValue;
@@ -167,10 +190,14 @@ export class ContentBlockEditorValuePicker extends LitElement {
   protected removeValuePickerItem(event: Event): void {
     event.preventDefault();
     const target = event.target as HTMLButtonElement;
-    const fieldName = target.dataset.field!;
+    const fieldName = this.fieldTypeProperty.name;
     const index = parseInt(target.dataset.index!);
-    const currentValue = this.values[fieldName] as any || { mode: 'blank', items: [] };
     
+    if (!this.values[fieldName] || !this.values[fieldName].items) {
+      return;
+    }
+    
+    const currentValue = this.values[fieldName] as any;
     currentValue.items.splice(index, 1);
     this.values[fieldName] = currentValue;
     

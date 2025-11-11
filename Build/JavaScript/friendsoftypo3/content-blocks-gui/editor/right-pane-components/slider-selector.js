@@ -18,7 +18,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
-import { live } from 'lit/directives/live.js';
+import { live } from 'lit/directives/live';
 import { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -34,22 +34,24 @@ let ContentBlockEditorSliderSelector = class ContentBlockEditorSliderSelector ex
     render() {
         this.updateSliderEnabledState();
         return html `
-      <div class="slider-container">
-        <div class="form-check">
-          <input @change="${this.handleSliderEnabledChange}" 
-            type="checkbox" 
-            id="slider_enabled" 
-            ?checked="${live(this.isSliderEnabled)}" 
-            class="form-check-input" />
-          <label class="form-check-label" for="slider_enabled">
-            Add Slider
-          </label>
+      <div class="component-container">
+        <div class="component-header">
+          <div class="form-check">
+            <input @change="${this.handleSliderEnabledChange}" 
+              type="checkbox" 
+              id="slider_enabled" 
+              ?checked="${live(this.isSliderEnabled)}" 
+              class="form-check-input" />
+            <label class="form-check-label" for="slider_enabled">
+              Slider Configuration
+            </label>
+          </div>
         </div>
         ${this.isSliderEnabled ? html `
-          <div class="slider-inputs mt-2">
-            <div class="row">
+          <div class="component-body">
+            <div class="row g-3">
               <div class="col-6">
-                <label for="slider_step">Step:</label>
+                <label for="slider_step" class="form-label">Step</label>
                 <input @blur="${this.handleSliderInputChange}" 
                   type="number" 
                   id="slider_step" 
@@ -58,7 +60,7 @@ let ContentBlockEditorSliderSelector = class ContentBlockEditorSliderSelector ex
                   class="form-control" />
               </div>
               <div class="col-6">
-                <label for="slider_width">Width (px):</label>
+                <label for="slider_width" class="form-label">Width (px)</label>
                 <input @blur="${this.handleSliderInputChange}" 
                   type="number" 
                   id="slider_width" 

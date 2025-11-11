@@ -18,7 +18,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { html, LitElement, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators';
-import { live } from 'lit/directives/live.js';
+import { live } from 'lit/directives/live';
 import { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -44,22 +44,24 @@ let ContentBlockEditorAllowedTypes = class ContentBlockEditorAllowedTypes extend
         this.updateAllowedTypesEnabledState();
         const currentValue = this.values['allowedTypes'] || [];
         return html `
-      <div class="allowed-types-container">
-        <div class="form-check">
-          <input @change="${this.handleAllowedTypesEnabledChange}" 
-            type="checkbox" 
-            id="allowedTypes_enabled" 
-            ?checked="${live(this.isAllowedTypesEnabled)}" 
-            class="form-check-input" />
-          <label class="form-check-label" for="allowedTypes_enabled">
-            Configure Allowed Link Types
-          </label>
+      <div class="component-container">
+        <div class="component-header">
+          <div class="form-check">
+            <input @change="${this.handleAllowedTypesEnabledChange}" 
+              type="checkbox" 
+              id="allowedTypes_enabled" 
+              ?checked="${live(this.isAllowedTypesEnabled)}" 
+              class="form-check-input" />
+            <label class="form-check-label" for="allowedTypes_enabled">
+              Link Type Restrictions
+            </label>
+          </div>
         </div>
         ${this.isAllowedTypesEnabled ? html `
-          <div class="allowed-types-config mt-2">
+          <div class="component-body">
             <div class="form-group">
               <label class="form-label">Allowed Link Types</label>
-              <div class="allowed-types-checkboxes">
+              <div class="link-types-grid">
                 ${this.availableLinkTypes.map(type => html `
                   <div class="form-check">
                     <input @change="${this.handleLinkTypeChange}" 
