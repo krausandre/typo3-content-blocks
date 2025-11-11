@@ -209,6 +209,7 @@ let ContentBlockEditor = class ContentBlockEditor extends LitElement {
             fields = event.detail.parent.fields;
         }
         this.fieldSettingsValues = fields.filter((fieldType) => fieldType.identifier === event.detail.identifier)[0];
+        console.log(this.fieldSettingsValues);
         if (this.fieldSettingsValues !== undefined) {
             this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
             this.rightPaneActivePosition = event.detail.position;

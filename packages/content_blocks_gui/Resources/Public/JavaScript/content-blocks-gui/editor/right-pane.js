@@ -1,116 +1,13 @@
 /*
-* This file is part of the TYPO3 CMS project.
-*
-* It is free software; you can redistribute it and/or modify it under
-* the terms of the GNU General Public License, either version 2
-* of the License, or any later version.
-*
-* For the full copyright and license information, please read the
-* LICENSE.txt file that was distributed with this source code.
-*
-* The TYPO3 project - inspiring people to share!
-*/
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-import { html, LitElement, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators';
-import '@typo3/backend/element/icon-element';
-import { live } from 'lit/directives/live.js';
-// import '@typo3/backend/element/info-box';
-import { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
-/**
- * Module: @typo3/module/web/ContentBlocksGui
+ * This file is part of the TYPO3 CMS project.
  *
- * @example
- * <content-block-editor-right-pane></content-block-editor-right-pane>
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * The TYPO3 project - inspiring people to share!
  */
-let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitElement {
-    render() {
-        console.log('Render right pane');
-        if (this.schema) {
-            return html `
-        ${this.schema.properties.map((item) => html ` ${this.renderFormFieldset(item)}`)}
-      `;
-        }
-        return html `No field was selected`;
-        // return html `
-        //   <typo3-infobox
-        //     severity="-1"
-        //     subject="No field was selected"
-        //     content="Please select a field first.">
-        //   </typo3-infobox>
-        // `;
-    }
-    renderFormFieldset(fieldTypeProperty) {
-        return html `
-      <div class="form-group">
-        ${fieldTypeProperty.dataType === 'boolean' ? this.renderFormField(fieldTypeProperty) : ''}
-        <label for="${fieldTypeProperty.name}" class="${fieldTypeProperty.dataType === 'boolean' ? 'form-check-label fw-bold' : 'form-label'}">Property '${fieldTypeProperty.name}'</label>
-        ${fieldTypeProperty.dataType !== 'boolean' ? this.renderFormField(fieldTypeProperty) : ''}
-      </div>`;
-    }
-    renderFormField(fieldTypeProperty) {
-        // https://lit.dev/docs/templates/directives/#live
-        switch (fieldTypeProperty.dataType) {
-            case 'text':
-                return html `<input @blur="${this.dispatchBlurEvent}" type="text" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default || '')}" class="form-control" />`;
-            case 'number':
-                return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default)}" class="form-control" />`;
-            case 'select':
-                return html `<select @blur="${this.dispatchBlurEvent}" class="form-control" id="${fieldTypeProperty.name}" >
-          <option value="">Choose...</option>
-          ${fieldTypeProperty.items.map((option) => html `
-            <option .value="${live(option.value)}">${option.label}</option>`)}
-        </select>`;
-            case 'boolean':
-                return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(this.values[fieldTypeProperty.name])} value="${fieldTypeProperty.default}" class="form-check-input" />`;
-            case 'textarea':
-                return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${live(fieldTypeProperty.default)}</textarea>`;
-            default:
-                return html `Unknown field type property ${fieldTypeProperty.name}.`;
-        }
-    }
-    dispatchBlurEvent(event) {
-        event.preventDefault();
-        const target = event.target;
-        this.values[target.id] = target.value;
-        this.dispatchEvent(new CustomEvent('updateCbFieldData', {
-            bubbles: true,
-            composed: true,
-            detail: {
-                position: this.position,
-                level: this.level,
-                parent: this.parent,
-                values: this.values,
-            },
-        }));
-    }
-    createRenderRoot() {
-        // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
-        // const renderRoot = this.attachShadow({mode: 'open'});
-        return this;
-    }
-};
-__decorate([
-    property()
-], ContentBlockEditorRightPane.prototype, "values", void 0);
-__decorate([
-    property()
-], ContentBlockEditorRightPane.prototype, "schema", void 0);
-__decorate([
-    property()
-], ContentBlockEditorRightPane.prototype, "position", void 0);
-__decorate([
-    property()
-], ContentBlockEditorRightPane.prototype, "level", void 0);
-__decorate([
-    property()
-], ContentBlockEditorRightPane.prototype, "parent", void 0);
-ContentBlockEditorRightPane = __decorate([
-    customElement('content-block-editor-right-pane')
-], ContentBlockEditorRightPane);
-export { ContentBlockEditorRightPane };
+import{LitElement as v,html as e}from"lit";import{property as i,customElement as d}from"lit/decorators.js";import"@typo3/backend/element/icon-element.js";import{live as l}from"lit/directives/live.js";import"@friendsoftypo3/content-blocks-gui/interface/field-type-setting.js";import"@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker.js";var o=function(r,t,a,c){var u=arguments.length,n=u<3?t:c===null?c=Object.getOwnPropertyDescriptor(t,a):c,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,a,c);else for(var m=r.length-1;m>=0;m--)(h=r[m])&&(n=(u<3?h(n):u>3?h(t,a,n):h(t,a))||n);return u>3&&n&&Object.defineProperty(t,a,n),n};let s=class extends v{render(){return console.log("Render right pane"),console.log(this.schema),console.log(this.values),this.schema?e`${this.schema.properties.map(t=>e`${this.renderFormFieldset(t)}`)}`:e`No field was selected`}renderFormFieldset(t){return console.log(t),e`<div class=form-group>${t.dataType==="boolean"?e`<div class=form-check>${this.renderFormField(t)} <label for=${t.name} class="form-check-label fw-bold">Property '${t.name}'</label></div>`:e`<label for=${t.name} class=form-label>Property '${t.name}'</label> ${this.renderFormField(t)}`}</div>`}renderFormField(t){switch(console.log(t.dataType),t.dataType){case"text":return e`<input @blur=${this.dispatchBlurEvent} type=text id=${t.name} .value=${l(this.values[t.name]||t.default||"")} class=form-control>`;case"number":return e`<input @blur=${this.dispatchBlurEvent} type=number id=${t.name} .value=${l(this.values[t.name]||t.default)} class=form-control>`;case"select":return e`<select @blur=${this.dispatchBlurEvent} class=form-control id=${t.name}><option value>Choose...</option>${t.items.map(a=>e`<option .value=${l(a.value)}>${a.label}</option>`)}</select>`;case"boolean":return e`<input @blur=${this.dispatchBlurEvent} type=checkbox id=${t.name} ?checked=${l(this.values[t.name]||t.default)} class=form-check-input>`;case"textarea":return e`<textarea @blur=${this.dispatchBlurEvent} id=${t.name} class=form-control>${l(t.default)}</textarea>`;case"range":return e`<input @blur=${this.dispatchBlurEvent} type=range id=${t.name} .value=${l(this.values[t.name]||t.default)} class=form-range>`;case"array":switch(t.name){case"valuePicker":return e`<content-block-editor-value-picker .fieldTypeProperty=${t} .values=${this.values} .position=${this.position} .level=${this.level} .parent=${this.parent} @updateCbFieldData=${this.dispatchUpdateEvent}></content-block-editor-value-picker>`;default:return e`Array field type for property ${t.name} is not yet implemented.`}default:return e`Unknown field type property ${t.name}.`}}dispatchUpdateEvent(){this.dispatchEvent(new CustomEvent("updateCbFieldData",{bubbles:!0,composed:!0,detail:{position:this.position,level:this.level,parent:this.parent,values:this.values}}))}dispatchBlurEvent(t){t.preventDefault();const a=t.target;this.values[a.id]=a.type==="checkbox"?a.checked:a.value,this.dispatchEvent(new CustomEvent("updateCbFieldData",{bubbles:!0,composed:!0,detail:{position:this.position,level:this.level,parent:this.parent,values:this.values}}))}createRenderRoot(){return this}};o([i()],s.prototype,"values",void 0),o([i()],s.prototype,"schema",void 0),o([i()],s.prototype,"position",void 0),o([i()],s.prototype,"level",void 0),o([i()],s.prototype,"parent",void 0),s=o([d("content-block-editor-right-pane")],s);export{s as ContentBlockEditorRightPane};
