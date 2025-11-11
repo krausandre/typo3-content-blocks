@@ -10,4 +10,4 @@
  *
  * The TYPO3 project - inspiring people to share!
  */
-import"@friendsoftypo3/content-blocks-gui/interface/field-type-setting.js";
+import"@friendsoftypo3/content-blocks-gui/interface/field-type-setting.js";import"@friendsoftypo3/content-blocks-gui/interface/content-block-definition.js";

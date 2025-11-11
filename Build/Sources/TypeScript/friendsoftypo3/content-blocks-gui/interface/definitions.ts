@@ -1,5 +1,5 @@
 import { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
-import type {ValuePicker} from "@typo3/backend/form-engine/field-wizard/value-picker";
+import { ValuePicker, Range } from '@friendsoftypo3/content-blocks-gui/interface/content-block-definition';
 export interface ExtensionDefinition {
     vendor: string;
     package: string;
@@ -62,7 +62,7 @@ export interface ContentBlockField {
     renderType?: string;
     allowedCustomProperties?: Array<FieldTypeItems>;
     format?: string;
-    range?: Array<FieldTypeItems>;
+    range?: Range;
     slider?: Array<FieldTypeItems>;
     size?: number;
     valuePicker?: ValuePicker;

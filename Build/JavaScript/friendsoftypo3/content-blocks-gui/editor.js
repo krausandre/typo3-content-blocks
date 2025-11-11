@@ -183,6 +183,8 @@ let ContentBlockEditor = class ContentBlockEditor extends LitElement {
         const selectedLevel = this.getSelectedLevel(event.detail.level);
         selectedLevel[event.detail.position] = event.detail.values;
         this.fieldSettingsValues = event.detail.values;
+        console.log(this.fieldSettingsValues);
+        this.cbDefinition = structuredClone(this.cbDefinition);
     }
     removeFieldTypeEventListener(event) {
         let fields = this.cbDefinition.yaml.fields;

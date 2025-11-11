@@ -43,10 +43,11 @@ export class ContentBlockEditorRightPane extends LitElement {
   @property()
     parent?: number;
 
+  @property()
+    isRangeEnabled = false;
+
   protected render(): TemplateResult {
     console.log('Render right pane');
-    console.log(this.schema);
-    console.log(this.values);
     if (this.schema) {
       return html `
         ${this.schema.properties.map( (item) => html` ${this.renderFormFieldset(item)}` )}
@@ -63,7 +64,6 @@ export class ContentBlockEditorRightPane extends LitElement {
   }
 
   protected renderFormFieldset(fieldTypeProperty: FieldTypeProperty): TemplateResult {
-      console.log(fieldTypeProperty)
     return html `
       <div class="form-group">
         ${fieldTypeProperty.dataType === 'boolean' ? html`
@@ -79,7 +79,6 @@ export class ContentBlockEditorRightPane extends LitElement {
   }
 
   protected renderFormField(fieldTypeProperty: FieldTypeProperty): TemplateResult {
-      console.log(fieldTypeProperty.dataType)
     // https://lit.dev/docs/templates/directives/#live
     switch (fieldTypeProperty.dataType) {
       case 'text':
@@ -96,9 +95,6 @@ export class ContentBlockEditorRightPane extends LitElement {
         return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(this.values[fieldTypeProperty.name] as boolean || fieldTypeProperty.default)} class="form-check-input" />`;
       case 'textarea':
         return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${live(fieldTypeProperty.default)}</textarea>`;
-      case 'range':
-        return html `<input @blur="${this.dispatchBlurEvent}" type="range" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] as number || fieldTypeProperty.default)}" class="form-range" />`;
-      // case 'valuePicker':
       case 'array':
           switch (fieldTypeProperty.name) {
             case 'valuePicker':
@@ -110,6 +106,43 @@ export class ContentBlockEditorRightPane extends LitElement {
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-value-picker>`;
+            case 'range':
+                this.updateRangeEnabledState();
+                return html`
+                  <div class="range-container">
+                    <div class="form-check">
+                      <input @change="${this.handleRangeEnabledChange}" 
+                        type="checkbox" 
+                        id="range_enabled" 
+                        ?checked="${live(this.isRangeEnabled)}" 
+                        class="form-check-input" />
+                      <label class="form-check-label" for="range_enabled">
+                        Enable Range
+                      </label>
+                    </div>
+                    ${this.isRangeEnabled ? html`
+                      <div class="range-inputs mt-2">
+                        <div class="row">
+                          <div class="col-6">
+                            <label for="range_lower">Lower:</label>
+                            <input @blur="${this.handleRangeInputChange}" 
+                              type="number" 
+                              id="range_lower" 
+                              .value="${live(this.values['range']?.lower || 0)}" 
+                              class="form-control" />
+                          </div>
+                          <div class="col-6">
+                            <label for="range_upper">Upper:</label>
+                            <input @blur="${this.handleRangeInputChange}" 
+                              type="number" 
+                              id="range_upper" 
+                              .value="${live(this.values['range']?.upper || 100)}" 
+                              class="form-control" />
+                          </div>
+                        </div>
+                      </div>
+                    ` : ''}
+                  </div>`;
               default:
                 return html `Array field type for property ${fieldTypeProperty.name} is not yet implemented.`;
           }
@@ -136,6 +169,69 @@ export class ContentBlockEditorRightPane extends LitElement {
     event.preventDefault();
     const target = event.target as HTMLInputElement;
     this.values[target.id] = target.type === 'checkbox' ? target.checked : target.value;
+    this.dispatchEvent(new CustomEvent('updateCbFieldData', {
+      bubbles: true,
+      composed: true,
+      detail: {
+        position: this.position,
+        level: this.level,
+        parent: this.parent,
+        values: this.values,
+      },
+    }));
+  }
+
+  protected updateRangeEnabledState(): void {
+    const range = this.values['range'];
+    this.isRangeEnabled = range?.enabled || false;
+  }
+
+  protected handleRangeEnabledChange(event: Event): void {
+    event.preventDefault();
+    const target = event.target as HTMLInputElement;
+    
+    if (!this.values['range']) {
+      this.values['range'] = {};
+    }
+    
+    this.isRangeEnabled = target.checked;
+    this.values['range'].enabled = target.checked;
+    
+    if (target.checked) {
+      if (this.values['range'].lower === undefined) {
+        this.values['range'].lower = 0;
+      }
+      if (this.values['range'].upper === undefined) {
+        this.values['range'].upper = 100;
+      }
+    }
+    
+    this.dispatchEvent(new CustomEvent('updateCbFieldData', {
+      bubbles: true,
+      composed: true,
+      detail: {
+        position: this.position,
+        level: this.level,
+        parent: this.parent,
+        values: this.values,
+      },
+    }));
+  }
+
+  protected handleRangeInputChange(event: Event): void {
+    event.preventDefault();
+    const target = event.target as HTMLInputElement;
+    
+    if (!this.values['range']) {
+      this.values['range'] = {};
+    }
+    
+    if (target.id === 'range_lower') {
+      this.values['range'].lower = parseInt(target.value);
+    } else if (target.id === 'range_upper') {
+      this.values['range'].upper = parseInt(target.value);
+    }
+    
     this.dispatchEvent(new CustomEvent('updateCbFieldData', {
       bubbles: true,
       composed: true,

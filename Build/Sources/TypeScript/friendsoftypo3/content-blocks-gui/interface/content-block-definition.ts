@@ -5,6 +5,12 @@ export interface ValuePicker {
   items: Array<[string, string]>;
 }
 
+export interface Range {
+  lower: number;
+  upper: number;
+  enabled?: boolean;
+}
+
 export interface ContentBlockField {
   identifier: string;
   type: string;
@@ -28,7 +34,7 @@ export interface ContentBlockField {
   renderType?: string;
   allowedCustomProperties?: Array<FieldTypeItems>;
   format?: string;
-  range?: Array<FieldTypeItems>;
+  range?: Range;
   slider?: Array<FieldTypeItems>;
   size?: number;
   valuePicker?: ValuePicker;
