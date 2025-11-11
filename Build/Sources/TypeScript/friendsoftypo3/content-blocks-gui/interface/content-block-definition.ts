@@ -12,6 +12,12 @@ export interface Range {
   enabled?: boolean;
 }
 
+export interface Slider {
+    step: number;
+    width: number;
+    enabled?: boolean;
+}
+
 export interface ContentBlockField {
   identifier: string;
   type: string;
@@ -36,7 +42,7 @@ export interface ContentBlockField {
   allowedCustomProperties?: Array<FieldTypeItems>;
   format?: string;
   range?: Range;
-  slider?: Array<FieldTypeItems>;
+  slider?: Slider;
   size?: number;
   valuePicker?: ValuePicker;
   allowedTypes?: Array<FieldTypeItems>;
