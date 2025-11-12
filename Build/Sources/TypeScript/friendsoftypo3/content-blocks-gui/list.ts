@@ -210,7 +210,19 @@ export class ContentBlockList extends LitElement {
     `;
   }
 
+  protected getTypeName(): string {
+    const typeNames: Record<string, string> = {
+      'content-element': 'Content Element',
+      'page-type': 'Page Type',
+      'record-type': 'Record Type',
+      'basic': 'Basic'
+    };
+    return typeNames[this.activeTab] || 'Content Block';
+  }
+
   protected renderRow(item: ContentBlockItem): TemplateResult {
+    const typeName = this.getTypeName();
+
     return html`
       <tr>
         <td class="col-icon">
@@ -222,12 +234,12 @@ export class ContentBlockList extends LitElement {
         </td>
         <td class="col">
           ${item.editUrl ? html`
-            <a href="${item.editUrl}" title="Edit content block: ${item.name}">${item.name}</a>
+            <a href="${item.editUrl}" title="Edit ${typeName}: ${item.name}">${item.name}</a>
           ` : item.name}
         </td>
         <td class="col">
           ${item.editUrl ? html`
-            <a href="${item.editUrl}" title="Edit content block: ${item.name}">${item.label}</a>
+            <a href="${item.editUrl}" title="Edit ${typeName}: ${item.name}">${item.label}</a>
           ` : item.label}
         </td>
         <td><code>${item.extension}</code></td>
@@ -241,25 +253,25 @@ export class ContentBlockList extends LitElement {
         <td class="col-control">
           <div class="btn-group" role="group">
             ${item.editUrl ? html`
-              <a class="btn btn-default" href="${item.editUrl}" title="Edit this content block">
+              <a class="btn btn-default" href="${item.editUrl}" title="Edit this ${typeName}">
                 <typo3-backend-icon identifier="actions-open"></typo3-backend-icon>
               </a>
             ` : ''}
             ${item.duplicateUrl ? html`
               <button class="btn btn-default"
-                      title="Duplicate this content block"
+                      title="Duplicate this ${typeName}"
                       @click="${() => this.handleDuplicate(item)}">
                 <typo3-backend-icon identifier="actions-duplicate"></typo3-backend-icon>
               </button>
             ` : ''}
             <button class="btn btn-default"
-                    title="Download this content block"
+                    title="Download this ${typeName}"
                     @click="${() => this.handleDownload(item.name)}">
               <typo3-backend-icon identifier="actions-download"></typo3-backend-icon>
             </button>
             ${item.deleteUrl ? html`
               <button class="btn btn-default"
-                      title="Delete this content block"
+                      title="Delete this ${typeName}"
                       @click="${() => this.handleDelete(item.deleteUrl)}">
                 <typo3-backend-icon identifier="actions-delete"></typo3-backend-icon>
               </button>
