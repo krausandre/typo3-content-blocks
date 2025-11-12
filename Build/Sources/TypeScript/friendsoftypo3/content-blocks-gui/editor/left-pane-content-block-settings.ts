@@ -38,6 +38,7 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
     hostExtension: string;
 
   protected render(): TemplateResult {
+      console.log(this.contentBlockYaml);
     return html`
       <div class="form-group">
         <label for="extension" class="form-label">Extension</label>
@@ -63,14 +64,14 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
       <div class="form-group">
         <div class="form-check">
           <input type="checkbox" id="prefix" class="form-check-input" ?checked=${this.contentBlockYaml.prefixFields} />
-          <label for="prefix" class="form-check-label">Prefix fields?</label>
+          <label for="prefix" class="form-check-label">Prefix fields</label>
         </div>
       </div>
       <div class="form-group">
         <label for="prefix-type" class="form-label">Prefix type</label>
         <select class="form-control" id="prefix-type">
           <option value="">Choose...</option>
-          <option value="full" ?selected="${this.contentBlockYaml.prefixType === 'full'}" >Full</option>
+          <option value="full" ?selected="${this.contentBlockYaml.prefixType === 'full' || !this.contentBlockYaml.prefixType}" >Full</option>
           <option value="vendor" ?selected="${this.contentBlockYaml.prefixType === 'vendor'}" >Vendor</option>
         </select>
       </div>
@@ -87,11 +88,21 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
         <select class="form-control" id="group">
           <option value="">Choose...</option>
           ${this.groups.map((group: GroupDefinition) => html`
-            <option value="${group.key}" ?selected="${group.key === this.contentBlockYaml.group}">${group.label}</option>
+            <option value="${group.key}" ?selected="${this.getGroupSelectionState(group.key)}">${group.label}</option>
           `)}
         </select>
       </div>
     `;
+  }
+
+  protected getGroupSelectionState(groupKey: string): boolean {
+    if (this.contentBlockYaml.group && this.contentBlockYaml.group === groupKey) {
+      return true;
+    }
+    if (!this.contentBlockYaml.group || !this.groups.some(group => group.key === this.contentBlockYaml.group)) {
+      return groupKey === 'default';
+    }
+    return false;
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
