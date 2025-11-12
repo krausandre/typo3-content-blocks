@@ -244,7 +244,6 @@ export class ContentBlockEditor extends LitElement {
   }
 
   protected activateFieldSettings(event: CustomEvent) {
-    console.log(event.detail);
     let fields: ContentBlockField[] = this.cbDefinition.yaml.fields;
     if(event.detail.parent !== null) {
       fields = event.detail.parent.fields;
@@ -310,7 +309,7 @@ export class ContentBlockEditor extends LitElement {
       });
 
       const saveData = {
-        contentType: 'content-element', // TODO: make configurable to support other page types and record types
+        contentType: 'content-element', // TODO: make configurable to support other page-type and record-type
         extension: this.cbDefinition.hostExtension,
         mode: this.mode || 'edit', // Use edit mode by default
         name: this.cbDefinition.yaml.name,
@@ -354,12 +353,15 @@ export class ContentBlockEditor extends LitElement {
       Modal.confirm(
         'Success',
         'Content block has been saved successfully.',
-        SeverityEnum.success,
+        SeverityEnum.info,
         [{
           text: 'OK',
           active: true,
-          btnClass: 'btn-success',
-          name: 'ok'
+          btnClass: 'btn-info',
+          name: 'ok',
+          trigger: function() {
+              Modal.dismiss();
+          }
         }]
       );
 
@@ -375,7 +377,10 @@ export class ContentBlockEditor extends LitElement {
           text: 'OK',
           active: true,
           btnClass: 'btn-danger',
-          name: 'ok'
+          name: 'ok',
+          trigger: function() {
+              Modal.dismiss();
+          }
         }]
       );
     } finally {
