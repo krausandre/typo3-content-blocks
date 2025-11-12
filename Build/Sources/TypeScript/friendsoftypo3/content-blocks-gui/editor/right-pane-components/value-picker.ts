@@ -64,14 +64,6 @@ export class ContentBlockEditorValuePicker extends LitElement {
         </div>
         ${this.isValuePickerEnabled ? html`
           <div class="component-body">
-            <div class="form-group mb-3">
-              <label for="${this.fieldTypeProperty.name}_mode" class="form-label">Mode</label>
-              <select @change="${this.updateValuePickerMode}" class="form-select" id="${this.fieldTypeProperty.name}_mode" data-field="${this.fieldTypeProperty.name}">
-                <option value="blank" ?selected=${currentValue.mode === 'blank'}>Blank (replace)</option>
-                <option value="append" ?selected=${currentValue.mode === 'append'}>Append</option>
-                <option value="prepend" ?selected=${currentValue.mode === 'prepend'}>Prepend</option>
-              </select>
-            </div>
             <div class="form-group">
               <label class="form-label">Items</label>
               <div class="items-list">

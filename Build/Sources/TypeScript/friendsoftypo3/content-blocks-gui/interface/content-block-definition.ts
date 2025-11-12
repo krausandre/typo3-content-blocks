@@ -1,7 +1,6 @@
 import type { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 
 export interface ValuePicker {
-  mode?: 'blank' | 'append' | 'prepend';
   items: Array<[string, string]>;
   enabled?: boolean;
 }
