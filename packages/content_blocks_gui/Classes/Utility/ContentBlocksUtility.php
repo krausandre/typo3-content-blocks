@@ -34,6 +34,7 @@ use TYPO3\CMS\ContentBlocks\Registry\ContentBlockRegistry;
 use TYPO3\CMS\ContentBlocks\Registry\LanguageFileRegistry;
 use TYPO3\CMS\ContentBlocks\Service\PackageResolver;
 use TYPO3\CMS\ContentBlocks\Utility\ContentBlockPathUtility;
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\ResponseFactory;
 use TYPO3\CMS\Core\Http\StreamFactory;
@@ -281,6 +282,9 @@ class ContentBlocksUtility
                     'message' => $result['success'],
                 ]);
             }
+        } else {
+            $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
+            $cacheManager->flushCachesInGroup('system');
         }
     }
 
