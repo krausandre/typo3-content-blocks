@@ -11,11 +11,12 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult, css } from 'lit';
-import { customElement, property } from 'lit/decorators';
-import '@typo3/backend/element/icon-element';
-import '@friendsoftypo3/content-blocks-gui/editor/dropzone-field'
-import { FieldTypeSetting,ContentBlockField } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
+import { html, LitElement } from 'lit';
+import type { TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
+import '@friendsoftypo3/content-blocks-gui/editor/dropzone-field.js';
+import type { FieldTypeSetting, ContentBlockField } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -25,7 +26,6 @@ import { FieldTypeSetting,ContentBlockField } from '@friendsoftypo3/content-bloc
  */
 @customElement('content-block-editor-middle-pane')
 export class ContentBlockEditorMiddlePane extends LitElement {
-
 
   @property()
     fieldList?: Array<ContentBlockField>;
@@ -42,7 +42,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
 
   protected render(): TemplateResult {
     const cssClasses = this.dragActive ? 'drag-active' : '';
-    
+
     return html`
       <style>
         .content-block-field-builder {
@@ -200,7 +200,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
 
   protected renderFieldArea(cbField: ContentBlockField, position: number, level: number, parent: ContentBlockField): TemplateResult {
     const fieldType = this.fieldTypes?.filter((fieldType) => fieldType.type === cbField.type)[0];
-    
+
     if (cbField.type === 'Collection') {
       return html`
         <div class="collection-container" data-level="${level}">
@@ -260,7 +260,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         </div>
       `;
     }
-    
+
     if (!renderLabel && renderDropZone) {
       return html`
         <div class="field-component dropzone-only">
@@ -268,7 +268,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         </div>
       `;
     }
-    
+
     return html`
       <div class="field-component field-with-dropzone">
         <div class="field-wrapper">
@@ -309,19 +309,19 @@ export class ContentBlockEditorMiddlePane extends LitElement {
 
   protected handleDrop(event: DragEvent): void {
     event.preventDefault();
-    
+
     // Remove visual feedback
     const target = event.target as HTMLElement;
     const dropzone = target.closest('.cb-drop-zone, dropzone-field');
     if (dropzone) {
       dropzone.classList.remove('drag-over');
     }
-    
+
     // Extract position data from the closest dropzone element
     this.position = parseInt((event.target as HTMLElement).dataset.position || '0', 10);
     this.level = parseInt((event.target as HTMLElement).dataset.level || '0', 10);
     this.parent = (event.target as HTMLElement).dataset.parent as unknown as ContentBlockField;
-    
+
     const dragData = event.dataTransfer?.getData('text/plain');
     if (dragData) {
       this._dispatchFieldTypeDroppedEvent(dragData);

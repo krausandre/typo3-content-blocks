@@ -1,5 +1,5 @@
-import { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
-import { ValuePicker, Range } from '@friendsoftypo3/content-blocks-gui/interface/content-block-definition';
+import type { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
+import type { ValuePicker, Range } from '@friendsoftypo3/content-blocks-gui/interface/content-block-definition';
 export interface ExtensionDefinition {
     vendor: string;
     package: string;

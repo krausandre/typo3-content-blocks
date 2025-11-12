@@ -61,7 +61,7 @@ final class ContentBlocksGuiController
 //            'basics' => $sampleData['basics'],
         ]);
 
-        // $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/content-blocks-gui-module.js');
+        // Load the list component
         $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/list.js');
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:content_blocks_gui/Resources/Private/Language/locallang.xlf');
 
@@ -145,7 +145,82 @@ final class ContentBlocksGuiController
             throw new RouteNotFoundException('Missing required content block name');
         }
         $mode = 'new';
+        // TODO: /typo3/ is hardcoded, needs to be dynamic since this is configurable in TYPO3 v13
         if($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/new') {
+            $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
+            $contentBlocksData = json_decode($skeletonJson, true);
+        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/edit') {
+            $mode = 'edit';
+//            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
+//            $contentBlocksData = json_decode($sampleJson, true);
+            $contentBlocksData = $this->contentBlocksUtility->getContentBlockByName($queryParams);
+        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/duplicate') {
+            $mode = 'duplicate';
+            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
+            $contentBlocksData = json_decode($sampleJson, true);
+        } else {
+            throw new RouteNotFoundException('Invalid request');
+        }
+        $contentBlockEditorData = GeneralUtility::implodeAttributes([
+            'mode' => $mode,
+            'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
+            'extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
+            'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),
+            'fieldconfig' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getFieldTypes(), false),
+        ], true);
+
+        $this->moduleTemplate->assignMultiple([
+            'contentBlockEditorData' => $contentBlockEditorData,
+        ]);
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    public function editBasicAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
+        $this->buttonBarUtility->addEditButtonBar($this->moduleTemplate);
+        $this->handleBasicAction($request);
+        return $this->moduleTemplate->renderResponse('ContentBlocksGui/EditBasic');
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    public function deleteBasicAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
+        $this->buttonBarUtility->addEditButtonBar($this->moduleTemplate);
+        $this->handleAction($request);
+        return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    public function duplicateBasicAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
+        $this->buttonBarUtility->addEditButtonBar($this->moduleTemplate);
+        $this->handleAction($request);
+        return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
+    }
+
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    protected function handleBasicAction(ServerRequestInterface $request): void
+    {
+        $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/editor.js');
+        $queryParams = $request->getQueryParams();
+        if (!isset($queryParams['identifier'])) {
+            throw new RouteNotFoundException('Missing required basic identifier #1762887757');
+        }
+        $mode = 'new';
+        // TODO: /typo3/ is hardcoded, needs to be dynamic since this is configurable in TYPO3 v13
+        if($request->getUri()->getPath() === '/typo3/content-block-gui/basic/modify/new') {
             $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
             $contentBlocksData = json_decode($skeletonJson, true);
         } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/edit') {

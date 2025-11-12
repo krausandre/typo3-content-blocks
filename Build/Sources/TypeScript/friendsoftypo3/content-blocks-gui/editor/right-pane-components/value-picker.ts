@@ -11,10 +11,11 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators';
-import { live } from 'lit/directives/live';
-import { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
+import { html, LitElement } from 'lit';
+import type { TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import { live } from 'lit/directives/live.js';
+import type { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -147,11 +148,11 @@ export class ContentBlockEditorValuePicker extends LitElement {
     const fieldName = this.fieldTypeProperty.name;
     const index = parseInt(target.dataset.index!);
     const part = target.dataset.part!;
-    
+
     if (!this.values[fieldName]) {
       this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
     }
-    
+
     const currentValue = this.values[fieldName] as any;
     if (!currentValue.items) {
       currentValue.items = [];
@@ -170,11 +171,11 @@ export class ContentBlockEditorValuePicker extends LitElement {
   protected addValuePickerItem(event: Event): void {
     event.preventDefault();
     const fieldName = this.fieldTypeProperty.name;
-    
+
     if (!this.values[fieldName]) {
       this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
     }
-    
+
     const currentValue = this.values[fieldName] as any;
     if (!currentValue.items) {
       currentValue.items = [];
@@ -196,7 +197,7 @@ export class ContentBlockEditorValuePicker extends LitElement {
     if (!this.values[fieldName] || !this.values[fieldName].items) {
       return;
     }
-    
+
     const currentValue = this.values[fieldName] as any;
     currentValue.items.splice(index, 1);
     this.values[fieldName] = currentValue;
@@ -214,14 +215,14 @@ export class ContentBlockEditorValuePicker extends LitElement {
     event.preventDefault();
     const target = event.target as HTMLInputElement;
     const fieldName = this.fieldTypeProperty.name;
-    
+
     if (!this.values[fieldName]) {
       this.values[fieldName] = { mode: 'blank', items: [] };
     }
-    
+
     this.isValuePickerEnabled = target.checked;
     this.values[fieldName].enabled = target.checked;
-    
+
     if (target.checked) {
       if (!this.values[fieldName].mode) {
         this.values[fieldName].mode = 'blank';
@@ -230,7 +231,7 @@ export class ContentBlockEditorValuePicker extends LitElement {
         this.values[fieldName].items = [];
       }
     }
-    
+
     this.dispatchUpdateEvent();
   }
 

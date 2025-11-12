@@ -11,15 +11,16 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators';
-import '@typo3/backend/element/icon-element';
-import '@friendsoftypo3/content-blocks-gui/editor/left-pane';
-import '@friendsoftypo3/content-blocks-gui/editor/middle-pane';
-import '@friendsoftypo3/content-blocks-gui/editor/right-pane';
-import MultiStepWizard from '@typo3/backend/multi-step-wizard';
-import Severity from '@typo3/backend/severity';
-import {
+import { html, LitElement } from 'lit';
+import type { TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import '@typo3/backend/element/icon-element.js';
+import '@friendsoftypo3/content-blocks-gui/editor/left-pane.js';
+import '@friendsoftypo3/content-blocks-gui/editor/middle-pane.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane.js';
+import MultiStepWizard from '@typo3/backend/multi-step-wizard.js';
+import Severity from '@typo3/backend/severity.js';
+import type {
   FieldTypeSetting,
   ContentBlockDefinition,
   ContentBlockField,

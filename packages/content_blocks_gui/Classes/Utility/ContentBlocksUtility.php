@@ -20,8 +20,8 @@ namespace FriendsOfTYPO3\ContentBlocksGui\Utility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Yaml\Yaml;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsLoader;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsRegistry;
 use TYPO3\CMS\ContentBlocks\Builder\ContentBlockBuilder;
@@ -33,13 +33,11 @@ use TYPO3\CMS\ContentBlocks\Registry\ContentBlockRegistry;
 use TYPO3\CMS\ContentBlocks\Registry\LanguageFileRegistry;
 use TYPO3\CMS\ContentBlocks\Service\PackageResolver;
 use TYPO3\CMS\ContentBlocks\Utility\ContentBlockPathUtility;
-use TYPO3\CMS\Core\Configuration\Loader\YamlFileLoader;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\ResponseFactory;
 use TYPO3\CMS\Core\Http\StreamFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Package\Exception;
-use TYPO3\CMS\Core\Schema\Struct\SelectItem;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
@@ -51,13 +49,10 @@ use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorDownloadContentTypeAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorMissingBasicIndentifierAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorMissingContentBlockNameAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorNoBasicsAvailableAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorNoContentBlocksAvailableAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorSaveContentTypeAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorUnknownContentBlockPathAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\SuccessAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Factory\UsageFactory;
 use FriendsOfTYPO3\ContentBlocksGui\Service\ContentTypeService;
-use FriendsOfTYPO3\ContentBlocksGui\Utility\ExtensionUtility;
 
 class ContentBlocksUtility
 {
@@ -377,18 +372,33 @@ class ContentBlocksUtility
         return $result;
     }
 
+    /**
+     * @throws RouteNotFoundException
+     */
     protected function getLoadedBasicForList(): array
     {
         $list = [];
         $this->basicsLoader->load();
         foreach ($this->basicsRegistry->getAllBasics() as $basic) {
+            $isEditable = $this->extensionUtility->isEditable($basic->getHostExtension());
             $list[$basic->getIdentifier()] = [
                 'name' => $basic->getIdentifier(),
                 'label' => $basic->getIdentifier(),
                 'extension' => $basic->getHostExtension(),
-                'editable' => true,
-                'deletable' => true,
+                'editable' => $isEditable, // TODO: if host extension is content_blocks, disable edit
+                'deletable' => $isEditable, // TODO: if host extension is content_blocks, disable delete
+                'editUrl' => $isEditable ? (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_modify', [
+                    'type' => 'edit',
+                    'identifier' => $basic->getIdentifier()
+                ]) : null,
+                'deleteUrl' => $isEditable ? (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_delete', [
+                    'identifier' => $basic->getIdentifier()
+                ]) : null,
+                'duplicateUrl' => $isEditable ? (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_duplicate', [
+                    'sourceIdentifier' => $basic->getIdentifier()
+                ]) : null,
             ];
+
         }
         return $list;
     }

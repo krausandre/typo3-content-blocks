@@ -32,6 +32,9 @@
         "paths": {
             "@typo3/*": [
                 "./*"
+            ],
+            "@friendsoftypo3/*": [
+                "./friendsoftypo3/*"
             ]
         },
         "outDir": "./JavaScript/",

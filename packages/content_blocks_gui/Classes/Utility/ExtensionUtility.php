@@ -75,6 +75,9 @@ class ExtensionUtility
 
     public function isEditable(string $packageKey): bool
     {
+        if ($packageKey === 'content_blocks') {
+            return false;
+        }
         return $this->packageResolver->isPackageAvailable($packageKey);
     }
 }
