@@ -214,11 +214,11 @@ class ContentBlocksUtility
         $this->recursiveCopy($sourceAbsolutePath, $targetAbsolutePath);
 
         // Update the config.yaml with new name and handle type-specific configuration
-        $editorInterfaceFile = $targetAbsolutePath . ContentBlockPathUtility::getContentBlockDefinitionFileName();
+        $configFile = $targetAbsolutePath . ContentBlockPathUtility::getContentBlockDefinitionFileName();
         $needsDatabaseUpdate = false;
 
-        if (file_exists($editorInterfaceFile)) {
-            $yaml = Yaml::parseFile($editorInterfaceFile);
+        if (file_exists($configFile)) {
+            $yaml = Yaml::parseFile($configFile);
             $yaml['name'] = $targetFullName;
             // Remove vendor field if it exists since name already contains vendor/name format
             unset($yaml['vendor']);
@@ -256,7 +256,7 @@ class ContentBlocksUtility
                 }
             }
 
-            file_put_contents($editorInterfaceFile, Yaml::dump($yaml, 10, 2));
+            file_put_contents($configFile, Yaml::dump($yaml, 10, 2));
         }
 
         // Reload content blocks to register the new one
