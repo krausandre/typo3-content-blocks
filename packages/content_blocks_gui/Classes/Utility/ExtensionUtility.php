@@ -17,59 +17,83 @@ declare(strict_types=1);
 
 namespace FriendsOfTYPO3\ContentBlocksGui\Utility;
 
-//use TYPO3\CMS\ContentBlocks\Service\PackageResolver;
-use TYPO3\CMS\Core\Package\PackageManager;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\ContentBlocks\Service\PackageResolver;
 use TYPO3\CMS\Core\Utility\PathUtility;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\AnswerInterface;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
 
 class ExtensionUtility
 {
     public function __construct(
-//        protected PackageResolver $packageResolver
-        protected PackageManager $packageResolver
+        protected PackageResolver $packageResolver
     ) {
     }
-//    public function getAvailableExtensions(): AnswerInterface
-//    {
-//
-//        return new DataAnswer(
-//            'list',
-//            $this->findAvailableExtensions()
-//        );
-//    }
 
-    // TODO: test in legacy mode
+    /**
+     * Get available extensions for content blocks.
+     * Uses the native Content Blocks PackageResolver to get packages filtered for display.
+     * This ensures consistency with the Content Blocks core command.
+     */
     public function findAvailableExtensions(): array
     {
-        $availablePackages = $this->packageResolver->getAvailablePackages();
+        $availablePackages = $this->packageResolver->getAvailablePackagesForDisplay();
         $availableExtensions = [];
+
         foreach ($availablePackages as $packageKey => $package) {
-            if($availablePackages[$packageKey]->isProtected()) {
+            // Skip protected packages
+            if ($package->isProtected()) {
                 continue;
             }
+
+            $composerName = $package->getValueFromComposerManifest('name');
+            if (!$composerName) {
+                continue;
+            }
+
+            $nameParts = explode('/', $composerName);
+            if (count($nameParts) !== 2) {
+                continue;
+            }
+
+            [$vendor, $packageName] = $nameParts;
+
+            // Skip the content-blocks-gui extension itself
+            if ($vendor === 'friendsoftypo3' && $packageName === 'content-blocks-gui') {
+                continue;
+            }
+
+            // Check if package requires content-blocks
             $requiredPackages = $package->getValueFromComposerManifest('require');
-            $requiredContentBlocksPackage = false;
-            foreach ($requiredPackages as $package => $version) {
-                if($package === 'friendsoftypo3/content-blocks') {
-                    $requiredContentBlocksPackage = true;
+
+            // If no require section, skip this package
+            if ($requiredPackages === null) {
+                continue;
+            }
+
+            // Convert stdClass to array if needed
+            if (is_object($requiredPackages)) {
+                $requiredPackages = (array)$requiredPackages;
+            }
+
+            // Check if friendsoftypo3/content-blocks is in the dependencies
+            $hasContentBlocksDependency = false;
+            foreach ($requiredPackages as $packageName => $version) {
+                if ($packageName === 'friendsoftypo3/content-blocks') {
+                    $hasContentBlocksDependency = true;
+                    break;
                 }
             }
 
-            if(!$requiredContentBlocksPackage ||
-                (explode('/', $availablePackages[$packageKey]->getValueFromComposerManifest('name'))[0] === 'friendsoftypo3' &&
-                explode('/', $availablePackages[$packageKey]->getValueFromComposerManifest('name'))[1] === 'content-blocks-gui')
-            ) {
+            if (!$hasContentBlocksDependency) {
                 continue;
             }
+
             $availableExtensions[] = [
-                'vendor' => explode('/', $availablePackages[$packageKey]->getValueFromComposerManifest('name'))[0],
-                'package' => explode('/', $availablePackages[$packageKey]->getValueFromComposerManifest('name'))[1],
+                'vendor' => $vendor,
+                'package' => $nameParts[1], // Use the package name part
                 'extension' => $packageKey,
-                'icon' => $availablePackages[$packageKey]->getPackageIcon() ? PathUtility::getAbsoluteWebPath($availablePackages[$packageKey]->getPackageIcon()) : '',
+                'icon' => $package->getPackageIcon() ? PathUtility::getAbsoluteWebPath($package->getPackageIcon()) : '',
             ];
         }
+
         return $availableExtensions;
     }
 
@@ -78,6 +102,7 @@ class ExtensionUtility
         if ($packageKey === 'content_blocks') {
             return false;
         }
-        return $this->packageResolver->isPackageAvailable($packageKey);
+        $packages = $this->packageResolver->getAvailablePackages();
+        return isset($packages[$packageKey]);
     }
 }
