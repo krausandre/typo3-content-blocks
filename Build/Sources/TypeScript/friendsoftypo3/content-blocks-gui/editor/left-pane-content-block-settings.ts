@@ -91,13 +91,6 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
           `)}
         </select>
       </div>
-      <div class="form-group">
-        <a href="#" class="btn btn-success">
-          <span class="t3js-icon icon icon-size-small icon-state-default icon-apps-filetree-folder-default" data-identifier="apps-filetree-folder-default" aria-hidden="true">
-            <typo3-backend-icon identifier="actions-save" size="small"></typo3-backend-icon>
-          </span>  Save
-        </a>
-      </div>
     `;
   }
 
