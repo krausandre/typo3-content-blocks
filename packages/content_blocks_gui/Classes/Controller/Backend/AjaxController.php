@@ -165,5 +165,16 @@ final class AjaxController
             'total' => count($itemsList)
         ]);
     }
+
+    /**
+     * AJAX endpoint for saving content blocks
+     */
+    public function saveAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $parsedBody = $request->getParsedBody();
+        return $this->contentBlocksUtility->saveContentType(
+            $parsedBody
+        )->getResponse();
+    }
 }
 

@@ -20,6 +20,9 @@ import '@friendsoftypo3/content-blocks-gui/editor/middle-pane.js';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane.js';
 import MultiStepWizard from '@typo3/backend/multi-step-wizard.js';
 import Severity from '@typo3/backend/severity.js';
+import AjaxRequest from '@typo3/core/ajax/ajax-request.js';
+import Modal from '@typo3/backend/modal.js';
+import { SeverityEnum } from '@typo3/backend/enum/severity.js';
 import type {
   FieldTypeSetting,
   ContentBlockDefinition,
@@ -131,11 +134,10 @@ export class ContentBlockEditor extends LitElement {
     this.extensionList = JSON.parse(this.extensions);
     this.init = true;
 
-    document.querySelectorAll('[data-action="save-content-block"]').forEach((deleteButton) => {
-      deleteButton.addEventListener('click', (event) => {
+    document.querySelectorAll('[data-action="save-content-block"]').forEach((saveButton) => {
+      saveButton.addEventListener('click', async (event) => {
         event.preventDefault();
-        console.log(this.cbDefinition.yaml);
-        // this.handleRemove(deleteButton.getAttribute('href'));
+        await this.saveContentBlock();
       });
     });
   }
@@ -294,5 +296,95 @@ export class ContentBlockEditor extends LitElement {
       MultiStepWizard.unlockPrevStep();
     });
     MultiStepWizard.show();
+  }
+
+  /**
+   * Save content block via AJAX
+   */
+  private async saveContentBlock(): Promise<void> {
+    try {
+      const saveButtons = document.querySelectorAll('[data-action="save-content-block"]') as NodeListOf<HTMLButtonElement>;
+      saveButtons.forEach(button => {
+        button.disabled = true;
+        button.innerHTML = '<typo3-backend-icon identifier="spinner-circle" size="small"></typo3-backend-icon> Saving...';
+      });
+
+      const saveData = {
+        contentType: 'content-element', // TODO: make configurable to support other page types and record types
+        extension: this.cbDefinition.hostExtension,
+        mode: this.mode || 'edit', // Use edit mode by default
+        name: this.cbDefinition.yaml.name,
+        contentBlock: {
+          fields: this.cbDefinition.yaml.fields || [],
+          basics: this.cbDefinition.yaml.basics || [],
+          group: this.cbDefinition.yaml.group || 'default',
+          prefixFields: this.cbDefinition.yaml.prefixFields !== false,
+          prefixType: this.cbDefinition.yaml.prefixType || 'full',
+          table: this.cbDefinition.yaml.table || 'tt_content',
+          typeField: this.cbDefinition.yaml.typeField || 'CType',
+          priority: this.cbDefinition.yaml.priority || 0,
+          title: this.cbDefinition.yaml.title || '',
+          vendorPrefix: this.cbDefinition.yaml.vendorPrefix || ''
+        }
+      };
+
+      if (this.mode === 'copy') {
+        // These would need to be provided by the UI for copy operations
+        saveData.contentBlock.initialVendor = this.cbDefinition.yaml.initialVendor || '';
+        saveData.contentBlock.initialName = this.cbDefinition.yaml.initialName || '';
+      }
+
+      // Make AJAX request using FormData for proper TYPO3 parsing
+      const formData = new FormData();
+      Object.keys(saveData).forEach(key => {
+        if (typeof saveData[key] === 'object') {
+          formData.append(key, JSON.stringify(saveData[key]));
+        } else {
+          formData.append(key, saveData[key]);
+        }
+      });
+
+      const ajaxUrl = TYPO3.settings.ajaxUrls.content_blocks_gui_save_cb;
+      const response = await new AjaxRequest(ajaxUrl)
+        .post(formData);
+
+      const result = await response.resolve();
+      
+      // Show success message
+      Modal.confirm(
+        'Success',
+        'Content block has been saved successfully.',
+        SeverityEnum.success,
+        [{
+          text: 'OK',
+          active: true,
+          btnClass: 'btn-success',
+          name: 'ok'
+        }]
+      );
+
+    } catch (error) {
+      console.error('Failed to save content block:', error);
+      
+      // Show error message
+      Modal.confirm(
+        'Error',
+        'Failed to save content block. Please try again.',
+        SeverityEnum.error,
+        [{
+          text: 'OK',
+          active: true,
+          btnClass: 'btn-danger',
+          name: 'ok'
+        }]
+      );
+    } finally {
+      // Restore save buttons
+      const saveButtons = document.querySelectorAll('[data-action="save-content-block"]') as NodeListOf<HTMLButtonElement>;
+      saveButtons.forEach(button => {
+        button.disabled = false;
+        button.innerHTML = '<typo3-backend-icon identifier="actions-save"></typo3-backend-icon> Save';
+      });
+    }
   }
 }

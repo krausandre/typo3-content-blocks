@@ -40,4 +40,8 @@ return [
         'path' => '/contentblocks/gui/list/bytype',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::listByTypeAction',
     ],
+    'content_blocks_gui_save_cb' => [
+        'path' => '/contentblocks/gui/cb/save',
+        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::saveAction',
+    ],
 ];

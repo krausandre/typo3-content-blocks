@@ -3,7 +3,9 @@
 namespace FriendsOfTYPO3\ContentBlocksGui\Service;
 
 use Symfony\Component\Yaml\Yaml;
+use TYPO3\CMS\ContentBlocks\Builder\ConfigBuilder;
 use TYPO3\CMS\ContentBlocks\Builder\ContentBlockBuilder;
+use TYPO3\CMS\ContentBlocks\Builder\DefaultsLoader;
 use TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType;
 use TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentTypeIcon;
 use TYPO3\CMS\ContentBlocks\Loader\ContentBlockLoader;
@@ -11,6 +13,9 @@ use TYPO3\CMS\ContentBlocks\Loader\LoadedContentBlock;
 use TYPO3\CMS\ContentBlocks\Registry\ContentBlockRegistry;
 use TYPO3\CMS\ContentBlocks\Service\PackageResolver;
 use TYPO3\CMS\ContentBlocks\Utility\ContentBlockPathUtility;
+use TYPO3\CMS\ContentBlocks\Validation\ContentBlockNameValidator;
+use TYPO3\CMS\ContentBlocks\Validation\PageTypeNameValidator;
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\AnswerInterface;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
@@ -22,46 +27,68 @@ class ContentTypeService
         protected readonly PackageResolver $packageResolver,
         protected readonly ContentBlockBuilder $contentBlockBuilder,
         protected readonly ContentBlockLoader $contentBlockLoader,
+        protected readonly ConfigBuilder $configBuilder,
+        protected readonly DefaultsLoader $defaultsLoader,
+        protected readonly CacheManager $cacheManager,
     ) {
     }
 
-    public function getContentTypeData(array $getParsedBody): array
+    public function getContentTypeData(array $contentBlockData): array
     {
+        // Validate vendor and name using EXT:content_blocks validators
+        $nameParts = explode('/', $contentBlockData['name'] ?? 'test/foobar');
+        $vendor = strtolower($nameParts[0]);
+        $name = strtolower($nameParts[1]);
+        
+        if (!ContentBlockNameValidator::isValid($vendor)) {
+            throw new \RuntimeException('Vendor name "' . $vendor . '" does not match requirements.');
+        }
+        
+        if (!ContentBlockNameValidator::isValid($name)) {
+            throw new \RuntimeException('Content Block name "' . $name . '" does not match requirements.');
+        }
+        $contentBlockData['contentBlock'] = json_decode($contentBlockData['contentBlock'], true);
+        
         $data = [
-            'contentType' => $getParsedBody['contentType'],
-            'extension' => $getParsedBody['extension'],
-            'mode' => $getParsedBody['mode'],
+            'contentType' => $contentBlockData['contentType'],
+            'extension' => $contentBlockData['extension'],
+            'mode' => $contentBlockData['mode'],
             'contentBlock' => [
-                'vendor' => explode('/', $getParsedBody['name'] ?? 'test/foobar')[0],
-                'name' => explode('/', $getParsedBody['name'] ?? 'test/foobar')[1]
+                'vendor' => $vendor,
+                'name' => $name
             ]
         ];
 
-        if($getParsedBody['mode'] === 'copy') {
-            $data['contentBlock']['initialVendor'] = $getParsedBody['initialVendor'];
-            $data['contentBlock']['initialName'] = $getParsedBody['initialName'];
+        if($contentBlockData['mode'] === 'copy') {
+            $data['contentBlock']['initialVendor'] = $contentBlockData['initialVendor'];
+            $data['contentBlock']['initialName'] = $contentBlockData['initialName'];
         }
 
         // TODO: Maybe extract title, priority, etc out of the if statement, as this is used for all three content types
         if($data['contentType'] === 'content-element') {
-            $data['contentBlock']['fields'] = $getParsedBody['contentBlock']['fields'] ?? [];
-            $data['contentBlock']['basics'] = $getParsedBody['contentBlock']['basics'] ?? [];
-            $data['contentBlock']['group'] = $getParsedBody['contentBlock']['group'] ?? 'common';
-            $data['contentBlock']['prefixFields'] = $getParsedBody['contentBlock']['prefixFields'] ?? true;
-            $data['contentBlock']['prefixType'] = $getParsedBody['contentBlock']['prefixType'] ?? 'full';
-            $data['contentBlock']['table'] = $getParsedBody['contentBlock']['table'] ?? 'tt_content';
-            $data['contentBlock']['typeField'] = $getParsedBody['contentBlock']['typeField'] ?? 'CType';
-            $data['contentBlock']['priority'] = $getParsedBody['contentBlock']['priority'] ?? 0;
-            $data['contentBlock']['title'] = $getParsedBody['contentBlock']['title'] ?? '';
-            $data['contentBlock']['vendorPrefix'] = $getParsedBody['contentBlock']['vendorPrefix'] ?? '';
+            $data['contentBlock']['fields'] = $contentBlockData['contentBlock']['fields'] ?? [];
+            $data['contentBlock']['basics'] = $contentBlockData['contentBlock']['basics'] ?? [];
+            $data['contentBlock']['group'] = $contentBlockData['contentBlock']['group'] ?? 'common';
+            $data['contentBlock']['prefixFields'] = $contentBlockData['contentBlock']['prefixFields'] ?? true;
+            $data['contentBlock']['prefixType'] = $contentBlockData['contentBlock']['prefixType'] ?? 'full';
+            $data['contentBlock']['table'] = $contentBlockData['contentBlock']['table'] ?? 'tt_content';
+            $data['contentBlock']['typeField'] = $contentBlockData['contentBlock']['typeField'] ?? 'CType';
+            $data['contentBlock']['priority'] = $contentBlockData['contentBlock']['priority'] ?? 0;
+            $data['contentBlock']['title'] = $contentBlockData['contentBlock']['title'] ?? '';
+            $data['contentBlock']['vendorPrefix'] = $contentBlockData['contentBlock']['vendorPrefix'] ?? '';
         } else if($data['contentType'] === 'page-type') {
-            $data['contentBlock']['type'] = $getParsedBody['contentBlock']['type'];
-            $data['contentBlock']['prefixFields'] = $getParsedBody['contentBlock']['prefixFields'] ?? true;
-            $data['contentBlock']['prefixType'] = $getParsedBody['contentBlock']['prefixType'] ?? 'full';
+            $typeName = $contentBlockData['contentBlock']['type'] ?? time();
+            // Validate page type name using EXT:content_blocks validator
+            PageTypeNameValidator::validate($typeName, $vendor . '/' . $name);
+            $data['contentBlock']['type'] = (int)$typeName;
+            $data['contentBlock']['prefixFields'] = $contentBlockData['contentBlock']['prefixFields'] ?? true;
+            $data['contentBlock']['prefixType'] = $contentBlockData['contentBlock']['prefixType'] ?? 'full';
         } else if($data['contentType'] === 'record-type') {
-            $data['contentBlock']['typeName'] = $getParsedBody['contentBlock']['typeName'] ?? '';
+            $data['contentBlock']['typeName'] = $contentBlockData['contentBlock']['typeName'] ?? '';
+            $data['contentBlock']['fields'] = $contentBlockData['contentBlock']['fields'] ?? [];
+            $data['contentBlock']['title'] = $contentBlockData['contentBlock']['title'] ?? '';
         } else if($data['contentType'] === 'basic') {
-            $data['contentBlock']['fields'] = $getParsedBody['contentBlock']['fields'];
+            $data['contentBlock']['fields'] = $contentBlockData['contentBlock']['fields'];
         }
 
         return $data;
@@ -70,15 +97,30 @@ class ContentTypeService
     public function handleContentElement($data): AnswerInterface
     {
         $contentTypeName = $data['contentBlock']['vendor'] . '/' . $data['contentBlock']['name'];
-        // TODO use ContentBlockBuilder instead of creating the configuration here
-
-        $extPath = "EXT:" . $data['extension'] . "/ContentBlocks/ContentElements/";
-        $extPath_ = ContentBlockPathUtility::getContentBlockExtPath($data['extension'], $data['contentBlock']['name'], ContentType::CONTENT_ELEMENT);
-        $yamlConfiguration = new LoadedContentBlock(
+        
+        // Validate that extension exists
+        $availablePackages = $this->packageResolver->getAvailablePackages();
+        if (!array_key_exists($data['extension'], $availablePackages)) {
+            throw new \RuntimeException('The extension "' . $data['extension'] . '" could not be found.');
+        }
+        
+        // Use ConfigBuilder like CreateContentBlockCommand does
+        $yamlConfiguration = $this->configBuilder->build(
+            ContentType::CONTENT_ELEMENT,
+            $data['contentBlock']['vendor'],
+            $data['contentBlock']['name'],
+            $data['contentBlock']['title'] ?? $contentTypeName,
+            null, // typeName not used for content elements
+            $data['contentBlock'] // Pass additional config
+        );
+        
+        // Create properly configured LoadedContentBlock using EXT:content_blocks utilities
+        $extPath = $this->getExtPath($data['extension'], ContentType::CONTENT_ELEMENT);
+        
+        $contentBlock = new LoadedContentBlock(
             name: $contentTypeName,
-            yaml: $data['contentBlock'],
+            yaml: $yamlConfiguration,
             icon: new ContentTypeIcon(),
-            iconHideInMenu: new ContentTypeIcon(),
             hostExtension: $data['extension'],
             extPath: $extPath,
             contentType: ContentType::CONTENT_ELEMENT
@@ -86,11 +128,7 @@ class ContentTypeService
 
         $this->handleContentType(
             $data['mode'],
-            $data['extension'],
-            $data['contentBlock']['vendor'],
-            $data['contentBlock']['name'],
-            $yamlConfiguration->toArray(),
-            ContentType::CONTENT_ELEMENT,
+            $contentBlock,
             $data['contentBlock']['initialVendor'] ?? '',
             $data['contentBlock']['initialName'] ?? '',
         );
@@ -107,21 +145,37 @@ class ContentTypeService
     {
         $contentTypeName = $data['contentBlock']['vendor'] . '/' . $data['contentBlock']['name'];
 
-        // TODO use ContentBlockBuilder instead of creating the configuration here
-        $yamlConfiguration = [];
-        // $yamlConfiguration = $this->createContentType->createContentBlockPageTypeConfiguration(
-        //     $data['contentBlock']['vendor'],
-        //     $data['contentBlock']['name'],
-        //     $data['contentBlock']['type']
-        // );
+        // Validate that extension exists
+        $availablePackages = $this->packageResolver->getAvailablePackages();
+        if (!array_key_exists($data['extension'], $availablePackages)) {
+            throw new \RuntimeException('The extension "' . $data['extension'] . '" could not be found.');
+        }
+        
+        // Use ConfigBuilder like CreateContentBlockCommand does
+        $yamlConfiguration = $this->configBuilder->build(
+            ContentType::PAGE_TYPE,
+            $data['contentBlock']['vendor'],
+            $data['contentBlock']['name'],
+            $data['contentBlock']['title'] ?? $contentTypeName,
+            $data['contentBlock']['type'], // Page type needs the type number
+            $data['contentBlock'] // Pass additional config
+        );
+        
+        // Create properly configured LoadedContentBlock for page type
+        $extPath = $this->getExtPath($data['extension'], ContentType::PAGE_TYPE);
+
+        $contentBlock = new LoadedContentBlock(
+            name: $contentTypeName,
+            yaml: $yamlConfiguration,
+            icon: new ContentTypeIcon(),
+            hostExtension: $data['extension'],
+            extPath: $extPath,
+            contentType: ContentType::PAGE_TYPE
+        );
 
         $this->handleContentType(
             $data['mode'],
-            $data['extension'],
-            $data['contentBlock']['vendor'],
-            $data['contentBlock']['name'],
-            $yamlConfiguration,
-            ContentType::PAGE_TYPE,
+            $contentBlock,
             $data['contentBlock']['initialVendor'] ?? '',
             $data['contentBlock']['initialName'] ?? '',
         );
@@ -139,21 +193,37 @@ class ContentTypeService
     {
         $contentTypeName = $data['contentBlock']['vendor'] . '/' . $data['contentBlock']['name'];
 
-        // TODO use ContentBlockBuilder instead of creating the configuration here
-        $yamlConfiguration = [];
-        // $yamlConfiguration = $this->createContentType->createContentBlockRecordTypeConfiguration(
-        //     $data['contentBlock']['vendor'],
-        //     $data['contentBlock']['name'],
-        //     $data['contentBlock']['typeName']
-        // );
+        // Validate that extension exists
+        $availablePackages = $this->packageResolver->getAvailablePackages();
+        if (!array_key_exists($data['extension'], $availablePackages)) {
+            throw new \RuntimeException('The extension "' . $data['extension'] . '" could not be found.');
+        }
+        
+        // Use ConfigBuilder like CreateContentBlockCommand does
+        $yamlConfiguration = $this->configBuilder->build(
+            ContentType::RECORD_TYPE,
+            $data['contentBlock']['vendor'],
+            $data['contentBlock']['name'],
+            $data['contentBlock']['title'] ?? $contentTypeName,
+            $data['contentBlock']['typeName'] ?? null,
+            $data['contentBlock'] // Pass additional config
+        );
+        
+        // Create properly configured LoadedContentBlock for record type
+        $extPath = $this->getExtPath($data['extension'], ContentType::RECORD_TYPE);
+
+        $contentBlock = new LoadedContentBlock(
+            name: $contentTypeName,
+            yaml: $yamlConfiguration,
+            icon: new ContentTypeIcon(),
+            hostExtension: $data['extension'],
+            extPath: $extPath,
+            contentType: ContentType::RECORD_TYPE
+        );
 
         $this->handleContentType(
             $data['mode'],
-            $data['extension'],
-            $data['contentBlock']['vendor'],
-            $data['contentBlock']['name'],
-            $yamlConfiguration,
-            ContentType::RECORD_TYPE,
+            $contentBlock,
             $data['contentBlock']['initialVendor'] ?? '',
             $data['contentBlock']['initialName'] ?? '',
         );
@@ -170,20 +240,27 @@ class ContentTypeService
     public function handleBasic(array $data): AnswerInterface
     {
         $identifier = $data['contentBlock']['vendor'] . '/' . $data['contentBlock']['name'];
-        $yamlConfiguration['identifier'] = $identifier;
-        $yamlConfiguration['fields'] = $data['contentBlock']['fields'];
+        
+        // Build YAML configuration for basics
+        $yamlConfiguration = [
+            'identifier' => $identifier,
+            'fields' => $data['contentBlock']['fields']
+        ];
 
+        // Use PackageResolver from EXT:content_blocks to get proper paths
         $availablePackages = $this->packageResolver->getAvailablePackages();
         $basePath = $availablePackages[$data['extension']]->getPackagePath() . ContentBlockPathUtility::getRelativeBasicsPath();
-
         $basicsFileName = ucfirst($data['contentBlock']['name']) . '.yaml';
 
+        // Ensure directory exists using EXT:content_blocks patterns
         if(!is_dir($basePath)) {
-            mkdir($basePath, 0775, true);
+            GeneralUtility::mkdir_deep($basePath);
         }
+        
+        // Write the basics file
         file_put_contents(
             $basePath . '/' . $basicsFileName,
-            Yaml::dump($yamlConfiguration, 10, 2),
+            Yaml::dump($yamlConfiguration, 10, 2)
         );
 
         return new DataAnswer(
@@ -200,91 +277,53 @@ class ContentTypeService
      */
     protected function handleContentType(
         string $mode,
-        string $extension,
-        string $vendor,
-        string $name,
-        array $yamlConfiguration,
-        ContentType $contentType,
+        LoadedContentBlock $contentBlock,
         string $initialVendor = '',
         string $initialName = '',
     ): void {
-        if($this->contentBlockRegistry->hasContentBlock($vendor . '/' . $name) && $mode === 'create') {
-            throw new \RuntimeException('A content block with the name "' . $vendor . '/' . $name . '" already exists.');
-        } else if($this->contentBlockRegistry->hasContentBlock($vendor . '/' . $name) && $mode === 'edit') {
-            $this->editContentType($yamlConfiguration, $name, $extension, $contentType);
+        $contentBlockName = $contentBlock->getName();
+        
+        if($this->contentBlockRegistry->hasContentBlock($contentBlockName) && $mode === 'create') {
+            throw new \RuntimeException('A content block with the name "' . $contentBlockName . '" already exists.');
+        } else if($this->contentBlockRegistry->hasContentBlock($contentBlockName) && $mode === 'edit') {
+            // Use ContentBlockBuilder for editing instead of manual file operations
+            $this->contentBlockBuilder->create($contentBlock);
         } else if($mode === 'copy') {
-            if($this->contentBlockRegistry->hasContentBlock($vendor . '/' . $name)) {
-                throw new \RuntimeException('A content block with the name "' . $vendor . '/' . $name . '" already exists.');
+            if($this->contentBlockRegistry->hasContentBlock($contentBlockName)) {
+                throw new \RuntimeException('A content block with the name "' . $contentBlockName . '" already exists.');
             }
-            if(!$this->contentBlockRegistry->hasContentBlock($initialVendor . '/' . $initialVendor)) {
-                throw new \RuntimeException('The initial content block with the name "' . $initialVendor . '/' . $initialVendor . '" doesn\'t exists.');
+            $initialContentBlockName = $initialVendor . '/' . $initialName;
+            if(!$this->contentBlockRegistry->hasContentBlock($initialContentBlockName)) {
+                throw new \RuntimeException('The initial content block with the name "' . $initialContentBlockName . '" doesn\'t exist.');
             }
-            $this->copyContentType($yamlConfiguration, $name, $initialVendor . '/' . $initialName, $extension, $contentType);
+            $this->copyContentType($contentBlock, $initialContentBlockName);
         } else {
-            $this->contentBlockBuilder->create(LoadedContentBlock::fromArray($yamlConfiguration));
-            // $this->buildContentType($yamlConfiguration, $extension, $contentType);
+            // Use ContentBlockBuilder for creation - it handles all file operations
+            $this->contentBlockBuilder->create($contentBlock);
+            
+            // Flush caches like CreateContentBlockCommand does
+            $this->cacheManager->flushCachesInGroup('system');
+            $this->cacheManager->getCache('typoscript')->flush();
         }
+        
+        // Reload the registry after any content block operation
         $this->contentBlockLoader->loadUncached();
     }
 
-    protected function editContentType(array $yamlConfiguration, string $name, string $extension, ContentType $contentType): void
-    {
-        $basePath = "";
-        // $basePath = $this->createContentType->getBasePath(
-        //     $this->packageResolver->getAvailablePackages(),
-        //     $extension,
-        //     $contentType
-        // );
-        $basePath = GeneralUtility::getFileAbsFileName($yamlConfiguration['extPath']);
-        $filename = $yamlConfiguration['extPath'] . '/' . ContentBlockPathUtility::getContentBlockDefinitionFileName();
-        file_put_contents(
-            $basePath . '/' . "EditorInterface.yaml",
-            Yaml::dump($yamlConfiguration['yaml'], 10, 2),
-        );
-    }
-
     protected function copyContentType(
-        array $yamlConfiguration,
-        string $name,
-        string $initialName,
-        string $extension,
-        ContentType $contentType
+        LoadedContentBlock $contentBlock,
+        string $initialContentBlockName
     ): void {
-        // $contentBlockConfiguration = new ContentBlockConfiguration(
-        //     yamlConfig: $yamlConfiguration,
-        //     // basePath: $this->createContentType->getBasePath(
-        //     //     $this->packageResolver->getAvailablePackages(),
-        //     //     $extension,
-        //     //     $contentType
-        //     // ),
-        //     contentType: $contentType
-        // );
-        $contentBlockConfiguration  = new LoadedContentBlock(
-            name: $name,
-            yaml: $yamlConfiguration,
-            icon: new ContentTypeIcon(),
-            iconHideInMenu: new ContentTypeIcon(),
-            hostExtension: $extension,
-            extPath: '',
-            contentType: $contentType);
-        $this->contentBlockBuilder->create($contentBlockConfiguration);
+        // First create the new content block using ContentBlockBuilder
+        $this->contentBlockBuilder->create($contentBlock);
 
-        $initialContentBlock = $this->contentBlockRegistry->getContentBlock($initialName);
-        // TODO
-        $createdContentBlock = new LoadedContentBlock(
-            name: $name,
-            yaml: $yamlConfiguration,
-            icon: $initialContentBlock->getIcon(),
-            iconHideInMenu: $initialContentBlock->getIconHideInMenu(),
-            hostExtension: $extension,
-            extPath: ContentBlockPathUtility::getContentBlockExtPath($extension, $contentBlockConfiguration->getName(), $contentType),
-            contentType: $contentType
-        );
+        // Get the initial content block to copy files from
+        $initialContentBlock = $this->contentBlockRegistry->getContentBlock($initialContentBlockName);
 
-        // get files and folders from initial content block and add/overwrite them in new content block
+        // Copy files and folders from initial content block using EXT:content_blocks paths
         $this->copyContentBlockFilesAndFolders(
             GeneralUtility::getFileAbsFileName($initialContentBlock->getExtPath()),
-            GeneralUtility::getFileAbsFileName($createdContentBlock->getExtPath())
+            GeneralUtility::getFileAbsFileName($contentBlock->getExtPath())
         );
     }
 
@@ -303,5 +342,19 @@ class ContentTypeService
         } else {
             copy($source, $destination);
         }
+    }
+    
+    /**
+     * Get extension path for content type (from CreateContentBlockCommand)
+     */
+    protected function getExtPath(string $extension, ContentType $contentType): string
+    {
+        $base = 'EXT:' . $extension . '/';
+        return match ($contentType) {
+            ContentType::CONTENT_ELEMENT => $base . ContentBlockPathUtility::getRelativeContentElementsPath(),
+            ContentType::PAGE_TYPE => $base . ContentBlockPathUtility::getRelativePageTypesPath(),
+            ContentType::RECORD_TYPE => $base . ContentBlockPathUtility::getRelativeRecordTypesPath(),
+            ContentType::FILE_TYPE => $base . ContentBlockPathUtility::getRelativeFileTypesPath(),
+        };
     }
 }

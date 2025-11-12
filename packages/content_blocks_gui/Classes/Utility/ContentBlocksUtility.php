@@ -24,7 +24,9 @@ use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsLoader;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsRegistry;
+use TYPO3\CMS\ContentBlocks\Builder\ConfigBuilder;
 use TYPO3\CMS\ContentBlocks\Builder\ContentBlockBuilder;
+use TYPO3\CMS\ContentBlocks\Builder\DefaultsLoader;
 use TYPO3\CMS\ContentBlocks\Definition\Factory\UniqueIdentifierCreator;
 use TYPO3\CMS\ContentBlocks\Definition\TableDefinitionCollection;
 use TYPO3\CMS\ContentBlocks\Loader\ContentBlockLoader;
@@ -33,6 +35,7 @@ use TYPO3\CMS\ContentBlocks\Registry\ContentBlockRegistry;
 use TYPO3\CMS\ContentBlocks\Registry\LanguageFileRegistry;
 use TYPO3\CMS\ContentBlocks\Service\PackageResolver;
 use TYPO3\CMS\ContentBlocks\Utility\ContentBlockPathUtility;
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\ResponseFactory;
 use TYPO3\CMS\Core\Http\StreamFactory;
@@ -78,16 +81,12 @@ class ContentBlocksUtility
         $this->contentBlockRegistry = $this->contentBlockLoader->loadUncached();
     }
 
-    public function saveContentType(object|array|null $getParsedBody): AnswerInterface
+    public function saveContentType(array $parsedBody): AnswerInterface
     {
-        // TODO maybe redundant
-        $getParsedBody['initialVendor'] = $getParsedBody['vendor'] ?? '';
-        $getParsedBody['initialName'] = $getParsedBody['name'] ?? '';
-        // $getParsedBody['name'] = $getParsedBody['initialVendor'] . '/' . $getParsedBody['initialName'];
-
         try {
-            $data = $this->contentTypeService->getContentTypeData($getParsedBody);
-            return match ($getParsedBody['contentType']) {
+            // ContentTypeService handles all the logic - this is now a simple delegator
+            $data = $this->contentTypeService->getContentTypeData($parsedBody);
+            return match ($parsedBody['contentType']) {
                 'content-element' => $this->contentTypeService->handleContentElement($data),
                 'page-type' => $this->contentTypeService->handlePageType($data),
                 'record-type' => $this->contentTypeService->handleRecordType($data),
@@ -198,15 +197,14 @@ class ContentBlocksUtility
         // Copy the entire directory
         $this->recursiveCopy($sourceAbsolutePath, $targetAbsolutePath);
 
-        // Update the EditorInterface.yaml with new name
-        $editorInterfaceFile = $targetAbsolutePath . 'config.yaml';
-        if (file_exists($editorInterfaceFile)) {
-            $yaml = Yaml::parseFile($editorInterfaceFile);
+        // Update the configuration file with new name using EXT:content_blocks filename convention
+        $configFile = $targetAbsolutePath . ContentBlockPathUtility::getContentBlockDefinitionFileName();
+        if (file_exists($configFile)) {
+            $yaml = Yaml::parseFile($configFile);
             $yaml['name'] = $targetFullName;
-            if (isset($yaml['vendor'])) {
-                $yaml['vendor'] = $targetVendor;
-            }
-            file_put_contents($editorInterfaceFile, Yaml::dump($yaml, 10, 2));
+            // Remove vendor field if it exists since name already contains vendor/name format
+            unset($yaml['vendor']);
+            file_put_contents($configFile, Yaml::dump($yaml, 10, 2));
         }
 
         // Reload content blocks to register the new one
