@@ -79,16 +79,11 @@ class ContentBlocksUtility
         $this->contentBlockRegistry = $this->contentBlockLoader->loadUncached();
     }
 
-    public function saveContentType(object|array|null $getParsedBody): AnswerInterface
+    public function saveContentType(array $parsedBody): AnswerInterface
     {
-        // TODO maybe redundant
-        $getParsedBody['initialVendor'] = $getParsedBody['vendor'] ?? '';
-        $getParsedBody['initialName'] = $getParsedBody['name'] ?? '';
-        // $getParsedBody['name'] = $getParsedBody['initialVendor'] . '/' . $getParsedBody['initialName'];
-
         try {
-            $data = $this->contentTypeService->getContentTypeData($getParsedBody);
-            return match ($getParsedBody['contentType']) {
+            $data = $this->contentTypeService->getContentTypeData($parsedBody);
+            return match ($parsedBody['contentType']) {
                 'content-element' => $this->contentTypeService->handleContentElement($data),
                 'page-type' => $this->contentTypeService->handlePageType($data),
                 'record-type' => $this->contentTypeService->handleRecordType($data),
@@ -219,15 +214,14 @@ class ContentBlocksUtility
         $this->recursiveCopy($sourceAbsolutePath, $targetAbsolutePath);
 
         // Update the config.yaml with new name and handle type-specific configuration
-        $editorInterfaceFile = $targetAbsolutePath . 'config.yaml';
+        $editorInterfaceFile = $targetAbsolutePath . ContentBlockPathUtility::getContentBlockDefinitionFileName();
         $needsDatabaseUpdate = false;
 
         if (file_exists($editorInterfaceFile)) {
             $yaml = Yaml::parseFile($editorInterfaceFile);
             $yaml['name'] = $targetFullName;
-            if (isset($yaml['vendor'])) {
-                $yaml['vendor'] = $targetVendor;
-            }
+            // Remove vendor field if it exists since name already contains vendor/name format
+            unset($yaml['vendor']);
 
             // Handle PageType: Always generate new typeName (integer)
             if ($contentType->name === 'PAGE_TYPE') {

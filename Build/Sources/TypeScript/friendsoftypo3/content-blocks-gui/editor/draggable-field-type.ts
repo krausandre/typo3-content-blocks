@@ -62,7 +62,7 @@ export class DraggableFieldType extends LitElement {
       }
 
       return html`
-        <div class="draggable-field-type d-flex gap-2 text-start btn btn-default d-block mb-3 justify-content-start"
+        <div class="draggable-field-type d-flex gap-2 text-start btn btn-default d-block justify-content-start"
              draggable="true"
              @dragstart="${(event: DragEvent) => { this.handleDragStart(event, this.fieldTypeSetting.type, identifier); }}"
              data-identifier="${identifier}"

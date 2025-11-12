@@ -169,6 +169,17 @@ final class AjaxController
     }
 
     /**
+     * AJAX endpoint for saving content blocks
+     */
+    public function saveAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $parsedBody = $request->getParsedBody();
+        return $this->contentBlocksUtility->saveContentType(
+            $parsedBody
+        )->getResponse();
+    }
+
+    /**
      * Validate RecordType duplication parameters
      * Used for real-time validation in the duplicate modal
      */

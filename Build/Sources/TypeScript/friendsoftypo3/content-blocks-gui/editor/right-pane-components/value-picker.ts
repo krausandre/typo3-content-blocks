@@ -46,7 +46,7 @@ export class ContentBlockEditorValuePicker extends LitElement {
 
   protected render(): TemplateResult {
     this.updateValuePickerEnabledState();
-    const currentValue = this.values[this.fieldTypeProperty.name] as any || { mode: 'blank', items: [] };
+    const currentValue = this.values[this.fieldTypeProperty.name] as any || { items: [] };
     
     return html`
       <div class="component-container">
@@ -64,14 +64,6 @@ export class ContentBlockEditorValuePicker extends LitElement {
         </div>
         ${this.isValuePickerEnabled ? html`
           <div class="component-body">
-            <div class="form-group mb-3">
-              <label for="${this.fieldTypeProperty.name}_mode" class="form-label">Mode</label>
-              <select @change="${this.updateValuePickerMode}" class="form-select" id="${this.fieldTypeProperty.name}_mode" data-field="${this.fieldTypeProperty.name}">
-                <option value="blank" ?selected=${currentValue.mode === 'blank'}>Blank (replace)</option>
-                <option value="append" ?selected=${currentValue.mode === 'append'}>Append</option>
-                <option value="prepend" ?selected=${currentValue.mode === 'prepend'}>Prepend</option>
-              </select>
-            </div>
             <div class="form-group">
               <label class="form-label">Items</label>
               <div class="items-list">
@@ -130,19 +122,6 @@ export class ContentBlockEditorValuePicker extends LitElement {
     `;
   }
 
-  protected updateValuePickerMode(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const fieldName = target.dataset.field!;
-    const currentValue = this.values[fieldName] as any || { mode: 'blank', items: [] };
-    
-    this.values[fieldName] = {
-      ...currentValue,
-      mode: target.value
-    };
-    
-    this.dispatchUpdateEvent();
-  }
-
   protected updateValuePickerItem(event: Event): void {
     const target = event.target as HTMLInputElement;
     const fieldName = this.fieldTypeProperty.name;
@@ -150,7 +129,7 @@ export class ContentBlockEditorValuePicker extends LitElement {
     const part = target.dataset.part!;
 
     if (!this.values[fieldName]) {
-      this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
+      this.values[fieldName] = { items: [], enabled: true };
     }
 
     const currentValue = this.values[fieldName] as any;
@@ -173,7 +152,7 @@ export class ContentBlockEditorValuePicker extends LitElement {
     const fieldName = this.fieldTypeProperty.name;
 
     if (!this.values[fieldName]) {
-      this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
+      this.values[fieldName] = { items: [], enabled: true };
     }
 
     const currentValue = this.values[fieldName] as any;
@@ -208,7 +187,14 @@ export class ContentBlockEditorValuePicker extends LitElement {
 
   protected updateValuePickerEnabledState(): void {
     const valuePicker = this.values[this.fieldTypeProperty.name];
-    this.isValuePickerEnabled = valuePicker?.enabled || false;
+    
+    if (valuePicker?.hasOwnProperty('enabled')) {
+      this.isValuePickerEnabled = valuePicker.enabled;
+    } else if (valuePicker?.items && Array.isArray(valuePicker.items) && valuePicker.items.length > 0) {
+      this.isValuePickerEnabled = true;
+    } else {
+      this.isValuePickerEnabled = false;
+    }
   }
 
   protected handleValuePickerEnabledChange(event: Event): void {
@@ -217,16 +203,13 @@ export class ContentBlockEditorValuePicker extends LitElement {
     const fieldName = this.fieldTypeProperty.name;
 
     if (!this.values[fieldName]) {
-      this.values[fieldName] = { mode: 'blank', items: [] };
+      this.values[fieldName] = { items: [] };
     }
 
     this.isValuePickerEnabled = target.checked;
     this.values[fieldName].enabled = target.checked;
 
     if (target.checked) {
-      if (!this.values[fieldName].mode) {
-        this.values[fieldName].mode = 'blank';
-      }
       if (!this.values[fieldName].items) {
         this.values[fieldName].items = [];
       }

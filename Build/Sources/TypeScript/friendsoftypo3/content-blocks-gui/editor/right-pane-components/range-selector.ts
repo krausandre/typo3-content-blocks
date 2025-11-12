@@ -87,7 +87,17 @@ export class ContentBlockEditorRangeSelector extends LitElement {
 
     protected updateRangeEnabledState(): void {
         const range = this.values['range'];
-        this.isRangeEnabled = range?.enabled || false;
+        
+        if (range?.hasOwnProperty('enabled')) {
+            // If enabled property is explicitly set, use that value
+            this.isRangeEnabled = range.enabled;
+        } else if (range && (range.lower !== undefined || range.upper !== undefined)) {
+            // If no enabled property but has range values, consider it enabled on initial render
+            this.isRangeEnabled = true;
+        } else {
+            // Default to disabled if no range or no values
+            this.isRangeEnabled = false;
+        }
     }
 
   protected handleRangeEnabledChange(event: Event): void {

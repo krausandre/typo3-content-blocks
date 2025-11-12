@@ -38,6 +38,70 @@ let ContentBlockEditorLeftPane = class ContentBlockEditorLeftPane extends LitEle
         const isShowComponents = this.activeTab === 'components';
         const isShowBasics = this.activeTab === 'basics';
         return html `
+      <style>
+        #tabs-content-elements {
+          background: #fff;
+          border-bottom: 1px solid #dee2e6;
+          margin-bottom: 1rem;
+          padding: 0;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        #tabs-content-elements .t3js-tabmenu-item {
+          margin-right: 2px;
+          margin-bottom: -1px;
+        }
+
+        #tabs-content-elements .t3js-tabmenu-item a {
+          display: block;
+          padding: 0.75rem 1.25rem;
+          color: #495057;
+          text-decoration: none;
+          background: transparent;
+          border: 1px solid transparent;
+          border-radius: 4px 4px 0 0;
+          font-weight: 500;
+          transition: all 0.2s ease;
+        }
+
+        #tabs-content-elements .t3js-tabmenu-item a:hover {
+          background: #f8f9fa;
+          color: #007fff;
+          border-color: #dee2e6 #dee2e6 transparent;
+        }
+
+        #tabs-content-elements .t3js-tabmenu-item a.active {
+          background: #fff;
+          color: #007fff;
+          border-color: #dee2e6 #dee2e6 #fff;
+          position: relative;
+        }
+
+        #tabs-content-elements .t3js-tabmenu-item a.active::after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: #007fff;
+        }
+
+        .tab-content {
+          background: #fff;
+          border-radius: 0 0 4px 4px;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .panel-tab {
+          border: none;
+          box-shadow: none;
+        }
+
+        .panel-body {
+          padding: 1.25rem;
+        }
+      </style>
       <div role="tabpanel">
         <ul class="nav nav-tabs t3js-tabs" role="tablist" id="tabs-content-elements" data-store-last-tab="1">
           <li role="presentation" class="t3js-tabmenu-item">
