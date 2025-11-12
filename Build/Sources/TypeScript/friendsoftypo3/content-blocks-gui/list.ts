@@ -484,7 +484,10 @@ export class ContentBlockList extends LitElement {
     modal.addEventListener('button.clicked', (e: Event): void => {
       const target = e.target as HTMLButtonElement;
       if (target.getAttribute('name') === 'delete') {
-        window.location.href = url;
+        // Append current tab to URL for redirect back
+        const urlWithTab = new URL(url, window.location.origin);
+        urlWithTab.searchParams.set('returnTab', this.activeTab);
+        window.location.href = urlWithTab.toString();
       }
       modal.hideModal();
     });
@@ -829,6 +832,7 @@ export class ContentBlockList extends LitElement {
     const url = new URL(duplicateUrl, window.location.origin);
     url.searchParams.append('targetExtension', extensionValue);
     url.searchParams.append('targetIdentifier', identifierValue);
+    url.searchParams.append('returnTab', this.activeTab);
 
     // Navigate to the backend route (PHP will handle redirect)
     window.location.href = url.toString();
@@ -915,6 +919,9 @@ export class ContentBlockList extends LitElement {
         }
       }
     }
+
+    // Append current tab for redirect back
+    url.searchParams.append('returnTab', this.activeTab);
 
     // Navigate to the backend route (PHP will handle redirect)
     window.location.href = url.toString();

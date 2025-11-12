@@ -99,8 +99,15 @@ final class ContentBlocksGuiController
             throw new RouteNotFoundException('Missing required content block data');
         }
         $this->contentBlocksUtility->deleteContentBlock($queryParams['name']);
+
+        // Preserve the active tab for better UX
+        $redirectParams = [];
+        if (!empty($queryParams['returnTab'])) {
+            $redirectParams['type'] = $queryParams['returnTab'];
+        }
+
         return new RedirectResponse(
-            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
             303
         );
     }
@@ -144,8 +151,14 @@ final class ContentBlocksGuiController
             ]);
         }
 
+        // Preserve the active tab for better UX
+        $redirectParams = [];
+        if (!empty($queryParams['returnTab'])) {
+            $redirectParams['type'] = $queryParams['returnTab'];
+        }
+
         return new RedirectResponse(
-            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
             303
         );
     }
@@ -201,9 +214,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         } catch (\RuntimeException $e) {
@@ -217,9 +236,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         } catch (\Exception $e) {
@@ -238,9 +263,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         }
@@ -336,9 +367,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         } catch (\RuntimeException $e) {
@@ -352,9 +389,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         } catch (\Exception $e) {
@@ -373,9 +416,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         }
