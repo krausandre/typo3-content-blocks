@@ -46,7 +46,7 @@ export class ContentBlockEditorValuePicker extends LitElement {
 
   protected render(): TemplateResult {
     this.updateValuePickerEnabledState();
-    const currentValue = this.values[this.fieldTypeProperty.name] as any || { mode: 'blank', items: [] };
+    const currentValue = this.values[this.fieldTypeProperty.name] as any || { items: [] };
     
     return html`
       <div class="component-container">
@@ -122,19 +122,6 @@ export class ContentBlockEditorValuePicker extends LitElement {
     `;
   }
 
-  protected updateValuePickerMode(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const fieldName = target.dataset.field!;
-    const currentValue = this.values[fieldName] as any || { mode: 'blank', items: [] };
-    
-    this.values[fieldName] = {
-      ...currentValue,
-      mode: target.value
-    };
-    
-    this.dispatchUpdateEvent();
-  }
-
   protected updateValuePickerItem(event: Event): void {
     const target = event.target as HTMLInputElement;
     const fieldName = this.fieldTypeProperty.name;
@@ -142,7 +129,7 @@ export class ContentBlockEditorValuePicker extends LitElement {
     const part = target.dataset.part!;
 
     if (!this.values[fieldName]) {
-      this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
+      this.values[fieldName] = { items: [], enabled: true };
     }
 
     const currentValue = this.values[fieldName] as any;
@@ -165,7 +152,7 @@ export class ContentBlockEditorValuePicker extends LitElement {
     const fieldName = this.fieldTypeProperty.name;
 
     if (!this.values[fieldName]) {
-      this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
+      this.values[fieldName] = { items: [], enabled: true };
     }
 
     const currentValue = this.values[fieldName] as any;
@@ -209,16 +196,13 @@ export class ContentBlockEditorValuePicker extends LitElement {
     const fieldName = this.fieldTypeProperty.name;
 
     if (!this.values[fieldName]) {
-      this.values[fieldName] = { mode: 'blank', items: [] };
+      this.values[fieldName] = { items: [] };
     }
 
     this.isValuePickerEnabled = target.checked;
     this.values[fieldName].enabled = target.checked;
 
     if (target.checked) {
-      if (!this.values[fieldName].mode) {
-        this.values[fieldName].mode = 'blank';
-      }
       if (!this.values[fieldName].items) {
         this.values[fieldName].items = [];
       }
