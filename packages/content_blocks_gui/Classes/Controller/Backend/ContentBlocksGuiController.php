@@ -19,6 +19,7 @@ namespace FriendsOfTYPO3\ContentBlocksGui\Controller\Backend;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Backend\Attribute\AsController;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -27,7 +28,10 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ButtonBarUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ContentBlocksUtility;
@@ -45,7 +49,9 @@ final class ContentBlocksGuiController
         protected ContentBlocksUtility $contentBlocksUtility,
         protected ExtensionUtility $extensionUtility,
         protected IconFactory $iconFactory,
-        protected ButtonBarUtility $buttonBarUtility
+        protected ButtonBarUtility $buttonBarUtility,
+        protected readonly FlashMessageService $flashMessageService,
+        protected readonly LoggerInterface $logger,
     ) {
     }
 
@@ -117,14 +123,54 @@ final class ContentBlocksGuiController
         $targetVendor = $queryParams['targetVendor'];
         $targetName = $queryParams['targetName'];
 
+        // Optional RecordType duplication parameters
+        $duplicationStrategy = $queryParams['duplicationStrategy'] ?? 'auto';
+        $customTypeName = $queryParams['customTypeName'] ?? null;
+        $customTableName = $queryParams['customTableName'] ?? null;
+
         try {
             // Duplicate the content block
             $this->contentBlocksUtility->duplicateContentBlock(
                 $sourceName,
                 $targetExtension,
                 $targetVendor,
-                $targetName
+                $targetName,
+                $duplicationStrategy,
+                $customTypeName,
+                $customTableName
             );
+
+            // Add success message
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                sprintf(
+                    'Content block "%s/%s" has been successfully duplicated to "%s/%s".',
+                    explode('/', $sourceName)[0],
+                    explode('/', $sourceName)[1],
+                    $targetVendor,
+                    $targetName
+                ),
+                'Content Block Duplicated',
+                ContextualFeedbackSeverity::OK,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+
+            // Redirect back to list view
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                303
+            );
+        } catch (\RuntimeException $e) {
+            // Show user-friendly error message
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                $e->getMessage(),
+                'Duplication Failed',
+                ContextualFeedbackSeverity::ERROR,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
             // Redirect back to list view
             return new RedirectResponse(
@@ -132,7 +178,26 @@ final class ContentBlocksGuiController
                 303
             );
         } catch (\Exception $e) {
-            throw new RouteNotFoundException('Failed to duplicate content block: ' . $e->getMessage());
+            // Unexpected error - show generic message and log details
+            $this->logger->error('Unexpected error during content block duplication', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                'An unexpected error occurred during duplication. Please check the logs for details.',
+                'Duplication Failed',
+                ContextualFeedbackSeverity::ERROR,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+
+            // Redirect back to list view
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                303
+            );
         }
     }
 

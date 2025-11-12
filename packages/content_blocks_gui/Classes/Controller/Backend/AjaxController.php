@@ -165,5 +165,23 @@ final class AjaxController
             'total' => count($itemsList)
         ]);
     }
+
+    /**
+     * Validate RecordType duplication parameters
+     * Used for real-time validation in the duplicate modal
+     */
+    public function validateRecordTypeDuplicationAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $queryParams = $request->getQueryParams();
+
+        $validation = $this->contentBlocksUtility->validateRecordTypeDuplication(
+            $queryParams['sourceName'] ?? '',
+            $queryParams['duplicationStrategy'] ?? '',
+            $queryParams['typeName'] ?? null,
+            $queryParams['tableName'] ?? null
+        );
+
+        return new JsonResponse($validation);
+    }
 }
 

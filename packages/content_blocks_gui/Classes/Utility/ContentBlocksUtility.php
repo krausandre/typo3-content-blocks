@@ -73,7 +73,8 @@ class ContentBlocksUtility
         protected readonly ContentBlockLoader $contentBlockLoader,
         protected readonly UsageFactory $usageFactory,
         protected readonly ExtensionUtility $extensionUtility,
-        protected readonly UriBuilder $backendUriBuilder
+        protected readonly UriBuilder $backendUriBuilder,
+        protected readonly DatabaseUtility $databaseUtility,
     ) {
         $this->contentBlockRegistry = $this->contentBlockLoader->loadUncached();
     }
@@ -150,13 +151,19 @@ class ContentBlocksUtility
      * @param string $targetExtension The target extension
      * @param string $targetVendor The target vendor name
      * @param string $targetName The target content block name
+     * @param string $duplicationStrategy Strategy for RecordTypes: 'shared-table' or 'new-table' (default: 'auto')
+     * @param string|null $customTypeName Custom type name for shared-table strategy
+     * @param string|null $customTableName Custom table name for new-table strategy
      * @throws \RuntimeException
      */
     public function duplicateContentBlock(
         string $sourceName,
         string $targetExtension,
         string $targetVendor,
-        string $targetName
+        string $targetName,
+        string $duplicationStrategy = 'auto',
+        ?string $customTypeName = null,
+        ?string $customTableName = null
     ): void {
         // Check if source content block exists
         if (!$this->contentBlockRegistry->hasContentBlock($sourceName)) {
@@ -190,6 +197,19 @@ class ContentBlocksUtility
         $targetExtPath = 'EXT:' . $targetExtension . '/ContentBlocks/' . $contentTypeFolder . '/' . $targetName . '/';
         $targetAbsolutePath = ExtensionManagementUtility::resolvePackagePath($targetExtPath);
 
+        // Check if target directory already exists to prevent overwriting
+        if (is_dir($targetAbsolutePath)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Cannot duplicate content block: Target directory already exists at "%s". ' .
+                    'A content block with the name "%s" already exists in extension "%s".',
+                    $targetAbsolutePath,
+                    $targetName,
+                    $targetExtension
+                )
+            );
+        }
+
         // Create target directory
         if (!is_dir(dirname($targetAbsolutePath))) {
             GeneralUtility::mkdir_deep(dirname($targetAbsolutePath));
@@ -198,19 +218,221 @@ class ContentBlocksUtility
         // Copy the entire directory
         $this->recursiveCopy($sourceAbsolutePath, $targetAbsolutePath);
 
-        // Update the EditorInterface.yaml with new name
+        // Update the config.yaml with new name and handle type-specific configuration
         $editorInterfaceFile = $targetAbsolutePath . 'config.yaml';
+        $needsDatabaseUpdate = false;
+
         if (file_exists($editorInterfaceFile)) {
             $yaml = Yaml::parseFile($editorInterfaceFile);
             $yaml['name'] = $targetFullName;
             if (isset($yaml['vendor'])) {
                 $yaml['vendor'] = $targetVendor;
             }
+
+            // Handle PageType: Always generate new typeName (integer)
+            if ($contentType->name === 'PAGE_TYPE') {
+                $yaml['typeName'] = time();
+            }
+
+            // Handle RecordType: Apply duplication strategy
+            if ($contentType->name === 'RECORD_TYPE') {
+                $hasTypeField = isset($yaml['typeField']);
+
+                // Auto-detect strategy if not specified
+                if ($duplicationStrategy === 'auto') {
+                    $duplicationStrategy = $hasTypeField ? 'shared-table' : 'new-table';
+                }
+
+                if ($duplicationStrategy === 'shared-table' && $hasTypeField) {
+                    // Strategy 1: Add as new type to shared table
+                    // Keep table and typeField unchanged
+                    $yaml['typeName'] = $customTypeName ?? strtolower(str_replace(['/', '-'], '_', $targetFullName));
+                } elseif ($duplicationStrategy === 'new-table' || !$hasTypeField) {
+                    // Strategy 2: Create independent RecordType with new table
+                    // OR source has no typeField (auto-fallback to new table)
+                    $newTableName = $customTableName ?? 'tx_' . str_replace(['/', '-'], '_', $targetFullName);
+                    $yaml['table'] = $newTableName;
+
+                    // Remove multi-type configuration
+                    unset($yaml['typeField']);
+                    unset($yaml['typeName']);
+
+                    // Mark that we need to update database schema
+                    $needsDatabaseUpdate = true;
+                }
+            }
+
             file_put_contents($editorInterfaceFile, Yaml::dump($yaml, 10, 2));
         }
 
         // Reload content blocks to register the new one
         $this->contentBlockLoader->loadUncached();
+
+        // Update database schema if a new table was created
+        if ($needsDatabaseUpdate) {
+            $result = $this->databaseUtility->updateDatabaseSchema();
+
+            if (isset($result['error'])) {
+                $this->logger->error('Failed to update database schema after duplication', [
+                    'error' => $result['error'],
+                    'targetContentBlock' => $targetFullName,
+                ]);
+                throw new \RuntimeException('Database schema update failed: ' . $result['error']);
+            }
+
+            if (isset($result['success'])) {
+                $this->logger->info('Database schema updated after content block duplication', [
+                    'targetContentBlock' => $targetFullName,
+                    'message' => $result['success'],
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Validate RecordType duplication parameters
+     *
+     * @param string $sourceName The source content block name
+     * @param string $duplicationStrategy 'shared-table' or 'new-table'
+     * @param string|null $typeName The new type name (for shared-table)
+     * @param string|null $tableName The new table name (for new-table)
+     * @return array ['valid' => bool, 'errors' => string[]]
+     */
+    public function validateRecordTypeDuplication(
+        string $sourceName,
+        string $duplicationStrategy,
+        ?string $typeName = null,
+        ?string $tableName = null
+    ): array {
+        $errors = [];
+
+        // Check if source exists
+        if (!$this->contentBlockRegistry->hasContentBlock($sourceName)) {
+            return ['valid' => false, 'errors' => ['Source content block not found']];
+        }
+
+        $sourceContentBlock = $this->contentBlockRegistry->getContentBlock($sourceName);
+        $sourceYaml = $sourceContentBlock->getYaml();
+        $sourceTable = $sourceYaml['table'] ?? null;
+        $sourceTypeField = $sourceYaml['typeField'] ?? null;
+
+        // Validate strategy
+        if (!in_array($duplicationStrategy, ['shared-table', 'new-table'], true)) {
+            return ['valid' => false, 'errors' => ['Invalid duplication strategy. Must be "shared-table" or "new-table"']];
+        }
+
+        if ($duplicationStrategy === 'shared-table') {
+            // Strategy: Add as new type to existing shared table
+
+            // Must have a typeField in source
+            if (!$sourceTypeField) {
+                $errors[] = 'Cannot use shared-table strategy: source has no typeField configured';
+            }
+
+            // Validate typeName is provided
+            if (empty($typeName)) {
+                $errors[] = 'Type name is required for shared-table strategy';
+            } else {
+                // Validate typeName format (alphanumeric + underscore only)
+                if (!preg_match('/^[a-zA-Z0-9_]+$/', $typeName)) {
+                    $errors[] = 'Type name must contain only letters, numbers, and underscores';
+                }
+
+                // Check typeName uniqueness across all RecordTypes using this table
+                $existingTypeNames = $this->getTypeNamesForTable($sourceTable, $sourceTypeField);
+                if (in_array($typeName, $existingTypeNames, true)) {
+                    $errors[] = sprintf(
+                        'Type name "%s" already exists in table "%s". Existing types: %s. Please choose a different type name.',
+                        $typeName,
+                        $sourceTable,
+                        implode(', ', $existingTypeNames)
+                    );
+                }
+            }
+        } elseif ($duplicationStrategy === 'new-table') {
+            // Strategy: Create independent RecordType with new table
+
+            // Validate table name is provided
+            if (empty($tableName)) {
+                $errors[] = 'Table name is required for new-table strategy';
+            } else {
+                // Validate table name format (SQL identifier rules)
+                if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $tableName)) {
+                    $errors[] = 'Table name must start with a letter and contain only letters, numbers, and underscores';
+                }
+
+                // Check if table already exists
+                if ($this->tableExists($tableName)) {
+                    $errors[] = sprintf(
+                        'Table "%s" already exists. Please choose a different table name.',
+                        $tableName
+                    );
+                }
+
+                // Warning if not prefixed with tx_
+                if (!str_starts_with($tableName, 'tx_')) {
+                    $errors[] = 'Recommendation: Table name should start with "tx_" to group it with extension records in TYPO3';
+                }
+            }
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors,
+        ];
+    }
+
+    /**
+     * Get all existing typeNames for a specific table and typeField combination
+     *
+     * @param string|null $table The table name
+     * @param string|null $typeField The type field name
+     * @return string[] List of existing type names
+     */
+    protected function getTypeNamesForTable(?string $table, ?string $typeField): array
+    {
+        if ($table === null || $typeField === null) {
+            return [];
+        }
+
+        $typeNames = [];
+
+        foreach ($this->contentBlockRegistry->getAll() as $contentBlock) {
+            $yaml = $contentBlock->getYaml();
+
+            // Check if this RecordType uses the same table and typeField
+            if (($yaml['table'] ?? null) === $table &&
+                ($yaml['typeField'] ?? null) === $typeField) {
+                // Add the typeName (default to "1" if not specified)
+                $typeNames[] = $yaml['typeName'] ?? '1';
+            }
+        }
+
+        return $typeNames;
+    }
+
+    /**
+     * Check if a database table already exists
+     *
+     * @param string $tableName The table name to check
+     * @return bool True if table exists
+     */
+    protected function tableExists(string $tableName): bool
+    {
+        // Check if table is defined in TCA
+        if (isset($GLOBALS['TCA'][$tableName])) {
+            return true;
+        }
+
+        // Check if any existing ContentBlock uses this table
+        foreach ($this->contentBlockRegistry->getAll() as $contentBlock) {
+            $yaml = $contentBlock->getYaml();
+            if (($yaml['table'] ?? null) === $tableName) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -354,7 +576,16 @@ class ContentBlocksUtility
             'extension' => $contentBlock->getHostExtension(),
             'usages' => $usages,
             'icon' => $typeDefinition->getTypeIcon()->toArray()['iconIdentifier'],
+            'contentType' => $contentBlock->getContentType()->name,
+            'tableName' => $table,
         ];
+
+        // Add RecordType-specific metadata for frontend duplication handling
+        $yaml = $contentBlock->getYaml();
+        if ($contentBlock->getContentType()->name === 'RECORD_TYPE') {
+            $result['typeField'] = $yaml['typeField'] ?? null;
+            $result['typeName'] = $yaml['typeName'] ?? null;
+        }
 
         if ($this->extensionUtility->isEditable($contentBlock->getHostExtension())) {
             $result['editUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [

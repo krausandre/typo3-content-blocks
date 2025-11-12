@@ -29,6 +29,10 @@ interface ContentBlockItem {
   editUrl?: string;
   deleteUrl?: string;
   duplicateUrl?: string;
+  contentType?: string;
+  tableName?: string;
+  typeField?: string | null;
+  typeName?: string | null;
 }
 
 interface ListResponse {
@@ -471,6 +475,9 @@ export class ContentBlockList extends LitElement {
     const sourceVendor = nameParts[0] || '';
     const sourceBlockName = nameParts[1] || '';
 
+    // Check if this is a multi-type RecordType
+    const isMultiTypeRecordType = item.contentType === 'RECORD_TYPE' && item.typeField;
+
     // Generate extension options
     let extensionOptions = '';
     this.availableExtensions.forEach((ext: any) => {
@@ -480,8 +487,39 @@ export class ContentBlockList extends LitElement {
 
     // Create content as a DOM element
     const content = document.createElement('div');
+
+    let strategySection = '';
+    if (isMultiTypeRecordType) {
+      strategySection = `
+        <div class="alert alert-info mb-3">
+          <strong>RecordType Duplication</strong><br>
+          This is a multi-type RecordType sharing table <code>${item.tableName}</code>.<br>
+          Choose how to duplicate it:
+        </div>
+        <div class="form-group mb-3">
+          <label class="form-label">Duplication Strategy</label>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="duplicationStrategy" id="strategy-shared-table" value="shared-table" checked>
+            <label class="form-check-label" for="strategy-shared-table">
+              <strong>Add as new type to shared table</strong><br>
+              <small class="text-muted">Keeps the same table and typeField, creates a new typeName</small>
+            </label>
+          </div>
+          <div class="form-check mt-2">
+            <input class="form-check-input" type="radio" name="duplicationStrategy" id="strategy-new-table" value="new-table">
+            <label class="form-check-label" for="strategy-new-table">
+              <strong>Create independent RecordType with new table</strong><br>
+              <small class="text-muted">Creates a new database table, removes typeField/typeName</small>
+            </label>
+          </div>
+        </div>
+        <div id="strategy-fields-container"></div>
+      `;
+    }
+
     content.innerHTML = `
       <form id="duplicate-content-block-form">
+        ${strategySection}
         <div class="form-group mb-3">
           <label for="duplicate-extension" class="form-label">Extension</label>
           <select class="form-control form-select" id="duplicate-extension" name="extension" required>
@@ -523,16 +561,133 @@ export class ContentBlockList extends LitElement {
           btnClass: 'btn-primary',
           name: 'duplicate',
           trigger: () => {
-            if (this.validateAndSubmitDuplicate(item.name, sourceVendor, sourceBlockName, item.duplicateUrl, modal)) {
+            if (this.validateAndSubmitDuplicate(item, sourceVendor, sourceBlockName, modal)) {
               modal.hideModal();
             }
           }
         }
       ]
     });
+
+    // If multi-type RecordType, set up strategy change handlers
+    if (isMultiTypeRecordType) {
+      const sharedTableRadio = modal.querySelector('#strategy-shared-table') as HTMLInputElement;
+      const newTableRadio = modal.querySelector('#strategy-new-table') as HTMLInputElement;
+      const strategyContainer = modal.querySelector('#strategy-fields-container') as HTMLElement;
+
+      const updateStrategyFields = () => {
+        const strategy = sharedTableRadio?.checked ? 'shared-table' : 'new-table';
+        const vendorValue = (modal.querySelector('#duplicate-vendor') as HTMLInputElement)?.value || sourceVendor;
+        const nameValue = (modal.querySelector('#duplicate-name') as HTMLInputElement)?.value || sourceBlockName;
+        const suggestedIdentifier = `${vendorValue}_${nameValue}`.toLowerCase().replace(/[/-]/g, '_');
+
+        if (strategy === 'shared-table') {
+          strategyContainer.innerHTML = `
+            <div class="form-group mb-3">
+              <label for="custom-type-name" class="form-label">Type Name</label>
+              <input type="text" class="form-control" id="custom-type-name" name="typeName" value="${suggestedIdentifier}" required pattern="[a-zA-Z0-9_]+">
+              <div class="form-text">Unique identifier for this type in the shared table</div>
+              <div id="type-name-validation" class="mt-2"></div>
+            </div>
+          `;
+        } else {
+          strategyContainer.innerHTML = `
+            <div class="form-group mb-3">
+              <label for="custom-table-name" class="form-label">Table Name</label>
+              <input type="text" class="form-control" id="custom-table-name" name="tableName" value="tx_${suggestedIdentifier}" required pattern="[a-zA-Z][a-zA-Z0-9_]*">
+              <div class="form-text">Database table name (should start with tx_)</div>
+              <div id="table-name-validation" class="mt-2"></div>
+            </div>
+          `;
+        }
+
+        // Set up real-time validation
+        this.setupRecordTypeValidation(item, modal);
+      };
+
+      sharedTableRadio?.addEventListener('change', updateStrategyFields);
+      newTableRadio?.addEventListener('change', updateStrategyFields);
+
+      // Initial setup
+      updateStrategyFields();
+    }
   }
 
-  protected validateAndSubmitDuplicate(sourceName: string, sourceVendor: string, sourceBlockName: string, duplicateUrl: string, modal: any): boolean {
+  protected setupRecordTypeValidation(item: ContentBlockItem, modal: any): void {
+    const sharedTableRadio = modal.querySelector('#strategy-shared-table') as HTMLInputElement;
+
+    let validationTimer: number;
+    const validationDelay = 500; // ms
+
+    const performValidation = async () => {
+      const typeNameInput = modal.querySelector('#custom-type-name') as HTMLInputElement;
+      const tableNameInput = modal.querySelector('#custom-table-name') as HTMLInputElement;
+      const typeNameValidationDiv = modal.querySelector('#type-name-validation') as HTMLElement;
+      const tableNameValidationDiv = modal.querySelector('#table-name-validation') as HTMLElement;
+
+      const currentStrategy = sharedTableRadio?.checked ? 'shared-table' : 'new-table';
+      const validationValue = currentStrategy === 'shared-table' ? typeNameInput?.value : tableNameInput?.value;
+      const validationDiv = currentStrategy === 'shared-table' ? typeNameValidationDiv : tableNameValidationDiv;
+      const inputElement = currentStrategy === 'shared-table' ? typeNameInput : tableNameInput;
+
+      if (!validationValue || !validationDiv || !inputElement) {
+        return;
+      }
+
+      // Show loading state
+      validationDiv.innerHTML = '<small class="text-muted">Validating...</small>';
+
+      try {
+        const url = new URL(
+          (window as any).TYPO3.settings.ajaxUrls.content_blocks_gui_validate_record_duplication,
+          window.location.origin
+        );
+        url.searchParams.append('sourceName', item.name);
+        url.searchParams.append('duplicationStrategy', currentStrategy);
+
+        if (currentStrategy === 'shared-table') {
+          url.searchParams.append('typeName', validationValue);
+        } else {
+          url.searchParams.append('tableName', validationValue);
+        }
+
+        const request = new AjaxRequest(url.toString());
+        const response = await request.get();
+        const result = await response.resolve();
+
+        if (result.valid) {
+          validationDiv.innerHTML = '<small class="text-success">✓ Valid</small>';
+          inputElement.classList.remove('is-invalid');
+          inputElement.classList.add('is-valid');
+        } else {
+          const errorMessages = result.errors.join('<br>');
+          validationDiv.innerHTML = `<small class="text-danger">${errorMessages}</small>`;
+          inputElement.classList.remove('is-valid');
+          inputElement.classList.add('is-invalid');
+        }
+      } catch (error) {
+        console.error('[ContentBlockList] Validation error:', error);
+        validationDiv.innerHTML = '<small class="text-danger">Validation failed</small>';
+      }
+    };
+
+    // Set up debounced validation on input
+    const typeNameInput = modal.querySelector('#custom-type-name') as HTMLInputElement;
+    const tableNameInput = modal.querySelector('#custom-table-name') as HTMLInputElement;
+
+    const debouncedValidation = () => {
+      clearTimeout(validationTimer);
+      validationTimer = window.setTimeout(performValidation, validationDelay);
+    };
+
+    typeNameInput?.addEventListener('input', debouncedValidation);
+    tableNameInput?.addEventListener('input', debouncedValidation);
+
+    // Perform initial validation
+    performValidation();
+  }
+
+  protected validateAndSubmitDuplicate(item: ContentBlockItem, sourceVendor: string, sourceBlockName: string, modal: any): boolean {
     // Search within the modal element
     const form = modal.querySelector('#duplicate-content-block-form') as HTMLFormElement;
     if (!form) {
@@ -586,10 +741,31 @@ export class ContentBlockList extends LitElement {
     }
 
     // Build URL with query parameters
-    const url = new URL(duplicateUrl, window.location.origin);
+    const url = new URL(item.duplicateUrl, window.location.origin);
     url.searchParams.append('targetExtension', extensionValue);
     url.searchParams.append('targetVendor', vendorValue);
     url.searchParams.append('targetName', nameValue);
+
+    // Add RecordType strategy parameters if applicable
+    const isMultiTypeRecordType = item.contentType === 'RECORD_TYPE' && item.typeField;
+    if (isMultiTypeRecordType) {
+      const sharedTableRadio = modal.querySelector('#strategy-shared-table') as HTMLInputElement;
+      const strategy = sharedTableRadio?.checked ? 'shared-table' : 'new-table';
+
+      url.searchParams.append('duplicationStrategy', strategy);
+
+      if (strategy === 'shared-table') {
+        const typeNameInput = modal.querySelector('#custom-type-name') as HTMLInputElement;
+        if (typeNameInput?.value) {
+          url.searchParams.append('customTypeName', typeNameInput.value);
+        }
+      } else {
+        const tableNameInput = modal.querySelector('#custom-table-name') as HTMLInputElement;
+        if (tableNameInput?.value) {
+          url.searchParams.append('customTableName', tableNameInput.value);
+        }
+      }
+    }
 
     // Navigate to the backend route (PHP will handle redirect)
     window.location.href = url.toString();
