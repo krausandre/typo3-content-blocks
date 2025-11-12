@@ -419,8 +419,17 @@ export class ContentBlockList extends LitElement {
   }
 
   protected handleDownload(name: string): void {
-    new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_download_cb)
-      .post({ name: name }, {
+    // Determine which endpoint and payload to use based on type
+    const isBasic = this.activeTab === 'basic';
+    const ajaxUrl = isBasic
+      ? TYPO3.settings.ajaxUrls.content_blocks_gui_download_basic
+      : TYPO3.settings.ajaxUrls.content_blocks_gui_download_cb;
+    const payload = isBasic
+      ? { identifier: name }
+      : { name: name };
+
+    new AjaxRequest(ajaxUrl)
+      .post(payload, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/zip'

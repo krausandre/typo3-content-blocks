@@ -89,6 +89,21 @@ final class AjaxController
         return $this->contentBlocksUtility->downloadContentBlock(json_decode($request->getBody()->getContents(), true));
     }
 
+    public function downloadBasicAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $body = json_decode($request->getBody()->getContents(), true);
+
+        if (!isset($body['identifier'])) {
+            return new JsonResponse(['error' => 'Missing identifier parameter'], 400);
+        }
+
+        try {
+            return $this->contentBlocksUtility->downloadBasic($body['identifier']);
+        } catch (\RuntimeException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 404);
+        }
+    }
+
     public function listExtAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->extensionUtility->getAvailableExtensions()->getResponse();

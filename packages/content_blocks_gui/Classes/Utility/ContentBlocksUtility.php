@@ -367,6 +367,84 @@ class ContentBlocksUtility
     }
 
     /**
+     * Download a Basic as a ZIP file
+     *
+     * @param string $identifier The basic identifier (e.g., "basic-99/basic-99")
+     * @return ResponseInterface
+     * @throws \RuntimeException
+     */
+    public function downloadBasic(string $identifier): ResponseInterface
+    {
+        try {
+            // Load basics to ensure registry is populated
+            $this->basicsRegistry = $this->basicsLoader->loadUncached();
+
+            // Check if basic exists
+            if (!$this->basicsRegistry->hasBasic($identifier)) {
+                throw new \RuntimeException('Basic "' . $identifier . '" does not exist.');
+            }
+
+            // Get basic
+            $basic = $this->basicsRegistry->getBasic($identifier);
+            $hostExtension = $basic->getHostExtension();
+
+            // Build path to the Basic YAML file
+            $basicsPath = 'EXT:' . $hostExtension . '/ContentBlocks/Basics/';
+            $absoluteBasicsPath = ExtensionManagementUtility::resolvePackagePath($basicsPath);
+
+            // Generate file name from identifier
+            $identifierParts = explode('/', $identifier);
+            $fileName = end($identifierParts) . '.yaml';
+            $absoluteFilePath = $absoluteBasicsPath . $fileName;
+
+            if (!file_exists($absoluteFilePath)) {
+                throw new \RuntimeException('Basic file not found at: ' . $absoluteFilePath);
+            }
+
+            // Create temporary directory for ZIP
+            $temporaryPath = Environment::getVarPath() . '/transient/';
+            if (!@is_dir($temporaryPath)) {
+                GeneralUtility::mkdir($temporaryPath);
+            }
+
+            // Create ZIP file name
+            $zipFileName = $temporaryPath . str_replace('/', '_', $identifier) . '_' . date('YmdHi', time()) . '.zip';
+
+            // Create ZIP archive
+            $zip = new \ZipArchive();
+            $zip->open($zipFileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+            // Add the YAML file to the ZIP
+            $zip->addFile($absoluteFilePath, $fileName);
+            $zip->close();
+
+            // Create HTTP response with the ZIP file
+            $response = $this->responseFactory
+                ->createResponse()
+                ->withAddedHeader('Content-Type', 'application/zip')
+                ->withAddedHeader('Content-Length', (string)(filesize($zipFileName) ?: ''))
+                ->withAddedHeader('Content-Disposition', 'attachment; filename="' . PathUtility::basename($zipFileName) . '"')
+                ->withBody($this->streamFactory->createStreamFromFile($zipFileName));
+
+            // Clean up temporary file
+            unlink($zipFileName);
+
+            $this->logger->info('Basic downloaded successfully', [
+                'identifier' => $identifier,
+                'file' => $fileName,
+            ]);
+
+            return $response;
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to download basic', [
+                'identifier' => $identifier,
+                'error' => $e->getMessage(),
+            ]);
+            throw new \RuntimeException('Failed to download basic: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Validate RecordType duplication parameters
      *
      * @param string $sourceName The source content block name

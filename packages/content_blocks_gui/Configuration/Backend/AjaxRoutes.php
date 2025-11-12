@@ -8,6 +8,10 @@ return [
         'path' => '/contentblocks/gui/cb/download',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::downloadCbAction',
     ],
+    'content_blocks_gui_download_basic' => [
+        'path' => '/contentblocks/gui/basic/download',
+        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::downloadBasicAction',
+    ],
     'content_blocks_gui_save_content_type' => [
         'path' => '/contentblocks/gui/contenttype/save',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::saveContentTypeAction',
