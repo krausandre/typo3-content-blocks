@@ -211,5 +211,43 @@ final class AjaxController
 
         return new JsonResponse($validation);
     }
+
+    /**
+     * Download multiple content blocks as a single ZIP
+     */
+    public function multiDownloadAction(ServerRequestInterface $request): ResponseInterface
+    {
+        try {
+            $parsedBody = $request->getParsedBody();
+            $blocks = $parsedBody['blocks'] ?? [];
+
+            if (empty($blocks)) {
+                return new JsonResponse(['error' => 'No content blocks selected for download'], 400);
+            }
+
+            // Create multi-block ZIP
+            $fileName = $this->contentBlocksUtility->createMultiBlockZip($blocks);
+
+            // Read file content
+            $fileContent = file_get_contents($fileName);
+            $fileSize = filesize($fileName);
+
+            // Clean up temporary file
+            unlink($fileName);
+
+            // Create response with file content
+            $response = new \TYPO3\CMS\Core\Http\Response();
+            $response = $response
+                ->withHeader('Content-Type', 'application/zip')
+                ->withHeader('Content-Length', (string)$fileSize)
+                ->withHeader('Content-Disposition', 'attachment; filename="' . basename($fileName) . '"');
+
+            $response->getBody()->write($fileContent);
+
+            return $response;
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 500);
+        }
+    }
 }
 

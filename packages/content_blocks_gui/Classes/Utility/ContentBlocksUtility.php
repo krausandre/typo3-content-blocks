@@ -26,6 +26,7 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsLoader;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsRegistry;
 use TYPO3\CMS\ContentBlocks\Builder\ContentBlockBuilder;
+use TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType;
 use TYPO3\CMS\ContentBlocks\Definition\Factory\UniqueIdentifierCreator;
 use TYPO3\CMS\ContentBlocks\Definition\TableDefinitionCollection;
 use TYPO3\CMS\ContentBlocks\Loader\ContentBlockLoader;
@@ -104,7 +105,7 @@ class ContentBlocksUtility
                 $errorAnswer = new ErrorContentBlockNotFoundAnswer($getParsedBody['name']);
                 return $errorAnswer->getResponse();
             }
-            $fileName = $this->createZipFileFromContentBlockPath($getParsedBody['name']);
+            $fileName = $this->createZipFileFromContentBlock($getParsedBody['name']);
             $response = $this->responseFactory
                 ->createResponse()
                 ->withAddedHeader('Content-Type', 'application/zip')
@@ -419,8 +420,8 @@ class ContentBlocksUtility
             $zip = new \ZipArchive();
             $zip->open($zipFileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
 
-            // Add the YAML file to the ZIP
-            $zip->addFile($absoluteFilePath, $fileName);
+            // Add the YAML file to the ZIP inside Basics/ directory
+            $zip->addFile($absoluteFilePath, 'Basics/' . $fileName);
             $zip->close();
 
             // Create HTTP response with the ZIP file
@@ -740,46 +741,193 @@ class ContentBlocksUtility
     }
 
     /**
+     * Create a ZIP file from a content block with type directory structure
+     *
+     * @param string $name Content block name (vendor/name format)
+     * @return string Path to created ZIP file
      * @throws Exception
      */
-    public function createZipFileFromContentBlockPath(string $name): string
+    private function createZipFileFromContentBlock(string $name): string
     {
         $contentBlock = $this->contentBlockRegistry->getContentBlock($name);
-        $contentBlockPackagePath = $contentBlock->getPackage();
+        $contentType = $contentBlock->getContentType();
         $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath($contentBlock->getExtPath());
+
+        // Determine type directory name
+        $typeDirectory = $this->getTypeDirectory($contentType);
+
+        // Get content block directory name (last part of path)
+        $contentBlockDirName = basename($absoluteContentBlockPath);
+
+        // Create temporary ZIP
         $temporaryPath = Environment::getVarPath() . '/transient/';
         if (!@is_dir($temporaryPath)) {
             GeneralUtility::mkdir($temporaryPath);
         }
-        $fileName = $temporaryPath . $contentBlockPackagePath . '_' . date('YmdHi', time()) . '.zip';
+
+        $fileName = $temporaryPath . str_replace('/', '_', $name) . '_' . date('YmdHi', time()) . '.zip';
 
         $zip = new \ZipArchive();
         $zip->open($fileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
 
+        // Get all files and folders
         $files = GeneralUtility::getAllFilesAndFoldersInPath(
-            [], // No files pre-added
-            $absoluteContentBlockPath . '/', // Start from here
-            '', // Do not filter files by extension
-            true, // Include subdirectories
+            [],
+            $absoluteContentBlockPath . '/',
+            '',
+            true,
             PHP_INT_MAX
         );
-        // Make paths relative to content block directory.
+
+        // Make paths relative to content block directory
         $files = GeneralUtility::removePrefixPathFromList($files, $absoluteContentBlockPath);
         $files = is_array($files) ? $files : [];
 
         foreach ($files as $file) {
             $fullPath = $absoluteContentBlockPath . $file;
-            // Distinguish between files and directories, as creation of the archive
-            // fails on Windows when trying to add a directory with "addFile".
+
+            // Add with type directory prefix: ContentElements/test-12/config.yaml
+            $zipPath = $typeDirectory . '/' . $contentBlockDirName . $file;
+
             if (is_dir($fullPath)) {
-                $zip->addEmptyDir($contentBlockPackagePath . $file);
+                $zip->addEmptyDir($zipPath);
             } else {
-                $zip->addFile($fullPath, $contentBlockPackagePath . $file);
+                $zip->addFile($fullPath, $zipPath);
             }
         }
-        $zip->close();
 
+        $zip->close();
         return $fileName;
+    }
+
+    /**
+     * Get type directory name for a content type
+     *
+     * @param ContentType $contentType
+     * @return string Directory name (e.g., 'ContentElements', 'PageTypes')
+     * @throws \RuntimeException
+     */
+    private function getTypeDirectory(ContentType $contentType): string
+    {
+        return match($contentType->name) {
+            'CONTENT_ELEMENT' => 'ContentElements',
+            'PAGE_TYPE' => 'PageTypes',
+            'RECORD_TYPE' => 'RecordTypes',
+            'FILE_TYPE' => 'FileTypes',
+            default => throw new \RuntimeException('Unsupported content type: ' . $contentType->name)
+        };
+    }
+
+    /**
+     * Create a ZIP file containing multiple content blocks and/or basics
+     *
+     * @param array $blocks Array of blocks: [['type' => 'content-element', 'identifier' => 'vendor/name'], ...]
+     * @return string Path to created ZIP file
+     * @throws \RuntimeException
+     */
+    public function createMultiBlockZip(array $blocks): string
+    {
+        $temporaryPath = Environment::getVarPath() . '/transient/';
+        if (!@is_dir($temporaryPath)) {
+            GeneralUtility::mkdir($temporaryPath);
+        }
+
+        $count = count($blocks);
+        $fileName = $temporaryPath . $count . '-blocks_' . date('YmdHi', time()) . '.zip';
+
+        $zip = new \ZipArchive();
+        $zip->open($fileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+        foreach ($blocks as $block) {
+            $type = $block['type'];
+            $identifier = $block['identifier'];
+
+            if ($type === 'basic') {
+                $this->addBasicToZip($zip, $identifier);
+            } else {
+                $this->addContentBlockToZip($zip, $identifier);
+            }
+        }
+
+        $zip->close();
+        return $fileName;
+    }
+
+    /**
+     * Add a content block to an existing ZIP archive
+     *
+     * @param \ZipArchive $zip
+     * @param string $name Content block name (vendor/name format)
+     * @throws \RuntimeException
+     */
+    private function addContentBlockToZip(\ZipArchive $zip, string $name): void
+    {
+        $contentBlock = $this->contentBlockRegistry->getContentBlock($name);
+        $contentType = $contentBlock->getContentType();
+        $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath($contentBlock->getExtPath());
+
+        // Determine type directory name
+        $typeDirectory = $this->getTypeDirectory($contentType);
+
+        // Get content block directory name
+        $contentBlockDirName = basename($absoluteContentBlockPath);
+
+        // Get all files and folders
+        $files = GeneralUtility::getAllFilesAndFoldersInPath(
+            [],
+            $absoluteContentBlockPath . '/',
+            '',
+            true,
+            PHP_INT_MAX
+        );
+
+        // Make paths relative
+        $files = GeneralUtility::removePrefixPathFromList($files, $absoluteContentBlockPath);
+        $files = is_array($files) ? $files : [];
+
+        foreach ($files as $file) {
+            $fullPath = $absoluteContentBlockPath . $file;
+            $zipPath = $typeDirectory . '/' . $contentBlockDirName . $file;
+
+            if (is_dir($fullPath)) {
+                $zip->addEmptyDir($zipPath);
+            } else {
+                $zip->addFile($fullPath, $zipPath);
+            }
+        }
+    }
+
+    /**
+     * Add a Basic to an existing ZIP archive
+     *
+     * @param \ZipArchive $zip
+     * @param string $identifier Basic identifier (e.g., "basic-1/address")
+     * @throws \RuntimeException
+     */
+    private function addBasicToZip(\ZipArchive $zip, string $identifier): void
+    {
+        $this->basicsRegistry = $this->basicsLoader->loadUncached();
+
+        if (!$this->basicsRegistry->hasBasic($identifier)) {
+            throw new \RuntimeException('Basic "' . $identifier . '" does not exist.');
+        }
+
+        $basic = $this->basicsRegistry->getBasic($identifier);
+        $hostExtension = $basic->getHostExtension();
+
+        $basicsPath = 'EXT:' . $hostExtension . '/ContentBlocks/Basics/';
+        $absoluteBasicsPath = ExtensionManagementUtility::resolvePackagePath($basicsPath);
+
+        $absoluteFilePath = $this->findBasicFilePath($absoluteBasicsPath, $identifier);
+
+        if ($absoluteFilePath === null) {
+            throw new \RuntimeException('Could not find YAML file with identifier: ' . $identifier);
+        }
+
+        $fileName = PathUtility::basename($absoluteFilePath);
+
+        // Add to Basics/ directory in ZIP
+        $zip->addFile($absoluteFilePath, 'Basics/' . $fileName);
     }
 
     public function getAvailableContentBlocks(): array // AnswerInterface
@@ -792,6 +940,7 @@ class ContentBlocksUtility
         $resultList['BASICS'] = $this->getLoadedBasicForList();
         return $resultList;
 
+        // @todo: cleanup
 //        if (empty($resultList)) {
 //            return new ErrorNoContentBlocksAvailableAnswer();
 //        }
