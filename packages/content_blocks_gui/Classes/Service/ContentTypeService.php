@@ -6,6 +6,7 @@ use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\ContentBlocks\Builder\ConfigBuilder;
 use TYPO3\CMS\ContentBlocks\Builder\ContentBlockBuilder;
 use TYPO3\CMS\ContentBlocks\Builder\DefaultsLoader;
+use TYPO3\CMS\ContentBlocks\Generator\LanguageFileGenerator;
 use TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType;
 use TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentTypeIcon;
 use TYPO3\CMS\ContentBlocks\Loader\ContentBlockLoader;
@@ -30,13 +31,14 @@ class ContentTypeService
         protected readonly ConfigBuilder $configBuilder,
         protected readonly DefaultsLoader $defaultsLoader,
         protected readonly CacheManager $cacheManager,
+        protected readonly LanguageFileGenerator $languageFileGenerator,
     ) {
     }
 
     public function getContentTypeData(array $contentBlockData): array
     {
         // Validate vendor and name using EXT:content_blocks validators
-        $nameParts = explode('/', $contentBlockData['name'] ?? 'test/foobar');
+        $nameParts = explode('/', $contentBlockData['name']);
         $vendor = strtolower($nameParts[0]);
         $name = strtolower($nameParts[1]);
         
@@ -54,8 +56,8 @@ class ContentTypeService
             'extension' => $contentBlockData['extension'],
             'mode' => $contentBlockData['mode'],
             'contentBlock' => [
-                'vendor' => $vendor,
-                'name' => $name
+//                'vendor' => $vendor,
+                'name' => $vendor . '/' . $name
             ]
         ];
 
@@ -96,30 +98,18 @@ class ContentTypeService
 
     public function handleContentElement($data): AnswerInterface
     {
-        $contentTypeName = $data['contentBlock']['vendor'] . '/' . $data['contentBlock']['name'];
+//        $contentTypeName = $data['contentBlock']['vendor'] . '/' . $data['contentBlock']['name'];
         
         // Validate that extension exists
         $availablePackages = $this->packageResolver->getAvailablePackages();
         if (!array_key_exists($data['extension'], $availablePackages)) {
             throw new \RuntimeException('The extension "' . $data['extension'] . '" could not be found.');
         }
-        
-        // Use ConfigBuilder like CreateContentBlockCommand does
-        $yamlConfiguration = $this->configBuilder->build(
-            ContentType::CONTENT_ELEMENT,
-            $data['contentBlock']['vendor'],
-            $data['contentBlock']['name'],
-            $data['contentBlock']['title'] ?? $contentTypeName,
-            null, // typeName not used for content elements
-            $data['contentBlock'] // Pass additional config
-        );
-        
-        // Create properly configured LoadedContentBlock using EXT:content_blocks utilities
         $extPath = $this->getExtPath($data['extension'], ContentType::CONTENT_ELEMENT);
-        
+
         $contentBlock = new LoadedContentBlock(
-            name: $contentTypeName,
-            yaml: $yamlConfiguration,
+            name: $data['contentBlock']['name'],
+            yaml: $data['contentBlock'],
             icon: new ContentTypeIcon(),
             hostExtension: $data['extension'],
             extPath: $extPath,
@@ -137,7 +127,7 @@ class ContentTypeService
             'contentType',
             [
                 'type' => 'content-element',
-                'name' => $contentTypeName
+                'name' => $data['contentBlock']['name']
             ]
         );
     }
@@ -286,8 +276,11 @@ class ContentTypeService
         if($this->contentBlockRegistry->hasContentBlock($contentBlockName) && $mode === 'create') {
             throw new \RuntimeException('A content block with the name "' . $contentBlockName . '" already exists.');
         } else if($this->contentBlockRegistry->hasContentBlock($contentBlockName) && $mode === 'edit') {
-            // Use ContentBlockBuilder for editing instead of manual file operations
-            $this->contentBlockBuilder->create($contentBlock);
+            $this->updateContentBlock($contentBlock);
+            
+            // Flush caches like ContentBlockBuilder does
+            $this->cacheManager->flushCachesInGroup('system');
+            $this->cacheManager->getCache('typoscript')->flush();
         } else if($mode === 'copy') {
             if($this->contentBlockRegistry->hasContentBlock($contentBlockName)) {
                 throw new \RuntimeException('A content block with the name "' . $contentBlockName . '" already exists.');
@@ -356,5 +349,128 @@ class ContentTypeService
             ContentType::RECORD_TYPE => $base . ContentBlockPathUtility::getRelativeRecordTypesPath(),
             ContentType::FILE_TYPE => $base . ContentBlockPathUtility::getRelativeFileTypesPath(),
         };
+    }
+
+    /**
+     * Update existing content block instead of creating new one
+     * Uses the same logic as ContentBlockBuilder but bypasses existence checks
+     */
+    protected function updateContentBlock(LoadedContentBlock $contentBlock): void
+    {
+        // Get the existing content block and its base path
+        $existingContentBlock = $this->contentBlockRegistry->getContentBlock($contentBlock->getName());
+        $basePath = GeneralUtility::getFileAbsFileName($existingContentBlock->getExtPath());
+
+        // Update config.yaml file
+        $this->updateConfigYaml($contentBlock, $basePath);
+
+        // Update language files
+        $this->updateLabelsXlf($contentBlock, $basePath);
+    }
+
+    /**
+     * Initialize registries for update operation (from ContentBlockBuilder)
+     */
+    protected function initializeRegistriesForUpdate(LoadedContentBlock $contentBlock): void
+    {
+        $this->contentBlockRegistry->register($contentBlock);
+        $tableDefinitionCollection = $this->contentBlockLoader->loadUncached();
+        // The language file generator will be updated with proper registries
+    }
+
+    /**
+     * Update config.yaml file (based on ContentBlockBuilder::createConfigYaml)
+     */
+    protected function updateConfigYaml(LoadedContentBlock $contentBlock, string $basePath): void
+    {
+        $contentType = $contentBlock->getContentType();
+        $yamlContent = $contentBlock->getYaml();
+        
+        // Remove fields that match default values
+        $yamlContent = $this->removeDefaultValues($yamlContent, $contentType);
+        
+        if ($contentType !== ContentType::RECORD_TYPE) {
+            unset($yamlContent['table']);
+            unset($yamlContent['typeField']);
+        }
+        GeneralUtility::writeFile(
+            $basePath . '/' . ContentBlockPathUtility::getContentBlockDefinitionFileName(),
+            Yaml::dump($yamlContent, 10, 2)
+        );
+    }
+
+    /**
+     * Remove fields that match default values to keep config.yaml clean
+     * Based on https://docs.typo3.org/p/friendsoftypo3/content-blocks/main/en-us/YamlReference/Root/Index.html#yaml_reference_common
+     */
+    protected function removeDefaultValues(array $yamlContent, ContentType $contentType): array
+    {
+        switch ($contentType) {
+            case ContentType::CONTENT_ELEMENT:
+                // Default values for content elements
+                if (isset($yamlContent['group']) && $yamlContent['group'] === 'default') {
+                    unset($yamlContent['group']);
+                }
+                if (isset($yamlContent['prefixFields']) && $yamlContent['prefixFields'] === true) {
+                    unset($yamlContent['prefixFields']);
+                }
+                if (isset($yamlContent['prefixType']) && $yamlContent['prefixType'] === 'full') {
+                    unset($yamlContent['prefixType']);
+                }
+                if (isset($yamlContent['priority']) && $yamlContent['priority'] === 0) {
+                    unset($yamlContent['priority']);
+                }
+                break;
+                
+            case ContentType::PAGE_TYPE:
+                // Default values for page types
+                if (isset($yamlContent['prefixFields']) && $yamlContent['prefixFields'] === true) {
+                    unset($yamlContent['prefixFields']);
+                }
+                if (isset($yamlContent['prefixType']) && $yamlContent['prefixType'] === 'full') {
+                    unset($yamlContent['prefixType']);
+                }
+                break;
+                
+            case ContentType::RECORD_TYPE:
+                // Default values for record types
+                if (isset($yamlContent['prefixFields']) && $yamlContent['prefixFields'] === false) {
+                    unset($yamlContent['prefixFields']);
+                }
+                if (isset($yamlContent['labelField']) && $yamlContent['labelField'] === 'title') {
+                    unset($yamlContent['labelField']);
+                }
+                // Remove default security settings
+                if (isset($yamlContent['security']) && is_array($yamlContent['security'])) {
+                    if (isset($yamlContent['security']['ignorePageTypeRestriction']) && 
+                        $yamlContent['security']['ignorePageTypeRestriction'] === true) {
+                        unset($yamlContent['security']['ignorePageTypeRestriction']);
+                    }
+                    // Remove empty security array
+                    if (empty($yamlContent['security'])) {
+                        unset($yamlContent['security']);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        
+        // Remove empty arrays and null values
+        return array_filter($yamlContent, function($value) {
+            return $value !== null && $value !== [] && $value !== '';
+        });
+    }
+
+    /**
+     * Update language files (based on ContentBlockBuilder::createLabelsXlf)
+     */
+    protected function updateLabelsXlf(LoadedContentBlock $contentBlock, string $basePath): void
+    {
+        $xliffContent = $this->languageFileGenerator->generate($contentBlock);
+        GeneralUtility::writeFile(
+            $basePath . '/' . ContentBlockPathUtility::getLanguageFilePath(),
+            $xliffContent
+        );
     }
 }
