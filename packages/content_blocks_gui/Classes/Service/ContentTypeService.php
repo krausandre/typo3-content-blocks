@@ -56,7 +56,6 @@ class ContentTypeService
             'extension' => $contentBlockData['extension'],
             'mode' => $contentBlockData['mode'],
             'contentBlock' => [
-//                'vendor' => $vendor,
                 'name' => $vendor . '/' . $name
             ]
         ];
@@ -98,8 +97,6 @@ class ContentTypeService
 
     public function handleContentElement($data): AnswerInterface
     {
-//        $contentTypeName = $data['contentBlock']['vendor'] . '/' . $data['contentBlock']['name'];
-        
         // Validate that extension exists
         $availablePackages = $this->packageResolver->getAvailablePackages();
         if (!array_key_exists($data['extension'], $availablePackages)) {
@@ -366,16 +363,6 @@ class ContentTypeService
 
         // Update language files
         $this->updateLabelsXlf($contentBlock, $basePath);
-    }
-
-    /**
-     * Initialize registries for update operation (from ContentBlockBuilder)
-     */
-    protected function initializeRegistriesForUpdate(LoadedContentBlock $contentBlock): void
-    {
-        $this->contentBlockRegistry->register($contentBlock);
-        $tableDefinitionCollection = $this->contentBlockLoader->loadUncached();
-        // The language file generator will be updated with proper registries
     }
 
     /**
