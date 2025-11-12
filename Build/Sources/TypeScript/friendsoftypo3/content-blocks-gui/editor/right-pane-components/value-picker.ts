@@ -187,7 +187,14 @@ export class ContentBlockEditorValuePicker extends LitElement {
 
   protected updateValuePickerEnabledState(): void {
     const valuePicker = this.values[this.fieldTypeProperty.name];
-    this.isValuePickerEnabled = valuePicker?.enabled || false;
+    
+    if (valuePicker?.hasOwnProperty('enabled')) {
+      this.isValuePickerEnabled = valuePicker.enabled;
+    } else if (valuePicker?.items && Array.isArray(valuePicker.items) && valuePicker.items.length > 0) {
+      this.isValuePickerEnabled = true;
+    } else {
+      this.isValuePickerEnabled = false;
+    }
   }
 
   protected handleValuePickerEnabledChange(event: Event): void {

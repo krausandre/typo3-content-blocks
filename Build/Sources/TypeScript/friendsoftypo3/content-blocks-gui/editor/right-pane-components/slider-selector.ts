@@ -88,7 +88,17 @@ export class ContentBlockEditorSliderSelector extends LitElement {
 
   protected updateSliderEnabledState(): void {
     const slider = this.values['slider'];
-    this.isSliderEnabled = slider?.enabled || false;
+    
+    if (slider?.hasOwnProperty('enabled')) {
+      // If enabled property is explicitly set, use that value
+      this.isSliderEnabled = slider.enabled;
+    } else if (slider && (slider.step !== undefined || slider.width !== undefined)) {
+      // If no enabled property but has slider values, consider it enabled on initial render
+      this.isSliderEnabled = true;
+    } else {
+      // Default to disabled if no slider or no values
+      this.isSliderEnabled = false;
+    }
   }
 
   protected handleSliderEnabledChange(event: Event): void {
