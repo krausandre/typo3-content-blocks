@@ -268,10 +268,83 @@ final class ContentBlocksGuiController
      */
     public function duplicateBasicAction(ServerRequestInterface $request): ResponseInterface
     {
-        $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $this->buttonBarUtility->addEditButtonBar($this->moduleTemplate);
-        $this->handleAction($request);
-        return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
+        $queryParams = $request->getQueryParams();
+
+        // Validate required parameters
+        if (empty($queryParams['sourceIdentifier']) || empty($queryParams['targetExtension'])
+            || empty($queryParams['targetIdentifier'])) {
+            throw new RouteNotFoundException('Missing required parameters for basic duplication');
+        }
+
+        $sourceIdentifier = $queryParams['sourceIdentifier'];
+        $targetExtension = $queryParams['targetExtension'];
+        $targetIdentifier = $queryParams['targetIdentifier'];
+
+        try {
+            // Duplicate the basic
+            $this->contentBlocksUtility->duplicateBasic(
+                $sourceIdentifier,
+                $targetExtension,
+                $targetIdentifier
+            );
+
+            // Add success message
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                sprintf(
+                    'Basic "%s" has been successfully duplicated to "%s".',
+                    $sourceIdentifier,
+                    $targetIdentifier
+                ),
+                'Basic Duplicated',
+                ContextualFeedbackSeverity::OK,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+
+            // Redirect back to list view
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                303
+            );
+        } catch (\RuntimeException $e) {
+            // Show user-friendly error message
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                $e->getMessage(),
+                'Basic Duplication Failed',
+                ContextualFeedbackSeverity::ERROR,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+
+            // Redirect back to list view
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                303
+            );
+        } catch (\Exception $e) {
+            // Unexpected error - show generic message and log details
+            $this->logger->error('Unexpected error during basic duplication', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                'An unexpected error occurred during duplication. Please check the logs for details.',
+                'Basic Duplication Failed',
+                ContextualFeedbackSeverity::ERROR,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+
+            // Redirect back to list view
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                303
+            );
+        }
     }
 
 

@@ -470,6 +470,12 @@ export class ContentBlockList extends LitElement {
   }
 
   protected handleDuplicate(item: ContentBlockItem): void {
+    // Check if this is a Basic (handled differently)
+    if (this.activeTab === 'basic') {
+      this.handleDuplicateBasic(item);
+      return;
+    }
+
     // Parse source name to extract vendor and name
     const nameParts = item.name.split('/');
     const sourceVendor = nameParts[0] || '';
@@ -685,6 +691,128 @@ export class ContentBlockList extends LitElement {
 
     // Perform initial validation
     performValidation();
+  }
+
+  protected handleDuplicateBasic(item: ContentBlockItem): void {
+    // Generate extension options
+    let extensionOptions = '';
+    this.availableExtensions.forEach((ext: any) => {
+      const selected = ext.extension === item.extension ? 'selected' : '';
+      extensionOptions += `<option value="${ext.extension}" ${selected}>${ext.package} (${ext.extension})</option>`;
+    });
+
+    // Create content as a DOM element
+    const content = document.createElement('div');
+    content.innerHTML = `
+      <form id="duplicate-basic-form">
+        <div class="alert alert-info mb-3">
+          <strong>Basic Duplication</strong><br>
+          Duplicating Basic: <code>${item.name}</code>
+        </div>
+        <div class="form-group mb-3">
+          <label for="duplicate-extension" class="form-label">Extension</label>
+          <select class="form-control form-select" id="duplicate-extension" name="extension" required>
+            ${extensionOptions}
+          </select>
+          <div class="form-text">The extension where the duplicated basic will be stored</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="duplicate-identifier" class="form-label">Basic Identifier</label>
+          <input type="text" class="form-control" id="duplicate-identifier" name="identifier" value="${item.name}-copy" required pattern="[a-z0-9\\-\\/]+">
+          <div class="form-text">Format: vendor/name (e.g., basic-99/basic-99-copy)</div>
+          <div id="duplicate-identifier-error" class="text-danger d-none">The new identifier must be different from the original</div>
+        </div>
+      </form>
+    `;
+
+    const modal = Modal.advanced({
+      title: 'Duplicate Basic',
+      content: content,
+      severity: SeverityEnum.info,
+      size: Modal.sizes.medium,
+      buttons: [
+        {
+          text: 'Cancel',
+          active: true,
+          btnClass: 'btn-default',
+          name: 'cancel',
+          trigger: () => {
+            modal.hideModal();
+          }
+        },
+        {
+          text: 'Duplicate',
+          btnClass: 'btn-primary',
+          name: 'duplicate',
+          trigger: () => {
+            if (this.validateAndSubmitDuplicateBasic(item.name, item.duplicateUrl, modal)) {
+              modal.hideModal();
+            }
+          }
+        }
+      ]
+    });
+  }
+
+  protected validateAndSubmitDuplicateBasic(sourceIdentifier: string, duplicateUrl: string, modal: any): boolean {
+    // Search within the modal element
+    const form = modal.querySelector('#duplicate-basic-form') as HTMLFormElement;
+    if (!form) {
+      return false;
+    }
+
+    const extension = modal.querySelector('#duplicate-extension') as HTMLSelectElement;
+    const identifier = modal.querySelector('#duplicate-identifier') as HTMLInputElement;
+    const errorDiv = modal.querySelector('#duplicate-identifier-error') as HTMLElement;
+
+    const extensionValue = extension?.value;
+    const identifierValue = identifier?.value;
+
+    if (!extensionValue || !identifierValue) {
+      console.error('[ContentBlockList] Missing form values');
+      return false;
+    }
+
+    // Validate pattern
+    const pattern = /^[a-z0-9\-\/]+$/;
+    if (!pattern.test(identifierValue)) {
+      console.error('[ContentBlockList] Invalid pattern');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+      }
+      return false;
+    }
+
+    // Check if the new identifier is the same as the old identifier
+    if (identifierValue === sourceIdentifier) {
+      // Show error message
+      if (errorDiv) {
+        errorDiv.classList.remove('d-none');
+      }
+      if (identifier) {
+        identifier.classList.add('is-invalid');
+        identifier.focus();
+      }
+      return false;
+    }
+
+    // Hide error message if it was shown
+    if (errorDiv) {
+      errorDiv.classList.add('d-none');
+    }
+    if (identifier) {
+      identifier.classList.remove('is-invalid');
+    }
+
+    // Build URL with query parameters
+    const url = new URL(duplicateUrl, window.location.origin);
+    url.searchParams.append('targetExtension', extensionValue);
+    url.searchParams.append('targetIdentifier', identifierValue);
+
+    // Navigate to the backend route (PHP will handle redirect)
+    window.location.href = url.toString();
+
+    return true;
   }
 
   protected validateAndSubmitDuplicate(item: ContentBlockItem, sourceVendor: string, sourceBlockName: string, modal: any): boolean {

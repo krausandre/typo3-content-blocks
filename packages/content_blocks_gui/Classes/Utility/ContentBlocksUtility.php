@@ -65,7 +65,7 @@ class ContentBlocksUtility
         protected readonly TableDefinitionCollection $tableDefinitionCollection,
         protected readonly ContentBlockPathUtility $contentBlockPathUtility,
         protected readonly LanguageFileRegistry $languageFileRegistry,
-        protected readonly BasicsRegistry $basicsRegistry,
+        protected BasicsRegistry $basicsRegistry,
         protected readonly BasicsLoader $basicsLoader,
         protected readonly PackageResolver $packageResolver,
         protected readonly ContentBlockBuilder $contentBlockBuilder,
@@ -287,6 +287,89 @@ class ContentBlocksUtility
                 ]);
             }
         }
+    }
+
+    /**
+     * Duplicate a Basic to a new identifier and extension
+     *
+     * @param string $sourceIdentifier The source basic identifier (e.g., "basic-99/basic-99")
+     * @param string $targetExtension The target extension key
+     * @param string $targetIdentifier The new basic identifier (e.g., "basic-100/basic-100")
+     * @throws \RuntimeException
+     */
+    public function duplicateBasic(
+        string $sourceIdentifier,
+        string $targetExtension,
+        string $targetIdentifier
+    ): void {
+        // Load basics to ensure registry is populated
+        $this->basicsRegistry = $this->basicsLoader->loadUncached();
+
+        // Check if source basic exists
+        if (!$this->basicsRegistry->hasBasic($sourceIdentifier)) {
+            throw new \RuntimeException('Source basic "' . $sourceIdentifier . '" does not exist.');
+        }
+
+        // Check if target basic already exists (prevent identifier collision)
+        if ($this->basicsRegistry->hasBasic($targetIdentifier)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Cannot duplicate basic: A basic with identifier "%s" already exists in the system.',
+                    $targetIdentifier
+                )
+            );
+        }
+
+        // Get source basic
+        $sourceBasic = $this->basicsRegistry->getBasic($sourceIdentifier);
+
+        // Build target path
+        $targetExtPath = 'EXT:' . $targetExtension . '/ContentBlocks/Basics/';
+        $targetBasePath = ExtensionManagementUtility::resolvePackagePath($targetExtPath);
+
+        // Create Basics directory if it doesn't exist
+        if (!is_dir($targetBasePath)) {
+            GeneralUtility::mkdir_deep($targetBasePath);
+        }
+
+        // Generate target file name from identifier
+        // Convert identifier like "vendor/name" to "name.yaml"
+        $identifierParts = explode('/', $targetIdentifier);
+        $targetFileName = end($identifierParts) . '.yaml';
+        $targetFilePath = $targetBasePath . $targetFileName;
+
+        // Check if target file already exists (prevent overwriting)
+        if (file_exists($targetFilePath)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Cannot duplicate basic: Target file already exists at "%s". ' .
+                    'A basic with the file name "%s" already exists in extension "%s".',
+                    $targetFilePath,
+                    $targetFileName,
+                    $targetExtension
+                )
+            );
+        }
+
+        // Read and parse source YAML
+        $yaml = $sourceBasic->toArray();
+
+        // Update identifier
+        $yaml['identifier'] = $targetIdentifier;
+        unset($yaml['hostExtension']);
+
+        // Write to target file
+        file_put_contents($targetFilePath, Yaml::dump($yaml, 10, 2));
+
+        // Reload basics to register the new one
+        $this->basicsLoader->loadUncached();
+
+        $this->logger->info('Basic duplicated successfully', [
+            'sourceIdentifier' => $sourceIdentifier,
+            'targetIdentifier' => $targetIdentifier,
+            'targetExtension' => $targetExtension,
+            'targetFile' => $targetFilePath,
+        ]);
     }
 
     /**
@@ -609,7 +692,7 @@ class ContentBlocksUtility
     protected function getLoadedBasicForList(): array
     {
         $list = [];
-        $this->basicsLoader->load();
+        $this->basicsRegistry = $this->basicsLoader->loadUncached();
         foreach ($this->basicsRegistry->getAllBasics() as $basic) {
             $isEditable = $this->extensionUtility->isEditable($basic->getHostExtension());
             $list[$basic->getIdentifier()] = [
