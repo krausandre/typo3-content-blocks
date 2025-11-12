@@ -108,6 +108,51 @@ final class ContentBlocksGuiController
     /**
      * @throws RouteNotFoundException
      */
+    public function deleteBasicAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $queryParams = $request->getQueryParams();
+        if (empty($queryParams['identifier'])) {
+            throw new RouteNotFoundException('Missing required basic identifier');
+        }
+
+        try {
+            $this->contentBlocksUtility->deleteBasic($queryParams['identifier']);
+
+            // Add success message
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                sprintf('Basic "%s" has been successfully deleted.', $queryParams['identifier']),
+                'Basic Deleted',
+                ContextualFeedbackSeverity::OK,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+        } catch (\Exception $e) {
+            // Show error message
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                sprintf('Failed to delete basic: %s', $e->getMessage()),
+                'Deletion Failed',
+                ContextualFeedbackSeverity::ERROR,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+
+            $this->logger->error('Failed to delete basic', [
+                'identifier' => $queryParams['identifier'],
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return new RedirectResponse(
+            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+            303
+        );
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     */
     public function duplicateAction(ServerRequestInterface $request): ResponseInterface
     {
         $queryParams = $request->getQueryParams();
@@ -250,17 +295,6 @@ final class ContentBlocksGuiController
         $this->buttonBarUtility->addEditButtonBar($this->moduleTemplate);
         $this->handleBasicAction($request);
         return $this->moduleTemplate->renderResponse('ContentBlocksGui/EditBasic');
-    }
-
-    /**
-     * @throws RouteNotFoundException
-     */
-    public function deleteBasicAction(ServerRequestInterface $request): ResponseInterface
-    {
-        $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $this->buttonBarUtility->addEditButtonBar($this->moduleTemplate);
-        $this->handleAction($request);
-        return $this->moduleTemplate->renderResponse('ContentBlocksGui/Edit');
     }
 
     /**

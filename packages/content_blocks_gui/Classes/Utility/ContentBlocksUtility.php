@@ -19,6 +19,7 @@ namespace FriendsOfTYPO3\ContentBlocksGui\Utility;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -388,18 +389,18 @@ class ContentBlocksUtility
             $basic = $this->basicsRegistry->getBasic($identifier);
             $hostExtension = $basic->getHostExtension();
 
-            // Build path to the Basic YAML file
+            // Build path to the Basics directory
             $basicsPath = 'EXT:' . $hostExtension . '/ContentBlocks/Basics/';
             $absoluteBasicsPath = ExtensionManagementUtility::resolvePackagePath($basicsPath);
 
-            // Generate file name from identifier
-            $identifierParts = explode('/', $identifier);
-            $fileName = end($identifierParts) . '.yaml';
-            $absoluteFilePath = $absoluteBasicsPath . $fileName;
+            // Find the file with matching identifier
+            $absoluteFilePath = $this->findBasicFilePath($absoluteBasicsPath, $identifier);
 
-            if (!file_exists($absoluteFilePath)) {
-                throw new \RuntimeException('Basic file not found at: ' . $absoluteFilePath);
+            if ($absoluteFilePath === null) {
+                throw new \RuntimeException('Could not find YAML file with identifier: ' . $identifier);
             }
+
+            $fileName = PathUtility::basename($absoluteFilePath);
 
             // Create temporary directory for ZIP
             $temporaryPath = Environment::getVarPath() . '/transient/';
@@ -441,6 +442,62 @@ class ContentBlocksUtility
                 'error' => $e->getMessage(),
             ]);
             throw new \RuntimeException('Failed to download basic: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a Basic by identifier
+     *
+     * @param string $identifier The Basic identifier
+     * @return array Array of not deleted file paths (empty on success)
+     */
+    public function deleteBasic(string $identifier): array
+    {
+        try {
+            // Load basics to ensure registry is populated
+            $this->basicsRegistry = $this->basicsLoader->loadUncached();
+
+            // Check if basic exists
+            if (!$this->basicsRegistry->hasBasic($identifier)) {
+                throw new \RuntimeException('Basic "' . $identifier . '" does not exist.');
+            }
+
+            // Get basic
+            $basic = $this->basicsRegistry->getBasic($identifier);
+            $hostExtension = $basic->getHostExtension();
+
+            // Build path to the Basics directory
+            $basicsPath = 'EXT:' . $hostExtension . '/ContentBlocks/Basics/';
+            $absoluteBasicsPath = ExtensionManagementUtility::resolvePackagePath($basicsPath);
+
+            // Find the file with matching identifier
+            $fileToDelete = $this->findBasicFilePath($absoluteBasicsPath, $identifier);
+
+            if ($fileToDelete === null) {
+                throw new \RuntimeException('Could not find YAML file with identifier: ' . $identifier);
+            }
+
+            // Delete the file
+            if (!unlink($fileToDelete)) {
+                $this->logger->error('Failed to delete basic file', [
+                    'identifier' => $identifier,
+                    'file' => $fileToDelete,
+                ]);
+                return [$fileToDelete];
+            }
+
+            $this->logger->info('Basic deleted successfully', [
+                'identifier' => $identifier,
+                'file' => $fileToDelete,
+            ]);
+
+            return [];
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to delete basic', [
+                'identifier' => $identifier,
+                'error' => $e->getMessage(),
+            ]);
+            return [];
         }
     }
 
@@ -619,6 +676,32 @@ class ContentBlocksUtility
             }
         }
         closedir($directory);
+    }
+
+    /**
+     * Find the file path of a Basic by searching for its identifier in YAML files
+     *
+     * @param string $absoluteBasicsPath Absolute path to the Basics directory
+     * @param string $identifier The Basic identifier to search for
+     * @return string|null The absolute file path if found, null otherwise
+     */
+    private function findBasicFilePath(string $absoluteBasicsPath, string $identifier): ?string
+    {
+        if (!is_dir($absoluteBasicsPath)) {
+            return null;
+        }
+
+        $finder = new Finder();
+        $finder->files()->name('*.yaml')->in($absoluteBasicsPath);
+
+        foreach ($finder as $splFileInfo) {
+            $yamlContent = Yaml::parseFile($splFileInfo->getPathname());
+            if (is_array($yamlContent) && ($yamlContent['identifier'] ?? '') === $identifier) {
+                return $splFileInfo->getPathname();
+            }
+        }
+
+        return null;
     }
 
     /**
