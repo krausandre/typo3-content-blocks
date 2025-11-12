@@ -298,6 +298,29 @@ export class ContentBlockEditor extends LitElement {
   }
 
   /**
+   * Recursively remove "enabled" properties from fields structure
+   */
+  private removeEnabledProperties(obj: any): any {
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.removeEnabledProperties(item));
+    } else if (obj && typeof obj === 'object') {
+      const cleaned = { ...obj };
+      delete cleaned.enabled;
+      
+      // Recursively clean nested objects
+      for (const key in cleaned) {
+        if (cleaned.hasOwnProperty(key)) {
+          cleaned[key] = this.removeEnabledProperties(cleaned[key]);
+        }
+      }
+      
+      return cleaned;
+    }
+    
+    return obj;
+  }
+
+  /**
    * Save content block via AJAX
    */
   private async saveContentBlock(): Promise<void> {
@@ -308,13 +331,16 @@ export class ContentBlockEditor extends LitElement {
         button.innerHTML = '<typo3-backend-icon identifier="spinner-circle" size="small"></typo3-backend-icon> Saving...';
       });
 
+      // Clean fields by removing "enabled" properties recursively
+      const cleanedFields = this.removeEnabledProperties(this.cbDefinition.yaml.fields || []);
+
       const saveData = {
         contentType: 'content-element', // TODO: make configurable to support other page-type and record-type
         extension: this.cbDefinition.hostExtension,
         mode: this.mode || 'edit', // Use edit mode by default
         name: this.cbDefinition.yaml.name,
         contentBlock: {
-          fields: this.cbDefinition.yaml.fields || [],
+          fields: cleanedFields,
           basics: this.cbDefinition.yaml.basics || [],
           group: this.cbDefinition.yaml.group || 'default',
           prefixFields: this.cbDefinition.yaml.prefixFields !== false,
@@ -333,7 +359,6 @@ export class ContentBlockEditor extends LitElement {
         saveData.contentBlock.initialName = this.cbDefinition.yaml.initialName || '';
       }
 
-      // Make AJAX request using FormData for proper TYPO3 parsing
       const formData = new FormData();
       Object.keys(saveData).forEach(key => {
         if (typeof saveData[key] === 'object') {
@@ -347,7 +372,7 @@ export class ContentBlockEditor extends LitElement {
       const response = await new AjaxRequest(ajaxUrl)
         .post(formData);
 
-      const result = await response.resolve();
+      await response.resolve();
       
       // Show success message
       Modal.confirm(
