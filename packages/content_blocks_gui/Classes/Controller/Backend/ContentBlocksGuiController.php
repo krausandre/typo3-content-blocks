@@ -56,9 +56,11 @@ final class ContentBlocksGuiController
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
         $contentBlocks = $this->contentBlocksUtility->getAvailableContentBlocks();
+        $availableExtensions = $this->extensionUtility->findAvailableExtensions();
+
         $this->moduleTemplate->assignMultiple([
             'contentBlocks' => $contentBlocks,
-//            'basics' => $sampleData['basics'],
+            'availableExtensions' => GeneralUtility::jsonEncodeForHtmlAttribute($availableExtensions, false),
         ]);
 
         // Load the list component

@@ -39,10 +39,22 @@ let ContentBlockList = class ContentBlockList extends LitElement {
         this.isLoading = false;
         this.sortField = 'name';
         this.sortDirection = 'asc';
+        this.availableExtensions = [];
         this.debounceTimeout = null;
     }
     connectedCallback() {
         super.connectedCallback();
+        // Load available extensions from data attribute
+        const extensionsData = this.getAttribute('data-available-extensions');
+        if (extensionsData) {
+            try {
+                this.availableExtensions = JSON.parse(extensionsData);
+            }
+            catch (e) {
+                console.error('Failed to parse available extensions:', e);
+                this.availableExtensions = [];
+            }
+        }
         // Load initial state from URL
         this.loadStateFromUrl();
         // Load initial data
@@ -382,13 +394,21 @@ let ContentBlockList = class ContentBlockList extends LitElement {
         const nameParts = item.name.split('/');
         const sourceVendor = nameParts[0] || '';
         const sourceBlockName = nameParts[1] || '';
+        // Generate extension options
+        let extensionOptions = '';
+        this.availableExtensions.forEach((ext) => {
+            const selected = ext.extension === item.extension ? 'selected' : '';
+            extensionOptions += `<option value="${ext.extension}" ${selected}>${ext.package} (${ext.extension})</option>`;
+        });
         // Create content as a DOM element
         const content = document.createElement('div');
         content.innerHTML = `
       <form id="duplicate-content-block-form">
         <div class="form-group mb-3">
           <label for="duplicate-extension" class="form-label">Extension</label>
-          <input type="text" class="form-control" id="duplicate-extension" name="extension" value="${item.extension}" required>
+          <select class="form-control form-select" id="duplicate-extension" name="extension" required>
+            ${extensionOptions}
+          </select>
           <div class="form-text">The extension where the duplicated content block will be stored</div>
         </div>
         <div class="form-group mb-3">
@@ -509,6 +529,9 @@ __decorate([
 __decorate([
     state()
 ], ContentBlockList.prototype, "sortDirection", void 0);
+__decorate([
+    state()
+], ContentBlockList.prototype, "availableExtensions", void 0);
 ContentBlockList = __decorate([
     customElement('content-block-list')
 ], ContentBlockList);

@@ -70,10 +70,25 @@ export class ContentBlockList extends LitElement {
   @state()
   sortDirection: SortDirection = 'asc';
 
+  @state()
+  availableExtensions: any[] = [];
+
   private debounceTimeout: number | null = null;
 
   override connectedCallback() {
     super.connectedCallback();
+
+    // Load available extensions from data attribute
+    const extensionsData = this.getAttribute('data-available-extensions');
+    if (extensionsData) {
+      try {
+        this.availableExtensions = JSON.parse(extensionsData);
+      } catch (e) {
+        console.error('Failed to parse available extensions:', e);
+        this.availableExtensions = [];
+      }
+    }
+
     // Load initial state from URL
     this.loadStateFromUrl();
     // Load initial data
@@ -456,13 +471,22 @@ export class ContentBlockList extends LitElement {
     const sourceVendor = nameParts[0] || '';
     const sourceBlockName = nameParts[1] || '';
 
+    // Generate extension options
+    let extensionOptions = '';
+    this.availableExtensions.forEach((ext: any) => {
+      const selected = ext.extension === item.extension ? 'selected' : '';
+      extensionOptions += `<option value="${ext.extension}" ${selected}>${ext.package} (${ext.extension})</option>`;
+    });
+
     // Create content as a DOM element
     const content = document.createElement('div');
     content.innerHTML = `
       <form id="duplicate-content-block-form">
         <div class="form-group mb-3">
           <label for="duplicate-extension" class="form-label">Extension</label>
-          <input type="text" class="form-control" id="duplicate-extension" name="extension" value="${item.extension}" required>
+          <select class="form-control form-select" id="duplicate-extension" name="extension" required>
+            ${extensionOptions}
+          </select>
           <div class="form-text">The extension where the duplicated content block will be stored</div>
         </div>
         <div class="form-group mb-3">
@@ -515,7 +539,7 @@ export class ContentBlockList extends LitElement {
       return false;
     }
 
-    const extension = modal.querySelector('#duplicate-extension') as HTMLInputElement;
+    const extension = modal.querySelector('#duplicate-extension') as HTMLSelectElement;
     const vendor = modal.querySelector('#duplicate-vendor') as HTMLInputElement;
     const name = modal.querySelector('#duplicate-name') as HTMLInputElement;
     const errorDiv = modal.querySelector('#duplicate-name-error') as HTMLElement;
