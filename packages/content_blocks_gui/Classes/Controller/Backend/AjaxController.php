@@ -65,6 +65,8 @@ final class AjaxController
 //        )->getResponse();
     }
 
+//    TODO: it seems that saveCbAction is not used anymore
+//    it seems the ContentBlocksGuiController::deleteAction() is used instead
     public function deleteCbAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->contentBlocksUtility->deleteContentBlock(
