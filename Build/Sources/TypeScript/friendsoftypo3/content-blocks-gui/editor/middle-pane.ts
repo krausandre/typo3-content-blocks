@@ -39,10 +39,14 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     level: number;
   @property()
     parent: ContentBlockField;
+  @property()
+    activeFieldPosition?: number;
+  @property()
+    activeFieldLevel?: number;
+  @property()
+    activeFieldParent?: ContentBlockField;
 
   protected render(): TemplateResult {
-    const cssClasses = this.dragActive ? 'drag-active' : '';
-
     return html`
       <style>
         .content-block-field-builder {
@@ -147,14 +151,6 @@ export class ContentBlockEditorMiddlePane extends LitElement {
           font-size: 0.875rem;
         }
 
-        .drag-active {
-          background: #e3f2fd !important;
-          border: 2px dashed #2196f3 !important;
-        }
-
-        .drag-active .field-item {
-          opacity: 0.7;
-        }
 
         .standard-field {
           position: relative;
@@ -171,18 +167,33 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         [data-level="3"] {
           margin-left: 1.5rem;
         }
+
+        .field-active .draggable-field-type {
+          border-color: #007cba !important;
+          background-color: #e6f3ff !important;
+        }
+
+        .field-active .draggable-field-type:hover {
+          background-color: #d4e8ff !important;
+        }
       </style>
-      <div class="content-block-field-builder ${cssClasses}">
+      <div class="content-block-field-builder">
         <div class="field-builder-container">
           <div class="initial-dropzone">
             <dropzone-field position="0" level="0"></dropzone-field>
           </div>
           <div class="fields-list">
-            ${this.fieldList?.map((item, index) => html`
-              <div class="field-item ${item.type === 'Collection' ? 'collection-type' : ''}" data-field-index="${index}">
-                ${this.renderFieldArea(item, index + 1, 0, null)}
-              </div>
-            `)}
+            ${this.fieldList?.map((item, index) => {
+              const isActive = this.isFieldActive(index + 1, 0, null);
+              const activeClass = isActive ? 'field-active' : '';
+              const collectionClass = item.type === 'Collection' ? 'collection-type' : '';
+              
+              return html`
+                <div class="field-item ${collectionClass} ${activeClass}" data-field-index="${index}">
+                  ${this.renderFieldArea(item, index + 1, 0, null)}
+                </div>
+              `;
+            })}
           </div>
           ${this.fieldList?.length === 0 ? html`
             <div class="empty-state">
@@ -196,6 +207,14 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         </div>
       </div>
     `;
+  }
+
+  protected isFieldActive(position: number, level: number, parent: ContentBlockField | null): boolean {
+    return (
+      this.activeFieldPosition === position - 1 &&
+      this.activeFieldLevel === level &&
+      this.activeFieldParent === parent
+    );
   }
 
   protected renderFieldArea(cbField: ContentBlockField, position: number, level: number, parent: ContentBlockField): TemplateResult {
@@ -213,13 +232,19 @@ export class ContentBlockEditorMiddlePane extends LitElement {
                 <div class="collection-initial-dropzone">
                   ${this.renderDraggableFieldType(fieldType, cbField, 0, level + 1, cbField, false, true)}
                 </div>
-                ${cbField.fields?.map((field, index) => html`
-                  <div class="collection-field-item" data-field-index="${index}">
-                    <div class="field-item ${field.type === 'Collection' ? 'collection-type' : ''}" data-field-index="${index}">
-                      ${this.renderFieldArea(field, index + 1, level + 1, cbField)}
+                ${cbField.fields?.map((field, index) => {
+                  const isActive = this.isFieldActive(index + 1, level + 1, cbField);
+                  const activeClass = isActive ? 'field-active' : '';
+                  const collectionClass = field.type === 'Collection' ? 'collection-type' : '';
+                  
+                  return html`
+                    <div class="collection-field-item ${activeClass}" data-field-index="${index}">
+                      <div class="field-item ${collectionClass}" data-field-index="${index}">
+                        ${this.renderFieldArea(field, index + 1, level + 1, cbField)}
+                      </div>
                     </div>
-                  </div>
-                `)}
+                  `;
+                })}
               </div>
             </div>
           </div>
@@ -288,63 +313,6 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     `;
   }
 
-  protected handleDragOver(event: DragEvent): void {
-    event.preventDefault();
-    // Visual feedback for drag over
-    const target = event.target as HTMLElement;
-    const dropzone = target.closest('.cb-drop-zone, dropzone-field');
-    if (dropzone) {
-      dropzone.classList.add('drag-over');
-    }
-  }
-
-  protected handleDragLeave(event: DragEvent): void {
-    // Remove visual feedback when leaving
-    const target = event.target as HTMLElement;
-    const dropzone = target.closest('.cb-drop-zone, dropzone-field');
-    if (dropzone) {
-      dropzone.classList.remove('drag-over');
-    }
-  }
-
-  protected handleDrop(event: DragEvent): void {
-    event.preventDefault();
-
-    // Remove visual feedback
-    const target = event.target as HTMLElement;
-    const dropzone = target.closest('.cb-drop-zone, dropzone-field');
-    if (dropzone) {
-      dropzone.classList.remove('drag-over');
-    }
-
-    // Extract position data from the closest dropzone element
-    this.position = parseInt((event.target as HTMLElement).dataset.position || '0', 10);
-    this.level = parseInt((event.target as HTMLElement).dataset.level || '0', 10);
-    this.parent = (event.target as HTMLElement).dataset.parent as unknown as ContentBlockField;
-
-    const dragData = event.dataTransfer?.getData('text/plain');
-    if (dragData) {
-      this._dispatchFieldTypeDroppedEvent(dragData);
-    }
-  }
-
-  protected _dispatchFieldTypeDroppedEvent(data: string): void {
-    try {
-      const dataObject = JSON.parse(data);
-      this.dispatchEvent(new CustomEvent('fieldTypeDropped', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          data: dataObject,
-          position: this.position,
-          level: this.level,
-          parent: this.parent,
-        }
-      }));
-    } catch (error) {
-      console.error('Failed to parse drag data:', error);
-    }
-  }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly

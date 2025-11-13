@@ -34,35 +34,51 @@ export class DropzoneField extends LitElement {
     parent?: ContentBlockField = null;
 
   protected render(): TemplateResult {
-    console.log('Render dropzone')
     return html`
-      <style>
-        .cb-drop-zone {
-          border: 1px dashed #ccc;
-          height: 20px;
-          margin: 10px;
-          background-color: #f9f9f9;
+        <style>
+            .cb-drop-zone {
+                border: 1px dashed #ccc;
+                height: 20px;
+                margin: 10px;
+                background-color: #f9f9f9;
+                transition: all 0.2s ease;
 
-          &:focus {
-            background-color: #cbffdb;
-          }
-        }
-      </style>
-      <div id="cb-drop-zone-${this.position}"
-           class="cb-drop-zone"
-           @dragover="${this.handleDragOver}"
-           @drop="${this.handleDrop}"
-      >
-      </div>
+                &:focus {
+                    background-color: #cbffdb;
+                }
+
+                &.drag-over {
+                    background-color: #78C0E6;
+                    border-color: #007cba;
+                    border-width: 2px;
+                }
+            }
+        </style>
+        <div id="cb-drop-zone-${this.position}"
+             class="cb-drop-zone"
+             @dragover="${this.handleDragOver}"
+             @dragleave="${this.handleDragLeave}"
+             @drop="${this.handleDrop}"
+        >
+        </div>
     `;
   }
 
   protected handleDragOver(event: DragEvent): void {
     event.preventDefault();
+    const target = event.currentTarget as HTMLElement;
+    target.classList.add('drag-over');
+  }
+
+  protected handleDragLeave(event: DragEvent): void {
+    const target = event.currentTarget as HTMLElement;
+    target.classList.remove('drag-over');
   }
 
   protected handleDrop(event: DragEvent): void {
     event.preventDefault();
+    const target = event.currentTarget as HTMLElement;
+    target.classList.remove('drag-over');
     this._dispatchFieldTypeDroppedEvent(event.dataTransfer?.getData('text/plain'));
   }
   protected _dispatchFieldTypeDroppedEvent(data: string): void {
