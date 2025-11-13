@@ -56,6 +56,15 @@ class ButtonBarUtility
             ->setShowLabelText(true);
         $buttonBar->addButton($addPageTypeButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
 
+        $uploadButton = GeneralUtility::makeInstance(GenericButton::class)
+            ->setTag('button')
+            ->setIcon($this->iconFactory->getIcon('actions-upload'))
+            ->setTitle('Upload Content Block(s) from ZIP')
+            ->setLabel('Upload')
+            ->setShowLabelText(true)
+            ->setAttributes(['data-action' => 'upload-content-blocks']);
+        $buttonBar->addButton($uploadButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
+
         $reloadListButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
             ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))

@@ -56,4 +56,12 @@ return [
         'path' => '/contentblocks/gui/multi/download',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::multiDownloadAction',
     ],
+    'content_blocks_gui_upload' => [
+        'path' => '/contentblocks/gui/upload',
+        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::uploadAndAnalyzeAction',
+    ],
+    'content_blocks_gui_import' => [
+        'path' => '/contentblocks/gui/import',
+        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::executeImportAction',
+    ],
 ];

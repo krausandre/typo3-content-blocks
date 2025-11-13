@@ -19,6 +19,7 @@ import Modal from '@typo3/backend/modal.js';
 import { lll } from '@typo3/core/lit-helper.js';
 import { SeverityEnum } from '@typo3/backend/enum/severity.js';
 import '@typo3/backend/element/icon-element.js';
+import './upload.js';
 
 interface ContentBlockItem {
   name: string;
@@ -99,10 +100,26 @@ export class ContentBlockList extends LitElement {
       }
     }
 
+    // Listen for upload button clicks from button bar
+    document.addEventListener('click', this.handleUploadButtonClick);
+
     // Load initial state from URL
     this.loadStateFromUrl();
     // Load initial data
     this.loadContentBlocks(this.activeTab);
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    document.removeEventListener('click', this.handleUploadButtonClick);
+  }
+
+  private handleUploadButtonClick = (event: MouseEvent): void => {
+    const target = event.target as HTMLElement;
+    if (target.closest('[data-action="upload-content-blocks"]')) {
+      event.preventDefault();
+      this.openUploadModal();
+    }
   }
 
   protected override createRenderRoot(): HTMLElement | ShadowRoot {
@@ -1075,5 +1092,33 @@ export class ContentBlockList extends LitElement {
         ]
       );
     }
+  }
+
+  /**
+   * Open upload modal
+   */
+  protected openUploadModal(): void {
+    // Create container with upload component
+    const content = document.createElement('div');
+    const uploadComponent = document.createElement('content-block-upload') as any;
+
+    content.appendChild(uploadComponent);
+
+    // Pass available extensions after component is connected
+    setTimeout(() => {
+      uploadComponent.availableExtensions = this.availableExtensions;
+    }, 0);
+
+    const modal = Modal.advanced({
+      title: 'Upload Content Block(s)',
+      content: content,
+      size: Modal.sizes.large,
+      buttons: []
+    });
+
+    // Listen for close event from upload component
+    uploadComponent.addEventListener('close', () => {
+      modal.hideModal();
+    });
   }
 }

@@ -31,6 +31,7 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Routing\BackendEntryPointResolver;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ButtonBarUtility;
@@ -52,6 +53,7 @@ final class ContentBlocksGuiController
         protected ButtonBarUtility $buttonBarUtility,
         protected readonly FlashMessageService $flashMessageService,
         protected readonly LoggerInterface $logger,
+        protected readonly BackendEntryPointResolver $backendEntryPointResolver,
     ) {
     }
 
@@ -288,16 +290,16 @@ final class ContentBlocksGuiController
             throw new RouteNotFoundException('Missing required content block name');
         }
         $mode = 'new';
-        // TODO: /typo3/ is hardcoded, needs to be dynamic since this is configurable in TYPO3 v13
-        if($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/new') {
+        $entryPoint = $this->backendEntryPointResolver->getPathFromRequest($request);
+        if($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/new') {
             $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
             $contentBlocksData = json_decode($skeletonJson, true);
-        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/edit') {
+        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/edit') {
             $mode = 'edit';
 //            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
 //            $contentBlocksData = json_decode($sampleJson, true);
             $contentBlocksData = $this->contentBlocksUtility->getContentBlockByName($queryParams);
-        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/duplicate') {
+        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/duplicate') {
             $mode = 'duplicate';
             $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
             $contentBlocksData = json_decode($sampleJson, true);
@@ -442,16 +444,16 @@ final class ContentBlocksGuiController
             throw new RouteNotFoundException('Missing required basic identifier #1762887757');
         }
         $mode = 'new';
-        // TODO: /typo3/ is hardcoded, needs to be dynamic since this is configurable in TYPO3 v13
-        if($request->getUri()->getPath() === '/typo3/content-block-gui/basic/modify/new') {
+        $entryPoint = $this->backendEntryPointResolver->getPathFromRequest($request);
+        if($request->getUri()->getPath() === $entryPoint . 'content-block-gui/basic/modify/new') {
             $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
             $contentBlocksData = json_decode($skeletonJson, true);
-        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/edit') {
+        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/edit') {
             $mode = 'edit';
 //            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
 //            $contentBlocksData = json_decode($sampleJson, true);
             $contentBlocksData = $this->contentBlocksUtility->getContentBlockByName($queryParams);
-        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/duplicate') {
+        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/duplicate') {
             $mode = 'duplicate';
             $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
             $contentBlocksData = json_decode($sampleJson, true);
