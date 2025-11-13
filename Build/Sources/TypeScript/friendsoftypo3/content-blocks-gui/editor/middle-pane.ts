@@ -39,6 +39,12 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     level: number;
   @property()
     parent: ContentBlockField;
+  @property()
+    activeFieldPosition?: number;
+  @property()
+    activeFieldLevel?: number;
+  @property()
+    activeFieldParent?: ContentBlockField;
 
   protected render(): TemplateResult {
     const cssClasses = this.dragActive ? 'drag-active' : '';
@@ -171,6 +177,15 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         [data-level="3"] {
           margin-left: 1.5rem;
         }
+
+        .field-active .draggable-field-type {
+          border-color: #007cba !important;
+          background-color: #e6f3ff !important;
+        }
+
+        .field-active .draggable-field-type:hover {
+          background-color: #d4e8ff !important;
+        }
       </style>
       <div class="content-block-field-builder ${cssClasses}">
         <div class="field-builder-container">
@@ -178,11 +193,17 @@ export class ContentBlockEditorMiddlePane extends LitElement {
             <dropzone-field position="0" level="0"></dropzone-field>
           </div>
           <div class="fields-list">
-            ${this.fieldList?.map((item, index) => html`
-              <div class="field-item ${item.type === 'Collection' ? 'collection-type' : ''}" data-field-index="${index}">
-                ${this.renderFieldArea(item, index + 1, 0, null)}
-              </div>
-            `)}
+            ${this.fieldList?.map((item, index) => {
+              const isActive = this.isFieldActive(index + 1, 0, null);
+              const activeClass = isActive ? 'field-active' : '';
+              const collectionClass = item.type === 'Collection' ? 'collection-type' : '';
+              
+              return html`
+                <div class="field-item ${collectionClass} ${activeClass}" data-field-index="${index}">
+                  ${this.renderFieldArea(item, index + 1, 0, null)}
+                </div>
+              `;
+            })}
           </div>
           ${this.fieldList?.length === 0 ? html`
             <div class="empty-state">
@@ -196,6 +217,14 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         </div>
       </div>
     `;
+  }
+
+  protected isFieldActive(position: number, level: number, parent: ContentBlockField | null): boolean {
+    return (
+      this.activeFieldPosition === position - 1 &&
+      this.activeFieldLevel === level &&
+      this.activeFieldParent === parent
+    );
   }
 
   protected renderFieldArea(cbField: ContentBlockField, position: number, level: number, parent: ContentBlockField): TemplateResult {
@@ -213,13 +242,19 @@ export class ContentBlockEditorMiddlePane extends LitElement {
                 <div class="collection-initial-dropzone">
                   ${this.renderDraggableFieldType(fieldType, cbField, 0, level + 1, cbField, false, true)}
                 </div>
-                ${cbField.fields?.map((field, index) => html`
-                  <div class="collection-field-item" data-field-index="${index}">
-                    <div class="field-item ${field.type === 'Collection' ? 'collection-type' : ''}" data-field-index="${index}">
-                      ${this.renderFieldArea(field, index + 1, level + 1, cbField)}
+                ${cbField.fields?.map((field, index) => {
+                  const isActive = this.isFieldActive(index + 1, level + 1, cbField);
+                  const activeClass = isActive ? 'field-active' : '';
+                  const collectionClass = field.type === 'Collection' ? 'collection-type' : '';
+                  
+                  return html`
+                    <div class="collection-field-item ${activeClass}" data-field-index="${index}">
+                      <div class="field-item ${collectionClass}" data-field-index="${index}">
+                        ${this.renderFieldArea(field, index + 1, level + 1, cbField)}
+                      </div>
                     </div>
-                  </div>
-                `)}
+                  `;
+                })}
               </div>
             </div>
           </div>
