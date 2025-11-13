@@ -1,5 +1,5 @@
 import type { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
-import type { ValuePicker, Range } from '@friendsoftypo3/content-blocks-gui/interface/content-block-definition';
+import type { ValuePicker, Range, AllowedCustomProperties } from '@friendsoftypo3/content-blocks-gui/interface/content-block-definition';
 export interface ExtensionDefinition {
     vendor: string;
     package: string;
@@ -60,7 +60,7 @@ export interface ContentBlockField {
     minitems?: number;
     items?: Array<FieldTypeItems>;
     renderType?: string;
-    allowedCustomProperties?: Array<FieldTypeItems>;
+    allowedCustomProperties?: AllowedCustomProperties;
     format?: string;
     range?: Range;
     slider?: Array<FieldTypeItems>;

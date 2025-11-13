@@ -22,6 +22,11 @@ export interface AllowedTypes {
   enabled?: boolean;
 }
 
+export interface AllowedCustomProperties {
+  itemProcFunc: string;
+  enabled?: boolean;
+}
+
 export interface ContentBlockField {
   identifier: string;
   type: string;
@@ -43,7 +48,7 @@ export interface ContentBlockField {
   minitems?: number;
   items?: Array<FieldTypeItems>;
   renderType?: string;
-  allowedCustomProperties?: Array<FieldTypeItems>;
+  allowedCustomProperties?: AllowedCustomProperties;
   format?: string;
   range?: Range;
   slider?: Slider;
