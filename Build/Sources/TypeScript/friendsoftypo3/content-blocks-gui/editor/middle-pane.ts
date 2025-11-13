@@ -47,8 +47,6 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     activeFieldParent?: ContentBlockField;
 
   protected render(): TemplateResult {
-    const cssClasses = this.dragActive ? 'drag-active' : '';
-
     return html`
       <style>
         .content-block-field-builder {
@@ -153,14 +151,6 @@ export class ContentBlockEditorMiddlePane extends LitElement {
           font-size: 0.875rem;
         }
 
-        .drag-active {
-          background: #e3f2fd !important;
-          border: 2px dashed #2196f3 !important;
-        }
-
-        .drag-active .field-item {
-          opacity: 0.7;
-        }
 
         .standard-field {
           position: relative;
@@ -187,7 +177,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
           background-color: #d4e8ff !important;
         }
       </style>
-      <div class="content-block-field-builder ${cssClasses}">
+      <div class="content-block-field-builder">
         <div class="field-builder-container">
           <div class="initial-dropzone">
             <dropzone-field position="0" level="0"></dropzone-field>
@@ -323,63 +313,6 @@ export class ContentBlockEditorMiddlePane extends LitElement {
     `;
   }
 
-  protected handleDragOver(event: DragEvent): void {
-    event.preventDefault();
-    // Visual feedback for drag over
-    const target = event.target as HTMLElement;
-    const dropzone = target.closest('.cb-drop-zone, dropzone-field');
-    if (dropzone) {
-      dropzone.classList.add('drag-over');
-    }
-  }
-
-  protected handleDragLeave(event: DragEvent): void {
-    // Remove visual feedback when leaving
-    const target = event.target as HTMLElement;
-    const dropzone = target.closest('.cb-drop-zone, dropzone-field');
-    if (dropzone) {
-      dropzone.classList.remove('drag-over');
-    }
-  }
-
-  protected handleDrop(event: DragEvent): void {
-    event.preventDefault();
-
-    // Remove visual feedback
-    const target = event.target as HTMLElement;
-    const dropzone = target.closest('.cb-drop-zone, dropzone-field');
-    if (dropzone) {
-      dropzone.classList.remove('drag-over');
-    }
-
-    // Extract position data from the closest dropzone element
-    this.position = parseInt((event.target as HTMLElement).dataset.position || '0', 10);
-    this.level = parseInt((event.target as HTMLElement).dataset.level || '0', 10);
-    this.parent = (event.target as HTMLElement).dataset.parent as unknown as ContentBlockField;
-
-    const dragData = event.dataTransfer?.getData('text/plain');
-    if (dragData) {
-      this._dispatchFieldTypeDroppedEvent(dragData);
-    }
-  }
-
-  protected _dispatchFieldTypeDroppedEvent(data: string): void {
-    try {
-      const dataObject = JSON.parse(data);
-      this.dispatchEvent(new CustomEvent('fieldTypeDropped', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          data: dataObject,
-          position: this.position,
-          level: this.level,
-          parent: this.parent,
-        }
-      }));
-    } catch (error) {
-      console.error('Failed to parse drag data:', error);
-    }
-  }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
