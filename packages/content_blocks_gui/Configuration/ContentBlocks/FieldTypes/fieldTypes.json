@@ -67,6 +67,41 @@
     ]
   },
   {
+    "icon": "form-text",
+    "type": "Color",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "default",
+        "dataType": "text",
+        "default": ""
+      },
+      {
+        "name": "required",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "opacity",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "valuePicker",
+        "dataType": "array"
+      }
+    ]
+  },
+  {
     "icon": "content-menu-pages",
     "type": "Collection",
     "properties": [
@@ -101,6 +136,48 @@
     ]
   },
   {
+    "icon": "form-date-picker",
+    "type": "DateTime",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "default",
+        "dataType": "text"
+      },
+      {
+        "name": "required",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "dbType",
+        "dataType": "text"
+      },
+      {
+        "name": "format",
+        "dataType": "text"
+      },
+      {
+        "name": "range",
+        "dataType": "array"
+      },
+      {
+        "name": "disableAgeDisplay",
+        "dataType": "boolean",
+        "default": false
+      }
+    ]
+  },
+  {
     "icon": "form-email",
     "type": "Email",
     "properties": [
@@ -126,6 +203,134 @@
         "name": "required",
         "dataType": "boolean",
         "default": false
+      }
+    ]
+  },
+  {
+    "icon": "mimetypes-media-image",
+    "type": "File",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "allowed",
+        "dataType": "text"
+      },
+      {
+        "name": "relationship",
+        "dataType": "text"
+      },
+      {
+        "name": "maxitems",
+        "dataType": "number"
+      },
+      {
+        "name": "minitems",
+        "dataType": "number"
+      },
+      {
+        "name": "cropVariants",
+        "dataType": "array"
+      },
+      {
+        "name": "extendedPalette",
+        "dataType": "boolean",
+        "default": false
+      }
+    ]
+  },
+  {
+    "icon": "apps-filetree-folder-default",
+    "type": "Folder",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "relationship",
+        "dataType": "text"
+      },
+      {
+        "name": "maxitems",
+        "dataType": "number"
+      },
+      {
+        "name": "minitems",
+        "dataType": "number"
+      },
+      {
+        "name": "elementBrowserEntryPoints",
+        "dataType": "text"
+      }
+    ]
+  },
+  {
+    "icon": "mimetypes-text-js",
+    "type": "Json",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "required",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "readOnly",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "enableCodeEditor",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "rows",
+        "dataType": "number"
+      },
+      {
+        "name": "cols",
+        "dataType": "number"
+      }
+    ]
+  },
+  {
+    "icon": "flags-multiple",
+    "type": "Language",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
       }
     ]
   },
@@ -219,6 +424,66 @@
     ]
   },
   {
+    "icon": "form-text",
+    "type": "Palette",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "fields",
+        "dataType": "array",
+        "required": true,
+        "default": []
+      }
+    ]
+  },
+  {
+    "icon": "form-password",
+    "type": "Password",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "placeholder",
+        "dataType": "text"
+      },
+      {
+        "name": "required",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "size",
+        "dataType": "number"
+      },
+      {
+        "name": "hashed",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "passwordPolicy",
+        "dataType": "text"
+      }
+    ]
+  },
+  {
     "icon": "form-radio-button",
     "type": "Radio",
     "properties": [
@@ -243,6 +508,142 @@
       {
         "name": "allowedCustomProperties",
         "dataType": "array"
+      }
+    ]
+  },
+  {
+    "icon": "apps-pagetree-page-default",
+    "type": "Relation",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "allowed",
+        "dataType": "text"
+      },
+      {
+        "name": "relationship",
+        "dataType": "text"
+      },
+      {
+        "name": "maxitems",
+        "dataType": "number"
+      },
+      {
+        "name": "minitems",
+        "dataType": "number"
+      }
+    ]
+  },
+  {
+    "icon": "form-single-select",
+    "type": "Select",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "default",
+        "dataType": "text"
+      },
+      {
+        "name": "items",
+        "dataType": "array"
+      },
+      {
+        "name": "relationship",
+        "dataType": "text"
+      },
+      {
+        "name": "maxitems",
+        "dataType": "number"
+      },
+      {
+        "name": "minitems",
+        "dataType": "number"
+      },
+      {
+        "name": "renderType",
+        "dataType": "text"
+      },
+      {
+        "name": "dbFieldLength",
+        "dataType": "number"
+      },
+      {
+        "name": "allowedCustomProperties",
+        "dataType": "array"
+      }
+    ]
+  },
+  {
+    "icon": "form-number",
+    "type": "SelectNumber",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      }
+    ]
+  },
+  {
+    "icon": "form-text",
+    "type": "Slug",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "generatorOptions",
+        "dataType": "array"
+      },
+      {
+        "name": "eval",
+        "dataType": "text"
+      }
+    ]
+  },
+  {
+    "icon": "form-text",
+    "type": "Tab",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
       }
     ]
   },
@@ -328,6 +729,36 @@
       },
       {
         "name": "rows",
+        "dataType": "number"
+      }
+    ]
+  },
+  {
+    "icon": "form-text",
+    "type": "Uuid",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "version",
+        "dataType": "number",
+        "default": 4
+      },
+      {
+        "name": "enableCopyToClipboard",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "size",
         "dataType": "number"
       }
     ]
