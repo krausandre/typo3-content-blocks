@@ -557,6 +557,10 @@
         "dataType": "text",
         "required": true
       },
+	  {
+	  	"name": "renderType",
+	  	"dataType": "text"
+	  },
       {
         "name": "default",
         "dataType": "text"
@@ -576,10 +580,6 @@
       {
         "name": "minitems",
         "dataType": "number"
-      },
-      {
-        "name": "renderType",
-        "dataType": "text"
       },
       {
         "name": "dbFieldLength",
