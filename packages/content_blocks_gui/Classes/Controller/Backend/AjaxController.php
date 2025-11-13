@@ -26,6 +26,9 @@ use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
+use FriendsOfTYPO3\ContentBlocksGui\Domain\Model\Dto\ImportAnalysis;
+use FriendsOfTYPO3\ContentBlocksGui\Service\ContentBlockImportAnalyzer;
+use FriendsOfTYPO3\ContentBlocksGui\Service\ContentBlockImportService;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ContentBlocksUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ExtensionUtility;
 
@@ -37,6 +40,8 @@ final class AjaxController
         protected PageRenderer $pageRenderer,
         protected ExtensionUtility $extensionUtility,
         protected ContentBlocksUtility $contentBlocksUtility,
+        protected ContentBlockImportAnalyzer $importAnalyzer,
+        protected ContentBlockImportService $importService,
     ) {
     }
 
@@ -210,6 +215,146 @@ final class AjaxController
         );
 
         return new JsonResponse($validation);
+    }
+
+    /**
+     * Download multiple content blocks as a single ZIP
+     */
+    public function multiDownloadAction(ServerRequestInterface $request): ResponseInterface
+    {
+        try {
+            $parsedBody = $request->getParsedBody();
+            $blocks = $parsedBody['blocks'] ?? [];
+
+            if (empty($blocks)) {
+                return new JsonResponse(['error' => 'No content blocks selected for download'], 400);
+            }
+
+            // Create multi-block ZIP
+            $fileName = $this->contentBlocksUtility->createMultiBlockZip($blocks);
+
+            // Read file content
+            $fileContent = file_get_contents($fileName);
+            $fileSize = filesize($fileName);
+
+            // Clean up temporary file
+            unlink($fileName);
+
+            // Create response with file content
+            $response = new \TYPO3\CMS\Core\Http\Response();
+            $response = $response
+                ->withHeader('Content-Type', 'application/zip')
+                ->withHeader('Content-Length', (string)$fileSize)
+                ->withHeader('Content-Disposition', 'attachment; filename="' . basename($fileName) . '"');
+
+            $response->getBody()->write($fileContent);
+
+            return $response;
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Upload and analyze ZIP file for content block import
+     */
+    public function uploadAndAnalyzeAction(ServerRequestInterface $request): ResponseInterface
+    {
+        try {
+            $uploadedFiles = $request->getUploadedFiles();
+            $parsedBody = $request->getParsedBody();
+
+            if (!isset($uploadedFiles['file'])) {
+                return new JsonResponse(['error' => 'No file uploaded'], 400);
+            }
+
+            $uploadedFile = $uploadedFiles['file'];
+            $targetExtension = $parsedBody['targetExtension'] ?? null;
+
+            if (!$targetExtension) {
+                return new JsonResponse(['error' => 'No target extension specified'], 400);
+            }
+
+            // Validate upload
+            $this->validateUpload($uploadedFile);
+
+            // Get temporary file path
+            $tempPath = $uploadedFile->getStream()->getMetadata('uri');
+
+            // Analyze ZIP
+            $analysis = $this->importAnalyzer->analyzeZip($tempPath, $targetExtension);
+
+            return new JsonResponse([
+                'success' => true,
+                'analysis' => $analysis->toArray()
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Execute import after user confirmation
+     */
+    public function executeImportAction(ServerRequestInterface $request): ResponseInterface
+    {
+        try {
+            $parsedBody = $request->getParsedBody();
+
+            if (!isset($parsedBody['analysis']) || !isset($parsedBody['targetExtension'])) {
+                return new JsonResponse(['error' => 'Missing required parameters'], 400);
+            }
+
+            $analysis = ImportAnalysis::fromArray($parsedBody['analysis']);
+            $targetExtension = $parsedBody['targetExtension'];
+            $conflictResolutions = $parsedBody['conflicts'] ?? [];
+
+            // Execute import
+            $result = $this->importService->importContentBlocks(
+                $analysis,
+                $targetExtension,
+                $conflictResolutions
+            );
+
+            return new JsonResponse([
+                'success' => true,
+                'result' => $result->toArray()
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Validate uploaded file
+     */
+    private function validateUpload(\Psr\Http\Message\UploadedFileInterface $file): void
+    {
+        // File size (10MB max)
+        if ($file->getSize() > 10 * 1024 * 1024) {
+            throw new \RuntimeException('ZIP file too large (max 10MB)');
+        }
+
+        // MIME type
+        if ($file->getClientMediaType() !== 'application/zip' && $file->getClientMediaType() !== 'application/x-zip-compressed') {
+            throw new \RuntimeException('Only ZIP files are allowed');
+        }
+
+        // File extension
+        if (!str_ends_with($file->getClientFilename(), '.zip')) {
+            throw new \RuntimeException('File must have .zip extension');
+        }
+
+        // Check for upload errors
+        if ($file->getError() !== UPLOAD_ERR_OK) {
+            throw new \RuntimeException('File upload failed with error code: ' . $file->getError());
+        }
     }
 }
 

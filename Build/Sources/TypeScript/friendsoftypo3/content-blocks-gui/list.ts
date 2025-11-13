@@ -19,6 +19,7 @@ import Modal from '@typo3/backend/modal.js';
 import { lll } from '@typo3/core/lit-helper.js';
 import { SeverityEnum } from '@typo3/backend/enum/severity.js';
 import '@typo3/backend/element/icon-element.js';
+import './upload.js';
 
 interface ContentBlockItem {
   name: string;
@@ -77,6 +78,12 @@ export class ContentBlockList extends LitElement {
   @state()
   availableExtensions: any[] = [];
 
+  @state()
+  selectionMode: boolean = false;
+
+  @state()
+  selectedBlocks: Set<string> = new Set();
+
   private debounceTimeout: number | null = null;
 
   override connectedCallback() {
@@ -93,10 +100,26 @@ export class ContentBlockList extends LitElement {
       }
     }
 
+    // Listen for upload button clicks from button bar
+    document.addEventListener('click', this.handleUploadButtonClick);
+
     // Load initial state from URL
     this.loadStateFromUrl();
     // Load initial data
     this.loadContentBlocks(this.activeTab);
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    document.removeEventListener('click', this.handleUploadButtonClick);
+  }
+
+  private handleUploadButtonClick = (event: MouseEvent): void => {
+    const target = event.target as HTMLElement;
+    if (target.closest('[data-action="upload-content-blocks"]')) {
+      event.preventDefault();
+      this.openUploadModal();
+    }
   }
 
   protected override createRenderRoot(): HTMLElement | ShadowRoot {
@@ -165,6 +188,31 @@ export class ContentBlockList extends LitElement {
     `;
   }
 
+  protected renderToolbar(): TemplateResult {
+    return html`
+      <div class="btn-toolbar mb-3" role="toolbar">
+        <button
+          class="btn ${this.selectionMode ? 'btn-warning' : 'btn-default'}"
+          @click="${this.toggleSelectionMode}"
+          title="${this.selectionMode ? 'Cancel Selection' : 'Select Multiple for Download'}">
+          <typo3-backend-icon identifier="${this.selectionMode ? 'actions-close' : 'actions-check-square'}" size="small"></typo3-backend-icon>
+          ${this.selectionMode ? 'Cancel Selection' : 'Select Multiple'}
+        </button>
+
+        ${this.selectionMode ? html`
+          <button
+            class="btn btn-primary ms-2"
+            @click="${this.handleMultiDownload}"
+            ?disabled="${this.selectedBlocks.size === 0}"
+            title="Download ${this.selectedBlocks.size} selected block(s)">
+            <typo3-backend-icon identifier="actions-download" size="small"></typo3-backend-icon>
+            Download Selected (${this.selectedBlocks.size})
+          </button>
+        ` : ''}
+      </div>
+    `;
+  }
+
   protected renderContent(): TemplateResult {
     const filteredItems = this.getFilteredAndSortedItems();
 
@@ -173,11 +221,13 @@ export class ContentBlockList extends LitElement {
     }
 
     return html`
+      ${this.renderToolbar()}
       <div class="list-table-container">
         <div class="table-fit">
           <table class="table table-striped table-hover">
             <thead>
               <tr>
+                ${this.selectionMode ? html`<th style="width: 40px;"><input type="checkbox" disabled /></th>` : ''}
                 <th></th>
                 <th class="sortable" @click="${() => this.handleSort('name')}" style="cursor: pointer;">
                   Content Block name
@@ -222,9 +272,20 @@ export class ContentBlockList extends LitElement {
 
   protected renderRow(item: ContentBlockItem): TemplateResult {
     const typeName = this.getTypeName();
+    const key = `${this.activeTab}:${item.name}`;
+    const isSelected = this.selectedBlocks.has(key);
 
     return html`
       <tr>
+        ${this.selectionMode ? html`
+          <td class="col-checkbox">
+            <input
+              type="checkbox"
+              ?checked="${isSelected}"
+              @change="${() => this.toggleBlockSelection(item.name, this.activeTab)}"
+            />
+          </td>
+        ` : ''}
         <td class="col-icon">
           ${item.icon ? html`
             <typo3-backend-icon identifier="${item.icon}" size="small"></typo3-backend-icon>
@@ -484,7 +545,10 @@ export class ContentBlockList extends LitElement {
     modal.addEventListener('button.clicked', (e: Event): void => {
       const target = e.target as HTMLButtonElement;
       if (target.getAttribute('name') === 'delete') {
-        window.location.href = url;
+        // Append current tab to URL for redirect back
+        const urlWithTab = new URL(url, window.location.origin);
+        urlWithTab.searchParams.set('returnTab', this.activeTab);
+        window.location.href = urlWithTab.toString();
       }
       modal.hideModal();
     });
@@ -829,6 +893,7 @@ export class ContentBlockList extends LitElement {
     const url = new URL(duplicateUrl, window.location.origin);
     url.searchParams.append('targetExtension', extensionValue);
     url.searchParams.append('targetIdentifier', identifierValue);
+    url.searchParams.append('returnTab', this.activeTab);
 
     // Navigate to the backend route (PHP will handle redirect)
     window.location.href = url.toString();
@@ -916,9 +981,144 @@ export class ContentBlockList extends LitElement {
       }
     }
 
+    // Append current tab for redirect back
+    url.searchParams.append('returnTab', this.activeTab);
+
     // Navigate to the backend route (PHP will handle redirect)
     window.location.href = url.toString();
 
     return true;
+  }
+
+  /**
+   * Toggle selection mode on/off
+   */
+  protected toggleSelectionMode(): void {
+    this.selectionMode = !this.selectionMode;
+    if (!this.selectionMode) {
+      this.selectedBlocks.clear();
+    }
+  }
+
+  /**
+   * Toggle selection of a single block
+   */
+  protected toggleBlockSelection(identifier: string, type: string): void {
+    const key = `${type}:${identifier}`;
+    if (this.selectedBlocks.has(key)) {
+      this.selectedBlocks.delete(key);
+    } else {
+      this.selectedBlocks.add(key);
+    }
+    this.requestUpdate();
+  }
+
+  /**
+   * Handle multi-select download
+   */
+  protected async handleMultiDownload(): Promise<void> {
+    if (this.selectedBlocks.size === 0) {
+      Modal.confirm(
+        'No Selection',
+        'Please select at least one content block or basic.',
+        SeverityEnum.warning,
+        [
+          {
+            text: 'OK',
+            active: true,
+            btnClass: 'btn-default',
+            trigger: (): void => {
+              Modal.dismiss();
+            }
+          }
+        ]
+      );
+      return;
+    }
+
+    // Convert selected blocks to array
+    const selected = Array.from(this.selectedBlocks).map(key => {
+      const [type, identifier] = key.split(':', 2);
+      return { type, identifier };
+    });
+
+    try {
+      // Call AJAX endpoint
+      const response = await new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_multi_download)
+        .post({ blocks: selected });
+
+      // Get the response as blob for file download
+      const blob = await response.raw().blob();
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      // Extract filename from Content-Disposition header or use default
+      const disposition = response.raw().headers.get('Content-Disposition');
+      let filename = `${selected.length}-blocks_${Date.now()}.zip`;
+      if (disposition) {
+        const filenameMatch = disposition.match(/filename="?([^"]+)"?/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      // Exit selection mode after successful download
+      this.toggleSelectionMode();
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Modal.confirm(
+        'Download Failed',
+        `Error downloading content blocks: ${errorMessage}`,
+        SeverityEnum.error,
+        [
+          {
+            text: 'OK',
+            active: true,
+            btnClass: 'btn-default',
+            trigger: (): void => {
+              Modal.dismiss();
+            }
+          }
+        ]
+      );
+    }
+  }
+
+  /**
+   * Open upload modal
+   */
+  protected openUploadModal(): void {
+    // Create container with upload component
+    const content = document.createElement('div');
+    const uploadComponent = document.createElement('content-block-upload') as any;
+
+    content.appendChild(uploadComponent);
+
+    // Pass available extensions after component is connected
+    setTimeout(() => {
+      uploadComponent.availableExtensions = this.availableExtensions;
+    }, 0);
+
+    const modal = Modal.advanced({
+      title: 'Upload Content Block(s)',
+      content: content,
+      size: Modal.sizes.large,
+      buttons: []
+    });
+
+    // Listen for close event from upload component
+    uploadComponent.addEventListener('close', () => {
+      modal.hideModal();
+    });
   }
 }

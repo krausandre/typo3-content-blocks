@@ -31,6 +31,7 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Routing\BackendEntryPointResolver;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ButtonBarUtility;
@@ -52,6 +53,7 @@ final class ContentBlocksGuiController
         protected ButtonBarUtility $buttonBarUtility,
         protected readonly FlashMessageService $flashMessageService,
         protected readonly LoggerInterface $logger,
+        protected readonly BackendEntryPointResolver $backendEntryPointResolver,
     ) {
     }
 
@@ -99,8 +101,15 @@ final class ContentBlocksGuiController
             throw new RouteNotFoundException('Missing required content block data');
         }
         $this->contentBlocksUtility->deleteContentBlock($queryParams['name']);
+
+        // Preserve the active tab for better UX
+        $redirectParams = [];
+        if (!empty($queryParams['returnTab'])) {
+            $redirectParams['type'] = $queryParams['returnTab'];
+        }
+
         return new RedirectResponse(
-            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
             303
         );
     }
@@ -144,8 +153,14 @@ final class ContentBlocksGuiController
             ]);
         }
 
+        // Preserve the active tab for better UX
+        $redirectParams = [];
+        if (!empty($queryParams['returnTab'])) {
+            $redirectParams['type'] = $queryParams['returnTab'];
+        }
+
         return new RedirectResponse(
-            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
             303
         );
     }
@@ -201,9 +216,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         } catch (\RuntimeException $e) {
@@ -217,9 +238,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         } catch (\Exception $e) {
@@ -238,9 +265,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         }
@@ -257,16 +290,16 @@ final class ContentBlocksGuiController
             throw new RouteNotFoundException('Missing required content block name');
         }
         $mode = 'new';
-        // TODO: /typo3/ is hardcoded, needs to be dynamic since this is configurable in TYPO3 v13
-        if($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/new') {
+        $entryPoint = $this->backendEntryPointResolver->getPathFromRequest($request);
+        if($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/new') {
             $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
             $contentBlocksData = json_decode($skeletonJson, true);
-        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/edit') {
+        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/edit') {
             $mode = 'edit';
 //            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
 //            $contentBlocksData = json_decode($sampleJson, true);
             $contentBlocksData = $this->contentBlocksUtility->getContentBlockByName($queryParams);
-        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/duplicate') {
+        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/duplicate') {
             $mode = 'duplicate';
             $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
             $contentBlocksData = json_decode($sampleJson, true);
@@ -336,9 +369,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         } catch (\RuntimeException $e) {
@@ -352,9 +391,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         } catch (\Exception $e) {
@@ -373,9 +418,15 @@ final class ContentBlocksGuiController
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
+            // Preserve the active tab for better UX
+            $redirectParams = [];
+            if (!empty($queryParams['returnTab'])) {
+                $redirectParams['type'] = $queryParams['returnTab'];
+            }
+
             // Redirect back to list view
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'),
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
                 303
             );
         }
@@ -393,16 +444,16 @@ final class ContentBlocksGuiController
             throw new RouteNotFoundException('Missing required basic identifier #1762887757');
         }
         $mode = 'new';
-        // TODO: /typo3/ is hardcoded, needs to be dynamic since this is configurable in TYPO3 v13
-        if($request->getUri()->getPath() === '/typo3/content-block-gui/basic/modify/new') {
+        $entryPoint = $this->backendEntryPointResolver->getPathFromRequest($request);
+        if($request->getUri()->getPath() === $entryPoint . 'content-block-gui/basic/modify/new') {
             $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
             $contentBlocksData = json_decode($skeletonJson, true);
-        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/edit') {
+        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/edit') {
             $mode = 'edit';
 //            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
 //            $contentBlocksData = json_decode($sampleJson, true);
             $contentBlocksData = $this->contentBlocksUtility->getContentBlockByName($queryParams);
-        } elseif ($request->getUri()->getPath() === '/typo3/content-block-gui/content-block/modify/duplicate') {
+        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/duplicate') {
             $mode = 'duplicate';
             $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
             $contentBlocksData = json_decode($sampleJson, true);
