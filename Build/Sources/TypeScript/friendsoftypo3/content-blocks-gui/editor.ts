@@ -211,7 +211,7 @@ export class ContentBlockEditor extends LitElement {
     } else {
       this.cbDefinition.yaml.fields = fields;
     }
-    this.fieldSettingsValues = fields[existingFieldPosition];
+    this.fieldSettingsValues = fields[position];
     this.rightPaneActivePosition = position;
     this.rightPaneActiveLevel = level;
     this.rightPaneActiveParent = parent;
@@ -220,8 +220,12 @@ export class ContentBlockEditor extends LitElement {
 
   protected updateFieldDataEventListener(event: CustomEvent) {
     console.log(event.detail);
-    const selectedLevel = this.getSelectedLevel(event.detail.level);
-    selectedLevel[event.detail.position] = event.detail.values;
+    // Use parent context to get the correct field array
+    let fields: ContentBlockField[] = this.cbDefinition.yaml.fields;
+    if(event.detail.parent !== null) {
+      fields = event.detail.parent.fields;
+    }
+    fields[event.detail.position] = event.detail.values;
     this.fieldSettingsValues = event.detail.values;
     this.cbDefinition = structuredClone(this.cbDefinition);
   }
@@ -248,7 +252,8 @@ export class ContentBlockEditor extends LitElement {
     if(event.detail.parent !== null) {
       fields = event.detail.parent.fields;
     }
-    this.fieldSettingsValues = fields.filter((fieldType) => fieldType.identifier === event.detail.identifier)[0] as ContentBlockField;
+
+    this.fieldSettingsValues = fields[event.detail.position] as ContentBlockField;
     if(this.fieldSettingsValues !== undefined) {
       this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
       this.rightPaneActivePosition = event.detail.position;
@@ -262,15 +267,6 @@ export class ContentBlockEditor extends LitElement {
     }
   }
 
-  protected getSelectedLevel(level: number): ContentBlockField[] {
-    let currentLevel = 1;
-    let selectedLevel: ContentBlockField[] = this.cbDefinition.yaml.fields;
-    while(currentLevel < level) {
-      selectedLevel = selectedLevel.filter((fieldType) => fieldType.type === 'Collection');
-      currentLevel++;
-    }
-    return selectedLevel;
-  }
 
   private handleDragEnd(): void {
     this.dragActive = false;
@@ -321,6 +317,39 @@ export class ContentBlockEditor extends LitElement {
   }
 
   /**
+   * Validate that all field identifiers are unique at the same level
+   */
+  private validateUniqueIdentifiers(fields: ContentBlockField[]): { isValid: boolean; duplicates: string[] } {
+    const duplicates: string[] = [];
+    
+    const validateLevel = (fieldsAtLevel: ContentBlockField[]): void => {
+      const identifierCounts = new Map<string, number>();
+      
+      for (const field of fieldsAtLevel) {
+        if (field.identifier) {
+          const count = identifierCounts.get(field.identifier) || 0;
+          identifierCounts.set(field.identifier, count + 1);
+          
+          if (count === 1) {
+            duplicates.push(field.identifier);
+          }
+        }
+        
+        if (field.fields && field.fields.length > 0) {
+          validateLevel(field.fields);
+        }
+      }
+    };
+    
+    validateLevel(fields);
+    
+    return {
+      isValid: duplicates.length === 0,
+      duplicates
+    };
+  }
+
+  /**
    * Save content block via AJAX
    */
   private async saveContentBlock(): Promise<void> {
@@ -333,6 +362,33 @@ export class ContentBlockEditor extends LitElement {
 
       // Clean fields by removing "enabled" properties recursively
       const cleanedFields = this.removeEnabledProperties(this.cbDefinition.yaml.fields || []);
+
+      // Validate unique identifiers before saving
+      const validation = this.validateUniqueIdentifiers(cleanedFields);
+      if (!validation.isValid) {
+        // Re-enable save buttons
+        saveButtons.forEach(button => {
+          button.disabled = false;
+          button.innerHTML = 'Save';
+        });
+
+        // Show error message with duplicate identifiers
+        Modal.confirm(
+          'Duplicate Field Identifiers',
+          `The following field identifiers are used multiple times at the same level: ${validation.duplicates.join(', ')}. Please ensure all field identifiers are unique within their respective levels.`,
+          SeverityEnum.error,
+          [{
+            text: 'OK',
+            active: true,
+            btnClass: 'btn-danger',
+            name: 'ok',
+            trigger: function() {
+                Modal.dismiss();
+            }
+          }]
+        );
+        return;
+      }
 
       const saveData = {
         contentType: 'content-element', // TODO: make configurable to support other page-type and record-type
