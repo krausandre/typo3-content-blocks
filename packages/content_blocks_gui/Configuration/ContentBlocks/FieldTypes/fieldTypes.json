@@ -33,8 +33,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -98,8 +102,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -162,8 +170,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -228,8 +240,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -293,8 +309,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -366,8 +386,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -426,8 +450,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -498,8 +526,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -561,8 +593,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -631,8 +667,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -673,8 +713,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -725,8 +769,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -790,8 +838,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -860,8 +912,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -913,8 +969,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -982,8 +1042,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -1041,8 +1105,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -1104,8 +1172,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -1183,8 +1255,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -1230,8 +1306,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -1285,8 +1365,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -1332,8 +1416,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -1408,8 +1496,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",
@@ -1480,8 +1572,12 @@
       },
       {
         "name": "prefixType",
-        "dataType": "text",
-        "default": "full"
+        "dataType": "select",
+        "default": "full",
+        "items": [
+          { "label": "Full prefix", "value": "full" },
+          { "label": "Vendor prefix", "value": "vendor" }
+        ]
       },
       {
         "name": "displayCond",

@@ -29,7 +29,9 @@ import type {
   ContentBlockField,
   DropField,
   GroupDefinition,
-  ExtensionDefinition
+  ExtensionDefinition,
+  FieldMetadata,
+  ValidationResult
 } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 
 /**
@@ -53,6 +55,8 @@ export class ContentBlockEditor extends LitElement {
     groups?: string;
   @property()
     fieldconfig?: string;
+  @property()
+    fieldmetadata?: string;
 
   @property()
     fieldSettingsValues: ContentBlockField = {
@@ -78,8 +82,9 @@ export class ContentBlockEditor extends LitElement {
   fieldTypeList: Array<FieldTypeSetting>;
   groupList: Array<GroupDefinition>;
   extensionList: Array<ExtensionDefinition>;
+  fieldMetadata: FieldMetadata;
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     this.initData();
     if (this.mode === 'copy') {
       this._initMultiStepWizard();
@@ -119,6 +124,8 @@ export class ContentBlockEditor extends LitElement {
               .position="${this.rightPaneActivePosition}"
               .level="${this.rightPaneActiveLevel}"
               .parent="${this.rightPaneActiveParent}"
+              .fieldTypeList="${this.fieldTypeList}"
+              .fieldMetadata="${this.fieldMetadata}"
               @updateCbFieldData="${this.updateFieldDataEventListener}"
             >
             </content-block-editor-right-pane>
@@ -135,6 +142,11 @@ export class ContentBlockEditor extends LitElement {
     this.fieldTypeList = JSON.parse(this.fieldconfig);
     this.groupList = JSON.parse(this.groups);
     this.extensionList = JSON.parse(this.extensions);
+    this.fieldMetadata = JSON.parse(this.fieldmetadata || '{"baseFields":{},"systemReservedFields":[],"currentTable":"tt_content"}');
+
+    // Process fields to inject types for base fields
+    this.processFieldsForTypeInjection(this.cbDefinition.yaml.fields, 0);
+
     this.init = true;
 
     document.querySelectorAll('[data-action="save-content-block"]').forEach((saveButton) => {
@@ -145,7 +157,152 @@ export class ContentBlockEditor extends LitElement {
     });
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  /**
+   * Process fields recursively to inject types for base fields
+   * This handles YAML that doesn't have 'type' property for base fields
+   */
+  protected processFieldsForTypeInjection(fields: ContentBlockField[], level: number): void {
+    if (!fields || !Array.isArray(fields)) {
+      return;
+    }
+
+    fields.forEach((field) => {
+      // Check if this is a useExistingField at level 0
+      if (field.useExistingField && level === 0 && field.identifier) {
+        const baseField = this.fieldMetadata.baseFields[field.identifier];
+
+        if (baseField) {
+          // Base field detected
+          field._isBaseField = true;
+
+          // FORCE prefixField to false - you can't prefix existing base fields
+          field.prefixField = false;
+          // Reset prefixType since prefixing is disabled
+          field.prefixType = '';
+
+          // Inject type only if missing
+          if (!field.type) {
+            field.type = baseField.type;
+            field._typeInjected = true;
+            console.log(`Injected type "${baseField.type}" for base field "${field.identifier}"`);
+          }
+        }
+      }
+
+      // Recursively process nested fields (e.g., Collection fields)
+      if (field.fields && Array.isArray(field.fields)) {
+        this.processFieldsForTypeInjection(field.fields, level + 1);
+      }
+    });
+  }
+
+  /**
+   * Validate a field based on useExistingField rules and context
+   */
+  protected validateField(field: ContentBlockField, level: number): ValidationResult {
+    // Check 1: Collections (level > 0) always need type
+    if (level > 0 && !field.type) {
+      return {
+        valid: false,
+        severity: 'error',
+        message: 'Type required in collections'
+      };
+    }
+
+    // Check 2: useExistingField logic (only applies at level 0)
+    // This check must come BEFORE system reserved field check, because base fields
+    // like 'header' are reusable and should show SUCCESS, not ERROR
+    if (level === 0 && field.useExistingField && !field.prefixField) {
+      const baseField = this.fieldMetadata.baseFields[field.identifier];
+
+      if (baseField) {
+        // Base field detected - type is optional, this is the recommended approach!
+        return {
+          valid: true,
+          severity: 'success',
+          message: `Base field - type auto-detected: ${baseField.type}`,
+          detectedType: baseField.type
+        };
+      }
+
+      // Not a base field - check if it's a system reserved field
+      if (this.fieldMetadata.systemReservedFields.includes(field.identifier)) {
+        return {
+          valid: false,
+          severity: 'error',
+          message: 'System reserved field - enable prefixing or choose different identifier'
+        };
+      }
+
+      // Custom field (from TCA/Overrides) - type is required
+      if (!field.type) {
+        return {
+          valid: false,
+          severity: 'error',
+          message: 'Custom field requires type'
+        };
+      }
+      return {
+        valid: true,
+        severity: 'warning',
+        message: 'Custom field - type required'
+      };
+    }
+
+    // Check 3: System reserved fields without prefixing (for new fields)
+    if (!field.prefixField && this.fieldMetadata.systemReservedFields.includes(field.identifier)) {
+      return {
+        valid: false,
+        severity: 'error',
+        message: 'System reserved field - enable prefixing or choose different identifier'
+      };
+    }
+
+    // Check 4: Normal field needs type
+    if (!field.type) {
+      return {
+        valid: false,
+        severity: 'error',
+        message: 'Type is required'
+      };
+    }
+
+    return { valid: true, severity: 'info', message: '' };
+  }
+
+  /**
+   * Prepare fields for save by removing internal properties and injected types
+   * Base fields should not have 'type' in YAML
+   */
+  protected prepareFieldsForSave(fields: ContentBlockField[], level: number): ContentBlockField[] {
+    if (!fields || !Array.isArray(fields)) {
+      return fields;
+    }
+
+    return fields.map((field) => {
+      const cleanField = { ...field };
+
+      // Remove internal tracking properties
+      delete cleanField._typeInjected;
+      delete cleanField._isBaseField;
+      delete cleanField._validation;
+
+      // Remove type for base fields at level 0
+      if (level === 0 && field._isBaseField && field.useExistingField) {
+        delete cleanField.type;
+        console.log(`Removed injected type for base field "${field.identifier}"`);
+      }
+
+      // Recursively process nested fields
+      if (cleanField.fields && Array.isArray(cleanField.fields)) {
+        cleanField.fields = this.prepareFieldsForSave(cleanField.fields, level + 1);
+      }
+
+      return cleanField;
+    });
+  }
+
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;
@@ -191,6 +348,11 @@ export class ContentBlockEditor extends LitElement {
     this.rightPaneActivePosition = position;
     this.rightPaneActiveLevel = level;
     this.rightPaneActiveParent = parent;
+
+    // Validate the newly created field
+    const validation = this.validateField(newField, level);
+    newField._validation = validation;
+    this.fieldSettingsValues._validation = validation;
   }
 
   protected updateContentBlockField(identifier: string, position: number, level: number, parent: ContentBlockField): void {
@@ -228,9 +390,86 @@ export class ContentBlockEditor extends LitElement {
     if(event.detail.parent !== null) {
       fields = event.detail.parent.fields;
     }
+
+    // Update field values
     fields[event.detail.position] = event.detail.values;
     this.fieldSettingsValues = event.detail.values;
+
+    // Recalculate _isBaseField and type injection when relevant fields change
+    // This ensures the type dropdown enables/disables correctly and validation updates
+    const field = event.detail.values;
+    if (event.detail.level === 0) {
+      if (field.useExistingField && field.identifier) {
+        // Check if this identifier is a base field
+        const baseField = this.fieldMetadata.baseFields[field.identifier];
+
+        if (baseField) {
+          // It's a base field - FORCE prefixField to false (can't prefix existing base fields)
+          field.prefixField = false;
+          // Reset prefixType since prefixing is disabled
+          field.prefixType = '';
+
+          // Mark as base field and inject type if needed
+          field._isBaseField = true;
+          if (!field.type || field._typeInjected) {
+            field.type = baseField.type;
+            field._typeInjected = true;
+          }
+        } else {
+          // Not a base field - clear base field marker but KEEP the type
+          field._isBaseField = false;
+          // Remove the _typeInjected flag but keep the type property itself
+          if (field._typeInjected) {
+            field._typeInjected = false;
+          }
+        }
+      } else {
+        // useExistingField is false - clear base field marker but KEEP the type
+        field._isBaseField = false;
+        // Remove the _typeInjected flag but keep the type property itself
+        if (field._typeInjected) {
+          field._typeInjected = false;
+        }
+      }
+    }
+
+    // Validate the field
+    const validation = this.validateField(field, event.detail.level);
+    field._validation = validation;
+
+    // Clone the entire definition to trigger reactivity
     this.cbDefinition = structuredClone(this.cbDefinition);
+
+    // After cloning, get fresh references to the updated field
+    let clonedFields: ContentBlockField[] = this.cbDefinition.yaml.fields;
+    if(event.detail.parent !== null) {
+      clonedFields = event.detail.parent.fields;
+    }
+    // Create a shallow copy to ensure a new reference for reactivity
+    this.fieldSettingsValues = { ...clonedFields[event.detail.position] };
+
+    // Update the active schema only if type changed explicitly (via dropdown)
+    // Don't change schema when we just removed an injected type
+    if (event.detail.typeChanged && event.detail.newType) {
+      const newSchema = this.fieldTypeList.find(
+        (fieldType) => fieldType.type === event.detail.newType
+      );
+      if (newSchema) {
+        this.rightPaneActiveSchema = newSchema;
+      }
+    } else if (this.fieldSettingsValues.type && !this.rightPaneActiveSchema) {
+      // Field has a type but no schema is set - find and set the schema
+      const newSchema = this.fieldTypeList.find(
+        (fieldType) => fieldType.type === this.fieldSettingsValues.type
+      );
+      if (newSchema) {
+        this.rightPaneActiveSchema = newSchema;
+      }
+    }
+    // Keep existing schema if type was just removed - don't set to null
+
+    // Force re-render to ensure UI updates
+    this.requestUpdate();
   }
   protected removeFieldTypeEventListener(event: CustomEvent) {
     let fields: ContentBlockField[] = this.cbDefinition.yaml.fields;
@@ -256,13 +495,59 @@ export class ContentBlockEditor extends LitElement {
       fields = event.detail.parent.fields;
     }
 
-    this.fieldSettingsValues = fields[event.detail.position] as ContentBlockField;
-    if(this.fieldSettingsValues !== undefined) {
+    const field = fields[event.detail.position] as ContentBlockField;
+    if(field !== undefined) {
+      // Apply base field logic when activating a field
+      if (event.detail.level === 0 && field.useExistingField && field.identifier) {
+        const baseField = this.fieldMetadata.baseFields[field.identifier];
+
+        if (baseField) {
+          // It's a base field - FORCE prefixField to false
+          field.prefixField = false;
+          // Reset prefixType since prefixing is disabled
+          field.prefixType = '';
+          field._isBaseField = true;
+
+          console.log(`activateFieldSettings: Set field.prefixField = false, field._isBaseField = true for "${field.identifier}"`);
+
+          // Inject type if missing
+          if (!field.type || field._typeInjected) {
+            field.type = baseField.type;
+            field._typeInjected = true;
+          }
+        }
+      }
+
+      // Validate the field when it's activated to show current validation state
+      const validation = this.validateField(field, event.detail.level);
+      field._validation = validation;
+
+      // Trigger reactivity - clone FIRST
+      this.cbDefinition = structuredClone(this.cbDefinition);
+
+      // NOW get fresh references to the cloned objects
+      let clonedFields: ContentBlockField[] = this.cbDefinition.yaml.fields;
+      if(event.detail.parent !== null) {
+        clonedFields = event.detail.parent.fields;
+      }
+
+      // Update fieldSettingsValues to point to the CLONED field
+      this.fieldSettingsValues = { ...clonedFields[event.detail.position] };
+
+      console.log('activateFieldSettings: fieldSettingsValues after clone:', {
+        identifier: this.fieldSettingsValues.identifier,
+        prefixField: this.fieldSettingsValues.prefixField,
+        _isBaseField: this.fieldSettingsValues._isBaseField
+      });
+
       this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
       this.rightPaneActivePosition = event.detail.position;
       this.rightPaneActiveLevel = event.detail.level;
       this.rightPaneActiveParent = event.detail.parent;
+
+      this.requestUpdate();
     } else {
+      this.fieldSettingsValues = { identifier: '', label: '', type: '' };
       this.rightPaneActiveSchema = null;
       this.rightPaneActivePosition = 0;
       this.rightPaneActiveLevel = 0;
@@ -363,8 +648,9 @@ export class ContentBlockEditor extends LitElement {
         button.innerHTML = '<typo3-backend-icon identifier="spinner-circle" size="small"></typo3-backend-icon> Saving...';
       });
 
-      // Clean fields by removing "enabled" properties recursively
-      const cleanedFields = this.removeEnabledProperties(this.cbDefinition.yaml.fields || []);
+      // Clean fields by removing "enabled" properties and injected types recursively
+      let cleanedFields = this.removeEnabledProperties(this.cbDefinition.yaml.fields || []);
+      cleanedFields = this.prepareFieldsForSave(cleanedFields, 0);
 
       // Validate unique identifiers before saving
       const validation = this.validateUniqueIdentifiers(cleanedFields);
@@ -402,7 +688,7 @@ export class ContentBlockEditor extends LitElement {
           fields: cleanedFields,
           basics: this.cbDefinition.yaml.basics || [],
           group: this.cbDefinition.yaml.group || 'default',
-          prefixFields: this.cbDefinition.yaml.prefixFields !== false,
+          prefixField: this.cbDefinition.yaml.prefixField !== false,
           prefixType: this.cbDefinition.yaml.prefixType || 'full',
           table: this.cbDefinition.yaml.table || 'tt_content',
           typeField: this.cbDefinition.yaml.typeField || 'CType',

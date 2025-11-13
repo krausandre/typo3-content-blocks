@@ -34,6 +34,7 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Routing\BackendEntryPointResolver;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use FriendsOfTYPO3\ContentBlocksGui\Service\FieldMetadataService;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ButtonBarUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ContentBlocksUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ExtensionUtility;
@@ -54,6 +55,7 @@ final class ContentBlocksGuiController
         protected readonly FlashMessageService $flashMessageService,
         protected readonly LoggerInterface $logger,
         protected readonly BackendEntryPointResolver $backendEntryPointResolver,
+        protected readonly FieldMetadataService $fieldMetadataService,
     ) {
     }
 
@@ -306,12 +308,17 @@ final class ContentBlocksGuiController
         } else {
             throw new RouteNotFoundException('Invalid request');
         }
+        // Get table for field metadata
+        $table = $contentBlocksData['yaml']['table'] ?? 'tt_content';
+        $fieldMetadata = $this->fieldMetadataService->getFieldMetadata($table);
+
         $contentBlockEditorData = GeneralUtility::implodeAttributes([
             'mode' => $mode,
             'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
             'extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
             'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),
             'fieldconfig' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getFieldTypes(), false),
+            'fieldmetadata' => GeneralUtility::jsonEncodeForHtmlAttribute($fieldMetadata, false),
         ], true);
 
         $this->moduleTemplate->assignMultiple([
@@ -460,12 +467,17 @@ final class ContentBlocksGuiController
         } else {
             throw new RouteNotFoundException('Invalid request');
         }
+        // Get table for field metadata
+        $table = $contentBlocksData['yaml']['table'] ?? 'tt_content';
+        $fieldMetadata = $this->fieldMetadataService->getFieldMetadata($table);
+
         $contentBlockEditorData = GeneralUtility::implodeAttributes([
             'mode' => $mode,
             'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
             'extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
             'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),
             'fieldconfig' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getFieldTypes(), false),
+            'fieldmetadata' => GeneralUtility::jsonEncodeForHtmlAttribute($fieldMetadata, false),
         ], true);
 
         $this->moduleTemplate->assignMultiple([

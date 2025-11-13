@@ -69,6 +69,31 @@ export interface ContentBlockField {
     allowedTypes?: Array<FieldTypeItems>;
     ignoreIfNotInPalette?: boolean;
     fields?: Array<ContentBlockField>;
+
+    // Internal tracking properties (not saved to YAML)
+    _typeInjected?: boolean;  // Type was auto-detected and injected
+    _isBaseField?: boolean;   // Field is a base TCA field
+    _validation?: ValidationResult;  // Validation state
+}
+
+export interface FieldMetadata {
+    baseFields: Record<string, BaseFieldInfo>;
+    systemReservedFields: string[];
+    currentTable: string;
+}
+
+export interface BaseFieldInfo {
+    type: string;
+    tcaType: string;
+    label: string;
+    description: string;
+}
+
+export interface ValidationResult {
+    valid: boolean;
+    severity?: 'success' | 'warning' | 'error' | 'info';
+    message?: string;
+    detectedType?: string;
 }
 
 /*interface ContentBlockNumberField extends ContentBlockField {
