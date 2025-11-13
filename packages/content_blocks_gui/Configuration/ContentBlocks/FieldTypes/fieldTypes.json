@@ -14,6 +14,37 @@
         "required": true
       },
       {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
+      },
+      {
         "name": "relationship",
         "dataType": "text"
       },
@@ -48,6 +79,37 @@
         "required": true
       },
       {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
+      },
+      {
         "name": "default",
         "dataType": "text"
       },
@@ -79,6 +141,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "default",
@@ -116,6 +209,37 @@
         "required": true
       },
       {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
+      },
+      {
         "name": "fields",
         "dataType": "array",
         "required": true,
@@ -148,6 +272,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "default",
@@ -192,6 +347,37 @@
         "required": true
       },
       {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
+      },
+      {
         "name": "default",
         "dataType": "text"
       },
@@ -219,6 +405,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "allowed",
@@ -262,6 +479,37 @@
         "required": true
       },
       {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
+      },
+      {
         "name": "relationship",
         "dataType": "text"
       },
@@ -292,6 +540,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "required",
@@ -331,6 +610,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       }
     ]
   },
@@ -342,6 +652,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "ignoreIfNotInPalette",
@@ -363,6 +704,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "default",
@@ -397,6 +769,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "format",
@@ -438,6 +841,37 @@
         "required": true
       },
       {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
+      },
+      {
         "name": "fields",
         "dataType": "array",
         "required": true,
@@ -458,6 +892,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "placeholder",
@@ -498,6 +963,37 @@
         "required": true
       },
       {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
+      },
+      {
         "name": "default",
         "dataType": "text"
       },
@@ -524,6 +1020,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "allowed",
@@ -557,10 +1084,41 @@
         "dataType": "text",
         "required": true
       },
-	  {
-	  	"name": "renderType",
-	  	"dataType": "text"
-	  },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
+      },
+      {
+        "name": "renderType",
+        "dataType": "text"
+      },
       {
         "name": "default",
         "dataType": "text"
@@ -604,6 +1162,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       }
     ]
   },
@@ -620,6 +1209,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "generatorOptions",
@@ -644,6 +1264,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       }
     ]
   },
@@ -660,6 +1311,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "default",
@@ -707,6 +1389,37 @@
         "required": true
       },
       {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
+      },
+      {
         "name": "default",
         "dataType": "text"
       },
@@ -746,6 +1459,37 @@
         "name": "type",
         "dataType": "text",
         "required": true
+      },
+      {
+        "name": "label",
+        "dataType": "text"
+      },
+      {
+        "name": "description",
+        "dataType": "text"
+      },
+      {
+        "name": "useExistingField",
+        "dataType": "boolean",
+        "default": false
+      },
+      {
+        "name": "prefixField",
+        "dataType": "boolean",
+        "default": true
+      },
+      {
+        "name": "prefixType",
+        "dataType": "text",
+        "default": "full"
+      },
+      {
+        "name": "displayCond",
+        "dataType": "array"
+      },
+      {
+        "name": "onChange",
+        "dataType": "text"
       },
       {
         "name": "version",
