@@ -20,6 +20,7 @@ namespace FriendsOfTYPO3\ContentBlocksGui\Controller\Backend;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Backend\Attribute\AsController;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -35,6 +36,7 @@ use TYPO3\CMS\Core\Routing\BackendEntryPointResolver;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Service\FieldMetadataService;
+use FriendsOfTYPO3\ContentBlocksGui\Service\BasicsService;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ButtonBarUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ContentBlocksUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ExtensionUtility;
@@ -56,6 +58,7 @@ final class ContentBlocksGuiController
         protected readonly LoggerInterface $logger,
         protected readonly BackendEntryPointResolver $backendEntryPointResolver,
         protected readonly FieldMetadataService $fieldMetadataService,
+        protected readonly BasicsService $basicsService,
     ) {
     }
 
@@ -483,6 +486,197 @@ final class ContentBlocksGuiController
         $this->moduleTemplate->assignMultiple([
             'contentBlockEditorData' => $contentBlockEditorData,
         ]);
+    }
+
+    /**
+     * API endpoint: List all available Basics
+     *
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface JSON response with list of Basics
+     */
+    public function listBasicsApiAction(ServerRequestInterface $request): ResponseInterface
+    {
+        try {
+            $basics = $this->basicsService->listBasics();
+            return new JsonResponse([
+                'success' => true,
+                'data' => $basics,
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to list basics', [
+                'error' => $e->getMessage(),
+            ]);
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * API endpoint: Load a specific Basic
+     *
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface JSON response with Basic data
+     */
+    public function loadBasicApiAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $queryParams = $request->getQueryParams();
+        $identifier = $queryParams['identifier'] ?? '';
+
+        if (empty($identifier)) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Missing identifier parameter',
+            ], 400);
+        }
+
+        try {
+            $basic = $this->basicsService->loadBasic($identifier);
+            return new JsonResponse([
+                'success' => true,
+                'data' => $basic,
+            ]);
+        } catch (\RuntimeException $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 404);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to load basic', [
+                'identifier' => $identifier,
+                'error' => $e->getMessage(),
+            ]);
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * API endpoint: Save a Basic
+     *
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface JSON response
+     */
+    public function saveBasicApiAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $body = $request->getParsedBody();
+
+        $extension = $body['extension'] ?? '';
+        $vendor = $body['vendor'] ?? '';
+        $name = $body['name'] ?? '';
+        $fields = $body['fields'] ?? [];
+
+        if (empty($extension) || empty($vendor) || empty($name)) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Missing required parameters: extension, vendor, or name',
+            ], 400);
+        }
+
+        try {
+            $this->basicsService->saveBasic($extension, $vendor, $name, $fields);
+            return new JsonResponse([
+                'success' => true,
+                'message' => sprintf('Basic "%s/%s" saved successfully', $vendor, $name),
+            ]);
+        } catch (\RuntimeException $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 400);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to save basic', [
+                'extension' => $extension,
+                'vendor' => $vendor,
+                'name' => $name,
+                'error' => $e->getMessage(),
+            ]);
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * API endpoint: Validate a Basic (primarily for loop detection)
+     *
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface JSON response with validation result
+     */
+    public function validateBasicApiAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $body = $request->getParsedBody();
+
+        $identifier = $body['identifier'] ?? '';
+        $fields = $body['fields'] ?? [];
+
+        if (empty($identifier)) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Missing identifier parameter',
+            ], 400);
+        }
+
+        try {
+            $result = $this->basicsService->validateBasic($identifier, $fields);
+            return new JsonResponse([
+                'success' => true,
+                'data' => $result,
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to validate basic', [
+                'identifier' => $identifier,
+                'error' => $e->getMessage(),
+            ]);
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * API endpoint: Get Content Blocks that use a specific Basic
+     *
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface JSON response with list of Content Blocks
+     */
+    public function getBasicUsageApiAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $queryParams = $request->getQueryParams();
+        $identifier = $queryParams['identifier'] ?? '';
+
+        if (empty($identifier)) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Missing identifier parameter',
+            ], 400);
+        }
+
+        try {
+            $usedBy = $this->basicsService->getUsedBy($identifier);
+            return new JsonResponse([
+                'success' => true,
+                'data' => [
+                    'identifier' => $identifier,
+                    'usedBy' => $usedBy,
+                    'usageCount' => count($usedBy),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to get basic usage', [
+                'identifier' => $identifier,
+                'error' => $e->getMessage(),
+            ]);
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
 

@@ -96,6 +96,15 @@ export interface ValidationResult {
     detectedType?: string;
 }
 
+export interface BasicMetadata {
+    identifier: string;
+    vendor: string;
+    name: string;
+    fieldCount: number;
+    path: string;
+    extension: string;
+}
+
 /*interface ContentBlockNumberField extends ContentBlockField {
   type: 'number';
   min: number;
@@ -128,6 +137,7 @@ export interface ContentBlocksYaml {
     title?: string;
     vendorPrefix?: string;
     priority?: number;
+    basics?: Array<string>;
 
 }
 

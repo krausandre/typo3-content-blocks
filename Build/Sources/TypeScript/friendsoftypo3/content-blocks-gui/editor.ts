@@ -31,7 +31,8 @@ import type {
   GroupDefinition,
   ExtensionDefinition,
   FieldMetadata,
-  ValidationResult
+  ValidationResult,
+  BasicMetadata
 } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 
 /**
@@ -83,6 +84,7 @@ export class ContentBlockEditor extends LitElement {
   groupList: Array<GroupDefinition>;
   extensionList: Array<ExtensionDefinition>;
   fieldMetadata: FieldMetadata;
+  availableBasics: Array<BasicMetadata> = [];
 
   protected override render(): TemplateResult {
     this.initData();
@@ -126,6 +128,7 @@ export class ContentBlockEditor extends LitElement {
               .parent="${this.rightPaneActiveParent}"
               .fieldTypeList="${this.fieldTypeList}"
               .fieldMetadata="${this.fieldMetadata}"
+              .availableBasics="${this.availableBasics}"
               @updateCbFieldData="${this.updateFieldDataEventListener}"
             >
             </content-block-editor-right-pane>
@@ -144,6 +147,9 @@ export class ContentBlockEditor extends LitElement {
     this.extensionList = JSON.parse(this.extensions);
     this.fieldMetadata = JSON.parse(this.fieldmetadata || '{"baseFields":{},"systemReservedFields":[],"currentTable":"tt_content"}');
 
+    // Load available Basics
+    this.loadAvailableBasics();
+
     // Process fields to inject types for base fields
     this.processFieldsForTypeInjection(this.cbDefinition.yaml.fields, 0);
 
@@ -155,6 +161,23 @@ export class ContentBlockEditor extends LitElement {
         await this.saveContentBlock();
       });
     });
+  }
+
+  /**
+   * Load available Basics from the API
+   */
+  protected async loadAvailableBasics(): Promise<void> {
+    try {
+      const response = await new AjaxRequest(TYPO3.settings.ajaxUrls.content_block_gui_api_basics_list).get();
+      const data = await response.resolve();
+
+      if (data.success && Array.isArray(data.data)) {
+        this.availableBasics = data.data;
+      }
+    } catch (error) {
+      console.error('Failed to load available Basics:', error);
+      this.availableBasics = [];
+    }
   }
 
   /**

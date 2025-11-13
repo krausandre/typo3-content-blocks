@@ -1602,5 +1602,21 @@
         "dataType": "number"
       }
     ]
+  },
+  {
+    "icon": "actions-database-import",
+    "type": "Basic",
+    "properties": [
+      {
+        "name": "identifier",
+        "dataType": "text",
+        "required": true
+      },
+      {
+        "name": "type",
+        "dataType": "text",
+        "required": true
+      }
+    ]
   }
 ]

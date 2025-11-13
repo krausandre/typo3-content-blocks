@@ -18,6 +18,7 @@ import '@typo3/backend/element/icon-element.js';
 import { live } from 'lit/directives/live.js';
 // import '@typo3/backend/element/info-box.js';
 import type { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
+import type { BasicMetadata } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker.js';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-selector.js';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/slider-selector.js';
@@ -54,6 +55,9 @@ export class ContentBlockEditorRightPane extends LitElement {
 
   @property()
     fieldMetadata?: any;
+
+  @property()
+    availableBasics?: Array<BasicMetadata>;
 
 
   protected render(): TemplateResult {
@@ -102,6 +106,11 @@ export class ContentBlockEditorRightPane extends LitElement {
     // Special handling for "type" field - render as dropdown of available field types
     if (fieldTypeProperty.name === 'type' && this.fieldTypeList) {
       return this.renderTypeDropdown(fieldTypeProperty);
+    }
+
+    // Special handling for "identifier" field when type is "Basic" - render as dropdown of available Basics
+    if (fieldTypeProperty.name === 'identifier' && this.values['type'] === 'Basic' && this.availableBasics) {
+      return this.renderBasicIdentifierDropdown(fieldTypeProperty);
     }
 
     // https://lit.dev/docs/templates/directives/#live
@@ -382,6 +391,39 @@ export class ContentBlockEditorRightPane extends LitElement {
         },
       }));
     }
+  }
+
+  /**
+   * Render identifier field for Basic type as dropdown of available Basics
+   */
+  protected renderBasicIdentifierDropdown(fieldTypeProperty: FieldTypeProperty): TemplateResult {
+    const currentValue = this.values[fieldTypeProperty.name] as string || '';
+
+    // Sort Basics by identifier
+    const sortedBasics = [...(this.availableBasics || [])].sort((a, b) =>
+      a.identifier.localeCompare(b.identifier)
+    );
+
+    return html`
+      <select
+        @change="${this.dispatchBlurEvent}"
+        class="form-select"
+        id="${fieldTypeProperty.name}"
+      >
+        <option value="">Choose a Basic...</option>
+        ${sortedBasics.map((basic) => html`
+          <option
+            value="${basic.identifier}"
+            ?selected="${currentValue === basic.identifier}"
+          >
+            ${basic.identifier} (${basic.fieldCount} fields)
+          </option>
+        `)}
+      </select>
+      <small class="form-text text-muted mt-1">
+        Select a pre-defined Basic (field mixin) to include in this Content Block.
+      </small>
+    `;
   }
 
   protected createRenderRoot(): HTMLElement | ShadowRoot {
