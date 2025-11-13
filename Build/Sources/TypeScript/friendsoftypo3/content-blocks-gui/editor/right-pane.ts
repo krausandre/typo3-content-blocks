@@ -23,6 +23,7 @@ import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-se
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/slider-selector.js';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/allowed-types.js';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/allowed-custom-properties.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/items.js';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -150,6 +151,15 @@ export class ContentBlockEditorRightPane extends LitElement {
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-allowed-custom-properties>`;
+            case 'items':
+                return html`<content-block-editor-items
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-items>`;
               default:
                 return html `Array field type for property ${fieldTypeProperty.name} is not yet implemented.`;
           }

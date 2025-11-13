@@ -27,6 +27,11 @@ export interface AllowedCustomProperties {
   enabled?: boolean;
 }
 
+export interface Items {
+  items: Array<FieldTypeItems>;
+  enabled?: boolean;
+}
+
 export interface ContentBlockField {
   identifier: string;
   type: string;
@@ -46,7 +51,7 @@ export interface ContentBlockField {
   relationship?: string;
   maxitems?: number;
   minitems?: number;
-  items?: Array<FieldTypeItems>;
+  items?: Items;
   renderType?: string;
   allowedCustomProperties?: AllowedCustomProperties;
   format?: string;
