@@ -665,6 +665,108 @@ final class ContentBlocksGuiController
     }
 
     /**
+     * Save Content Block and redirect to list with flash message
+     *
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface Redirect response
+     */
+    public function saveContentBlockAndCloseAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $body = $request->getParsedBody();
+
+        $contentType = $body['contentType'] ?? 'content-element';
+        $extension = $body['extension'] ?? '';
+        $mode = $body['mode'] ?? 'edit';
+        $name = $body['name'] ?? '';
+
+        // ContentBlock data is sent as JSON string
+        $contentBlock = [];
+        if (isset($body['contentBlock'])) {
+            $contentBlock = is_string($body['contentBlock']) ? json_decode($body['contentBlock'], true) : $body['contentBlock'];
+        }
+
+        if (empty($extension) || empty($name)) {
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                'Missing required parameters: extension or name',
+                'Validation Error',
+                ContextualFeedbackSeverity::ERROR,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'content-element']),
+                303
+            );
+        }
+
+        try {
+            // Use ContentBlocksUtility to save the content block
+            $saveData = [
+                'contentType' => $contentType,
+                'extension' => $extension,
+                'mode' => $mode,
+                'name' => $name,
+                'contentBlock' => $contentBlock
+            ];
+
+            $result = $this->contentBlocksUtility->saveContentType($saveData);
+
+            // Check if save was successful
+            if ($result->isSuccess()) {
+                // Flush system cache
+                $this->cacheManager->flushCachesInGroup('system');
+
+                $flashMessage = GeneralUtility::makeInstance(
+                    FlashMessage::class,
+                    'Content Block saved successfully',
+                    'Success',
+                    ContextualFeedbackSeverity::OK,
+                    true
+                );
+                $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+            } else {
+                $flashMessage = GeneralUtility::makeInstance(
+                    FlashMessage::class,
+                    'Failed to save Content Block',
+                    'Error',
+                    ContextualFeedbackSeverity::ERROR,
+                    true
+                );
+                $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+            }
+
+            // Redirect to list view with content-element tab active
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'content-element']),
+                303
+            );
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to save content block', [
+                'mode' => $mode,
+                'extension' => $extension,
+                'name' => $name,
+                'error' => $e->getMessage(),
+            ]);
+
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                $e->getMessage(),
+                'Error',
+                ContextualFeedbackSeverity::ERROR,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'content-element']),
+                303
+            );
+        }
+    }
+
+    /**
      * API endpoint: Validate a Basic (primarily for loop detection)
      *
      * @param ServerRequestInterface $request

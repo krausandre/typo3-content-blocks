@@ -151,6 +151,14 @@ export class ContentBlockEditor extends LitElement {
       return;
     }
     this.cbDefinition = JSON.parse(this.data);
+
+    // For Content Blocks: Split name into vendor and name if it contains a slash
+    if (this.contenttype !== 'basic' && this.cbDefinition.yaml.name && this.cbDefinition.yaml.name.includes('/')) {
+      const nameParts = this.cbDefinition.yaml.name.split('/');
+      this.cbDefinition.yaml.vendor = nameParts[0];
+      this.cbDefinition.yaml.name = nameParts[1];
+    }
+
     this.fieldTypeList = JSON.parse(this.fieldconfig);
     this.groupList = JSON.parse(this.groups);
     this.extensionList = JSON.parse(this.extensions);
@@ -762,6 +770,7 @@ export class ContentBlockEditor extends LitElement {
         extension: this.cbDefinition.hostExtension,
         mode: this.mode || 'edit', // Use edit mode by default
         name: this.cbDefinition.yaml.name,
+        vendor: this.cbDefinition.yaml.vendor,
         contentBlock: {
           fields: cleanedFields,
           basics: this.cbDefinition.yaml.basics || [],
@@ -770,6 +779,7 @@ export class ContentBlockEditor extends LitElement {
           prefixType: this.cbDefinition.yaml.prefixType || 'full',
           table: this.cbDefinition.yaml.table || 'tt_content',
           typeField: this.cbDefinition.yaml.typeField || 'CType',
+          typeName: this.cbDefinition.yaml.typeName || '',
           priority: this.cbDefinition.yaml.priority || 0,
           title: this.cbDefinition.yaml.title || '',
           vendorPrefix: this.cbDefinition.yaml.vendorPrefix || ''
@@ -1132,6 +1142,7 @@ export class ContentBlockEditor extends LitElement {
         extension: this.cbDefinition.hostExtension,
         mode: this.mode || 'edit',
         name: this.cbDefinition.yaml.name,
+        vendor: this.cbDefinition.yaml.vendor,
         contentBlock: {
           fields: cleanedFields,
           basics: this.cbDefinition.yaml.basics || [],
@@ -1140,6 +1151,7 @@ export class ContentBlockEditor extends LitElement {
           prefixType: this.cbDefinition.yaml.prefixType || 'full',
           table: this.cbDefinition.yaml.table || 'tt_content',
           typeField: this.cbDefinition.yaml.typeField || 'CType',
+          typeName: this.cbDefinition.yaml.typeName || '',
           priority: this.cbDefinition.yaml.priority || 0,
           title: this.cbDefinition.yaml.title || '',
           vendorPrefix: this.cbDefinition.yaml.vendorPrefix || ''

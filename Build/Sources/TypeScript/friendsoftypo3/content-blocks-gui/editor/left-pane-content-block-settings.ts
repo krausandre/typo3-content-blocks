@@ -64,11 +64,11 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
       </div>
       <div class="form-group">
         <label for="vendor" class="form-label">Vendor</label>
-        <input type="text" id="vendor" class="form-control" value=${isBasicMode ? ((this.contentBlockYaml as any).vendor || '') : this.contentBlockYaml.name} @input="${this.handleInputChange}" />
+        <input type="text" id="vendor" class="form-control" value=${((this.contentBlockYaml as any).vendor || '')} @input="${this.handleInputChange}" />
       </div>
       <div class="form-group">
         <label for="name" class="form-label">Name</label>
-        <input type="text" id="name" class="form-control" value=${isBasicMode ? (this.contentBlockYaml.name || '') : this.contentBlockYaml.name} @input="${this.handleInputChange}" />
+        <input type="text" id="name" class="form-control" value=${(this.contentBlockYaml.name || '')} @input="${this.handleInputChange}" />
       </div>
       ${!isBasicMode ? html`
         <div class="form-group">
@@ -106,6 +106,10 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
             `)}
           </select>
         </div>
+        <div class="form-group">
+          <label for="priority" class="form-label">Priority</label>
+          <input type="text" id="typeName" class="form-control" value="${this.contentBlockYaml.typeName || ''}" @input="${this.handleInputChange}" />
+        </div>
       ` : ''}
     `;
   }
@@ -126,15 +130,8 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
     const vendorInput = this.renderRoot.querySelector('#vendor') as HTMLInputElement;
     const nameInput = this.renderRoot.querySelector('#name') as HTMLInputElement;
 
-    if (isBasicMode) {
-      // For Basics, store vendor separately
-      if (vendorInput) settings.vendor = vendorInput.value;
-      if (nameInput) settings.name = nameInput.value;
-    } else {
-      // For Content Blocks, vendor is stored in the 'name' field
-      if (vendorInput) settings.name = vendorInput.value;
-      if (nameInput) settings.name = nameInput.value;
-    }
+    if (vendorInput) settings.vendor = vendorInput.value;
+    if (nameInput) settings.name = nameInput.value;
 
     // Content Block specific fields
     if (!isBasicMode) {
@@ -144,6 +141,7 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
       const vendorPrefixInput = this.renderRoot.querySelector('#vendor-prefix') as HTMLInputElement;
       const priorityInput = this.renderRoot.querySelector('#priority') as HTMLInputElement;
       const groupSelect = this.renderRoot.querySelector('#group') as HTMLSelectElement;
+      const typeName = this.renderRoot.querySelector('#typeName') as HTMLSelectElement;
 
       if (titleInput) settings.title = titleInput.value;
       if (prefixCheckbox) settings.prefixFields = prefixCheckbox.checked;
@@ -151,6 +149,7 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
       if (vendorPrefixInput) settings.vendorPrefix = vendorPrefixInput.value;
       if (priorityInput) settings.priority = priorityInput.value ? parseInt(priorityInput.value) : undefined;
       if (groupSelect) settings.group = groupSelect.value;
+      if (typeName) settings.typeName = typeName.value;
     }
 
     // Dispatch custom event to parent

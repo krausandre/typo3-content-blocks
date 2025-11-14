@@ -38,19 +38,18 @@ class ContentTypeService
     public function getContentTypeData(array $contentBlockData): array
     {
         // Validate vendor and name using EXT:content_blocks validators
-        $nameParts = explode('/', $contentBlockData['name']);
-        $vendor = strtolower($nameParts[0]);
-        $name = strtolower($nameParts[1]);
-        
+        $vendor = $contentBlockData['vendor'];
+        $name = $contentBlockData['name'];
+
         if (!ContentBlockNameValidator::isValid($vendor)) {
             throw new \RuntimeException('Vendor name "' . $vendor . '" does not match requirements.');
         }
-        
+
         if (!ContentBlockNameValidator::isValid($name)) {
             throw new \RuntimeException('Content Block name "' . $name . '" does not match requirements.');
         }
         $contentBlockData['contentBlock'] = json_decode($contentBlockData['contentBlock'], true);
-        
+
         $data = [
             'contentType' => $contentBlockData['contentType'],
             'extension' => $contentBlockData['extension'],
@@ -74,6 +73,7 @@ class ContentTypeService
             $data['contentBlock']['prefixType'] = $contentBlockData['contentBlock']['prefixType'] ?? 'full';
             $data['contentBlock']['table'] = $contentBlockData['contentBlock']['table'] ?? 'tt_content';
             $data['contentBlock']['typeField'] = $contentBlockData['contentBlock']['typeField'] ?? 'CType';
+            $data['contentBlock']['typeName'] = $contentBlockData['contentBlock']['typeName'] ?? '';
             $data['contentBlock']['priority'] = $contentBlockData['contentBlock']['priority'] ?? 0;
             $data['contentBlock']['title'] = $contentBlockData['contentBlock']['title'] ?? '';
             $data['contentBlock']['vendorPrefix'] = $contentBlockData['contentBlock']['vendorPrefix'] ?? '';
@@ -137,7 +137,7 @@ class ContentTypeService
         if (!array_key_exists($data['extension'], $availablePackages)) {
             throw new \RuntimeException('The extension "' . $data['extension'] . '" could not be found.');
         }
-        
+
         // Use ConfigBuilder like CreateContentBlockCommand does
         $yamlConfiguration = $this->configBuilder->build(
             ContentType::PAGE_TYPE,
@@ -147,7 +147,7 @@ class ContentTypeService
             $data['contentBlock']['type'], // Page type needs the type number
             $data['contentBlock'] // Pass additional config
         );
-        
+
         // Create properly configured LoadedContentBlock for page type
         $extPath = $this->getExtPath($data['extension'], ContentType::PAGE_TYPE);
 
@@ -185,7 +185,7 @@ class ContentTypeService
         if (!array_key_exists($data['extension'], $availablePackages)) {
             throw new \RuntimeException('The extension "' . $data['extension'] . '" could not be found.');
         }
-        
+
         // Use ConfigBuilder like CreateContentBlockCommand does
         $yamlConfiguration = $this->configBuilder->build(
             ContentType::RECORD_TYPE,
@@ -195,7 +195,7 @@ class ContentTypeService
             $data['contentBlock']['typeName'] ?? null,
             $data['contentBlock'] // Pass additional config
         );
-        
+
         // Create properly configured LoadedContentBlock for record type
         $extPath = $this->getExtPath($data['extension'], ContentType::RECORD_TYPE);
 
@@ -227,7 +227,7 @@ class ContentTypeService
     public function handleBasic(array $data): AnswerInterface
     {
         $identifier = $data['contentBlock']['vendor'] . '/' . $data['contentBlock']['name'];
-        
+
         // Build YAML configuration for basics
         $yamlConfiguration = [
             'identifier' => $identifier,
@@ -243,7 +243,7 @@ class ContentTypeService
         if(!is_dir($basePath)) {
             GeneralUtility::mkdir_deep($basePath);
         }
-        
+
         // Write the basics file
         file_put_contents(
             $basePath . '/' . $basicsFileName,
@@ -269,12 +269,12 @@ class ContentTypeService
         string $initialName = '',
     ): void {
         $contentBlockName = $contentBlock->getName();
-        
+
         if($this->contentBlockRegistry->hasContentBlock($contentBlockName) && $mode === 'create') {
             throw new \RuntimeException('A content block with the name "' . $contentBlockName . '" already exists.');
         } else if($this->contentBlockRegistry->hasContentBlock($contentBlockName) && $mode === 'edit') {
             $this->updateContentBlock($contentBlock);
-            
+
             // Flush caches like ContentBlockBuilder does
             $this->cacheManager->flushCachesInGroup('system');
             $this->cacheManager->getCache('typoscript')->flush();
@@ -290,12 +290,12 @@ class ContentTypeService
         } else {
             // Use ContentBlockBuilder for creation - it handles all file operations
             $this->contentBlockBuilder->create($contentBlock);
-            
+
             // Flush caches like CreateContentBlockCommand does
             $this->cacheManager->flushCachesInGroup('system');
             $this->cacheManager->getCache('typoscript')->flush();
         }
-        
+
         // Reload the registry after any content block operation
         $this->contentBlockLoader->loadUncached();
     }
@@ -333,7 +333,7 @@ class ContentTypeService
             copy($source, $destination);
         }
     }
-    
+
     /**
      * Get extension path for content type (from CreateContentBlockCommand)
      */
@@ -372,10 +372,10 @@ class ContentTypeService
     {
         $contentType = $contentBlock->getContentType();
         $yamlContent = $contentBlock->getYaml();
-        
+
         // Remove fields that match default values
         $yamlContent = $this->removeDefaultValues($yamlContent, $contentType);
-        
+
         if ($contentType !== ContentType::RECORD_TYPE) {
             unset($yamlContent['table']);
             unset($yamlContent['typeField']);
@@ -408,7 +408,7 @@ class ContentTypeService
                     unset($yamlContent['priority']);
                 }
                 break;
-                
+
             case ContentType::PAGE_TYPE:
                 // Default values for page types
                 if (isset($yamlContent['prefixFields']) && $yamlContent['prefixFields'] === true) {
@@ -418,7 +418,7 @@ class ContentTypeService
                     unset($yamlContent['prefixType']);
                 }
                 break;
-                
+
             case ContentType::RECORD_TYPE:
                 // Default values for record types
                 if (isset($yamlContent['prefixFields']) && $yamlContent['prefixFields'] === false) {
@@ -429,7 +429,7 @@ class ContentTypeService
                 }
                 // Remove default security settings
                 if (isset($yamlContent['security']) && is_array($yamlContent['security'])) {
-                    if (isset($yamlContent['security']['ignorePageTypeRestriction']) && 
+                    if (isset($yamlContent['security']['ignorePageTypeRestriction']) &&
                         $yamlContent['security']['ignorePageTypeRestriction'] === true) {
                         unset($yamlContent['security']['ignorePageTypeRestriction']);
                     }
@@ -442,7 +442,7 @@ class ContentTypeService
             default:
                 break;
         }
-        
+
         // Remove empty arrays and null values
         return array_filter($yamlContent, function($value) {
             return $value !== null && $value !== [] && $value !== '';
