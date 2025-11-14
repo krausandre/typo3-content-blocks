@@ -450,32 +450,39 @@ final class ContentBlocksGuiController
     {
         $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/editor.js');
         $queryParams = $request->getQueryParams();
-        if (!isset($queryParams['identifier'])) {
-            throw new RouteNotFoundException('Missing required basic identifier #1762887757');
-        }
-        $mode = 'new';
         $entryPoint = $this->backendEntryPointResolver->getPathFromRequest($request);
-        if($request->getUri()->getPath() === $entryPoint . 'content-block-gui/basic/modify/new') {
-            $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
+
+        if ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/basic/modify/new') {
+            // Create new Basic
+            $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/BasicSkeleton.json');
             $contentBlocksData = json_decode($skeletonJson, true);
-        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/edit') {
-            $mode = 'edit';
-//            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
-//            $contentBlocksData = json_decode($sampleJson, true);
-            $contentBlocksData = $this->contentBlocksUtility->getContentBlockByName($queryParams);
-        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/duplicate') {
-            $mode = 'duplicate';
-            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
-            $contentBlocksData = json_decode($sampleJson, true);
+        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/basic/modify/edit') {
+            // Edit existing Basic
+            if (empty($queryParams['identifier'])) {
+                throw new RouteNotFoundException('Missing required basic identifier');
+            }
+            // Load Basic data via BasicsService
+            try {
+                $basicData = $this->basicsService->loadBasic($queryParams['identifier']);
+                $contentBlocksData = [
+                    'name' => $queryParams['identifier'],
+                    'yaml' => $basicData,
+                    'hostExtension' => '',
+                    'extPath' => ''
+                ];
+            } catch (\Exception $e) {
+                throw new RouteNotFoundException('Basic not found: ' . $queryParams['identifier']);
+            }
         } else {
             throw new RouteNotFoundException('Invalid request');
         }
-        // Get table for field metadata
-        $table = $contentBlocksData['yaml']['table'] ?? 'tt_content';
+
+        // Basics don't have a table context, use tt_content as default for field metadata
+        $table = 'tt_content';
         $fieldMetadata = $this->fieldMetadataService->getFieldMetadata($table);
 
         $contentBlockEditorData = GeneralUtility::implodeAttributes([
-            'mode' => $mode,
+            'mode' => 'basic',  // Always use 'basic' mode for Basic editor
             'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
             'extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
             'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),

@@ -18,7 +18,7 @@ import '@typo3/backend/element/icon-element.js';
 import '@friendsoftypo3/content-blocks-gui/editor/left-pane-content-block-settings.js';
 import '@friendsoftypo3/content-blocks-gui/editor/left-pane-components.js';
 import '@friendsoftypo3/content-blocks-gui/editor/left-pane-basics.js';
-import type { ExtensionDefinition, GroupDefinition, ContentBlocksYaml, FieldTypeSetting } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
+import type { ExtensionDefinition, GroupDefinition, ContentBlocksYaml, FieldTypeSetting, BasicMetadata } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 
 /**
  * Module: @typo3/module/web/ContentBlocksGui
@@ -41,8 +41,15 @@ export class ContentBlockEditorLeftPane extends LitElement {
     fieldTypes: Array<FieldTypeSetting>;
   @property()
     hostExtension: string;
+  @property()
+    mode?: string;
+  @property()
+    availableBasics: Array<BasicMetadata> = [];
 
   protected render(): TemplateResult {
+    // For Basic mode, show simplified settings (extension, vendor, name only)
+    const isBasicMode = this.mode === 'basic';
+
     const isShowSettings = this.activeTab === 'settings';
     const isShowComponents = this.activeTab === 'components';
     const isShowBasics = this.activeTab === 'basics';
@@ -135,16 +142,18 @@ export class ContentBlockEditorLeftPane extends LitElement {
               Components
             </a>
           </li>
-          <li role="presentation" class="t3js-tabmenu-item ">
-            <a href="#"
-               @click="${() => {this.setActiveTab('basics');}}"
-               title=""
-               aria-selected="${isShowBasics ? 'true' : 'false'}"
-               class="${isShowBasics ? 'active' : nothing}"
-            >
-              Basics
-            </a>
-          </li>
+          ${isBasicMode ? nothing : html`
+            <li role="presentation" class="t3js-tabmenu-item ">
+              <a href="#"
+                 @click="${() => {this.setActiveTab('basics');}}"
+                 title=""
+                 aria-selected="${isShowBasics ? 'true' : 'false'}"
+                 class="${isShowBasics ? 'active' : nothing}"
+              >
+                Basics
+              </a>
+            </li>
+          `}
         </ul>
         <div class="tab-content">
           <div role="tabpanel" class="tab-pane active" id="content-elements-1">
@@ -168,11 +177,11 @@ export class ContentBlockEditorLeftPane extends LitElement {
   protected renderTab(): TemplateResult {
     switch (this.activeTab) {
       case 'settings':
-        return html`<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}" .groups="${this.groups}" .extensions="${this.extensions}" .hostExtension="${this.hostExtension}"></editor-left-pane-content-block-settings>`;
+        return html`<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}" .groups="${this.groups}" .extensions="${this.extensions}" .hostExtension="${this.hostExtension}" .mode="${this.mode}"></editor-left-pane-content-block-settings>`;
       case 'components':
         return html`<editor-left-pane-components .fieldTypes="${this.fieldTypes}"></editor-left-pane-components>`;
       case 'basics':
-        return html`<editor-left-pane-basics></editor-left-pane-basics>`;
+        return html`<editor-left-pane-basics .availableBasics="${this.availableBasics}" .selectedBasics="${this.contentBlockYaml.basics || []}"></editor-left-pane-basics>`;
       default:
         return html`Unknown tab: ${this.activeTab}`;
     }

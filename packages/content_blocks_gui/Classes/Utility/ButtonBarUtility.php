@@ -56,6 +56,19 @@ class ButtonBarUtility
             ->setShowLabelText(true);
         $buttonBar->addButton($addPageTypeButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
 
+        $addBasicButton = GeneralUtility::makeInstance(GenericButton::class)
+            ->setTag('a')
+            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_modify', [
+                'type' => 'new',
+                'identifier' => ''
+            ]))
+            ->setIcon($this->iconFactory->getIcon('actions-add'))
+            ->setTitle('Add a new basic')
+            ->setLabel('Add basic')
+            ->setShowLabelText(true)
+            ->setAttributes(['data-action' => 'add-basic']);
+        $buttonBar->addButton($addBasicButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
+
         $uploadButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('button')
             ->setIcon($this->iconFactory->getIcon('actions-upload'))

@@ -14,7 +14,7 @@ return [
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::duplicateAction'
     ],
     'content_block_gui_basic_modify' => [
-        'path' => '/content-block-gui/basic/modify',
+        'path' => '/content-block-gui/basic/modify/{type}',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::editBasicAction'
     ],
     'content_block_gui_basic_delete' => [

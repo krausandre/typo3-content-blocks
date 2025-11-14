@@ -36,9 +36,13 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
     contentBlockYaml: ContentBlocksYaml;
   @property()
     hostExtension: string;
+  @property()
+    mode?: string;
 
   protected render(): TemplateResult {
-      console.log(this.contentBlockYaml);
+    console.log(this.contentBlockYaml);
+    const isBasicMode = this.mode === 'basic';
+
     return html`
       <div class="form-group">
         <label for="extension" class="form-label">Extension</label>
@@ -57,41 +61,43 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
         <label for="name" class="form-label">Name</label>
         <input type="text" id="name" class="form-control" value=${this.contentBlockYaml.name} />
       </div>
-      <div class="form-group">
-        <label for="title" class="form-label">Title</label>
-        <input type="text" id="title" class="form-control" value="${this.contentBlockYaml.title || ''}" />
-      </div>
-      <div class="form-group">
-        <div class="form-check">
-          <input type="checkbox" id="prefix" class="form-check-input" ?checked=${this.contentBlockYaml.prefixFields} />
-          <label for="prefix" class="form-check-label">Prefix fields</label>
+      ${!isBasicMode ? html`
+        <div class="form-group">
+          <label for="title" class="form-label">Title</label>
+          <input type="text" id="title" class="form-control" value="${this.contentBlockYaml.title || ''}" />
         </div>
-      </div>
-      <div class="form-group">
-        <label for="prefix-type" class="form-label">Prefix type</label>
-        <select class="form-control" id="prefix-type">
-          <option value="">Choose...</option>
-          <option value="full" ?selected="${this.contentBlockYaml.prefixType === 'full' || !this.contentBlockYaml.prefixType}" >Full</option>
-          <option value="vendor" ?selected="${this.contentBlockYaml.prefixType === 'vendor'}" >Vendor</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="vendor-prefix" class="form-label">Vendor prefix</label>
-        <input type="text" id="vendor-prefix" class="form-control" value="${this.contentBlockYaml.vendorPrefix || ''}" />
-      </div>
-      <div class="form-group">
-        <label for="priority" class="form-label">Priority</label>
-        <input type="number" id="priority" class="form-control" value="${this.contentBlockYaml.priority || ''}" />
-      </div>
-      <div class="form-group">
-        <label for="group" class="form-label">Group</label>
-        <select class="form-control" id="group">
-          <option value="">Choose...</option>
-          ${this.groups.map((group: GroupDefinition) => html`
-            <option value="${group.key}" ?selected="${this.getGroupSelectionState(group.key)}">${group.label}</option>
-          `)}
-        </select>
-      </div>
+        <div class="form-group">
+          <div class="form-check">
+            <input type="checkbox" id="prefix" class="form-check-input" ?checked=${this.contentBlockYaml.prefixFields} />
+            <label for="prefix" class="form-check-label">Prefix fields</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="prefix-type" class="form-label">Prefix type</label>
+          <select class="form-control" id="prefix-type">
+            <option value="">Choose...</option>
+            <option value="full" ?selected="${this.contentBlockYaml.prefixType === 'full' || !this.contentBlockYaml.prefixType}" >Full</option>
+            <option value="vendor" ?selected="${this.contentBlockYaml.prefixType === 'vendor'}" >Vendor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="vendor-prefix" class="form-label">Vendor prefix</label>
+          <input type="text" id="vendor-prefix" class="form-control" value="${this.contentBlockYaml.vendorPrefix || ''}" />
+        </div>
+        <div class="form-group">
+          <label for="priority" class="form-label">Priority</label>
+          <input type="number" id="priority" class="form-control" value="${this.contentBlockYaml.priority || ''}" />
+        </div>
+        <div class="form-group">
+          <label for="group" class="form-label">Group</label>
+          <select class="form-control" id="group">
+            <option value="">Choose...</option>
+            ${this.groups.map((group: GroupDefinition) => html`
+              <option value="${group.key}" ?selected="${this.getGroupSelectionState(group.key)}">${group.label}</option>
+            `)}
+          </select>
+        </div>
+      ` : ''}
     `;
   }
 

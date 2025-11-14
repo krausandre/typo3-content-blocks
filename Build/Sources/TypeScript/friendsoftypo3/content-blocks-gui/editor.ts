@@ -13,7 +13,7 @@
 
 import { html, LitElement } from 'lit';
 import type { TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import '@typo3/backend/element/icon-element.js';
 import '@friendsoftypo3/content-blocks-gui/editor/left-pane.js';
 import '@friendsoftypo3/content-blocks-gui/editor/middle-pane.js';
@@ -84,6 +84,8 @@ export class ContentBlockEditor extends LitElement {
   groupList: Array<GroupDefinition>;
   extensionList: Array<ExtensionDefinition>;
   fieldMetadata: FieldMetadata;
+
+  @state()
   availableBasics: Array<BasicMetadata> = [];
 
   protected override render(): TemplateResult {
@@ -100,8 +102,11 @@ export class ContentBlockEditor extends LitElement {
               .extensions="${this.extensionList}"
               .fieldTypes="${this.fieldTypeList}"
               .hostExtension="${this.cbDefinition.hostExtension}"
+              .mode="${this.mode}"
+              .availableBasics="${this.availableBasics}"
               @dragStart="${this.handleDragStart}"
               @dragEnd="${this.handleDragEnd}"
+              @basics-changed="${this.handleBasicsChanged}"
             >
             </content-block-editor-left-pane>
           </div>
@@ -168,11 +173,19 @@ export class ContentBlockEditor extends LitElement {
    */
   protected async loadAvailableBasics(): Promise<void> {
     try {
-      const response = await new AjaxRequest(TYPO3.settings.ajaxUrls.content_block_gui_api_basics_list).get();
+      const response = await new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_list_basics).get();
       const data = await response.resolve();
 
-      if (data.success && Array.isArray(data.data)) {
-        this.availableBasics = data.data;
+      if (data.body && data.body.basicList) {
+        // Convert object to array and transform to BasicMetadata format
+        this.availableBasics = Object.values(data.body.basicList).map((basic: any) => ({
+          identifier: basic.identifier,
+          vendor: basic.identifier.split('/')[0] || '',
+          name: basic.identifier.split('/')[1] || '',
+          fieldCount: basic.fields?.length || 0,
+          path: '',
+          extension: basic.hostExtension || ''
+        }));
       }
     } catch (error) {
       console.error('Failed to load available Basics:', error);
@@ -585,6 +598,15 @@ export class ContentBlockEditor extends LitElement {
 
   private handleDragStart(): void {
     this.dragActive = true;
+  }
+
+  private handleBasicsChanged(event: CustomEvent): void {
+    const { basics } = event.detail;
+    // Create new yaml object reference so LitElement detects the change
+    this.cbDefinition = {
+      ...this.cbDefinition,
+      yaml: { ...this.cbDefinition.yaml, basics }
+    };
   }
 
   // TODO: add logic and templates to handle a duplicated content block
