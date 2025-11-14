@@ -19,6 +19,8 @@ namespace FriendsOfTYPO3\ContentBlocksGui\Service;
 
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\ContentBlocks\Basics\BasicsLoader;
+use TYPO3\CMS\ContentBlocks\Basics\BasicsRegistry;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -30,7 +32,9 @@ use Symfony\Component\Yaml\Yaml;
 final class BasicsService
 {
     public function __construct(
-        protected readonly PackageManager $packageManager
+        protected readonly PackageManager $packageManager,
+        protected BasicsRegistry $basicsRegistry,
+        protected readonly BasicsLoader $basicsLoader,
     ) {}
 
     /**
@@ -145,7 +149,235 @@ final class BasicsService
     }
 
     /**
-     * Save a Basic to disk
+     * Load a Basic for the editor with all necessary metadata
+     *
+     * Uses Content Blocks' internal BasicsRegistry API to load Basic data
+     * and prepares it in the format needed by the editor component.
+     *
+     * @param string $identifier Format: Vendor/Name
+     * @return array{identifier: string, fields: array, vendor: string, name: string, hostExtension: string}
+     * @throws \RuntimeException if Basic not found
+     */
+    public function loadBasicForEditor(string $identifier): array
+    {
+        // Load Basics to ensure registry is populated
+        $this->basicsRegistry = $this->basicsLoader->loadUncached();
+
+        // Check if basic exists
+        if (!$this->basicsRegistry->hasBasic($identifier)) {
+            throw new \RuntimeException(
+                sprintf('Basic "%s" not found', $identifier),
+                1734100001
+            );
+        }
+
+        // Get Basic from registry
+        $loadedBasic = $this->basicsRegistry->getBasic($identifier);
+
+        // Parse identifier into vendor and name
+        [$vendor, $name] = $this->parseIdentifier($identifier);
+
+        return [
+            'identifier' => $loadedBasic->getIdentifier(),
+            'fields' => $loadedBasic->getFields(),
+            'vendor' => $vendor,
+            'name' => $name,
+            'hostExtension' => $loadedBasic->getHostExtension(),
+        ];
+    }
+
+    /**
+     * Save a Basic for the GUI (handles both create and update)
+     *
+     * @param string $mode 'new' or 'edit'
+     * @param string $extension Extension key where Basic should be stored
+     * @param string $identifier Full identifier (Vendor/Name)
+     * @param array $fields Array of field definitions
+     * @return array{success: bool, message: string}
+     */
+    public function saveBasicFromGui(string $mode, string $extension, string $identifier, array $fields): array
+    {
+        try {
+            [$vendor, $name] = $this->parseIdentifier($identifier);
+
+            // Reload registry to check current state
+            $this->basicsRegistry = $this->basicsLoader->loadUncached();
+
+            // For create mode: check for collisions
+            if ($mode === 'new') {
+                // Check if Basic already exists in registry
+                if ($this->basicsRegistry->hasBasic($identifier)) {
+                    return [
+                        'success' => false,
+                        'message' => sprintf('Basic "%s" already exists. Please use a different identifier.', $identifier)
+                    ];
+                }
+
+                // Check if file exists
+                $basicsPath = $this->getBasicPathForCreate($extension, $identifier);
+                if (file_exists($basicsPath)) {
+                    return [
+                        'success' => false,
+                        'message' => sprintf('Basic file already exists at "%s". Please use a different identifier.', $basicsPath)
+                    ];
+                }
+
+                // Save to new location
+                $this->writeBasicYaml($basicsPath, $identifier, $fields);
+            } else {
+                // Update mode: find existing location or create new
+                $existingPath = $this->findBasicPath($identifier);
+
+                if ($existingPath === null) {
+                    // Basic was deleted externally - create new one
+                    $existingPath = $this->getBasicPathForCreate($extension, $identifier);
+                    $this->writeBasicYaml($existingPath, $identifier, $fields);
+
+                    return [
+                        'success' => true,
+                        'message' => sprintf(
+                            'Warning: Basic "%s" was not found and has been recreated. Please verify this is intended.',
+                            $identifier
+                        )
+                    ];
+                }
+
+                // Update existing Basic in same location
+                $this->writeBasicYaml($existingPath, $identifier, $fields);
+            }
+
+            return [
+                'success' => true,
+                'message' => sprintf('Basic "%s" saved successfully.', $identifier)
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => sprintf('Failed to save Basic: %s', $e->getMessage())
+            ];
+        }
+    }
+
+    /**
+     * Get path for creating a new Basic
+     *
+     * @param string $extension Extension key
+     * @param string $identifier Full identifier (Vendor/Name)
+     * @return string Absolute file path
+     */
+    protected function getBasicPathForCreate(string $extension, string $identifier): string
+    {
+        $package = $this->packageManager->getPackage($extension);
+        $basicsDir = $package->getPackagePath() . 'ContentBlocks/Basics';
+
+        // Ensure directory exists
+        if (!is_dir($basicsDir)) {
+            GeneralUtility::mkdir_deep($basicsDir);
+        }
+
+        // Use identifier as filename (e.g., "Vendor-Name.yaml")
+        $filename = str_replace('/', '-', $identifier) . '.yaml';
+        return $basicsDir . '/' . $filename;
+    }
+
+    /**
+     * Find existing Basic file path
+     *
+     * Searches in root Basics/ and subdirectories (ContentElements, PageTypes, RecordTypes)
+     *
+     * @param string $identifier Full identifier (Vendor/Name)
+     * @return string|null Absolute file path or null if not found
+     */
+    protected function findBasicPath(string $identifier): ?string
+    {
+        // Load registry to get Basic
+        if (!$this->basicsRegistry->hasBasic($identifier)) {
+            return null;
+        }
+
+        $loadedBasic = $this->basicsRegistry->getBasic($identifier);
+        $extension = $loadedBasic->getHostExtension();
+        $package = $this->packageManager->getPackage($extension);
+        $basicsDir = $package->getPackagePath() . 'ContentBlocks/Basics';
+
+        $filename = str_replace('/', '-', $identifier) . '.yaml';
+
+        // Check possible locations
+        $possiblePaths = [
+            $basicsDir . '/' . $filename,  // Root
+            $basicsDir . '/ContentElements/' . $filename,
+            $basicsDir . '/PageTypes/' . $filename,
+            $basicsDir . '/RecordTypes/' . $filename,
+        ];
+
+        foreach ($possiblePaths as $path) {
+            if (file_exists($path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Write Basic YAML file
+     *
+     * @param string $filePath Absolute file path
+     * @param string $identifier Full identifier (Vendor/Name)
+     * @param array $fields Array of field definitions
+     * @return void
+     * @throws \RuntimeException if write fails
+     */
+    protected function writeBasicYaml(string $filePath, string $identifier, array $fields): void
+    {
+        // Clean UI-only properties from fields before saving
+        $cleanedFields = $this->cleanFieldsForSave($fields);
+
+        // Prepare YAML content
+        $basicData = [
+            'identifier' => $identifier,
+            'fields' => $cleanedFields,
+        ];
+
+        $yamlContent = Yaml::dump($basicData, 10, 2);
+
+        // Write file
+        $result = GeneralUtility::writeFile($filePath, $yamlContent);
+        if ($result === false) {
+            throw new \RuntimeException(
+                sprintf('Failed to write Basic YAML file to "%s"', $filePath),
+                1734100002
+            );
+        }
+    }
+
+    /**
+     * Recursively clean UI-only properties from fields
+     * Removes properties that are only used in the frontend and should not be saved
+     *
+     * @param mixed $data Field data (array, nested arrays, or scalar)
+     * @return mixed Cleaned data
+     */
+    protected function cleanFieldsForSave($data)
+    {
+        if (is_array($data)) {
+            $cleaned = [];
+            foreach ($data as $key => $value) {
+                // Skip UI-only properties
+                if ($key === '_validation' || $key === '_isBaseField') {
+                    continue;
+                }
+                // Recursively clean nested structures
+                $cleaned[$key] = $this->cleanFieldsForSave($value);
+            }
+            return $cleaned;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Save a Basic to disk (legacy method - kept for compatibility)
      *
      * @param string $extension Extension key where Basic should be stored
      * @param string $vendor Vendor part of identifier
@@ -153,6 +385,7 @@ final class BasicsService
      * @param array $fields Array of field definitions
      * @return void
      * @throws \RuntimeException if validation fails
+     * @deprecated Use saveBasicFromGui() instead
      */
     public function saveBasic(string $extension, string $vendor, string $name, array $fields): void
     {
@@ -387,76 +620,5 @@ final class BasicsService
         }
 
         return $parts;
-    }
-
-    /**
-     * Find the file path for a Basic by identifier
-     *
-     * Searches recursively through ContentBlocks/Basics directories
-     * because the directory structure may not match the identifier structure
-     * (e.g., TYPO3/Header is in ContentBlocks/Basics/ContentElements/Header.yaml)
-     *
-     * @param string $vendor Vendor name
-     * @param string $name Basic name
-     * @return string|null File path or null if not found
-     */
-    protected function findBasicPath(string $vendor, string $name): ?string
-    {
-        $identifier = $vendor . '/' . $name;
-        $activePackages = $this->packageManager->getActivePackages();
-
-        foreach ($activePackages as $package) {
-            $basicsPath = $package->getPackagePath() . 'ContentBlocks/Basics';
-
-            if (!is_dir($basicsPath)) {
-                continue;
-            }
-
-            // Recursively search for YAML files
-            $yamlFiles = $this->findYamlFilesRecursive($basicsPath);
-
-            foreach ($yamlFiles as $yamlFile) {
-                // Read file and check identifier
-                $content = file_get_contents($yamlFile);
-                if ($content === false) {
-                    continue;
-                }
-
-                try {
-                    $yaml = Yaml::parse($content);
-                    if (isset($yaml['identifier']) && $yaml['identifier'] === $identifier) {
-                        return $yamlFile;
-                    }
-                } catch (\Exception $e) {
-                    // Skip invalid YAML files
-                    continue;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Recursively find all YAML files in a directory
-     *
-     * @param string $directory Directory to search
-     * @return array<string> List of file paths
-     */
-    protected function findYamlFilesRecursive(string $directory): array
-    {
-        $yamlFiles = [];
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($directory, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::SELF_FIRST
-        );
-
-        foreach ($iterator as $file) {
-            if ($file->isFile() && strtolower($file->getExtension()) === 'yaml') {
-                $yamlFiles[] = $file->getPathname();
-            }
-        }
-
-        return $yamlFiles;
     }
 }

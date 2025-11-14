@@ -27,6 +27,7 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
@@ -59,6 +60,7 @@ final class ContentBlocksGuiController
         protected readonly BackendEntryPointResolver $backendEntryPointResolver,
         protected readonly FieldMetadataService $fieldMetadataService,
         protected readonly BasicsService $basicsService,
+        protected readonly CacheManager $cacheManager,
     ) {
     }
 
@@ -317,6 +319,7 @@ final class ContentBlocksGuiController
 
         $contentBlockEditorData = GeneralUtility::implodeAttributes([
             'mode' => $mode,
+            'contenttype' => 'contentBlock',
             'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
             'extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
             'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),
@@ -451,6 +454,7 @@ final class ContentBlocksGuiController
         $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/editor.js');
         $queryParams = $request->getQueryParams();
         $entryPoint = $this->backendEntryPointResolver->getPathFromRequest($request);
+        $mode = 'new';
 
         if ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/basic/modify/new') {
             // Create new Basic
@@ -458,20 +462,23 @@ final class ContentBlocksGuiController
             $contentBlocksData = json_decode($skeletonJson, true);
         } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/basic/modify/edit') {
             // Edit existing Basic
+            $mode = 'edit';
             if (empty($queryParams['identifier'])) {
                 throw new RouteNotFoundException('Missing required basic identifier');
             }
-            // Load Basic data via BasicsService
+
             try {
-                $basicData = $this->basicsService->loadBasic($queryParams['identifier']);
+                // Load Basic data via BasicsService
+                $basicData = $this->basicsService->loadBasicForEditor($queryParams['identifier']);
+
                 $contentBlocksData = [
-                    'name' => $queryParams['identifier'],
+                    'name' => $basicData['identifier'],
                     'yaml' => $basicData,
-                    'hostExtension' => '',
+                    'hostExtension' => $basicData['hostExtension'],
                     'extPath' => ''
                 ];
             } catch (\Exception $e) {
-                throw new RouteNotFoundException('Basic not found: ' . $queryParams['identifier']);
+                throw new RouteNotFoundException('Basic not found: ' . $queryParams['identifier'] . ' - ' . $e->getMessage());
             }
         } else {
             throw new RouteNotFoundException('Invalid request');
@@ -482,7 +489,8 @@ final class ContentBlocksGuiController
         $fieldMetadata = $this->fieldMetadataService->getFieldMetadata($table);
 
         $contentBlockEditorData = GeneralUtility::implodeAttributes([
-            'mode' => 'basic',  // Always use 'basic' mode for Basic editor
+            'mode' => $mode,
+            'contenttype' => 'basic',
             'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
             'extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
             'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),
@@ -571,40 +579,88 @@ final class ContentBlocksGuiController
     {
         $body = $request->getParsedBody();
 
+        $mode = $body['mode'] ?? 'new';  // 'new' or 'edit'
         $extension = $body['extension'] ?? '';
         $vendor = $body['vendor'] ?? '';
         $name = $body['name'] ?? '';
-        $fields = $body['fields'] ?? [];
 
-        if (empty($extension) || empty($vendor) || empty($name)) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => 'Missing required parameters: extension, vendor, or name',
-            ], 400);
+        // Fields are sent as JSON string in FormData
+        $fields = [];
+        if (isset($body['fields'])) {
+            $fields = is_string($body['fields']) ? json_decode($body['fields'], true) : $body['fields'];
         }
 
+        if (empty($extension) || empty($vendor) || empty($name)) {
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                'Missing required parameters: extension, vendor, or name',
+                'Validation Error',
+                ContextualFeedbackSeverity::ERROR,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'basic']),
+                303
+            );
+        }
+
+        $identifier = $vendor . '/' . $name;
+
         try {
-            $this->basicsService->saveBasic($extension, $vendor, $name, $fields);
-            return new JsonResponse([
-                'success' => true,
-                'message' => sprintf('Basic "%s/%s" saved successfully', $vendor, $name),
-            ]);
-        } catch (\RuntimeException $e) {
-            return new JsonResponse([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 400);
+            // Use comprehensive save method that handles both create and update
+            $result = $this->basicsService->saveBasicFromGui($mode, $extension, $identifier, $fields);
+
+            if (!$result['success']) {
+                $flashMessage = GeneralUtility::makeInstance(
+                    FlashMessage::class,
+                    $result['message'] ?? 'Failed to save Basic',
+                    'Error',
+                    ContextualFeedbackSeverity::ERROR,
+                    true
+                );
+                $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+            } else {
+                // Flush system cache to reload Basics
+                $this->cacheManager->flushCachesInGroup('system');
+
+                $flashMessage = GeneralUtility::makeInstance(
+                    FlashMessage::class,
+                    $result['message'] ?? 'Basic saved successfully',
+                    'Success',
+                    ContextualFeedbackSeverity::OK,
+                    true
+                );
+                $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+            }
+
+            // Redirect to list view with basics tab active
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'basic']),
+                303
+            );
         } catch (\Exception $e) {
             $this->logger->error('Failed to save basic', [
+                'mode' => $mode,
                 'extension' => $extension,
-                'vendor' => $vendor,
-                'name' => $name,
+                'identifier' => $identifier,
                 'error' => $e->getMessage(),
             ]);
-            return new JsonResponse([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
+
+            $flashMessage = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                $e->getMessage(),
+                'Error',
+                ContextualFeedbackSeverity::ERROR,
+                true
+            );
+            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
+
+            return new RedirectResponse(
+                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'basic']),
+                303
+            );
         }
     }
 

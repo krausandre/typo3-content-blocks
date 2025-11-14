@@ -49,6 +49,8 @@ export class ContentBlockEditor extends LitElement {
   @property()
     mode?: string;
   @property()
+    contenttype?: string;
+  @property()
     data?: string;
   @property()
     extensions?: string;
@@ -103,10 +105,12 @@ export class ContentBlockEditor extends LitElement {
               .fieldTypes="${this.fieldTypeList}"
               .hostExtension="${this.cbDefinition.hostExtension}"
               .mode="${this.mode}"
+              .contenttype="${this.contenttype}"
               .availableBasics="${this.availableBasics}"
               @dragStart="${this.handleDragStart}"
               @dragEnd="${this.handleDragEnd}"
               @basics-changed="${this.handleBasicsChanged}"
+              @settings-changed="${this.handleSettingsChanged}"
             >
             </content-block-editor-left-pane>
           </div>
@@ -609,6 +613,20 @@ export class ContentBlockEditor extends LitElement {
     };
   }
 
+  private handleSettingsChanged(event: CustomEvent): void {
+    const { settings } = event.detail;
+
+    // Extract hostExtension separately as it's not part of yaml
+    const { hostExtension, ...yamlSettings } = settings;
+
+    // Create new object reference so LitElement detects the change
+    this.cbDefinition = {
+      ...this.cbDefinition,
+      hostExtension: hostExtension || this.cbDefinition.hostExtension,
+      yaml: { ...this.cbDefinition.yaml, ...yamlSettings }
+    };
+  }
+
   // TODO: add logic and templates to handle a duplicated content block
   private _initMultiStepWizard() {
     // const contentBlockData = this.data;
@@ -635,17 +653,17 @@ export class ContentBlockEditor extends LitElement {
     } else if (obj && typeof obj === 'object') {
       const cleaned = { ...obj };
       delete cleaned.enabled;
-      
+
       // Recursively clean nested objects
       for (const key in cleaned) {
         if (cleaned.hasOwnProperty(key)) {
           cleaned[key] = this.removeEnabledProperties(cleaned[key]);
         }
       }
-      
+
       return cleaned;
     }
-    
+
     return obj;
   }
 
@@ -654,28 +672,28 @@ export class ContentBlockEditor extends LitElement {
    */
   private validateUniqueIdentifiers(fields: ContentBlockField[]): { isValid: boolean; duplicates: string[] } {
     const duplicates: string[] = [];
-    
+
     const validateLevel = (fieldsAtLevel: ContentBlockField[]): void => {
       const identifierCounts = new Map<string, number>();
-      
+
       for (const field of fieldsAtLevel) {
         if (field.identifier) {
           const count = identifierCounts.get(field.identifier) || 0;
           identifierCounts.set(field.identifier, count + 1);
-          
+
           if (count === 1) {
             duplicates.push(field.identifier);
           }
         }
-        
+
         if (field.fields && field.fields.length > 0) {
           validateLevel(field.fields);
         }
       }
     };
-    
+
     validateLevel(fields);
-    
+
     return {
       isValid: duplicates.length === 0,
       duplicates
@@ -683,7 +701,7 @@ export class ContentBlockEditor extends LitElement {
   }
 
   /**
-   * Save content block via AJAX
+   * Save content block or basic via AJAX
    */
   private async saveContentBlock(): Promise<void> {
     try {
@@ -692,6 +710,12 @@ export class ContentBlockEditor extends LitElement {
         button.disabled = true;
         button.innerHTML = '<typo3-backend-icon identifier="spinner-circle" size="small"></typo3-backend-icon> Saving...';
       });
+
+      // Check if we're saving a Basic or Content Block
+      if (this.contenttype === 'basic') {
+        await this.saveBasic();
+        return;
+      }
 
       // Clean fields by removing "enabled" properties and injected types recursively
       let cleanedFields = this.removeEnabledProperties(this.cbDefinition.yaml.fields || []);
@@ -763,7 +787,7 @@ export class ContentBlockEditor extends LitElement {
         .post(formData);
 
       await response.resolve();
-      
+
       // Show success message
       Modal.confirm(
         'Success',
@@ -782,7 +806,7 @@ export class ContentBlockEditor extends LitElement {
 
     } catch (error) {
       console.error('Failed to save content block:', error);
-      
+
       // Show error message
       Modal.confirm(
         'Error',
@@ -800,6 +824,115 @@ export class ContentBlockEditor extends LitElement {
       );
     } finally {
       // Restore save buttons
+      const saveButtons = document.querySelectorAll('[data-action="save-content-block"]') as NodeListOf<HTMLButtonElement>;
+      saveButtons.forEach(button => {
+        button.disabled = false;
+        button.innerHTML = '<typo3-backend-icon identifier="actions-save"></typo3-backend-icon> Save';
+      });
+    }
+  }
+
+  /**
+   * Save Basic via form POST (with proper server-side redirect)
+   */
+  private async saveBasic(): Promise<void> {
+    try {
+      // Get vendor and name from component state (not DOM, since form may not be rendered when on different tab)
+      const vendor = (this.cbDefinition.yaml as any).vendor?.trim() || '';
+      const name = this.cbDefinition.yaml.name?.trim() || '';
+
+      if (!vendor || !name) {
+        Modal.confirm(
+          'Validation Error',
+          'Vendor and Name are required fields.',
+          SeverityEnum.error,
+          [{
+            text: 'OK',
+            active: true,
+            btnClass: 'btn-default',
+            trigger: function() {
+              Modal.dismiss();
+            }
+          }]
+        );
+        return;
+      }
+
+      // Get extension from component state
+      const extension = this.cbDefinition.hostExtension;
+      if (!extension || extension === '0') {
+        Modal.confirm(
+          'Validation Error',
+          'Please select an extension.',
+          SeverityEnum.error,
+          [{
+            text: 'OK',
+            active: true,
+            btnClass: 'btn-default',
+            trigger: function() {
+              Modal.dismiss();
+            }
+          }]
+        );
+        return;
+      }
+
+      // Clean fields by removing "enabled", "_validation", "_isBaseField" properties
+      const cleanedFields = this.removeEnabledProperties(this.cbDefinition.yaml.fields || []);
+
+      // Create a hidden form and submit it for proper server-side redirect
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = TYPO3.settings.ajaxUrls.content_block_gui_api_basics_save;
+
+      // Add form fields
+      const addHiddenInput = (name: string, value: string) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      };
+
+      addHiddenInput('mode', this.mode || 'new');
+      addHiddenInput('extension', extension);
+      addHiddenInput('vendor', vendor);
+      addHiddenInput('name', name);
+      addHiddenInput('fields', JSON.stringify(cleanedFields));
+
+      // Append form to body, submit, and remove
+      document.body.appendChild(form);
+      form.submit();
+      // Note: form will be removed on page navigation
+
+    } catch (error) {
+      console.error('Failed to save basic:', error);
+
+      let errorMessage = 'Failed to save Basic. Please try again.';
+
+      // Try to extract error message from response
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'object' && error !== null && 'message' in error) {
+        errorMessage = (error as any).message;
+      }
+
+      // Show error message
+      Modal.confirm(
+        'Error',
+        errorMessage,
+        SeverityEnum.error,
+        [{
+          text: 'OK',
+          active: true,
+          btnClass: 'btn-default',
+          trigger: function() {
+            Modal.dismiss();
+          }
+        }]
+      );
+    } finally {
+      // Restore save buttons (in case of client-side validation error)
       const saveButtons = document.querySelectorAll('[data-action="save-content-block"]') as NodeListOf<HTMLButtonElement>;
       saveButtons.forEach(button => {
         button.disabled = false;

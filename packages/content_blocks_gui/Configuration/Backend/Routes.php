@@ -34,10 +34,11 @@ return [
         'path' => '/content-block-gui/api/basics/load',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::loadBasicApiAction'
     ],
-    'content_block_gui_api_basics_save' => [
-        'path' => '/content-block-gui/api/basics/save',
-        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::saveBasicApiAction'
-    ],
+    // Basics save endpoint moved to AjaxRoutes.php (required for TYPO3.settings.ajaxUrls in JavaScript)
+    // 'content_block_gui_api_basics_save' => [
+    //     'path' => '/content-block-gui/api/basics/save',
+    //     'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::saveBasicApiAction'
+    // ],
     'content_block_gui_api_basics_validate' => [
         'path' => '/content-block-gui/api/basics/validate',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::validateBasicApiAction'

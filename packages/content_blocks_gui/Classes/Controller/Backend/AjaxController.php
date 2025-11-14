@@ -27,10 +27,13 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Domain\Model\Dto\ImportAnalysis;
+use FriendsOfTYPO3\ContentBlocksGui\Service\BasicsService;
 use FriendsOfTYPO3\ContentBlocksGui\Service\ContentBlockImportAnalyzer;
 use FriendsOfTYPO3\ContentBlocksGui\Service\ContentBlockImportService;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ContentBlocksUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ExtensionUtility;
+use Psr\Log\LoggerInterface;
+use TYPO3\CMS\Core\Cache\CacheManager;
 
 #[Controller]
 final class AjaxController
@@ -42,6 +45,9 @@ final class AjaxController
         protected ContentBlocksUtility $contentBlocksUtility,
         protected ContentBlockImportAnalyzer $importAnalyzer,
         protected ContentBlockImportService $importService,
+        protected readonly BasicsService $basicsService,
+        protected readonly CacheManager $cacheManager,
+        protected readonly LoggerInterface $logger,
     ) {
     }
 
@@ -356,5 +362,6 @@ final class AjaxController
             throw new \RuntimeException('File upload failed with error code: ' . $file->getError());
         }
     }
+
 }
 

@@ -38,43 +38,52 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
     hostExtension: string;
   @property()
     mode?: string;
+  @property()
+    contenttype?: string;
 
   protected render(): TemplateResult {
     console.log(this.contentBlockYaml);
-    const isBasicMode = this.mode === 'basic';
+    const isBasicMode = this.contenttype === 'basic';
+    const isEditMode = this.mode === 'edit';
 
     return html`
       <div class="form-group">
         <label for="extension" class="form-label">Extension</label>
-        <select class="form-control" id="extension">
+        <select class="form-control" id="extension" ?disabled="${isEditMode}" @change="${this.handleInputChange}">
           <option value="0">Choose...</option>
           ${this.extensions.map((extension: ExtensionDefinition) => html`
             <option value="${extension.package}" ?selected="${extension.package === this.hostExtension}">${extension.extension}</option>
           `)}
         </select>
+        ${isEditMode ? html`
+          <div class="form-text text-muted mt-1">
+            <typo3-backend-icon identifier="actions-document-info" size="small"></typo3-backend-icon>
+            Extension cannot be changed in edit mode. Use "Duplicate" to copy to another extension.
+          </div>
+        ` : ''}
       </div>
       <div class="form-group">
         <label for="vendor" class="form-label">Vendor</label>
-        <input type="text" id="vendor" class="form-control" value=${this.contentBlockYaml.name} />
+        <input type="text" id="vendor" class="form-control" value=${isBasicMode ? ((this.contentBlockYaml as any).vendor || '') : this.contentBlockYaml.name} @input="${this.handleInputChange}" />
       </div>
       <div class="form-group">
         <label for="name" class="form-label">Name</label>
-        <input type="text" id="name" class="form-control" value=${this.contentBlockYaml.name} />
+        <input type="text" id="name" class="form-control" value=${isBasicMode ? (this.contentBlockYaml.name || '') : this.contentBlockYaml.name} @input="${this.handleInputChange}" />
       </div>
       ${!isBasicMode ? html`
         <div class="form-group">
           <label for="title" class="form-label">Title</label>
-          <input type="text" id="title" class="form-control" value="${this.contentBlockYaml.title || ''}" />
+          <input type="text" id="title" class="form-control" value="${this.contentBlockYaml.title || ''}" @input="${this.handleInputChange}" />
         </div>
         <div class="form-group">
           <div class="form-check">
-            <input type="checkbox" id="prefix" class="form-check-input" ?checked=${this.contentBlockYaml.prefixFields} />
+            <input type="checkbox" id="prefix" class="form-check-input" ?checked=${this.contentBlockYaml.prefixFields} @change="${this.handleInputChange}" />
             <label for="prefix" class="form-check-label">Prefix fields</label>
           </div>
         </div>
         <div class="form-group">
           <label for="prefix-type" class="form-label">Prefix type</label>
-          <select class="form-control" id="prefix-type">
+          <select class="form-control" id="prefix-type" @change="${this.handleInputChange}">
             <option value="">Choose...</option>
             <option value="full" ?selected="${this.contentBlockYaml.prefixType === 'full' || !this.contentBlockYaml.prefixType}" >Full</option>
             <option value="vendor" ?selected="${this.contentBlockYaml.prefixType === 'vendor'}" >Vendor</option>
@@ -82,15 +91,15 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
         </div>
         <div class="form-group">
           <label for="vendor-prefix" class="form-label">Vendor prefix</label>
-          <input type="text" id="vendor-prefix" class="form-control" value="${this.contentBlockYaml.vendorPrefix || ''}" />
+          <input type="text" id="vendor-prefix" class="form-control" value="${this.contentBlockYaml.vendorPrefix || ''}" @input="${this.handleInputChange}" />
         </div>
         <div class="form-group">
           <label for="priority" class="form-label">Priority</label>
-          <input type="number" id="priority" class="form-control" value="${this.contentBlockYaml.priority || ''}" />
+          <input type="number" id="priority" class="form-control" value="${this.contentBlockYaml.priority || ''}" @input="${this.handleInputChange}" />
         </div>
         <div class="form-group">
           <label for="group" class="form-label">Group</label>
-          <select class="form-control" id="group">
+          <select class="form-control" id="group" @change="${this.handleInputChange}">
             <option value="">Choose...</option>
             ${this.groups.map((group: GroupDefinition) => html`
               <option value="${group.key}" ?selected="${this.getGroupSelectionState(group.key)}">${group.label}</option>
@@ -99,6 +108,57 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
         </div>
       ` : ''}
     `;
+  }
+
+  private handleInputChange(event: Event): void {
+    const isBasicMode = this.contenttype === 'basic';
+
+    // Read all current form values
+    const settings: any = {};
+
+    // Extension (for parent component, not part of YAML)
+    const extensionSelect = this.renderRoot.querySelector('#extension') as HTMLSelectElement;
+    if (extensionSelect) {
+      settings.hostExtension = extensionSelect.value;
+    }
+
+    // Vendor and Name
+    const vendorInput = this.renderRoot.querySelector('#vendor') as HTMLInputElement;
+    const nameInput = this.renderRoot.querySelector('#name') as HTMLInputElement;
+
+    if (isBasicMode) {
+      // For Basics, store vendor separately
+      if (vendorInput) settings.vendor = vendorInput.value;
+      if (nameInput) settings.name = nameInput.value;
+    } else {
+      // For Content Blocks, vendor is stored in the 'name' field
+      if (vendorInput) settings.name = vendorInput.value;
+      if (nameInput) settings.name = nameInput.value;
+    }
+
+    // Content Block specific fields
+    if (!isBasicMode) {
+      const titleInput = this.renderRoot.querySelector('#title') as HTMLInputElement;
+      const prefixCheckbox = this.renderRoot.querySelector('#prefix') as HTMLInputElement;
+      const prefixTypeSelect = this.renderRoot.querySelector('#prefix-type') as HTMLSelectElement;
+      const vendorPrefixInput = this.renderRoot.querySelector('#vendor-prefix') as HTMLInputElement;
+      const priorityInput = this.renderRoot.querySelector('#priority') as HTMLInputElement;
+      const groupSelect = this.renderRoot.querySelector('#group') as HTMLSelectElement;
+
+      if (titleInput) settings.title = titleInput.value;
+      if (prefixCheckbox) settings.prefixFields = prefixCheckbox.checked;
+      if (prefixTypeSelect) settings.prefixType = prefixTypeSelect.value;
+      if (vendorPrefixInput) settings.vendorPrefix = vendorPrefixInput.value;
+      if (priorityInput) settings.priority = priorityInput.value ? parseInt(priorityInput.value) : undefined;
+      if (groupSelect) settings.group = groupSelect.value;
+    }
+
+    // Dispatch custom event to parent
+    this.dispatchEvent(new CustomEvent('settings-changed', {
+      detail: { settings },
+      bubbles: true,
+      composed: true
+    }));
   }
 
   protected getGroupSelectionState(groupKey: string): boolean {

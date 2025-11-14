@@ -44,11 +44,13 @@ export class ContentBlockEditorLeftPane extends LitElement {
   @property()
     mode?: string;
   @property()
+    contenttype?: string;
+  @property()
     availableBasics: Array<BasicMetadata> = [];
 
   protected render(): TemplateResult {
-    // For Basic mode, show simplified settings (extension, vendor, name only)
-    const isBasicMode = this.mode === 'basic';
+    // For Basic mode, hide the Basics tab (Basics can't have root-level basics)
+    const isBasicMode = this.contenttype === 'basic';
 
     const isShowSettings = this.activeTab === 'settings';
     const isShowComponents = this.activeTab === 'components';
@@ -177,7 +179,7 @@ export class ContentBlockEditorLeftPane extends LitElement {
   protected renderTab(): TemplateResult {
     switch (this.activeTab) {
       case 'settings':
-        return html`<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}" .groups="${this.groups}" .extensions="${this.extensions}" .hostExtension="${this.hostExtension}" .mode="${this.mode}"></editor-left-pane-content-block-settings>`;
+        return html`<editor-left-pane-content-block-settings .contentBlockYaml="${this.contentBlockYaml}" .groups="${this.groups}" .extensions="${this.extensions}" .hostExtension="${this.hostExtension}" .mode="${this.mode}" .contenttype="${this.contenttype}" @settings-changed="${this.handleSettingsChanged}"></editor-left-pane-content-block-settings>`;
       case 'components':
         return html`<editor-left-pane-components .fieldTypes="${this.fieldTypes}"></editor-left-pane-components>`;
       case 'basics':
@@ -185,6 +187,15 @@ export class ContentBlockEditorLeftPane extends LitElement {
       default:
         return html`Unknown tab: ${this.activeTab}`;
     }
+  }
+
+  private handleSettingsChanged(event: CustomEvent): void {
+    // Forward the event to the parent editor component
+    this.dispatchEvent(new CustomEvent('settings-changed', {
+      detail: event.detail,
+      bubbles: true,
+      composed: true
+    }));
   }
 
   private setActiveTab(tab: string): void {

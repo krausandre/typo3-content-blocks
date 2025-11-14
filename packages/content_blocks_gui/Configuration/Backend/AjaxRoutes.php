@@ -64,7 +64,12 @@ return [
         'path' => '/contentblocks/gui/import',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::executeImportAction',
     ],
-    // New Basics API routes
+    // Basics save endpoint - Uses form POST with redirect (needs to be in AjaxRoutes for TYPO3.settings.ajaxUrls)
+    'content_block_gui_api_basics_save' => [
+        'path' => '/content-block-gui/api/basics/save',
+        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::saveBasicApiAction',
+    ],
+    // Legacy API routes (kept in ContentBlocksGuiController for now)
     'content_block_gui_api_basics_list' => [
         'path' => '/content-block-gui/api/basics/list',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::listBasicsApiAction'
@@ -72,10 +77,6 @@ return [
     'content_block_gui_api_basics_load' => [
         'path' => '/content-block-gui/api/basics/load',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::loadBasicApiAction'
-    ],
-    'content_block_gui_api_basics_save' => [
-        'path' => '/content-block-gui/api/basics/save',
-        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::saveBasicApiAction'
     ],
     'content_block_gui_api_basics_validate' => [
         'path' => '/content-block-gui/api/basics/validate',
