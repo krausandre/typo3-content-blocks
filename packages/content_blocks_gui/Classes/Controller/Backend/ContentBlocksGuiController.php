@@ -678,6 +678,7 @@ final class ContentBlocksGuiController
         $extension = $body['extension'] ?? '';
         $mode = $body['mode'] ?? 'edit';
         $name = $body['name'] ?? '';
+        $vendor = $body['vendor'] ?? '';
 
         // ContentBlock data is sent as JSON string
         $contentBlock = [];
@@ -685,7 +686,7 @@ final class ContentBlocksGuiController
             $contentBlock = is_string($body['contentBlock']) ? json_decode($body['contentBlock'], true) : $body['contentBlock'];
         }
 
-        if (empty($extension) || empty($name)) {
+        if (empty($extension) || empty($name) || empty($vendor)) {
             $flashMessage = GeneralUtility::makeInstance(
                 FlashMessage::class,
                 'Missing required parameters: extension or name',
@@ -708,7 +709,8 @@ final class ContentBlocksGuiController
                 'extension' => $extension,
                 'mode' => $mode,
                 'name' => $name,
-                'contentBlock' => $contentBlock
+                'vendor' => $vendor,
+                'contentBlock' => $contentBlock,
             ];
 
             $result = $this->contentBlocksUtility->saveContentType($saveData);

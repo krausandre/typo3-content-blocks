@@ -107,7 +107,7 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
           </select>
         </div>
         <div class="form-group">
-          <label for="priority" class="form-label">Priority</label>
+          <label for="typeName" class="form-label">typeName</label>
           <input type="text" id="typeName" class="form-control" value="${this.contentBlockYaml.typeName || ''}" @input="${this.handleInputChange}" />
         </div>
       ` : ''}

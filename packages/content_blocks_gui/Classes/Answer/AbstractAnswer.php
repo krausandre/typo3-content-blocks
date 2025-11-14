@@ -22,6 +22,7 @@ use TYPO3\CMS\Core\Http\JsonResponse;
 abstract class AbstractAnswer
 {
     protected $success = false;
+
     protected $message = '';
     protected $body = [];
 
@@ -37,5 +38,10 @@ abstract class AbstractAnswer
             'success' => $this->success,
             'message' => $this->message,
         ]);
+    }
+
+    public function isSuccess(): bool
+    {
+        return $this->success;
     }
 }

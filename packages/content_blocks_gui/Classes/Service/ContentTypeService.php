@@ -48,7 +48,7 @@ class ContentTypeService
         if (!ContentBlockNameValidator::isValid($name)) {
             throw new \RuntimeException('Content Block name "' . $name . '" does not match requirements.');
         }
-        $contentBlockData['contentBlock'] = json_decode($contentBlockData['contentBlock'], true);
+        $contentBlockData['contentBlock'] = is_array($contentBlockData['contentBlock']) ? $contentBlockData['contentBlock'] : json_decode($contentBlockData['contentBlock'], true);
 
         $data = [
             'contentType' => $contentBlockData['contentType'],

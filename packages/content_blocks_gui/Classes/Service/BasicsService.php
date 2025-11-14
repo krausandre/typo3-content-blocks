@@ -303,6 +303,7 @@ final class BasicsService
         $filename = str_replace('/', '-', $identifier) . '.yaml';
 
         // Check possible locations
+        // @todo: if we search recursively, this is not needed since the Path in Basics can be anything
         $possiblePaths = [
             $basicsDir . '/' . $filename,  // Root
             $basicsDir . '/ContentElements/' . $filename,
