@@ -120,19 +120,19 @@ export class ContentBlockEditorRightPane extends LitElement {
       case 'number':
         return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] as number || fieldTypeProperty.default)}" class="form-control" />`;
       case 'select':
-        // Disable prefixType when prefixField is false
-        const isPrefixTypeDisabled = fieldTypeProperty.name === 'prefixType' && !this.values['prefixField'];
+        // Disable prefixType when prefixFields is false
+        const isPrefixTypeDisabled = fieldTypeProperty.name === 'prefixType' && !this.values['prefixFields'];
         return html `<select @change="${this.dispatchBlurEvent}" class="form-select" id="${fieldTypeProperty.name}" ?disabled="${isPrefixTypeDisabled}">
           <option value="">Choose...</option>
           ${fieldTypeProperty.items.map( (option: FieldTypeItems) => html`
             <option .value="${live(option.value)}" ?selected="${live(this.values[fieldTypeProperty.name] === option.value)}">${option.label}</option>` )}
         </select>`;
       case 'boolean':
-        // Disable prefixField checkbox for base fields with useExistingField
-        const isPrefixFieldDisabled = fieldTypeProperty.name === 'prefixField' && this.values['_isBaseField'];
-        // Force prefixField to false for base fields
-        const checkboxValue = isPrefixFieldDisabled ? false : (this.values[fieldTypeProperty.name] as boolean || fieldTypeProperty.default);
-        return html `<input @change="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(checkboxValue)} ?disabled="${isPrefixFieldDisabled}" class="form-check-input" />`;
+        // Disable prefixFields checkbox for base fields with useExistingField
+        const isPrefixFieldsDisabled = fieldTypeProperty.name === 'prefixFields' && this.values['_isBaseField'];
+        // Force prefixFields to false for base fields
+        const checkboxValue = isPrefixFieldsDisabled ? false : (this.values[fieldTypeProperty.name] as boolean || fieldTypeProperty.default);
+        return html `<input @change="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(checkboxValue)} ?disabled="${isPrefixFieldsDisabled}" class="form-check-input" />`;
       case 'textarea':
         return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${live(fieldTypeProperty.default)}</textarea>`;
       case 'array':

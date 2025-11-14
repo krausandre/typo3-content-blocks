@@ -224,8 +224,8 @@ export class ContentBlockEditor extends LitElement {
           // Base field detected
           field._isBaseField = true;
 
-          // FORCE prefixField to false - you can't prefix existing base fields
-          field.prefixField = false;
+          // FORCE prefixFields to false - you can't prefix existing base fields
+          field.prefixFields = false;
           // Reset prefixType since prefixing is disabled
           field.prefixType = '';
 
@@ -261,7 +261,7 @@ export class ContentBlockEditor extends LitElement {
     // Check 2: useExistingField logic (only applies at level 0)
     // This check must come BEFORE system reserved field check, because base fields
     // like 'header' are reusable and should show SUCCESS, not ERROR
-    if (level === 0 && field.useExistingField && !field.prefixField) {
+    if (level === 0 && field.useExistingField && !field.prefixFields) {
       const baseField = this.fieldMetadata.baseFields[field.identifier];
 
       if (baseField) {
@@ -299,7 +299,7 @@ export class ContentBlockEditor extends LitElement {
     }
 
     // Check 3: System reserved fields without prefixing (for new fields)
-    if (!field.prefixField && this.fieldMetadata.systemReservedFields.includes(field.identifier)) {
+    if (!field.prefixFields && this.fieldMetadata.systemReservedFields.includes(field.identifier)) {
       return {
         valid: false,
         severity: 'error',
@@ -551,13 +551,13 @@ export class ContentBlockEditor extends LitElement {
         const baseField = this.fieldMetadata.baseFields[field.identifier];
 
         if (baseField) {
-          // It's a base field - FORCE prefixField to false
-          field.prefixField = false;
+          // It's a base field - FORCE prefixFields to false
+          field.prefixFields = false;
           // Reset prefixType since prefixing is disabled
           field.prefixType = '';
           field._isBaseField = true;
 
-          console.log(`activateFieldSettings: Set field.prefixField = false, field._isBaseField = true for "${field.identifier}"`);
+          console.log(`activateFieldSettings: Set field.prefixFields = false, field._isBaseField = true for "${field.identifier}"`);
 
           // Inject type if missing
           if (!field.type || field._typeInjected) {
@@ -585,7 +585,7 @@ export class ContentBlockEditor extends LitElement {
 
       console.log('activateFieldSettings: fieldSettingsValues after clone:', {
         identifier: this.fieldSettingsValues.identifier,
-        prefixField: this.fieldSettingsValues.prefixField,
+        prefixFields: this.fieldSettingsValues.prefixFields,
         _isBaseField: this.fieldSettingsValues._isBaseField
       });
 
@@ -757,7 +757,7 @@ export class ContentBlockEditor extends LitElement {
         return;
       }
 
-      const saveData = {
+      const saveData: Record<string, any> = {
         contentType: 'content-element', // TODO: make configurable to support other page-type and record-type
         extension: this.cbDefinition.hostExtension,
         mode: this.mode || 'edit', // Use edit mode by default
@@ -766,7 +766,7 @@ export class ContentBlockEditor extends LitElement {
           fields: cleanedFields,
           basics: this.cbDefinition.yaml.basics || [],
           group: this.cbDefinition.yaml.group || 'default',
-          prefixField: this.cbDefinition.yaml.prefixField !== false,
+          prefixFields: this.cbDefinition.yaml.prefixFields !== false,
           prefixType: this.cbDefinition.yaml.prefixType || 'full',
           table: this.cbDefinition.yaml.table || 'tt_content',
           typeField: this.cbDefinition.yaml.typeField || 'CType',
@@ -778,8 +778,8 @@ export class ContentBlockEditor extends LitElement {
 
       if (this.mode === 'copy') {
         // These would need to be provided by the UI for copy operations
-        saveData.contentBlock.initialVendor = this.cbDefinition.yaml.initialVendor || '';
-        saveData.contentBlock.initialName = this.cbDefinition.yaml.initialName || '';
+        saveData.contentBlock.initialVendor = (this.cbDefinition.yaml as any).initialVendor || '';
+        saveData.contentBlock.initialName = (this.cbDefinition.yaml as any).initialName || '';
       }
 
       const formData = new FormData();
@@ -795,7 +795,13 @@ export class ContentBlockEditor extends LitElement {
       const response = await new AjaxRequest(ajaxUrl)
         .post(formData);
 
-      await response.resolve();
+      const result = await response.resolve();
+
+      // Switch from 'new' to 'edit' mode after successful first save
+      if (this.mode === 'new' && result.success !== false) {
+        this.mode = 'edit';
+        console.log('Switched mode from "new" to "edit" after successful Content Block save');
+      }
 
       // Show success message
       Modal.confirm(
@@ -904,6 +910,12 @@ export class ContentBlockEditor extends LitElement {
         .post(saveData);
 
       const result = await response.resolve();
+
+      // Switch from 'new' to 'edit' mode after successful first save
+      if (this.mode === 'new' && result.success) {
+        this.mode = 'edit';
+        console.log('Switched mode from "new" to "edit" after successful save');
+      }
 
       // Show success message
       Modal.confirm(
@@ -1089,8 +1101,82 @@ export class ContentBlockEditor extends LitElement {
         return;
       }
 
-      // TODO: Implement Content Block save & close
-      throw new Error('Content Block save & close not yet implemented');
+      // Content Block save & close implementation
+      // Clean fields by removing "enabled" properties and injected types recursively
+      let cleanedFields = this.removeEnabledProperties(this.cbDefinition.yaml.fields || []);
+      cleanedFields = this.prepareFieldsForSave(cleanedFields, 0);
+
+      // Validate unique identifiers before saving
+      const validation = this.validateUniqueIdentifiers(cleanedFields);
+      if (!validation.isValid) {
+        Modal.confirm(
+          'Duplicate Field Identifiers',
+          `The following field identifiers are used multiple times at the same level: ${validation.duplicates.join(', ')}. Please ensure all field identifiers are unique within their respective levels.`,
+          SeverityEnum.error,
+          [{
+            text: 'OK',
+            active: true,
+            btnClass: 'btn-danger',
+            name: 'ok',
+            trigger: function() {
+              Modal.dismiss();
+            }
+          }]
+        );
+        return;
+      }
+
+      // Prepare data for save
+      const saveData: Record<string, any> = {
+        contentType: 'content-element', // TODO: make configurable to support other page-type and record-type
+        extension: this.cbDefinition.hostExtension,
+        mode: this.mode || 'edit',
+        name: this.cbDefinition.yaml.name,
+        contentBlock: {
+          fields: cleanedFields,
+          basics: this.cbDefinition.yaml.basics || [],
+          group: this.cbDefinition.yaml.group || 'default',
+          prefixFields: this.cbDefinition.yaml.prefixFields !== false,
+          prefixType: this.cbDefinition.yaml.prefixType || 'full',
+          table: this.cbDefinition.yaml.table || 'tt_content',
+          typeField: this.cbDefinition.yaml.typeField || 'CType',
+          priority: this.cbDefinition.yaml.priority || 0,
+          title: this.cbDefinition.yaml.title || '',
+          vendorPrefix: this.cbDefinition.yaml.vendorPrefix || ''
+        }
+      };
+
+      if (this.mode === 'copy') {
+        saveData.contentBlock.initialVendor = (this.cbDefinition.yaml as any).initialVendor || '';
+        saveData.contentBlock.initialName = (this.cbDefinition.yaml as any).initialName || '';
+      }
+
+      // Create hidden form and submit for proper server-side redirect
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = TYPO3.settings.ajaxUrls.content_blocks_gui_save_cb_and_close;
+
+      const addHiddenInput = (name: string, value: string) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      };
+
+      // Add all saveData as hidden inputs
+      Object.keys(saveData).forEach(key => {
+        if (typeof saveData[key] === 'object') {
+          addHiddenInput(key, JSON.stringify(saveData[key]));
+        } else {
+          addHiddenInput(key, saveData[key]);
+        }
+      });
+
+      // Append form to body and submit
+      document.body.appendChild(form);
+      form.submit();
+      // Note: form will be removed on page navigation
 
     } finally {
       // Restore buttons (in case of error - if successful, page will redirect)
