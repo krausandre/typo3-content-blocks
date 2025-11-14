@@ -64,7 +64,12 @@ return [
         'path' => '/contentblocks/gui/import',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::executeImportAction',
     ],
-    // Basics save endpoint - Uses form POST with redirect (needs to be in AjaxRoutes for TYPO3.settings.ajaxUrls)
+    // Basics save AJAX endpoint - Returns JSON, stays in editor
+    'content_blocks_gui_save_basic_ajax' => [
+        'path' => '/contentblocks/gui/basics/save/ajax',
+        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::saveBasicAjaxAction',
+    ],
+    // Basics save & close endpoint - Uses form POST with redirect (needs to be in AjaxRoutes for TYPO3.settings.ajaxUrls)
     'content_block_gui_api_basics_save' => [
         'path' => '/content-block-gui/api/basics/save',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::saveBasicApiAction',

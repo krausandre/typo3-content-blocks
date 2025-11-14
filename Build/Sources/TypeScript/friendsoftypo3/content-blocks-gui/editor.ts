@@ -164,10 +164,19 @@ export class ContentBlockEditor extends LitElement {
 
     this.init = true;
 
+    // Save button (AJAX - stays in editor)
     document.querySelectorAll('[data-action="save-content-block"]').forEach((saveButton) => {
       saveButton.addEventListener('click', async (event) => {
         event.preventDefault();
         await this.saveContentBlock();
+      });
+    });
+
+    // Save & Close button (Form POST - redirects to list)
+    document.querySelectorAll('[data-action="save-and-close-content-block"]').forEach((saveAndCloseButton) => {
+      saveAndCloseButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+        await this.saveContentBlockAndClose();
       });
     });
   }
@@ -713,7 +722,7 @@ export class ContentBlockEditor extends LitElement {
 
       // Check if we're saving a Basic or Content Block
       if (this.contenttype === 'basic') {
-        await this.saveBasic();
+        await this.saveBasicAjax();
         return;
       }
 
@@ -833,9 +842,125 @@ export class ContentBlockEditor extends LitElement {
   }
 
   /**
-   * Save Basic via form POST (with proper server-side redirect)
+   * Save Basic via AJAX (stays in editor)
    */
-  private async saveBasic(): Promise<void> {
+  private async saveBasicAjax(): Promise<void> {
+    try {
+      // Get vendor and name from component state
+      const vendor = (this.cbDefinition.yaml as any).vendor?.trim() || '';
+      const name = this.cbDefinition.yaml.name?.trim() || '';
+
+      if (!vendor || !name) {
+        Modal.confirm(
+          'Validation Error',
+          'Vendor and Name are required fields.',
+          SeverityEnum.error,
+          [{
+            text: 'OK',
+            active: true,
+            btnClass: 'btn-default',
+            trigger: function() {
+              Modal.dismiss();
+            }
+          }]
+        );
+        return;
+      }
+
+      // Get extension from component state
+      const extension = this.cbDefinition.hostExtension;
+      if (!extension || extension === '0') {
+        Modal.confirm(
+          'Validation Error',
+          'Please select an extension.',
+          SeverityEnum.error,
+          [{
+            text: 'OK',
+            active: true,
+            btnClass: 'btn-default',
+            trigger: function() {
+              Modal.dismiss();
+            }
+          }]
+        );
+        return;
+      }
+
+      // Clean fields by removing "enabled" properties
+      const cleanedFields = this.removeEnabledProperties(this.cbDefinition.yaml.fields || []);
+
+      // Save via AJAX
+      const saveData = {
+        mode: this.mode || 'new',
+        extension: extension,
+        vendor: vendor,
+        name: name,
+        fields: cleanedFields,
+        flushCache: true  // Tell backend to flush cache
+      };
+
+      const ajaxUrl = TYPO3.settings.ajaxUrls.content_blocks_gui_save_basic_ajax;
+      const response = await new AjaxRequest(ajaxUrl)
+        .post(saveData);
+
+      const result = await response.resolve();
+
+      // Show success message
+      Modal.confirm(
+        'Success',
+        result.message || 'Basic saved successfully.',
+        SeverityEnum.info,
+        [{
+          text: 'OK',
+          active: true,
+          btnClass: 'btn-info',
+          name: 'ok',
+          trigger: function() {
+            Modal.dismiss();
+          }
+        }]
+      );
+
+    } catch (error) {
+      console.error('Failed to save basic:', error);
+
+      let errorMessage = 'Failed to save Basic. Please try again.';
+
+      // Try to extract error message from response
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'object' && error !== null && 'message' in error) {
+        errorMessage = (error as any).message;
+      }
+
+      // Show error message
+      Modal.confirm(
+        'Error',
+        errorMessage,
+        SeverityEnum.error,
+        [{
+          text: 'OK',
+          active: true,
+          btnClass: 'btn-default',
+          trigger: function() {
+            Modal.dismiss();
+          }
+        }]
+      );
+    } finally {
+      // Restore save buttons
+      const saveButtons = document.querySelectorAll('[data-action="save-content-block"]') as NodeListOf<HTMLButtonElement>;
+      saveButtons.forEach(button => {
+        button.disabled = false;
+        button.innerHTML = '<typo3-backend-icon identifier="actions-save"></typo3-backend-icon> Save';
+      });
+    }
+  }
+
+  /**
+   * Save Basic via form POST (redirects to list with flash message)
+   */
+  private async saveBasicAndClose(): Promise<void> {
     try {
       // Get vendor and name from component state (not DOM, since form may not be rendered when on different tab)
       const vendor = (this.cbDefinition.yaml as any).vendor?.trim() || '';
@@ -932,11 +1057,49 @@ export class ContentBlockEditor extends LitElement {
         }]
       );
     } finally {
-      // Restore save buttons (in case of client-side validation error)
-      const saveButtons = document.querySelectorAll('[data-action="save-content-block"]') as NodeListOf<HTMLButtonElement>;
+      // Restore save & close button (in case of client-side validation error)
+      const saveAndCloseButtons = document.querySelectorAll('[data-action="save-and-close-content-block"]') as NodeListOf<HTMLButtonElement>;
+      saveAndCloseButtons.forEach(button => {
+        button.disabled = false;
+        button.innerHTML = '<typo3-backend-icon identifier="actions-save-close"></typo3-backend-icon> Save & Close';
+      });
+    }
+  }
+
+  /**
+   * Save & Close dispatcher (checks content type and calls appropriate method)
+   */
+  private async saveContentBlockAndClose(): Promise<void> {
+    // Disable both buttons during save
+    const saveButtons = document.querySelectorAll('[data-action="save-content-block"]') as NodeListOf<HTMLButtonElement>;
+    const saveAndCloseButtons = document.querySelectorAll('[data-action="save-and-close-content-block"]') as NodeListOf<HTMLButtonElement>;
+
+    saveButtons.forEach(button => {
+      button.disabled = true;
+    });
+    saveAndCloseButtons.forEach(button => {
+      button.disabled = true;
+      button.innerHTML = '<typo3-backend-icon identifier="spinner-circle" size="small"></typo3-backend-icon> Saving...';
+    });
+
+    try {
+      // Check if we're saving a Basic or Content Block
+      if (this.contenttype === 'basic') {
+        await this.saveBasicAndClose();
+        return;
+      }
+
+      // TODO: Implement Content Block save & close
+      throw new Error('Content Block save & close not yet implemented');
+
+    } finally {
+      // Restore buttons (in case of error - if successful, page will redirect)
       saveButtons.forEach(button => {
         button.disabled = false;
-        button.innerHTML = '<typo3-backend-icon identifier="actions-save"></typo3-backend-icon> Save';
+      });
+      saveAndCloseButtons.forEach(button => {
+        button.disabled = false;
+        button.innerHTML = '<typo3-backend-icon identifier="actions-save-close"></typo3-backend-icon> Save & Close';
       });
     }
   }

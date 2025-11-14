@@ -94,6 +94,8 @@ class ButtonBarUtility
     public function addEditButtonBar(ModuleTemplate $moduleTemplate): void
     {
         $buttonBar = $moduleTemplate->getDocHeaderComponent()->getButtonBar();
+
+        // Go back button
         $addContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
             ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
@@ -101,16 +103,28 @@ class ButtonBarUtility
             ->setLabel('Go back')
             ->setIcon($this->iconFactory->getIcon('actions-arrow-down-left'))
             ->setShowLabelText(true);
-        $saveContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
+        $buttonBar->addButton($addContentElementButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
+
+        // Save button (AJAX - stay in editor)
+        $saveButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
             ->setHref('#')
-            ->setTitle('Save content element')
+            ->setTitle('Save and continue editing')
             ->setLabel('Save')
             ->setIcon($this->iconFactory->getIcon('actions-save'))
             ->setAttributes(['data-action' => 'save-content-block'])
             ->setShowLabelText(true);
-        $buttonBar->addButton($saveContentElementButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
+        $buttonBar->addButton($saveButton, ButtonBar::BUTTON_POSITION_LEFT, 2);
 
-        $buttonBar->addButton($addContentElementButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
+        // Save & Close button (Form POST - redirect to list)
+        $saveAndCloseButton = GeneralUtility::makeInstance(GenericButton::class)
+            ->setTag('a')
+            ->setHref('#')
+            ->setTitle('Save and return to list')
+            ->setLabel('Save & Close')
+            ->setIcon($this->iconFactory->getIcon('actions-save-close'))
+            ->setAttributes(['data-action' => 'save-and-close-content-block'])
+            ->setShowLabelText(true);
+        $buttonBar->addButton($saveAndCloseButton, ButtonBar::BUTTON_POSITION_LEFT, 3);
     }
 }

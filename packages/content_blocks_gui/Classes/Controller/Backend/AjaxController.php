@@ -115,6 +115,55 @@ final class AjaxController
         }
     }
 
+    /**
+     * Save Basic via AJAX (returns JSON, stays in editor)
+     */
+    public function saveBasicAjaxAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $body = $request->getParsedBody();
+
+        $mode = $body['mode'] ?? 'new';
+        $extension = $body['extension'] ?? '';
+        $vendor = $body['vendor'] ?? '';
+        $name = $body['name'] ?? '';
+
+        // Fields are sent as array (already parsed by AJAX)
+        $fields = $body['fields'] ?? [];
+
+        if (empty($extension) || empty($vendor) || empty($name)) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Missing required parameters: extension, vendor, or name'
+            ], 400);
+        }
+
+        $identifier = $vendor . '/' . $name;
+
+        try {
+            // Use comprehensive save method that handles both create and update
+            $result = $this->basicsService->saveBasicFromGui($mode, $extension, $identifier, $fields);
+
+            if ($result['success']) {
+                // Flush system cache to reload Basics
+                $this->cacheManager->flushCachesInGroup('system');
+            }
+
+            return new JsonResponse($result);
+        } catch (\Exception $e) {
+            $this->logger->error('Failed to save basic via AJAX', [
+                'mode' => $mode,
+                'extension' => $extension,
+                'identifier' => $identifier,
+                'error' => $e->getMessage(),
+            ]);
+
+            return new JsonResponse([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function listExtAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->extensionUtility->getAvailableExtensions()->getResponse();
