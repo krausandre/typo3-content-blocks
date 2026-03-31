@@ -72,6 +72,7 @@ Links
 .. csv-table::
 
    "Repository", "https://github.com/FriendsOfTYPO3/content-blocks-gui"
+   "Development", "https://github.com/krausandre/typo3-content-blocks/tree/feature/friendsoftypo3-content-blocks-gui"
    "TER", "https://extensions.typo3.org/extension/content_blocks_gui"
    "Content Blocks Repository", "https://github.com/friendsoftypo3/content-blocks"
    "Content Blocks Documentation", "https://docs.typo3.org/p/friendsoftypo3/content-blocks/main/en-us/"
