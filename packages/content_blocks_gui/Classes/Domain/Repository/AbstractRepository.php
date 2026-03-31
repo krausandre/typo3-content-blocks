@@ -21,12 +21,18 @@ abstract class AbstractRepository implements UsageInterface
         $table = $contentType->getTable();
         $this->queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
         $this->queryBuilder->getRestrictions()->removeByType(HiddenRestriction::class);
-        return $this->queryBuilder
+        $this->queryBuilder
             ->count('uid')
-            ->from($table)
-            ->where(
-                $this->queryBuilder->expr()->eq($contentType->getTypeField(), $this->queryBuilder->createNamedParameter($name))
-            )
+            ->from($table);
+
+        $typeField = $contentType->getTypeField();
+        if ($typeField !== null && $typeField !== '') {
+            $this->queryBuilder->where(
+                $this->queryBuilder->expr()->eq($typeField, $this->queryBuilder->createNamedParameter($name))
+            );
+        }
+
+        return $this->queryBuilder
             ->executeQuery()
             ->fetchOne();
     }

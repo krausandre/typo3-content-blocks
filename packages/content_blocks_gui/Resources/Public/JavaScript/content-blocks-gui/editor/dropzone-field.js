@@ -104,10 +104,10 @@ let DropzoneField = class DropzoneField extends LitElement {
     }
 };
 __decorate([
-    property()
+    property({ type: Number })
 ], DropzoneField.prototype, "position", void 0);
 __decorate([
-    property()
+    property({ type: Number })
 ], DropzoneField.prototype, "level", void 0);
 __decorate([
     property()

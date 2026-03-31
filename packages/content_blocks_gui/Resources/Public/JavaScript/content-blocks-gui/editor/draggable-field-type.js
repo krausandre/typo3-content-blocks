@@ -119,13 +119,13 @@ __decorate([
     property()
 ], DraggableFieldType.prototype, "fieldTypeInfo", void 0);
 __decorate([
-    property()
+    property({ type: Number })
 ], DraggableFieldType.prototype, "identifierIndex", void 0);
 __decorate([
-    property()
+    property({ type: Number })
 ], DraggableFieldType.prototype, "position", void 0);
 __decorate([
-    property()
+    property({ type: Number })
 ], DraggableFieldType.prototype, "level", void 0);
 __decorate([
     property()

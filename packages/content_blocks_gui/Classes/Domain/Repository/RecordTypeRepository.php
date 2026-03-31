@@ -20,7 +20,7 @@ class RecordTypeRepository extends AbstractRepository
             ->from($tableName);
 
         $typeField = $contentType->getTypeField();
-        if ($typeField !== '') {
+        if ($typeField !== null && $typeField !== '') {
             $this->queryBuilder->where(
                 $this->queryBuilder->expr()->eq($typeField, $this->queryBuilder->createNamedParameter($name))
             );

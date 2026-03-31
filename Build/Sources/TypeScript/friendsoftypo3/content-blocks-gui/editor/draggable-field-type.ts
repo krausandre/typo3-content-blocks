@@ -37,13 +37,13 @@ export class DraggableFieldType extends LitElement {
   @property()
   fieldTypeInfo?: ContentBlockField;
 
-  @property()
+  @property({ type: Number })
   identifierIndex?: number = 0;
 
-  @property()
+  @property({ type: Number })
   position?: number = 0;
 
-  @property()
+  @property({ type: Number })
   level?: number = 0;
 
   @property()
