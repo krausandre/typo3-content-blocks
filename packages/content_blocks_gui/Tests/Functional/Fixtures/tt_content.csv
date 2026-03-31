@@ -1,0 +1,6 @@
+"tt_content"
+,"uid","pid","CType","header","deleted","hidden"
+,1,1,"testvendor_testelement","Visible Element",0,0
+,2,1,"testvendor_testelement","Hidden Element",0,1
+,3,1,"testvendor_testelement","Deleted Element",1,0
+,4,1,"testvendor_otherelement","Other Type",0,0

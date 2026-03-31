@@ -32,6 +32,9 @@
         <testsuite name="Core tests">
             <directory>../../typo3/sysext/*/Tests/Functional/</directory>
         </testsuite>
+        <testsuite name="Content Blocks GUI Functional Tests">
+            <directory>../../packages/content_blocks_gui/Tests/Functional/</directory>
+        </testsuite>
     </testsuites>
     <php>
         <ini name="display_errors" value="1"/>

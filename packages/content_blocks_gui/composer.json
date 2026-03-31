@@ -28,5 +28,10 @@
 		"psr-4": {
 			"FriendsOfTYPO3\\ContentBlocksGui\\": "Classes/"
 		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"FriendsOfTYPO3\\ContentBlocksGui\\Tests\\": "Tests/"
+		}
 	}
 }

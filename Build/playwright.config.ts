@@ -49,6 +49,10 @@ export default defineConfig({
         storageState: path.join(__dirname, '.auth/login.json'),
       },
     },
+    {
+      name: 'content-blocks-gui',
+      testMatch: 'e2e/content-blocks-gui/**/*.spec.ts',
+    },
   ],
   outputDir: '../typo3temp/var/tests/playwright-results'
 });

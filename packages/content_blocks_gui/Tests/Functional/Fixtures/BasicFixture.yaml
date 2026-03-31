@@ -1,0 +1,6 @@
+identifier: test-vendor/test-basic
+fields:
+  - identifier: header
+    useExistingField: true
+  - identifier: bodytext
+    useExistingField: true

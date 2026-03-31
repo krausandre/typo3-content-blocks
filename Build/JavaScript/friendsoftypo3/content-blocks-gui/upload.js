@@ -147,17 +147,10 @@ let ContentBlockUpload = class ContentBlockUpload extends LitElement {
           <h3>Import to Extension: "${this.targetExtension}"</h3>
         </div>
         <div class="card-body" style="max-height: 60vh; overflow-y: auto;">
-          <p class="lead">Found ${this.analysis.blocks.length} content block(s):</p>
+          <p class="lead">Found ${this.analysis.blocks.length} item(s):</p>
 
-          ${blocksWithoutConflicts.length > 0 ? html `
-            <h4 class="mt-3">Ready to Import (${blocksWithoutConflicts.length})</h4>
-            ${blocksWithoutConflicts.map(block => this.renderBlockInfo(block))}
-          ` : ''}
-
-          ${blocksWithConflicts.length > 0 ? html `
-            <h4 class="mt-4">Conflicts Detected (${blocksWithConflicts.length})</h4>
-            ${blocksWithConflicts.map(block => this.renderBlockInfoWithConflict(block))}
-          ` : ''}
+          ${this.renderBlocksByType(blocksWithoutConflicts, 'Ready to Import', false)}
+          ${this.renderBlocksByType(blocksWithConflicts, 'Conflicts Detected', true)}
         </div>
         <div class="card-footer">
           <button
@@ -215,22 +208,14 @@ let ContentBlockUpload = class ContentBlockUpload extends LitElement {
           ${hasImported ? html `
             <div class="alert alert-success">
               <h4>Successfully Imported (${this.result.imported.length}):</h4>
-              <ul class="mb-0">
-                ${this.result.imported.map(block => html `
-                  <li>${block.name} (${this.getTypeLabel(block.type)})</li>
-                `)}
-              </ul>
+              ${this.renderResultBlocksByType(this.result.imported)}
             </div>
           ` : ''}
 
           ${hasSkipped ? html `
             <div class="alert alert-info">
               <h4>Skipped (${this.result.skipped.length}):</h4>
-              <ul class="mb-0">
-                ${this.result.skipped.map(block => html `
-                  <li>${block.name} (already exists)</li>
-                `)}
-              </ul>
+              ${this.renderResultBlocksByType(this.result.skipped, true)}
             </div>
           ` : ''}
 
@@ -494,6 +479,50 @@ let ContentBlockUpload = class ContentBlockUpload extends LitElement {
         if (fileInput) {
             fileInput.value = '';
         }
+    }
+    /**
+     * Group blocks by type and render with section headers
+     */
+    renderBlocksByType(blocks, title, withConflict) {
+        if (blocks.length === 0) {
+            return nothing;
+        }
+        const grouped = this.groupByType(blocks);
+        return html `
+      <h4 class="mt-3">${title} (${blocks.length})</h4>
+      ${grouped.map(([type, typeBlocks]) => html `
+        <h5 class="mt-2 text-muted">${this.getTypeLabel(type)}s (${typeBlocks.length})</h5>
+        ${typeBlocks.map(block => withConflict ? this.renderBlockInfoWithConflict(block) : this.renderBlockInfo(block))}
+      `)}
+    `;
+    }
+    /**
+     * Group blocks by type and render as lists in result step
+     */
+    renderResultBlocksByType(blocks, showAlreadyExists = false) {
+        const grouped = this.groupByType(blocks);
+        return html `
+      ${grouped.map(([type, typeBlocks]) => html `
+        <h5 class="mb-1 mt-2">${this.getTypeLabel(type)}s (${typeBlocks.length}):</h5>
+        <ul class="mb-0">
+          ${typeBlocks.map(block => html `
+            <li>${block.name}${showAlreadyExists ? ' (already exists)' : ''}</li>
+          `)}
+        </ul>
+      `)}
+    `;
+    }
+    /**
+     * Group blocks by their type
+     */
+    groupByType(blocks) {
+        const map = new Map();
+        for (const block of blocks) {
+            const list = map.get(block.type) || [];
+            list.push(block);
+            map.set(block.type, list);
+        }
+        return [...map.entries()];
     }
     /**
      * Get human-readable type label
