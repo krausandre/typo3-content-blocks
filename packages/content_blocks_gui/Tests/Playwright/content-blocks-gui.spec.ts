@@ -1,16 +1,16 @@
-import { test, expect, type FrameLocator } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import * as path from 'path';
 
 const config = {
-  baseUrl: process.env.PLAYWRIGHT_BASE_URL || 'https://typo3-content-blocks-gui.ddev.site/typo3/',
+  baseUrl: process.env.PLAYWRIGHT_BASE_URL || '',
   login: {
     admin: {
-      username: process.env.BACKEND_ADMIN_USERNAME || 'admin',
-      password: process.env.BACKEND_ADMIN_PASSWORD || 'Password1!',
+      username: process.env.BACKEND_ADMIN_USERNAME || '',
+      password: process.env.BACKEND_ADMIN_PASSWORD || '',
     },
   },
 };
-
-const authFile = '/tmp/cb-gui-auth.json';
+const authFile = path.join(__dirname, 'auth.json');
 
 test.describe('Content Blocks GUI Module', () => {
   test.describe.configure({ mode: 'serial' });
