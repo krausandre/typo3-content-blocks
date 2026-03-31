@@ -26,9 +26,9 @@ import type { ContentBlockField } from '@friendsoftypo3/content-blocks-gui/inter
 @customElement('dropzone-field')
 export class DropzoneField extends LitElement {
 
-  @property()
+  @property({ type: Number })
   position: number = 0;
-  @property()
+  @property({ type: Number })
   level: number = 0;
   @property()
   parent?: ContentBlockField = null;

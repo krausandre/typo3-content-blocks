@@ -41,10 +41,10 @@ export class ContentBlockEditorRightPane extends LitElement {
   @property()
   schema?: FieldTypeSetting;
 
-  @property()
+  @property({ type: Number })
   position?: number;
 
-  @property()
+  @property({ type: Number })
   level?: number;
 
   @property()
