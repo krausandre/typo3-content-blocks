@@ -49,7 +49,7 @@ use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorBasicNotFoundAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorContentBlockNotFoundAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorDownloadContentTypeAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorMissingBasicIndentifierAnswer;
+use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorMissingBasicIdentifierAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorMissingContentBlockNameAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorNoBasicsAvailableAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorSaveContentTypeAnswer;
@@ -102,7 +102,7 @@ class ContentBlocksUtility
     {
         try {
             if(!isset($getParsedBody['name'])) {
-                $errorAnswer = new ErrorContentBlockNotFoundAnswer($getParsedBody['name']);
+                $errorAnswer = new ErrorContentBlockNotFoundAnswer('Missing required parameter "name"');
                 return $errorAnswer->getResponse();
             }
             $fileName = $this->createZipFileFromContentBlock($getParsedBody['name']);
@@ -286,6 +286,7 @@ class ContentBlocksUtility
         } else {
             $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
             $cacheManager->flushCachesInGroup('system');
+            $cacheManager->getCache('typoscript')->flush();
         }
     }
 
@@ -666,21 +667,24 @@ class ContentBlocksUtility
         }
 
         $directory = opendir($source);
-        while (($file = readdir($directory)) !== false) {
-            if ($file === '.' || $file === '..') {
-                continue;
-            }
+        try {
+            while (($file = readdir($directory)) !== false) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
 
-            $sourcePath = $source . '/' . $file;
-            $destinationPath = $destination . '/' . $file;
+                $sourcePath = $source . '/' . $file;
+                $destinationPath = $destination . '/' . $file;
 
-            if (is_dir($sourcePath)) {
-                $this->recursiveCopy($sourcePath, $destinationPath);
-            } else {
-                copy($sourcePath, $destinationPath);
+                if (is_dir($sourcePath)) {
+                    $this->recursiveCopy($sourcePath, $destinationPath);
+                } else {
+                    copy($sourcePath, $destinationPath);
+                }
             }
+        } finally {
+            closedir($directory);
         }
-        closedir($directory);
     }
 
     /**
@@ -717,19 +721,21 @@ class ContentBlocksUtility
         $notDeletedFilePaths = [];
         if (is_dir($path)) {
             $currentDirectory = opendir($path);
+            try {
+                while (($file = readdir($currentDirectory)) !== false) {
+                    if ($file != "." && $file != "..") {
+                        $currentFile = $path . DIRECTORY_SEPARATOR . $file;
 
-            while (($file = readdir($currentDirectory)) !== false) {
-                if ($file != "." && $file != "..") {
-                    $currentFile = $path . DIRECTORY_SEPARATOR . $file;
-
-                    if (is_dir($currentFile)) {
-                        $this->deleteDirectoryRecursively($currentFile);
-                    } else {
-                        unlink($currentFile);
+                        if (is_dir($currentFile)) {
+                            $this->deleteDirectoryRecursively($currentFile);
+                        } else {
+                            unlink($currentFile);
+                        }
                     }
                 }
+            } finally {
+                closedir($currentDirectory);
             }
-            closedir($currentDirectory);
             rmdir($path);
         } elseif (is_file($path)) {
             unlink($path);
@@ -1107,7 +1113,7 @@ class ContentBlocksUtility
             }
             return new ErrorBasicNotFoundAnswer($parsedBody['identifier']);
         }
-        return new ErrorMissingBasicIndentifierAnswer();
+        return new ErrorMissingBasicIdentifierAnswer();
     }
 
     public function getTranslationsByContentBlockName(null|array|object $parsedBody): AnswerInterface

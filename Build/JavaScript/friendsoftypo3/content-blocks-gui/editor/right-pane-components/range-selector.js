@@ -54,7 +54,7 @@ let ContentBlockEditorRangeSelector = class ContentBlockEditorRangeSelector exte
                 <input @blur="${this.handleRangeInputChange}" 
                   type="number" 
                   id="range_lower" 
-                  .value="${live(this.values['range']?.lower || 0)}" 
+                  .value="${live(this.values.range?.lower || 0)}"
                   class="form-control" />
               </div>
               <div class="col-6">
@@ -62,7 +62,7 @@ let ContentBlockEditorRangeSelector = class ContentBlockEditorRangeSelector exte
                 <input @blur="${this.handleRangeInputChange}" 
                   type="number" 
                   id="range_upper" 
-                  .value="${live(this.values['range']?.upper || 100)}" 
+                  .value="${live(this.values.range?.upper || 100)}"
                   class="form-control" />
               </div>
             </div>
@@ -71,23 +71,35 @@ let ContentBlockEditorRangeSelector = class ContentBlockEditorRangeSelector exte
       </div>`;
     }
     updateRangeEnabledState() {
-        const range = this.values['range'];
-        this.isRangeEnabled = range?.enabled || false;
+        const range = this.values.range;
+        if (range && Object.prototype.hasOwnProperty.call(range, 'enabled')) {
+            // If enabled property is explicitly set, use that value
+            this.isRangeEnabled = !!range.enabled;
+        }
+        else if (range && (range.lower !== undefined || range.upper !== undefined)) {
+            // If no enabled property but has range values, consider it enabled on initial render
+            this.isRangeEnabled = true;
+        }
+        else {
+            // Default to disabled if no range or no values
+            this.isRangeEnabled = false;
+        }
     }
     handleRangeEnabledChange(event) {
         event.preventDefault();
         const target = event.target;
-        if (!this.values['range']) {
-            this.values['range'] = {};
+        if (!this.values.range) {
+            this.values.range = {};
         }
         this.isRangeEnabled = target.checked;
-        this.values['range'].enabled = target.checked;
+        const range = this.values.range;
+        range.enabled = target.checked;
         if (target.checked) {
-            if (this.values['range'].lower === undefined) {
-                this.values['range'].lower = 0;
+            if (range.lower === undefined) {
+                range.lower = 0;
             }
-            if (this.values['range'].upper === undefined) {
-                this.values['range'].upper = 100;
+            if (range.upper === undefined) {
+                range.upper = 100;
             }
         }
         this.dispatchUpdateEvent();
@@ -95,14 +107,15 @@ let ContentBlockEditorRangeSelector = class ContentBlockEditorRangeSelector exte
     handleRangeInputChange(event) {
         event.preventDefault();
         const target = event.target;
-        if (!this.values['range']) {
-            this.values['range'] = {};
+        if (!this.values.range) {
+            this.values.range = {};
         }
+        const range = this.values.range;
         if (target.id === 'range_lower') {
-            this.values['range'].lower = parseInt(target.value);
+            range.lower = parseInt(target.value, 10);
         }
         else if (target.id === 'range_upper') {
-            this.values['range'].upper = parseInt(target.value);
+            range.upper = parseInt(target.value, 10);
         }
         this.dispatchUpdateEvent();
     }

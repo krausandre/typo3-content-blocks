@@ -16,10 +16,6 @@ return [
         'path' => '/contentblocks/gui/contenttype/save',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::saveContentTypeAction',
     ],
-    'content_blocks_gui_translate_cb' => [
-        'path' => '/contentblocks/gui/cb/translate',
-        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::translateCbAction',
-    ],
     'content_blocks_gui_list_icons' => [
         'path' => '/contentblocks/gui/icons/list',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\AjaxController::class . '::listIconsAction',
@@ -77,22 +73,5 @@ return [
     'content_block_gui_api_basics_save' => [
         'path' => '/content-block-gui/api/basics/save',
         'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::saveBasicApiAction',
-    ],
-    // Legacy API routes (kept in ContentBlocksGuiController for now)
-    'content_block_gui_api_basics_list' => [
-        'path' => '/content-block-gui/api/basics/list',
-        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::listBasicsApiAction'
-    ],
-    'content_block_gui_api_basics_load' => [
-        'path' => '/content-block-gui/api/basics/load',
-        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::loadBasicApiAction'
-    ],
-    'content_block_gui_api_basics_validate' => [
-        'path' => '/content-block-gui/api/basics/validate',
-        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::validateBasicApiAction'
-    ],
-    'content_block_gui_api_basics_usage' => [
-        'path' => '/content-block-gui/api/basics/usage',
-        'target' => FriendsOfTYPO3\ContentBlocksGui\Controller\Backend\ContentBlocksGuiController::class . '::getBasicUsageApiAction'
     ],
 ];

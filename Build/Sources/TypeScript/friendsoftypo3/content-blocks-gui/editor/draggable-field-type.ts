@@ -29,30 +29,30 @@ import type { FieldTypeSetting, ContentBlockField } from '@friendsoftypo3/conten
 @customElement('draggable-field-type')
 export class DraggableFieldType extends LitElement {
 
-  static styles = css`  `;
+  static override styles = css`  `;
 
   @property()
-    fieldTypeSetting?: FieldTypeSetting;
+  fieldTypeSetting?: FieldTypeSetting;
 
   @property()
-    fieldTypeInfo?: ContentBlockField;
+  fieldTypeInfo?: ContentBlockField;
 
   @property()
-    identifierIndex?: number = 0;
+  identifierIndex?: number = 0;
 
   @property()
-    position?: number = 0;
+  position?: number = 0;
 
   @property()
-    level?: number = 0;
+  level?: number = 0;
 
   @property()
-    parent?: ContentBlockField = null;
+  parent?: ContentBlockField = null;
 
   @property()
-    showDeleteButton?: boolean = false;
+  showDeleteButton?: boolean = false;
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     if (this.fieldTypeSetting) {
       let identifier: string = this.fieldTypeSetting.type + '_' + this.identifierIndex;
       let renderLabel: string = this.fieldTypeSetting.type;
@@ -66,13 +66,13 @@ export class DraggableFieldType extends LitElement {
              draggable="true"
              @dragstart="${(event: DragEvent) => { this.handleDragStart(event, this.fieldTypeSetting.type, identifier); }}"
              data-identifier="${identifier}"
-             @click="${() => { this.activateSettings(identifier) }}" @dragend="${ () => {this.handleDragEnd()} }"
+             @click="${() => { this.activateSettings(identifier); }}" @dragend="${ () => {this.handleDragEnd();} }"
         >
           <span class="icon-wrap">
             <typo3-backend-icon identifier="${this.fieldTypeSetting.icon}" size="small"></typo3-backend-icon>
           </span>
           <span>${renderLabel}</span>
-          ${this.showDeleteButton ? html`<div class="delete-icon-wrap ms-auto" @click="${() => { this.removeFieldType() }}">
+          ${this.showDeleteButton ? html`<div class="delete-icon-wrap ms-auto" @click="${() => { this.removeFieldType(); }}">
             <typo3-backend-icon identifier="actions-delete" size="small"></typo3-backend-icon>
           </div>` : ''}
         </div>
@@ -127,7 +127,7 @@ export class DraggableFieldType extends LitElement {
     }));
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;

@@ -55,7 +55,7 @@ let ContentBlockEditorSliderSelector = class ContentBlockEditorSliderSelector ex
                   type="number" 
                   id="slider_step" 
                   step="0.1"
-                  .value="${live(this.values['slider']?.step || 1)}" 
+                  .value="${live(this.values.slider?.step || 1)}"
                   class="form-control" />
               </div>
               <div class="col-6">
@@ -63,7 +63,7 @@ let ContentBlockEditorSliderSelector = class ContentBlockEditorSliderSelector ex
                 <input @blur="${this.handleSliderInputChange}" 
                   type="number" 
                   id="slider_width" 
-                  .value="${live(this.values['slider']?.width || 100)}" 
+                  .value="${live(this.values.slider?.width || 100)}"
                   class="form-control" />
               </div>
             </div>
@@ -72,23 +72,35 @@ let ContentBlockEditorSliderSelector = class ContentBlockEditorSliderSelector ex
       </div>`;
     }
     updateSliderEnabledState() {
-        const slider = this.values['slider'];
-        this.isSliderEnabled = slider?.enabled || false;
+        const slider = this.values.slider;
+        if (slider && Object.prototype.hasOwnProperty.call(slider, 'enabled')) {
+            // If enabled property is explicitly set, use that value
+            this.isSliderEnabled = !!slider.enabled;
+        }
+        else if (slider && (slider.step !== undefined || slider.width !== undefined)) {
+            // If no enabled property but has slider values, consider it enabled on initial render
+            this.isSliderEnabled = true;
+        }
+        else {
+            // Default to disabled if no slider or no values
+            this.isSliderEnabled = false;
+        }
     }
     handleSliderEnabledChange(event) {
         event.preventDefault();
         const target = event.target;
-        if (!this.values['slider']) {
-            this.values['slider'] = {};
+        if (!this.values.slider) {
+            this.values.slider = {};
         }
         this.isSliderEnabled = target.checked;
-        this.values['slider'].enabled = target.checked;
+        const slider = this.values.slider;
+        slider.enabled = target.checked;
         if (target.checked) {
-            if (this.values['slider'].step === undefined) {
-                this.values['slider'].step = 1;
+            if (slider.step === undefined) {
+                slider.step = 1;
             }
-            if (this.values['slider'].width === undefined) {
-                this.values['slider'].width = 100;
+            if (slider.width === undefined) {
+                slider.width = 100;
             }
         }
         this.dispatchUpdateEvent();
@@ -96,14 +108,15 @@ let ContentBlockEditorSliderSelector = class ContentBlockEditorSliderSelector ex
     handleSliderInputChange(event) {
         event.preventDefault();
         const target = event.target;
-        if (!this.values['slider']) {
-            this.values['slider'] = {};
+        if (!this.values.slider) {
+            this.values.slider = {};
         }
+        const slider = this.values.slider;
         if (target.id === 'slider_step') {
-            this.values['slider'].step = parseFloat(target.value);
+            slider.step = parseFloat(target.value);
         }
         else if (target.id === 'slider_width') {
-            this.values['slider'].width = parseInt(target.value);
+            slider.width = parseInt(target.value, 10);
         }
         this.dispatchUpdateEvent();
     }

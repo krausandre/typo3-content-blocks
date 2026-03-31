@@ -11,14 +11,14 @@
 * The TYPO3 project - inspiring people to share!
 */
 
-import { html, LitElement } from 'lit';
+import { html, LitElement, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import '@typo3/backend/element/icon-element.js';
 import { live } from 'lit/directives/live.js';
 // import '@typo3/backend/element/info-box.js';
 import type { FieldTypeSetting, FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
-import type { BasicMetadata } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
+import type { BasicMetadata, ValidationResult } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-picker.js';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-selector.js';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/slider-selector.js';
@@ -36,31 +36,31 @@ import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/items.js
 export class ContentBlockEditorRightPane extends LitElement {
 
   @property()
-    values: Record<string, unknown>;
+  values: Record<string, unknown>;
 
   @property()
-    schema?: FieldTypeSetting;
+  schema?: FieldTypeSetting;
 
   @property()
-    position?: number;
+  position?: number;
 
   @property()
-    level?: number;
+  level?: number;
 
   @property()
-    parent?: number;
+  parent?: number;
 
   @property()
-    fieldTypeList?: Array<FieldTypeSetting>;
+  fieldTypeList?: Array<FieldTypeSetting>;
 
   @property()
-    fieldMetadata?: any;
+  fieldMetadata?: any;
 
   @property()
-    availableBasics?: Array<BasicMetadata>;
+  availableBasics?: Array<BasicMetadata>;
 
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     if (this.schema) {
       return html `
         <div class="content-block-field-configuration">
@@ -109,7 +109,7 @@ export class ContentBlockEditorRightPane extends LitElement {
     }
 
     // Special handling for "identifier" field when type is "Basic" - render as dropdown of available Basics
-    if (fieldTypeProperty.name === 'identifier' && this.values['type'] === 'Basic' && this.availableBasics) {
+    if (fieldTypeProperty.name === 'identifier' && this.values.type === 'Basic' && this.availableBasics) {
       return this.renderBasicIdentifierDropdown(fieldTypeProperty);
     }
 
@@ -121,7 +121,7 @@ export class ContentBlockEditorRightPane extends LitElement {
         return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] as number || fieldTypeProperty.default)}" class="form-control" />`;
       case 'select':
         // Disable prefixType when prefixFields is false
-        const isPrefixTypeDisabled = fieldTypeProperty.name === 'prefixType' && !this.values['prefixFields'];
+        const isPrefixTypeDisabled = fieldTypeProperty.name === 'prefixType' && !this.values.prefixFields;
         return html `<select @change="${this.dispatchBlurEvent}" class="form-select" id="${fieldTypeProperty.name}" ?disabled="${isPrefixTypeDisabled}">
           <option value="">Choose...</option>
           ${fieldTypeProperty.items.map( (option: FieldTypeItems) => html`
@@ -129,16 +129,16 @@ export class ContentBlockEditorRightPane extends LitElement {
         </select>`;
       case 'boolean':
         // Disable prefixFields checkbox for base fields with useExistingField
-        const isPrefixFieldsDisabled = fieldTypeProperty.name === 'prefixFields' && this.values['_isBaseField'];
+        const isPrefixFieldsDisabled = fieldTypeProperty.name === 'prefixFields' && this.values._isBaseField;
         // Force prefixFields to false for base fields
         const checkboxValue = isPrefixFieldsDisabled ? false : (this.values[fieldTypeProperty.name] as boolean || fieldTypeProperty.default);
         return html `<input @change="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(checkboxValue)} ?disabled="${isPrefixFieldsDisabled}" class="form-check-input" />`;
       case 'textarea':
         return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${live(fieldTypeProperty.default)}</textarea>`;
       case 'array':
-          switch (fieldTypeProperty.name) {
-            case 'valuePicker':
-                return html`<content-block-editor-value-picker
+        switch (fieldTypeProperty.name) {
+          case 'valuePicker':
+            return html`<content-block-editor-value-picker
                   .fieldTypeProperty="${fieldTypeProperty}"
                   .values="${this.values}"
                   .position="${this.position}"
@@ -146,8 +146,8 @@ export class ContentBlockEditorRightPane extends LitElement {
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-value-picker>`;
-            case 'range':
-                return html`<content-block-editor-range-selector
+          case 'range':
+            return html`<content-block-editor-range-selector
                   .fieldTypeProperty="${fieldTypeProperty}"
                   .values="${this.values}"
                   .position="${this.position}"
@@ -155,8 +155,8 @@ export class ContentBlockEditorRightPane extends LitElement {
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-range-selector>`;
-            case 'slider':
-                return html`<content-block-editor-slider-selector
+          case 'slider':
+            return html`<content-block-editor-slider-selector
                   .fieldTypeProperty="${fieldTypeProperty}"
                   .values="${this.values}"
                   .position="${this.position}"
@@ -164,8 +164,8 @@ export class ContentBlockEditorRightPane extends LitElement {
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-slider-selector>`;
-            case 'allowedTypes':
-                return html`<content-block-editor-allowed-types
+          case 'allowedTypes':
+            return html`<content-block-editor-allowed-types
                   .fieldTypeProperty="${fieldTypeProperty}"
                   .values="${this.values}"
                   .position="${this.position}"
@@ -173,8 +173,8 @@ export class ContentBlockEditorRightPane extends LitElement {
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-allowed-types>`;
-            case 'allowedCustomProperties':
-                return html`<content-block-editor-allowed-custom-properties
+          case 'allowedCustomProperties':
+            return html`<content-block-editor-allowed-custom-properties
                   .fieldTypeProperty="${fieldTypeProperty}"
                   .values="${this.values}"
                   .position="${this.position}"
@@ -182,8 +182,8 @@ export class ContentBlockEditorRightPane extends LitElement {
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-allowed-custom-properties>`;
-            case 'items':
-                return html`<content-block-editor-items
+          case 'items':
+            return html`<content-block-editor-items
                   .fieldTypeProperty="${fieldTypeProperty}"
                   .values="${this.values}"
                   .position="${this.position}"
@@ -191,9 +191,9 @@ export class ContentBlockEditorRightPane extends LitElement {
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-items>`;
-              default:
-                return html `Array field type for property ${fieldTypeProperty.name} is not yet implemented.`;
-          }
+          default:
+            return html `Array field type for property ${fieldTypeProperty.name} is not yet implemented.`;
+        }
       default:
         return html `Unknown field type property ${fieldTypeProperty.name}.`;
     }
@@ -279,7 +279,7 @@ export class ContentBlockEditorRightPane extends LitElement {
     const newType = target.value;
 
     // Update the value
-    this.values['type'] = newType;
+    this.values.type = newType;
 
     // Dispatch event to update field data and trigger schema reload
     this.dispatchEvent(new CustomEvent('updateCbFieldData', {
@@ -290,7 +290,7 @@ export class ContentBlockEditorRightPane extends LitElement {
         level: this.level,
         parent: this.parent,
         values: this.values,
-        typeChanged: true,  // Flag to indicate type changed
+        typeChanged: true, // Flag to indicate type changed
         newType: newType,
       },
     }));
@@ -299,11 +299,11 @@ export class ContentBlockEditorRightPane extends LitElement {
   /**
    * Render validation badge based on field validation state
    */
-  protected renderValidationBadge(): TemplateResult {
-    const validation = this.values._validation;
+  protected renderValidationBadge(): TemplateResult | typeof nothing {
+    const validation = this.values._validation as ValidationResult | undefined;
 
     if (!validation || !validation.message) {
-      return html``;
+      return nothing;
     }
 
     const severityClasses = {
@@ -334,9 +334,9 @@ export class ContentBlockEditorRightPane extends LitElement {
   /**
    * Render base fields helper dropdown for identifier field
    */
-  protected renderBaseFieldsHelper(): TemplateResult {
+  protected renderBaseFieldsHelper(): TemplateResult | typeof nothing {
     if (!this.fieldMetadata || !this.fieldMetadata.baseFields) {
-      return html``;
+      return nothing;
     }
 
     // Sort base fields alphabetically
@@ -372,9 +372,9 @@ export class ContentBlockEditorRightPane extends LitElement {
 
     if (selectedField) {
       // Update the identifier field with the selected base field name
-      this.values['identifier'] = selectedField;
+      this.values.identifier = selectedField;
       // Automatically enable useExistingField
-      this.values['useExistingField'] = true;
+      this.values.useExistingField = true;
 
       // Reset the dropdown
       target.value = '';
@@ -426,7 +426,7 @@ export class ContentBlockEditorRightPane extends LitElement {
     `;
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;

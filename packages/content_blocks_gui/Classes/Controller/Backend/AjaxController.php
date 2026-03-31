@@ -21,11 +21,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Attribute\Controller;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Domain\Model\Dto\ImportAnalysis;
 use FriendsOfTYPO3\ContentBlocksGui\Service\BasicsService;
 use FriendsOfTYPO3\ContentBlocksGui\Service\ContentBlockImportAnalyzer;
@@ -51,44 +48,6 @@ final class AjaxController
     ) {
     }
 
-    public function listCbAction(ServerRequestInterface $request): ResponseInterface
-    {
-        $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/listCbAction.json');
-        $sampleData = json_decode($sampleJson, true);
-        return new JsonResponse([
-            'body' => [
-                'contentBlocks' => $sampleData['contentBlocks'],
-                'basics' => $sampleData['basics'],
-            ],
-        ]);
-        // return $this->contentBlocksUtility->getAvailableContentBlocks()->getResponse();
-    }
-
-    public function getCbAction(ServerRequestInterface $request): ResponseInterface
-    {
-        $sampleJson = file_get_contents(Environment::getFrameworkBasePath() . '/make/Test/Fixtures/editCbAction.json');
-        $sampleData = json_decode($sampleJson, true);
-        return new JsonResponse([
-            'body' => $sampleData,
-        ]);
-//        return $this->contentBlocksUtility->getContentBlockByName(
-//            $request->getParsedBody()
-//        )->getResponse();
-    }
-
-//    TODO: it seems that saveCbAction is not used anymore
-//    it seems the ContentBlocksGuiController::deleteAction() is used instead
-    public function deleteCbAction(ServerRequestInterface $request): ResponseInterface
-    {
-        return $this->contentBlocksUtility->deleteContentBlock(
-            $request->getParsedBody()
-        )->getResponse();
-    }
-    public function translateAction(ServerRequestInterface $request): ResponseInterface
-    {
-        $parsedBody = $request->getParsedBody();
-        return new JsonResponse(['success' => true]);
-    }
     public function saveContentTypeAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->contentBlocksUtility->saveContentType(
@@ -144,8 +103,8 @@ final class AjaxController
             $result = $this->basicsService->saveBasicFromGui($mode, $extension, $identifier, $fields);
 
             if ($result['success']) {
-                // Flush system cache to reload Basics
                 $this->cacheManager->flushCachesInGroup('system');
+                $this->cacheManager->getCache('typoscript')->flush();
             }
 
             return new JsonResponse($result);
@@ -164,19 +123,9 @@ final class AjaxController
         }
     }
 
-    public function listExtAction(ServerRequestInterface $request): ResponseInterface
-    {
-        return $this->extensionUtility->getAvailableExtensions()->getResponse();
-    }
-
     public function listIconsAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->contentBlocksUtility->getIconsList()->getResponse();
-    }
-
-    public function listGroupsAction(ServerRequestInterface $request): ResponseInterface
-    {
-        return $this->contentBlocksUtility->getGroupsList()->getResponse();
     }
 
     public function listBasicsAction(ServerRequestInterface $request): ResponseInterface
@@ -391,14 +340,14 @@ final class AjaxController
      */
     private function validateUpload(\Psr\Http\Message\UploadedFileInterface $file): void
     {
+        // Check for upload errors first
+        if ($file->getError() !== UPLOAD_ERR_OK) {
+            throw new \RuntimeException('File upload failed with error code: ' . $file->getError());
+        }
+
         // File size (10MB max)
         if ($file->getSize() > 10 * 1024 * 1024) {
             throw new \RuntimeException('ZIP file too large (max 10MB)');
-        }
-
-        // MIME type
-        if ($file->getClientMediaType() !== 'application/zip' && $file->getClientMediaType() !== 'application/x-zip-compressed') {
-            throw new \RuntimeException('Only ZIP files are allowed');
         }
 
         // File extension
@@ -406,9 +355,13 @@ final class AjaxController
             throw new \RuntimeException('File must have .zip extension');
         }
 
-        // Check for upload errors
-        if ($file->getError() !== UPLOAD_ERR_OK) {
-            throw new \RuntimeException('File upload failed with error code: ' . $file->getError());
+        // Validate ZIP magic bytes (PK\x03\x04) - more reliable than client-provided MIME type
+        $stream = $file->getStream();
+        $stream->rewind();
+        $header = $stream->read(4);
+        $stream->rewind();
+        if ($header !== "PK\x03\x04") {
+            throw new \RuntimeException('File is not a valid ZIP archive');
         }
     }
 

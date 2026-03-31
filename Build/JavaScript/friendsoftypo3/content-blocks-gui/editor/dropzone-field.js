@@ -33,37 +33,59 @@ let DropzoneField = class DropzoneField extends LitElement {
         this.parent = null;
     }
     render() {
-        console.log('Render dropzone');
         return html `
-      <style>
-        .cb-drop-zone {
-          border: 1px dashed #ccc;
-          height: 20px;
-          margin: 10px;
-          background-color: #f9f9f9;
+        <style>
+            .cb-drop-zone {
+                border: 1px dashed #ccc;
+                height: 20px;
+                margin: 10px;
+                background-color: #f9f9f9;
+                transition: all 0.2s ease;
 
-          &:focus {
-            background-color: #cbffdb;
-          }
-        }
-      </style>
-      <div id="cb-drop-zone-${this.position}"
-           class="cb-drop-zone"
-           @dragover="${this.handleDragOver}"
-           @drop="${this.handleDrop}"
-      >
-      </div>
+                &:focus {
+                    background-color: #cbffdb;
+                }
+
+                &.drag-over {
+                    background-color: #78C0E6;
+                    border-color: #007cba;
+                    border-width: 2px;
+                }
+            }
+        </style>
+        <div id="cb-drop-zone-${this.position}"
+             class="cb-drop-zone"
+             @dragover="${this.handleDragOver}"
+             @dragleave="${this.handleDragLeave}"
+             @drop="${this.handleDrop}"
+        >
+        </div>
     `;
     }
     handleDragOver(event) {
         event.preventDefault();
+        const target = event.currentTarget;
+        target.classList.add('drag-over');
+    }
+    handleDragLeave(event) {
+        const target = event.currentTarget;
+        target.classList.remove('drag-over');
     }
     handleDrop(event) {
         event.preventDefault();
+        const target = event.currentTarget;
+        target.classList.remove('drag-over');
         this._dispatchFieldTypeDroppedEvent(event.dataTransfer?.getData('text/plain'));
     }
     _dispatchFieldTypeDroppedEvent(data) {
-        const dataObject = JSON.parse(data);
+        let dataObject;
+        try {
+            dataObject = JSON.parse(data);
+        }
+        catch (e) {
+            console.error('Failed to parse dropped field data', e);
+            return;
+        }
         this.dispatchEvent(new CustomEvent('fieldTypeDropped', {
             detail: {
                 data: dataObject,

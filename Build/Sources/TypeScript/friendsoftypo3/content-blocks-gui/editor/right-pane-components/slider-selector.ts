@@ -17,6 +17,12 @@ import { customElement, property } from 'lit/decorators.js';
 import { live } from 'lit/directives/live.js';
 import type { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 
+interface SliderConfig {
+  enabled?: boolean;
+  step?: number;
+  width?: number;
+}
+
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
@@ -27,24 +33,24 @@ import type { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/inter
 export class ContentBlockEditorSliderSelector extends LitElement {
 
   @property()
-    fieldTypeProperty: FieldTypeProperty;
+  fieldTypeProperty: FieldTypeProperty;
 
   @property()
-    values: Record<string, unknown>;
+  values: Record<string, unknown>;
 
   @property()
-    position?: number;
+  position?: number;
 
   @property()
-    level?: number;
+  level?: number;
 
   @property()
-    parent?: number;
+  parent?: number;
 
   @property()
-    isSliderEnabled = false;
+  isSliderEnabled = false;
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     this.updateSliderEnabledState();
     return html`
       <div class="component-container">
@@ -69,7 +75,7 @@ export class ContentBlockEditorSliderSelector extends LitElement {
                   type="number" 
                   id="slider_step" 
                   step="0.1"
-                  .value="${live(this.values['slider']?.step || 1)}" 
+                  .value="${live((this.values.slider as SliderConfig)?.step || 1)}"
                   class="form-control" />
               </div>
               <div class="col-6">
@@ -77,7 +83,7 @@ export class ContentBlockEditorSliderSelector extends LitElement {
                 <input @blur="${this.handleSliderInputChange}" 
                   type="number" 
                   id="slider_width" 
-                  .value="${live(this.values['slider']?.width || 100)}" 
+                  .value="${live((this.values.slider as SliderConfig)?.width || 100)}"
                   class="form-control" />
               </div>
             </div>
@@ -87,11 +93,11 @@ export class ContentBlockEditorSliderSelector extends LitElement {
   }
 
   protected updateSliderEnabledState(): void {
-    const slider = this.values['slider'];
-    
-    if (slider?.hasOwnProperty('enabled')) {
+    const slider = this.values.slider as SliderConfig | undefined;
+
+    if (slider && Object.prototype.hasOwnProperty.call(slider, 'enabled')) {
       // If enabled property is explicitly set, use that value
-      this.isSliderEnabled = slider.enabled;
+      this.isSliderEnabled = !!slider.enabled;
     } else if (slider && (slider.step !== undefined || slider.width !== undefined)) {
       // If no enabled property but has slider values, consider it enabled on initial render
       this.isSliderEnabled = true;
@@ -105,19 +111,20 @@ export class ContentBlockEditorSliderSelector extends LitElement {
     event.preventDefault();
     const target = event.target as HTMLInputElement;
     
-    if (!this.values['slider']) {
-      this.values['slider'] = {};
+    if (!this.values.slider) {
+      this.values.slider = {};
     }
     
     this.isSliderEnabled = target.checked;
-    this.values['slider'].enabled = target.checked;
-    
+    const slider = this.values.slider as SliderConfig;
+    slider.enabled = target.checked;
+
     if (target.checked) {
-      if (this.values['slider'].step === undefined) {
-        this.values['slider'].step = 1;
+      if (slider.step === undefined) {
+        slider.step = 1;
       }
-      if (this.values['slider'].width === undefined) {
-        this.values['slider'].width = 100;
+      if (slider.width === undefined) {
+        slider.width = 100;
       }
     }
     
@@ -128,14 +135,15 @@ export class ContentBlockEditorSliderSelector extends LitElement {
     event.preventDefault();
     const target = event.target as HTMLInputElement;
     
-    if (!this.values['slider']) {
-      this.values['slider'] = {};
+    if (!this.values.slider) {
+      this.values.slider = {};
     }
     
+    const slider = this.values.slider as SliderConfig;
     if (target.id === 'slider_step') {
-      this.values['slider'].step = parseFloat(target.value);
+      slider.step = parseFloat(target.value);
     } else if (target.id === 'slider_width') {
-      this.values['slider'].width = parseInt(target.value);
+      slider.width = parseInt(target.value, 10);
     }
     
     this.dispatchUpdateEvent();
@@ -154,7 +162,7 @@ export class ContentBlockEditorSliderSelector extends LitElement {
     }));
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;

@@ -14,6 +14,7 @@
 import { html, LitElement } from 'lit';
 import type { TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
 import '@typo3/backend/element/icon-element.js';
 import '@friendsoftypo3/content-blocks-gui/editor/dropzone-field.js';
 import type { FieldTypeSetting, ContentBlockField } from '@friendsoftypo3/content-blocks-gui/interface/definitions';
@@ -28,25 +29,25 @@ import type { FieldTypeSetting, ContentBlockField } from '@friendsoftypo3/conten
 export class ContentBlockEditorMiddlePane extends LitElement {
 
   @property()
-    fieldList?: Array<ContentBlockField>;
+  fieldList?: Array<ContentBlockField>;
   @property()
-    fieldTypes: Array<FieldTypeSetting>;
+  fieldTypes: Array<FieldTypeSetting>;
   @property()
-    dragActive: boolean;
+  dragActive: boolean;
   @property()
-    position: number;
+  position: number;
   @property()
-    level: number;
+  level: number;
   @property()
-    parent: ContentBlockField;
+  parent: ContentBlockField;
   @property()
-    activeFieldPosition?: number;
+  activeFieldPosition?: number;
   @property()
-    activeFieldLevel?: number;
+  activeFieldLevel?: number;
   @property()
-    activeFieldParent?: ContentBlockField;
+  activeFieldParent?: ContentBlockField;
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     return html`
       <style>
         .content-block-field-builder {
@@ -184,16 +185,14 @@ export class ContentBlockEditorMiddlePane extends LitElement {
           </div>
           <div class="fields-list">
             ${this.fieldList?.map((item, index) => {
-              const isActive = this.isFieldActive(index + 1, 0, null);
-              const activeClass = isActive ? 'field-active' : '';
-              const collectionClass = item.type === 'Collection' ? 'collection-type' : '';
-              
-              return html`
-                <div class="field-item ${collectionClass} ${activeClass}" data-field-index="${index}">
+    const isActive = this.isFieldActive(index + 1, 0, null);
+
+    return html`
+                <div class=${classMap({ 'field-item': true, 'collection-type': item.type === 'Collection', 'field-active': isActive })} data-field-index="${index}">
                   ${this.renderFieldArea(item, index + 1, 0, null)}
                 </div>
               `;
-            })}
+  })}
           </div>
           ${this.fieldList?.length === 0 ? html`
             <div class="empty-state">
@@ -233,18 +232,16 @@ export class ContentBlockEditorMiddlePane extends LitElement {
                   ${this.renderDraggableFieldType(fieldType, cbField, 0, level + 1, cbField, false, true)}
                 </div>
                 ${cbField.fields?.map((field, index) => {
-                  const isActive = this.isFieldActive(index + 1, level + 1, cbField);
-                  const activeClass = isActive ? 'field-active' : '';
-                  const collectionClass = field.type === 'Collection' ? 'collection-type' : '';
-                  
-                  return html`
-                    <div class="collection-field-item ${activeClass}" data-field-index="${index}">
-                      <div class="field-item ${collectionClass}" data-field-index="${index}">
+    const isActive = this.isFieldActive(index + 1, level + 1, cbField);
+
+    return html`
+                    <div class=${classMap({ 'collection-field-item': true, 'field-active': isActive })} data-field-index="${index}">
+                      <div class=${classMap({ 'field-item': true, 'collection-type': field.type === 'Collection' })} data-field-index="${index}">
                         ${this.renderFieldArea(field, index + 1, level + 1, cbField)}
                       </div>
                     </div>
                   `;
-                })}
+  })}
               </div>
             </div>
           </div>
@@ -314,7 +311,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
   }
 
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;

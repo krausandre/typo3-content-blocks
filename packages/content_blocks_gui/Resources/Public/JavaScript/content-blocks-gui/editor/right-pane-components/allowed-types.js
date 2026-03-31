@@ -41,7 +41,7 @@ let ContentBlockEditorAllowedTypes = class ContentBlockEditorAllowedTypes extend
     }
     render() {
         this.updateAllowedTypesEnabledState();
-        const currentValue = this.values['allowedTypes'] || [];
+        const currentValue = this.values.allowedTypes || [];
         return html `
       <div class="component-container">
         <div class="component-header">
@@ -81,7 +81,7 @@ let ContentBlockEditorAllowedTypes = class ContentBlockEditorAllowedTypes extend
       </div>`;
     }
     updateAllowedTypesEnabledState() {
-        const allowedTypes = this.values['allowedTypes'];
+        const allowedTypes = this.values.allowedTypes;
         this.isAllowedTypesEnabled = allowedTypes && Array.isArray(allowedTypes) && allowedTypes.length > 0 && !allowedTypes.includes('*');
     }
     handleAllowedTypesEnabledChange(event) {
@@ -90,11 +90,11 @@ let ContentBlockEditorAllowedTypes = class ContentBlockEditorAllowedTypes extend
         this.isAllowedTypesEnabled = target.checked;
         if (target.checked) {
             // Initialize with all types selected
-            this.values['allowedTypes'] = [...this.availableLinkTypes.map(type => type.value)];
+            this.values.allowedTypes = [...this.availableLinkTypes.map(type => type.value)];
         }
         else {
             // Set to default (all types allowed)
-            this.values['allowedTypes'] = ['*'];
+            this.values.allowedTypes = ['*'];
         }
         this.dispatchUpdateEvent();
     }
@@ -102,10 +102,10 @@ let ContentBlockEditorAllowedTypes = class ContentBlockEditorAllowedTypes extend
         event.preventDefault();
         const target = event.target;
         const typeValue = target.dataset.value;
-        if (!this.values['allowedTypes'] || !Array.isArray(this.values['allowedTypes'])) {
-            this.values['allowedTypes'] = [];
+        if (!this.values.allowedTypes || !Array.isArray(this.values.allowedTypes)) {
+            this.values.allowedTypes = [];
         }
-        const currentTypes = this.values['allowedTypes'];
+        const currentTypes = this.values.allowedTypes;
         if (target.checked) {
             if (!currentTypes.includes(typeValue)) {
                 currentTypes.push(typeValue);
@@ -119,7 +119,7 @@ let ContentBlockEditorAllowedTypes = class ContentBlockEditorAllowedTypes extend
         }
         // If no types selected, revert to default
         if (currentTypes.length === 0) {
-            this.values['allowedTypes'] = ['*'];
+            this.values.allowedTypes = ['*'];
             this.isAllowedTypesEnabled = false;
         }
         this.requestUpdate();

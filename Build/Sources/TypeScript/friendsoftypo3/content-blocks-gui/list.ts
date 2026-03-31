@@ -114,14 +114,6 @@ export class ContentBlockList extends LitElement {
     document.removeEventListener('click', this.handleUploadButtonClick);
   }
 
-  private handleUploadButtonClick = (event: MouseEvent): void => {
-    const target = event.target as HTMLElement;
-    if (target.closest('[data-action="upload-content-blocks"]')) {
-      event.preventDefault();
-      this.openUploadModal();
-    }
-  }
-
   protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // Don't use Shadow DOM to allow Bootstrap CSS styling
     return this;
@@ -859,7 +851,7 @@ export class ContentBlockList extends LitElement {
     }
 
     // Validate pattern
-    const pattern = /^[a-z0-9\-\/]+$/;
+    const pattern = /^[a-z0-9/-]+$/;
     if (!pattern.test(identifierValue)) {
       console.error('[ContentBlockList] Invalid pattern');
       if (!form.checkValidity()) {
@@ -924,7 +916,7 @@ export class ContentBlockList extends LitElement {
     }
 
     // Validate pattern
-    const pattern = /^[a-z0-9\-]+$/;
+    const pattern = /^[a-z0-9-]+$/;
     if (!pattern.test(vendorValue) || !pattern.test(nameValue)) {
       console.error('[ContentBlockList] Invalid pattern');
       if (!form.checkValidity()) {
@@ -1121,4 +1113,12 @@ export class ContentBlockList extends LitElement {
       modal.hideModal();
     });
   }
+
+  private readonly handleUploadButtonClick = (event: MouseEvent): void => {
+    const target = event.target as HTMLElement;
+    if (target.closest('[data-action="upload-content-blocks"]')) {
+      event.preventDefault();
+      this.openUploadModal();
+    }
+  };
 }

@@ -27,13 +27,13 @@ import type { ContentBlockField } from '@friendsoftypo3/content-blocks-gui/inter
 export class DropzoneField extends LitElement {
 
   @property()
-    position: number = 0;
+  position: number = 0;
   @property()
-    level: number = 0;
+  level: number = 0;
   @property()
-    parent?: ContentBlockField = null;
+  parent?: ContentBlockField = null;
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     return html`
         <style>
             .cb-drop-zone {
@@ -82,7 +82,13 @@ export class DropzoneField extends LitElement {
     this._dispatchFieldTypeDroppedEvent(event.dataTransfer?.getData('text/plain'));
   }
   protected _dispatchFieldTypeDroppedEvent(data: string): void {
-    const dataObject = JSON.parse(data);
+    let dataObject;
+    try {
+      dataObject = JSON.parse(data);
+    } catch (e) {
+      console.error('Failed to parse dropped field data', e);
+      return;
+    }
     this.dispatchEvent(new CustomEvent('fieldTypeDropped', {
       detail: {
         data: dataObject,
@@ -95,7 +101,7 @@ export class DropzoneField extends LitElement {
     }));
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;

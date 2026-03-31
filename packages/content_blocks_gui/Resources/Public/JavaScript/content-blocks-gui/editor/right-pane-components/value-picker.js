@@ -32,7 +32,7 @@ let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends 
     }
     render() {
         this.updateValuePickerEnabledState();
-        const currentValue = this.values[this.fieldTypeProperty.name] || { mode: 'blank', items: [] };
+        const currentValue = this.values[this.fieldTypeProperty.name] || { items: [] };
         return html `
       <div class="component-container">
         <div class="component-header">
@@ -49,14 +49,6 @@ let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends 
         </div>
         ${this.isValuePickerEnabled ? html `
           <div class="component-body">
-            <div class="form-group mb-3">
-              <label for="${this.fieldTypeProperty.name}_mode" class="form-label">Mode</label>
-              <select @change="${this.updateValuePickerMode}" class="form-select" id="${this.fieldTypeProperty.name}_mode" data-field="${this.fieldTypeProperty.name}">
-                <option value="blank" ?selected=${currentValue.mode === 'blank'}>Blank (replace)</option>
-                <option value="append" ?selected=${currentValue.mode === 'append'}>Append</option>
-                <option value="prepend" ?selected=${currentValue.mode === 'prepend'}>Prepend</option>
-              </select>
-            </div>
             <div class="form-group">
               <label class="form-label">Items</label>
               <div class="items-list">
@@ -114,23 +106,13 @@ let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends 
       </div>
     `;
     }
-    updateValuePickerMode(event) {
-        const target = event.target;
-        const fieldName = target.dataset.field;
-        const currentValue = this.values[fieldName] || { mode: 'blank', items: [] };
-        this.values[fieldName] = {
-            ...currentValue,
-            mode: target.value
-        };
-        this.dispatchUpdateEvent();
-    }
     updateValuePickerItem(event) {
         const target = event.target;
         const fieldName = this.fieldTypeProperty.name;
-        const index = parseInt(target.dataset.index);
+        const index = parseInt(target.dataset.index, 10);
         const part = target.dataset.part;
         if (!this.values[fieldName]) {
-            this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
+            this.values[fieldName] = { items: [], enabled: true };
         }
         const currentValue = this.values[fieldName];
         if (!currentValue.items) {
@@ -147,7 +129,7 @@ let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends 
         event.preventDefault();
         const fieldName = this.fieldTypeProperty.name;
         if (!this.values[fieldName]) {
-            this.values[fieldName] = { mode: 'blank', items: [], enabled: true };
+            this.values[fieldName] = { items: [], enabled: true };
         }
         const currentValue = this.values[fieldName];
         if (!currentValue.items) {
@@ -162,11 +144,12 @@ let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends 
         event.preventDefault();
         const target = event.target;
         const fieldName = this.fieldTypeProperty.name;
-        const index = parseInt(target.dataset.index);
-        if (!this.values[fieldName] || !this.values[fieldName].items) {
+        const index = parseInt(target.dataset.index, 10);
+        const vp = this.values[fieldName];
+        if (!vp || !vp.items) {
             return;
         }
-        const currentValue = this.values[fieldName];
+        const currentValue = vp;
         currentValue.items.splice(index, 1);
         this.values[fieldName] = currentValue;
         this.requestUpdate();
@@ -174,23 +157,29 @@ let ContentBlockEditorValuePicker = class ContentBlockEditorValuePicker extends 
     }
     updateValuePickerEnabledState() {
         const valuePicker = this.values[this.fieldTypeProperty.name];
-        this.isValuePickerEnabled = valuePicker?.enabled || false;
+        if (valuePicker && Object.prototype.hasOwnProperty.call(valuePicker, 'enabled')) {
+            this.isValuePickerEnabled = !!valuePicker.enabled;
+        }
+        else if (valuePicker?.items && Array.isArray(valuePicker.items) && valuePicker.items.length > 0) {
+            this.isValuePickerEnabled = true;
+        }
+        else {
+            this.isValuePickerEnabled = false;
+        }
     }
     handleValuePickerEnabledChange(event) {
         event.preventDefault();
         const target = event.target;
         const fieldName = this.fieldTypeProperty.name;
         if (!this.values[fieldName]) {
-            this.values[fieldName] = { mode: 'blank', items: [] };
+            this.values[fieldName] = { items: [] };
         }
         this.isValuePickerEnabled = target.checked;
-        this.values[fieldName].enabled = target.checked;
+        const vp = this.values[fieldName];
+        vp.enabled = target.checked;
         if (target.checked) {
-            if (!this.values[fieldName].mode) {
-                this.values[fieldName].mode = 'blank';
-            }
-            if (!this.values[fieldName].items) {
-                this.values[fieldName].items = [];
+            if (!vp.items) {
+                vp.items = [];
             }
         }
         this.dispatchUpdateEvent();

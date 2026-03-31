@@ -45,50 +45,50 @@ import type {
 export class ContentBlockEditor extends LitElement {
 
   @property()
-    name?: string;
+  name?: string;
   @property()
-    mode?: string;
+  mode?: string;
   @property()
-    contenttype?: string;
+  contenttype?: string;
   @property()
-    data?: string;
+  data?: string;
   @property()
-    extensions?: string;
+  extensions?: string;
   @property()
-    groups?: string;
+  groups?: string;
   @property()
-    fieldconfig?: string;
+  fieldconfig?: string;
   @property()
-    fieldmetadata?: string;
+  fieldmetadata?: string;
 
   @property()
-    fieldSettingsValues: ContentBlockField = {
-      'identifier': '',
-      'label': '',
-      'type': '',
-    };
+  fieldSettingsValues: ContentBlockField = {
+    'identifier': '',
+    'label': '',
+    'type': '',
+  };
   @property()
-    rightPaneActiveSchema: FieldTypeSetting;
+  rightPaneActiveSchema: FieldTypeSetting;
   @property()
-    rightPaneActivePosition: number;
+  rightPaneActivePosition: number;
   @property()
-    rightPaneActiveLevel: number;
+  rightPaneActiveLevel: number;
   @property()
-    rightPaneActiveParent: ContentBlockField;
+  rightPaneActiveParent: ContentBlockField;
 
   @property()
-    dragActive?: boolean = false;
+  dragActive?: boolean = false;
   @property()
-    cbDefinition: ContentBlockDefinition;
+  cbDefinition: ContentBlockDefinition;
+
+  @state()
+  availableBasics: Array<BasicMetadata> = [];
 
   init = false;
   fieldTypeList: Array<FieldTypeSetting>;
   groupList: Array<GroupDefinition>;
   extensionList: Array<ExtensionDefinition>;
   fieldMetadata: FieldMetadata;
-
-  @state()
-  availableBasics: Array<BasicMetadata> = [];
 
   protected override render(): TemplateResult {
     this.initData();
@@ -150,18 +150,24 @@ export class ContentBlockEditor extends LitElement {
     if (this.init) {
       return;
     }
-    this.cbDefinition = JSON.parse(this.data);
+    try {
+      this.cbDefinition = JSON.parse(this.data);
+      this.fieldTypeList = JSON.parse(this.fieldconfig);
+      this.groupList = JSON.parse(this.groups);
+      this.extensionList = JSON.parse(this.extensions);
+    } catch (e) {
+      console.error('Failed to parse editor configuration data', e);
+      return;
+    }
 
     // For Content Blocks: Split name into vendor and name if it contains a slash
     if (this.contenttype !== 'basic' && this.cbDefinition.yaml.name && this.cbDefinition.yaml.name.includes('/')) {
       const nameParts = this.cbDefinition.yaml.name.split('/');
-      this.cbDefinition.yaml.vendor = nameParts[0];
-      this.cbDefinition.yaml.name = nameParts[1];
+      if (nameParts.length >= 2 && nameParts[0] && nameParts[1]) {
+        this.cbDefinition.yaml.vendor = nameParts[0];
+        this.cbDefinition.yaml.name = nameParts[1];
+      }
     }
-
-    this.fieldTypeList = JSON.parse(this.fieldconfig);
-    this.groupList = JSON.parse(this.groups);
-    this.extensionList = JSON.parse(this.extensions);
     this.fieldMetadata = JSON.parse(this.fieldmetadata || '{"baseFields":{},"systemReservedFields":[],"currentTable":"tt_content"}');
 
     // Load available Basics
@@ -241,7 +247,6 @@ export class ContentBlockEditor extends LitElement {
           if (!field.type) {
             field.type = baseField.type;
             field._typeInjected = true;
-            console.log(`Injected type "${baseField.type}" for base field "${field.identifier}"`);
           }
         }
       }
@@ -347,7 +352,6 @@ export class ContentBlockEditor extends LitElement {
       // Remove type for base fields at level 0
       if (level === 0 && field._isBaseField && field.useExistingField) {
         delete cleanField.type;
-        console.log(`Removed injected type for base field "${field.identifier}"`);
       }
 
       // Recursively process nested fields
@@ -366,12 +370,9 @@ export class ContentBlockEditor extends LitElement {
   }
 
   protected fieldTypeDroppedListener(event: CustomEvent) {
-    console.log(event.detail);
     this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === event.detail.data.type)[0];
-    let newIdentifier = event.detail.data.type + '_' + this.cbDefinition.yaml.fields.length;
-    if(event.detail.level > 0) {
-      newIdentifier = event.detail.data.type + '_' + event.detail.parent.fields.length;
-    }
+    const fields = event.detail.level > 0 ? event.detail.parent.fields : this.cbDefinition.yaml.fields;
+    const newIdentifier = event.detail.data.type + '_' + this.getNextFieldIndex(fields, event.detail.data.type);
     this.handleFieldAction(newIdentifier, event.detail);
   }
 
@@ -441,7 +442,6 @@ export class ContentBlockEditor extends LitElement {
   }
 
   protected updateFieldDataEventListener(event: CustomEvent) {
-    console.log(event.detail);
     // Use parent context to get the correct field array
     let fields: ContentBlockField[] = this.cbDefinition.yaml.fields;
     if(event.detail.parent !== null) {
@@ -462,7 +462,7 @@ export class ContentBlockEditor extends LitElement {
 
         if (baseField) {
           // It's a base field - FORCE prefixField to false (can't prefix existing base fields)
-          field.prefixField = false;
+          field.prefixFields = false;
           // Reset prefixType since prefixing is disabled
           field.prefixType = '';
 
@@ -565,8 +565,6 @@ export class ContentBlockEditor extends LitElement {
           field.prefixType = '';
           field._isBaseField = true;
 
-          console.log(`activateFieldSettings: Set field.prefixFields = false, field._isBaseField = true for "${field.identifier}"`);
-
           // Inject type if missing
           if (!field.type || field._typeInjected) {
             field.type = baseField.type;
@@ -590,12 +588,6 @@ export class ContentBlockEditor extends LitElement {
 
       // Update fieldSettingsValues to point to the CLONED field
       this.fieldSettingsValues = { ...clonedFields[event.detail.position] };
-
-      console.log('activateFieldSettings: fieldSettingsValues after clone:', {
-        identifier: this.fieldSettingsValues.identifier,
-        prefixFields: this.fieldSettingsValues.prefixFields,
-        _isBaseField: this.fieldSettingsValues._isBaseField
-      });
 
       this.rightPaneActiveSchema = this.fieldTypeList.filter((fieldType) => fieldType.type === this.fieldSettingsValues.type)[0];
       this.rightPaneActivePosition = event.detail.position;
@@ -647,14 +639,11 @@ export class ContentBlockEditor extends LitElement {
   // TODO: add logic and templates to handle a duplicated content block
   private _initMultiStepWizard() {
     // const contentBlockData = this.data;
-    MultiStepWizard.addSlide('step-1', 'Step 1', '', Severity.notice, 'Step 1', async function (slide, settings) {
-      console.log(settings);
-      // contentBlockData.name = 'Test';
+    MultiStepWizard.addSlide('step-1', 'Step 1', '', Severity.notice, 'Step 1', async function (slide) {
       MultiStepWizard.unlockNextStep();
       slide.html('<h2>Select vendor</h2><p><select><option value="1">Sample</option></select></p>');
     });
-    MultiStepWizard.addSlide('step-2', 'Step 2', '', Severity.notice, 'Step 2', async function (slide, settings) {
-      console.log(settings);
+    MultiStepWizard.addSlide('step-2', 'Step 2', '', Severity.notice, 'Step 2', async function (slide) {
       slide.html('Test 2');
       MultiStepWizard.unlockPrevStep();
     });
@@ -673,7 +662,7 @@ export class ContentBlockEditor extends LitElement {
 
       // Recursively clean nested objects
       for (const key in cleaned) {
-        if (cleaned.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(cleaned, key)) {
           cleaned[key] = this.removeEnabledProperties(cleaned[key]);
         }
       }
@@ -758,7 +747,7 @@ export class ContentBlockEditor extends LitElement {
             btnClass: 'btn-danger',
             name: 'ok',
             trigger: function() {
-                Modal.dismiss();
+              Modal.dismiss();
             }
           }]
         );
@@ -810,7 +799,6 @@ export class ContentBlockEditor extends LitElement {
       // Switch from 'new' to 'edit' mode after successful first save
       if (this.mode === 'new' && result.success !== false) {
         this.mode = 'edit';
-        console.log('Switched mode from "new" to "edit" after successful Content Block save');
       }
 
       // Show success message
@@ -824,7 +812,7 @@ export class ContentBlockEditor extends LitElement {
           btnClass: 'btn-info',
           name: 'ok',
           trigger: function() {
-              Modal.dismiss();
+            Modal.dismiss();
           }
         }]
       );
@@ -843,7 +831,7 @@ export class ContentBlockEditor extends LitElement {
           btnClass: 'btn-danger',
           name: 'ok',
           trigger: function() {
-              Modal.dismiss();
+            Modal.dismiss();
           }
         }]
       );
@@ -912,7 +900,7 @@ export class ContentBlockEditor extends LitElement {
         vendor: vendor,
         name: name,
         fields: cleanedFields,
-        flushCache: true  // Tell backend to flush cache
+        flushCache: true // Tell backend to flush cache
       };
 
       const ajaxUrl = TYPO3.settings.ajaxUrls.content_blocks_gui_save_basic_ajax;
@@ -924,7 +912,6 @@ export class ContentBlockEditor extends LitElement {
       // Switch from 'new' to 'edit' mode after successful first save
       if (this.mode === 'new' && result.success) {
         this.mode = 'edit';
-        console.log('Switched mode from "new" to "edit" after successful save');
       }
 
       // Show success message
@@ -1200,5 +1187,22 @@ export class ContentBlockEditor extends LitElement {
         button.innerHTML = '<typo3-backend-icon identifier="actions-save-close"></typo3-backend-icon> Save & Close';
       });
     }
+  }
+
+  /**
+   * Find the next available index for a field type to avoid identifier collisions after deletion
+   */
+  private getNextFieldIndex(fields: Array<ContentBlockField>, type: string): number {
+    let maxIndex = -1;
+    const prefix = type + '_';
+    for (const field of fields) {
+      if (field.identifier.startsWith(prefix)) {
+        const num = parseInt(field.identifier.substring(prefix.length), 10);
+        if (!isNaN(num) && num > maxIndex) {
+          maxIndex = num;
+        }
+      }
+    }
+    return maxIndex + 1;
   }
 }

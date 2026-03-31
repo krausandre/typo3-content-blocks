@@ -48,6 +48,7 @@ readonly class DatabaseUtility
             // Clear system cache to force new TCA caching
             $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
             $cacheManager->flushCachesInGroup('system');
+            $cacheManager->getCache('typoscript')->flush();
 
             $this->logger->info('DatabaseUtility: Starting database schema update');
 

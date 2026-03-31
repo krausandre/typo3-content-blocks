@@ -1,0 +1,14 @@
+name: test-123/test-12
+fields:
+  -
+    identifier: header
+    useExistingField: true
+    prefixFields: false
+    prefixType: ''
+  -
+    identifier: categories
+    label: Checkbox1
+    useExistingField: true
+    prefixFields: false
+    prefixType: ''
+group: common

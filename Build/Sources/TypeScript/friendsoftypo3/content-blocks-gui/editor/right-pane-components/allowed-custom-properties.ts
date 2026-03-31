@@ -27,26 +27,26 @@ import type { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/inter
 export class ContentBlockEditorAllowedCustomProperties extends LitElement {
 
   @property()
-    fieldTypeProperty: FieldTypeProperty;
+  fieldTypeProperty: FieldTypeProperty;
 
   @property()
-    values: Record<string, unknown>;
+  values: Record<string, unknown>;
 
   @property()
-    position?: number;
+  position?: number;
 
   @property()
-    level?: number;
+  level?: number;
 
   @property()
-    parent?: number;
+  parent?: number;
 
   @property()
-    isAllowedCustomPropertiesEnabled = false;
+  isAllowedCustomPropertiesEnabled = false;
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     this.updateAllowedCustomPropertiesEnabledState();
-    const currentValue = this.values['allowedCustomProperties'] as { itemProcFunc: string; enabled?: boolean } || {};
+    const currentValue = (this.values.allowedCustomProperties as { itemProcFunc: string; enabled?: boolean }) || { itemProcFunc: '' };
     
     return html`
       <div class="component-container">
@@ -71,7 +71,7 @@ export class ContentBlockEditorAllowedCustomProperties extends LitElement {
                 id="itemProcFunc"
                 .value="${live(currentValue.itemProcFunc || '')}" 
                 class="form-control"
-                placeholder="e.g., EXT:my_ext/Classes/ItemsProcFunc.php:MyClass->getItems" />
+                placeholder="e.g., EXT:my_ext/Classes/ItemsProcFunc.php:MyClass-&gt;getItems" />
               <div class="form-text">
                 Specify the itemsProcFunc for dynamic item generation.
               </div>
@@ -82,7 +82,7 @@ export class ContentBlockEditorAllowedCustomProperties extends LitElement {
   }
 
   protected updateAllowedCustomPropertiesEnabledState(): void {
-    const allowedCustomProperties = this.values['allowedCustomProperties'] as { itemProcFunc?: string; enabled?: boolean };
+    const allowedCustomProperties = this.values.allowedCustomProperties as { itemProcFunc?: string; enabled?: boolean };
     this.isAllowedCustomPropertiesEnabled = !!(allowedCustomProperties?.enabled || allowedCustomProperties?.itemProcFunc);
   }
 
@@ -94,10 +94,10 @@ export class ContentBlockEditorAllowedCustomProperties extends LitElement {
     
     if (target.checked) {
       // Initialize with empty itemProcFunc
-      this.values['allowedCustomProperties'] = { itemProcFunc: '', enabled: true };
+      this.values.allowedCustomProperties = { itemProcFunc: '', enabled: true };
     } else {
       // Clear the object
-      this.values['allowedCustomProperties'] = { itemProcFunc: '', enabled: false };
+      this.values.allowedCustomProperties = { itemProcFunc: '', enabled: false };
     }
     
     this.dispatchUpdateEvent();
@@ -107,11 +107,11 @@ export class ContentBlockEditorAllowedCustomProperties extends LitElement {
     event.preventDefault();
     const target = event.target as HTMLInputElement;
     
-    if (!this.values['allowedCustomProperties']) {
-      this.values['allowedCustomProperties'] = { itemProcFunc: '', enabled: true };
+    if (!this.values.allowedCustomProperties) {
+      this.values.allowedCustomProperties = { itemProcFunc: '', enabled: true };
     }
     
-    const currentProperties = this.values['allowedCustomProperties'] as { itemProcFunc: string; enabled?: boolean };
+    const currentProperties = this.values.allowedCustomProperties as { itemProcFunc: string; enabled?: boolean };
     currentProperties.itemProcFunc = target.value;
     
     this.dispatchUpdateEvent();
@@ -130,7 +130,7 @@ export class ContentBlockEditorAllowedCustomProperties extends LitElement {
     }));
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;

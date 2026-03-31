@@ -27,22 +27,22 @@ import type { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/inter
 export class ContentBlockEditorAllowedTypes extends LitElement {
 
   @property()
-    fieldTypeProperty: FieldTypeProperty;
+  fieldTypeProperty: FieldTypeProperty;
 
   @property()
-    values: Record<string, unknown>;
+  values: Record<string, unknown>;
 
   @property()
-    position?: number;
+  position?: number;
 
   @property()
-    level?: number;
+  level?: number;
 
   @property()
-    parent?: number;
+  parent?: number;
 
   @property()
-    isAllowedTypesEnabled = false;
+  isAllowedTypesEnabled = false;
 
   protected availableLinkTypes = [
     { value: 'page', label: 'Page' },
@@ -54,9 +54,9 @@ export class ContentBlockEditorAllowedTypes extends LitElement {
     { value: 'record', label: 'Record' }
   ];
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     this.updateAllowedTypesEnabledState();
-    const currentValue = this.values['allowedTypes'] as string[] || [];
+    const currentValue = this.values.allowedTypes as string[] || [];
     
     return html`
       <div class="component-container">
@@ -98,7 +98,7 @@ export class ContentBlockEditorAllowedTypes extends LitElement {
   }
 
   protected updateAllowedTypesEnabledState(): void {
-    const allowedTypes = this.values['allowedTypes'];
+    const allowedTypes = this.values.allowedTypes;
     this.isAllowedTypesEnabled = allowedTypes && Array.isArray(allowedTypes) && allowedTypes.length > 0 && !allowedTypes.includes('*');
   }
 
@@ -110,10 +110,10 @@ export class ContentBlockEditorAllowedTypes extends LitElement {
     
     if (target.checked) {
       // Initialize with all types selected
-      this.values['allowedTypes'] = [...this.availableLinkTypes.map(type => type.value)];
+      this.values.allowedTypes = [...this.availableLinkTypes.map(type => type.value)];
     } else {
       // Set to default (all types allowed)
-      this.values['allowedTypes'] = ['*'];
+      this.values.allowedTypes = ['*'];
     }
     
     this.dispatchUpdateEvent();
@@ -124,11 +124,11 @@ export class ContentBlockEditorAllowedTypes extends LitElement {
     const target = event.target as HTMLInputElement;
     const typeValue = target.dataset.value!;
     
-    if (!this.values['allowedTypes'] || !Array.isArray(this.values['allowedTypes'])) {
-      this.values['allowedTypes'] = [];
+    if (!this.values.allowedTypes || !Array.isArray(this.values.allowedTypes)) {
+      this.values.allowedTypes = [];
     }
     
-    const currentTypes = this.values['allowedTypes'] as string[];
+    const currentTypes = this.values.allowedTypes as string[];
     
     if (target.checked) {
       if (!currentTypes.includes(typeValue)) {
@@ -143,7 +143,7 @@ export class ContentBlockEditorAllowedTypes extends LitElement {
     
     // If no types selected, revert to default
     if (currentTypes.length === 0) {
-      this.values['allowedTypes'] = ['*'];
+      this.values.allowedTypes = ['*'];
       this.isAllowedTypesEnabled = false;
     }
     
@@ -164,7 +164,7 @@ export class ContentBlockEditorAllowedTypes extends LitElement {
     }));
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;

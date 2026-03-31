@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit';
+import { LitElement, html, nothing } from 'lit';
 import type { TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import AjaxRequest from '@typo3/core/ajax/ajax-request.js';
@@ -33,6 +33,9 @@ interface ImportResult {
 @customElement('content-block-upload')
 export class ContentBlockUpload extends LitElement {
   @state()
+  public availableExtensions: any[] = [];
+
+  @state()
   private uploadedFile: File | null = null;
 
   @state()
@@ -42,7 +45,7 @@ export class ContentBlockUpload extends LitElement {
   private targetExtension: string = 'samples';
 
   @state()
-  private conflicts: Map<string, string> = new Map();
+  private readonly conflicts: Map<string, string> = new Map();
 
   @state()
   private step: 'upload' | 'analysis' | 'import' | 'result' = 'upload';
@@ -55,9 +58,6 @@ export class ContentBlockUpload extends LitElement {
 
   @state()
   private error: string | null = null;
-
-  @state()
-  public availableExtensions: any[] = [];
 
   protected override createRenderRoot(): HTMLElement | ShadowRoot {
     return this;
@@ -78,7 +78,7 @@ export class ContentBlockUpload extends LitElement {
     `;
   }
 
-  protected renderStepContent(): TemplateResult {
+  protected renderStepContent(): TemplateResult | typeof nothing {
     switch (this.step) {
       case 'upload':
         return this.renderUploadStep();
@@ -89,7 +89,7 @@ export class ContentBlockUpload extends LitElement {
       case 'result':
         return this.renderResultStep();
       default:
-        return html``;
+        return nothing;
     }
   }
 
@@ -176,8 +176,8 @@ export class ContentBlockUpload extends LitElement {
   /**
    * Step 2: Display analysis results with conflict resolution
    */
-  protected renderAnalysisStep(): TemplateResult {
-    if (!this.analysis) return html``;
+  protected renderAnalysisStep(): TemplateResult | typeof nothing {
+    if (!this.analysis) {return nothing;}
 
     const blocksWithConflicts = this.analysis.blocks.filter(b => b.conflict !== '');
     const blocksWithoutConflicts = this.analysis.blocks.filter(b => b.conflict === '');
@@ -240,8 +240,8 @@ export class ContentBlockUpload extends LitElement {
   /**
    * Step 4: Import results
    */
-  protected renderResultStep(): TemplateResult {
-    if (!this.result) return html``;
+  protected renderResultStep(): TemplateResult | typeof nothing {
+    if (!this.result) {return nothing;}
 
     const hasErrors = this.result.errors.length > 0;
     const hasImported = this.result.imported.length > 0;
@@ -447,7 +447,7 @@ export class ContentBlockUpload extends LitElement {
         try {
           const errorData = await error.response.json();
           errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch (e) {
+        } catch {
           errorMessage = error.response.statusText || errorMessage;
         }
       } else if (error instanceof Error) {
@@ -513,7 +513,7 @@ export class ContentBlockUpload extends LitElement {
    * Calculate how many blocks will be imported
    */
   protected getImportCount(): number {
-    if (!this.analysis) return 0;
+    if (!this.analysis) {return 0;}
 
     let count = 0;
     this.analysis.blocks.forEach(block => {
@@ -585,8 +585,8 @@ export class ContentBlockUpload extends LitElement {
    * Format file size in human-readable format
    */
   protected formatFileSize(bytes: number): string {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    if (bytes < 1024) {return bytes + ' B';}
+    if (bytes < 1024 * 1024) {return (bytes / 1024).toFixed(1) + ' KB';}
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 }

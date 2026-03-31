@@ -25,18 +25,18 @@ import type { BasicMetadata } from '@friendsoftypo3/content-blocks-gui/interface
  */
 @customElement('editor-left-pane-basics')
 export class EditorLeftPaneBasics extends LitElement {
-  static styles = css``;
+  static override styles = css``;
 
   @property({ type: Array })
-    availableBasics: Array<BasicMetadata> = [];
+  availableBasics: Array<BasicMetadata> = [];
 
   @property({ type: Array })
-    selectedBasics: Array<string> = [];
+  selectedBasics: Array<string> = [];
 
   @state()
   private draggedIndex: number | null = null;
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     const selected = this.selectedBasics.map(identifier => {
       return this.availableBasics.find(b => b.identifier === identifier);
     }).filter(b => b !== undefined) as BasicMetadata[];
@@ -175,7 +175,7 @@ export class EditorLeftPaneBasics extends LitElement {
                 draggable="true"
                 @dragstart="${() => this.handleDragStart(index)}"
                 @dragend="${() => this.handleDragEnd()}"
-                @dragover="${(e: DragEvent) => this.handleDragOver(e, index)}"
+                @dragover="${(e: DragEvent) => this.handleDragOver(e)}"
                 @drop="${(e: DragEvent) => this.handleDrop(e, index)}"
               >
                 <span class="basic-item-drag-handle">
@@ -232,7 +232,7 @@ export class EditorLeftPaneBasics extends LitElement {
     `;
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;
@@ -256,7 +256,7 @@ export class EditorLeftPaneBasics extends LitElement {
     this.draggedIndex = null;
   }
 
-  private handleDragOver(e: DragEvent, index: number): void {
+  private handleDragOver(e: DragEvent): void {
     e.preventDefault();
     e.dataTransfer!.dropEffect = 'move';
   }

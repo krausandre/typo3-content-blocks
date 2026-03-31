@@ -26,23 +26,22 @@ import type { ExtensionDefinition, GroupDefinition, ContentBlocksYaml } from '@f
  */
 @customElement('editor-left-pane-content-block-settings')
 export class EditorLeftPaneContentBlockSettings extends LitElement {
-  static styles = css``;
+  static override styles = css``;
 
   @property()
-    groups: Array<GroupDefinition>;
+  groups: Array<GroupDefinition>;
   @property()
-    extensions: Array<ExtensionDefinition>;
+  extensions: Array<ExtensionDefinition>;
   @property()
-    contentBlockYaml: ContentBlocksYaml;
+  contentBlockYaml: ContentBlocksYaml;
   @property()
-    hostExtension: string;
+  hostExtension: string;
   @property()
-    mode?: string;
+  mode?: string;
   @property()
-    contenttype?: string;
+  contenttype?: string;
 
-  protected render(): TemplateResult {
-    console.log(this.contentBlockYaml);
+  protected override render(): TemplateResult {
     const isBasicMode = this.contenttype === 'basic';
     const isEditMode = this.mode === 'edit';
 
@@ -64,7 +63,7 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
       </div>
       <div class="form-group">
         <label for="vendor" class="form-label">Vendor</label>
-        <input type="text" id="vendor" class="form-control" value=${((this.contentBlockYaml as any).vendor || '')} @input="${this.handleInputChange}" />
+        <input type="text" id="vendor" class="form-control" value=${(this.contentBlockYaml.vendor || '')} @input="${this.handleInputChange}" />
       </div>
       <div class="form-group">
         <label for="name" class="form-label">Name</label>
@@ -114,7 +113,23 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
     `;
   }
 
-  private handleInputChange(event: Event): void {
+  protected getGroupSelectionState(groupKey: string): boolean {
+    if (this.contentBlockYaml.group && this.contentBlockYaml.group === groupKey) {
+      return true;
+    }
+    if (!this.contentBlockYaml.group || !this.groups.some(group => group.key === this.contentBlockYaml.group)) {
+      return groupKey === 'default';
+    }
+    return false;
+  }
+
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
+    // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
+    // const renderRoot = this.attachShadow({mode: 'open'});
+    return this;
+  }
+
+  private handleInputChange(): void {
     const isBasicMode = this.contenttype === 'basic';
 
     // Read all current form values
@@ -130,8 +145,8 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
     const vendorInput = this.renderRoot.querySelector('#vendor') as HTMLInputElement;
     const nameInput = this.renderRoot.querySelector('#name') as HTMLInputElement;
 
-    if (vendorInput) settings.vendor = vendorInput.value;
-    if (nameInput) settings.name = nameInput.value;
+    if (vendorInput) {settings.vendor = vendorInput.value;}
+    if (nameInput) {settings.name = nameInput.value;}
 
     // Content Block specific fields
     if (!isBasicMode) {
@@ -143,13 +158,13 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
       const groupSelect = this.renderRoot.querySelector('#group') as HTMLSelectElement;
       const typeName = this.renderRoot.querySelector('#typeName') as HTMLSelectElement;
 
-      if (titleInput) settings.title = titleInput.value;
-      if (prefixCheckbox) settings.prefixFields = prefixCheckbox.checked;
-      if (prefixTypeSelect) settings.prefixType = prefixTypeSelect.value;
-      if (vendorPrefixInput) settings.vendorPrefix = vendorPrefixInput.value;
-      if (priorityInput) settings.priority = priorityInput.value ? parseInt(priorityInput.value) : undefined;
-      if (groupSelect) settings.group = groupSelect.value;
-      if (typeName) settings.typeName = typeName.value;
+      if (titleInput) {settings.title = titleInput.value;}
+      if (prefixCheckbox) {settings.prefixFields = prefixCheckbox.checked;}
+      if (prefixTypeSelect) {settings.prefixType = prefixTypeSelect.value;}
+      if (vendorPrefixInput) {settings.vendorPrefix = vendorPrefixInput.value;}
+      if (priorityInput) {settings.priority = priorityInput.value ? parseInt(priorityInput.value, 10) : undefined;}
+      if (groupSelect) {settings.group = groupSelect.value;}
+      if (typeName) {settings.typeName = typeName.value;}
     }
 
     // Dispatch custom event to parent
@@ -158,21 +173,5 @@ export class EditorLeftPaneContentBlockSettings extends LitElement {
       bubbles: true,
       composed: true
     }));
-  }
-
-  protected getGroupSelectionState(groupKey: string): boolean {
-    if (this.contentBlockYaml.group && this.contentBlockYaml.group === groupKey) {
-      return true;
-    }
-    if (!this.contentBlockYaml.group || !this.groups.some(group => group.key === this.contentBlockYaml.group)) {
-      return groupKey === 'default';
-    }
-    return false;
-  }
-
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
-    // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
-    // const renderRoot = this.attachShadow({mode: 'open'});
-    return this;
   }
 }

@@ -40,7 +40,7 @@ let EditorLeftPaneComponents = class EditorLeftPaneComponents extends LitElement
         return html `
       <ul class="list-unstyled row">
         ${this.fieldTypes.map((item) => html `
-              <li class="col-12 col-xl-6 col-xxl-4">
+              <li class="col-12 col-xl-6 col-xxl-4 mb-3">
                 <draggable-field-type .fieldTypeSetting="${item}"></draggable-field-type>
               </li>`)}
       </ul>

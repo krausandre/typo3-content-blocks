@@ -20,7 +20,7 @@ namespace FriendsOfTYPO3\ContentBlocksGui\Answer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\AbstractAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\AnswerInterface;
 
-class ErrorMissingBasicIndentifierAnswer extends AbstractAnswer implements AnswerInterface
+class ErrorMissingBasicIdentifierAnswer extends AbstractAnswer implements AnswerInterface
 {
     public function __construct()
     {
