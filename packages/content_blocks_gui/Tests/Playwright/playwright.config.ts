@@ -5,7 +5,7 @@ import * as path from 'path';
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 export default defineConfig({
-  testDir: '.',
+  testDir: './tests',
   timeout: 15 * 1000,
   expect: {
     timeout: 10000,
@@ -20,4 +20,20 @@ export default defineConfig({
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://typo3-content-blocks-gui.ddev.site/typo3/',
     trace: 'on-first-retry',
   },
+  projects: [
+    {
+      name: 'login',
+      testMatch: 'login.spec.ts',
+    },
+    {
+      name: 'list',
+      testMatch: 'list.spec.ts',
+      dependencies: ['login'],
+    },
+    {
+      name: 'editor',
+      testMatch: 'editor.spec.ts',
+      dependencies: ['login'],
+    },
+  ],
 });
