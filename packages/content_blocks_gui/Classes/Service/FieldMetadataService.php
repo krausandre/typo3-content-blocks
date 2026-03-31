@@ -148,7 +148,6 @@ final class FieldMetadataService
             'php_tree_stop',
             'TSconfig',
             'tsconfig_includes',
-            'tsconfig_includes',
         ];
 
         // Get table-specific enable columns from TCA ctrl section

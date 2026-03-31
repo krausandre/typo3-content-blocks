@@ -1,6 +1,6 @@
 [![TYPO3 compatibility](https://img.shields.io/badge/TYPO3-13.4-ff8700?maxAge=3600&logo=typo3)](https://get.typo3.org/)
 
-# TYPO3 CMS Content Blocks GUI
+# TYPO3 Content Blocks GUI
 
 > **Alpha state**: This extension may contain bugs and can potentially break
 > your TYPO3 installation. **Do not install on production systems.** Use only
@@ -60,7 +60,7 @@ Basics through a drag-and-drop interface instead of writing YAML by hand.
 
 | Extension version | TYPO3 version | PHP version |
 |-------------------|---------------|-------------|
-| 0.x (alpha)       | 13.4          | 8.2+        |
+| 0.1.x (alpha)     | 13.4          | 8.2+        |
 
 ## Requirements
 
