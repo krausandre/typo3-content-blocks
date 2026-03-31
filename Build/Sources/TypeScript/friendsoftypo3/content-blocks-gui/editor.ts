@@ -138,6 +138,7 @@ export class ContentBlockEditor extends LitElement {
               .fieldTypeList="${this.fieldTypeList}"
               .fieldMetadata="${this.fieldMetadata}"
               .availableBasics="${this.availableBasics}"
+              .contenttype="${this.contenttype}"
               @updateCbFieldData="${this.updateFieldDataEventListener}"
             >
             </content-block-editor-right-pane>
@@ -259,6 +260,15 @@ export class ContentBlockEditor extends LitElement {
   }
 
   /**
+   * Check if a field identifier is system reserved
+   */
+  protected isSystemReservedField(identifier: string): boolean {
+    const reserved = this.fieldMetadata.systemReservedFields || [];
+    const reservedArray: string[] = Array.isArray(reserved) ? reserved : Object.values(reserved);
+    return reservedArray.includes(identifier);
+  }
+
+  /**
    * Validate a field based on useExistingField rules and context
    */
   protected validateField(field: ContentBlockField, level: number): ValidationResult {
@@ -288,7 +298,7 @@ export class ContentBlockEditor extends LitElement {
       }
 
       // Not a base field - check if it's a system reserved field
-      if (this.fieldMetadata.systemReservedFields.includes(field.identifier)) {
+      if (this.isSystemReservedField(field.identifier)) {
         return {
           valid: false,
           severity: 'error',
@@ -312,7 +322,7 @@ export class ContentBlockEditor extends LitElement {
     }
 
     // Check 3: System reserved fields without prefixing (for new fields)
-    if (!field.prefixFields && this.fieldMetadata.systemReservedFields.includes(field.identifier)) {
+    if (!field.prefixFields && this.isSystemReservedField(field.identifier)) {
       return {
         valid: false,
         severity: 'error',

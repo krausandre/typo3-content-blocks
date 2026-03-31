@@ -207,10 +207,16 @@ final class ContentBlocksGuiController
             throw new RouteNotFoundException('Missing required content block name');
         }
         $mode = basename($request->getUri()->getPath());
+        $contentType = $queryParams['contentType'] ?? 'content-element';
         switch ($mode) {
             case 'new':
                 $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
                 $contentBlocksData = json_decode($skeletonJson, true);
+                // Override table based on content type
+                if ($contentType === 'page-type') {
+                    $contentBlocksData['yaml']['table'] = 'pages';
+                    $contentBlocksData['yaml']['typeField'] = 'doktype';
+                }
                 break;
             case 'edit':
                 $contentBlocksData = $this->contentBlocksUtility->getContentBlockByName($queryParams);
@@ -227,7 +233,7 @@ final class ContentBlocksGuiController
 
         $contentBlockEditorData = GeneralUtility::implodeAttributes([
             'mode' => $mode,
-            'contenttype' => 'contentBlock',
+            'contenttype' => $contentType,
             'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
             'extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
             'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),

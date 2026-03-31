@@ -59,6 +59,9 @@ export class ContentBlockEditorRightPane extends LitElement {
   @property()
   availableBasics?: Array<BasicMetadata>;
 
+  @property()
+  contenttype?: string;
+
 
   protected override render(): TemplateResult {
     if (this.schema) {
@@ -82,7 +85,11 @@ export class ContentBlockEditorRightPane extends LitElement {
   protected renderFormFieldset(fieldTypeProperty: FieldTypeProperty): TemplateResult {
     const fieldLabel = this.formatFieldLabel(fieldTypeProperty.name);
     const showValidationBadge = ['identifier', 'type', 'useExistingField'].includes(fieldTypeProperty.name);
-    const showBaseFieldsHelper = fieldTypeProperty.name === 'identifier' && this.level === 0 && this.fieldMetadata;
+    // Show base fields helper for content elements, page types, and basics — not for record types
+    const showBaseFieldsHelper = fieldTypeProperty.name === 'identifier'
+      && this.level === 0
+      && this.fieldMetadata
+      && this.contenttype !== 'record-type';
 
     return html `
       <div class="form-section mb-2">
@@ -339,8 +346,12 @@ export class ContentBlockEditorRightPane extends LitElement {
       return nothing;
     }
 
-    // Sort base fields alphabetically
-    const baseFieldEntries = Object.entries(this.fieldMetadata.baseFields).sort(([a], [b]) => a.localeCompare(b));
+    // Filter out system reserved fields and sort alphabetically
+    const reserved = this.fieldMetadata.systemReservedFields || [];
+    const reservedFields: string[] = Array.isArray(reserved) ? reserved : Object.values(reserved);
+    const baseFieldEntries = Object.entries(this.fieldMetadata.baseFields)
+      .filter(([fieldName]) => !reservedFields.includes(fieldName))
+      .sort(([a], [b]) => a.localeCompare(b));
 
     return html`
       <div class="mt-2">
