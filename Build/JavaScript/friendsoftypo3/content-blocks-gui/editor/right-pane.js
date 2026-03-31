@@ -375,10 +375,10 @@ __decorate([
     property()
 ], ContentBlockEditorRightPane.prototype, "schema", void 0);
 __decorate([
-    property()
+    property({ type: Number })
 ], ContentBlockEditorRightPane.prototype, "position", void 0);
 __decorate([
-    property()
+    property({ type: Number })
 ], ContentBlockEditorRightPane.prototype, "level", void 0);
 __decorate([
     property()
