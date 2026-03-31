@@ -80,7 +80,19 @@ ddev exec bash -c '\
 
 ## Playwright E2E Tests
 
-Eigenständiges Test-Setup in `Playwright/` mit eigenen Dependencies. Testet die GUI im echten TYPO3-Backend mit Chromium. Benötigt eine laufende TYPO3-Instanz und einen Backend-User.
+Test-Setup in `Playwright/` mit eigenen npm-Dependencies. Testet die GUI im echten TYPO3-Backend mit Chromium. Benötigt eine laufende TYPO3-Instanz und einen Backend-User.
+
+### Dateistruktur
+
+```
+Playwright/
+├── package.json              # Dependencies (@playwright/test, dotenv, @types/node)
+├── playwright.config.ts      # Playwright-Konfiguration, lädt .env automatisch
+├── tsconfig.json             # TypeScript-Konfiguration für IDE-Support (Autocomplete, Fehleranzeige)
+├── content-blocks-gui.spec.ts # Testcases
+├── .env.example              # Template für lokale Konfiguration
+├── .gitignore                # Schützt node_modules, .env, auth.json, Reports
+```
 
 ### Setup (einmalig)
 
@@ -91,14 +103,6 @@ npm run setup
 
 Das installiert die npm-Dependencies und den Chromium-Browser.
 
-### Backend-User vorbereiten
-
-Das mitgelieferte PHP-Script setzt das Passwort TYPO3-kompatibel (Argon2i mit korrekten Parametern):
-
-```bash
-ddev exec php packages/content_blocks_gui/Tests/Playwright/set-test-password.php admin 'Password1!'
-```
-
 ### Konfiguration
 
 Kopiere `.env.example` nach `.env` und passe die Werte an:
@@ -108,13 +112,13 @@ cd packages/content_blocks_gui/Tests/Playwright
 cp .env.example .env
 ```
 
-Die `.env`-Datei wird automatisch von der Playwright-Config geladen.
+Die `.env`-Datei wird automatisch von der Playwright-Config via `dotenv` geladen.
 
 | Env-Variable | Default | Beschreibung |
 |---|---|---|
-| `PLAYWRIGHT_BASE_URL` | `https://typo3-content-blocks-gui.ddev.site/typo3/` | TYPO3 Backend URL (Trailing Slash erforderlich) |
-| `BACKEND_ADMIN_USERNAME` | `admin` | Backend-Username |
-| `BACKEND_ADMIN_PASSWORD` | `Password1!` | Backend-Passwort |
+| `PLAYWRIGHT_BASE_URL` | — | TYPO3 Backend URL (Trailing Slash erforderlich) |
+| `BACKEND_ADMIN_USERNAME` | — | Backend-Username |
+| `BACKEND_ADMIN_PASSWORD` | — | Backend-Passwort |
 
 ### Tests ausführen
 
@@ -137,7 +141,7 @@ npm run test:debug
 
 | Testcase | Was wird getestet |
 |----------|-------------------|
-| `login and save session` | Backend-Login funktioniert, Session wird für folgende Tests gespeichert |
+| `login and save session` | Backend-Login funktioniert, Session wird als `auth.json` für folgende Tests gespeichert |
 | `module loads list component` | `content-block-list` Web Component rendert im Backend-Modul (iframe) |
 | `list view shows tab navigation` | Tab-Navigation (Content Elements, Page Types, etc.) sichtbar |
 | `editor loads with three panes` | Editor hat Left/Middle/Right Pane nach Klick auf "Neu" |
@@ -146,9 +150,9 @@ npm run test:debug
 
 ### Hinweise
 
-- Die Tests laufen **seriell** (nicht parallel), da sie eine gemeinsame Login-Session teilen.
+- Die Tests laufen **seriell** (nicht parallel), da sie eine gemeinsame Login-Session teilen (`auth.json`).
 - TYPO3 rendert Backend-Module in einem **iframe** — die Tests nutzen `page.frameLocator('typo3-iframe-module iframe')` um auf die Modul-Inhalte zuzugreifen.
-- Bei Login-Problemen: Passwort mit `set-test-password.php` neu setzen (Shell-Escaping kann argon2i-Hashes beschädigen).
+- Die `tsconfig.json` ist nur für IDE-Support (Autocomplete, Fehleranzeige in PhpStorm/VS Code). Playwright nutzt seinen eigenen Transpiler.
 
 ---
 
