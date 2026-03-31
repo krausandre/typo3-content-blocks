@@ -5,6 +5,7 @@
 	"homepage": "https://typo3.org",
 	"license": ["GPL-2.0-or-later"],
     "version": "0.0.1",
+    "minimum-stability": "alpha",
 	"authors": [{
 		"name": "TYPO3 Content Types Team",
 		"role": "Developer"
