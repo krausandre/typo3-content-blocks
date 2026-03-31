@@ -17,6 +17,12 @@ import { customElement, property } from 'lit/decorators.js';
 import { live } from 'lit/directives/live.js';
 import type { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 
+interface RangeConfig {
+  enabled?: boolean;
+  lower?: number;
+  upper?: number;
+}
+
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
@@ -27,24 +33,24 @@ import type { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/inter
 export class ContentBlockEditorRangeSelector extends LitElement {
 
   @property()
-    fieldTypeProperty: FieldTypeProperty;
+  fieldTypeProperty: FieldTypeProperty;
 
   @property()
-    values: Record<string, unknown>;
+  values: Record<string, unknown>;
 
   @property()
-    position?: number;
+  position?: number;
 
   @property()
-    level?: number;
+  level?: number;
 
   @property()
-    parent?: number;
+  parent?: number;
 
   @property()
-    isRangeEnabled = false;
+  isRangeEnabled = false;
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     this.updateRangeEnabledState();
     return html`
       <div class="component-container">
@@ -68,7 +74,7 @@ export class ContentBlockEditorRangeSelector extends LitElement {
                 <input @blur="${this.handleRangeInputChange}" 
                   type="number" 
                   id="range_lower" 
-                  .value="${live(this.values['range']?.lower || 0)}" 
+                  .value="${live((this.values.range as RangeConfig)?.lower || 0)}"
                   class="form-control" />
               </div>
               <div class="col-6">
@@ -76,7 +82,7 @@ export class ContentBlockEditorRangeSelector extends LitElement {
                 <input @blur="${this.handleRangeInputChange}" 
                   type="number" 
                   id="range_upper" 
-                  .value="${live(this.values['range']?.upper || 100)}" 
+                  .value="${live((this.values.range as RangeConfig)?.upper || 100)}"
                   class="form-control" />
               </div>
             </div>
@@ -85,38 +91,39 @@ export class ContentBlockEditorRangeSelector extends LitElement {
       </div>`;
   }
 
-    protected updateRangeEnabledState(): void {
-        const range = this.values['range'];
-        
-        if (range?.hasOwnProperty('enabled')) {
-            // If enabled property is explicitly set, use that value
-            this.isRangeEnabled = range.enabled;
-        } else if (range && (range.lower !== undefined || range.upper !== undefined)) {
-            // If no enabled property but has range values, consider it enabled on initial render
-            this.isRangeEnabled = true;
-        } else {
-            // Default to disabled if no range or no values
-            this.isRangeEnabled = false;
-        }
+  protected updateRangeEnabledState(): void {
+    const range = this.values.range as RangeConfig | undefined;
+
+    if (range && Object.prototype.hasOwnProperty.call(range, 'enabled')) {
+      // If enabled property is explicitly set, use that value
+      this.isRangeEnabled = !!range.enabled;
+    } else if (range && (range.lower !== undefined || range.upper !== undefined)) {
+      // If no enabled property but has range values, consider it enabled on initial render
+      this.isRangeEnabled = true;
+    } else {
+      // Default to disabled if no range or no values
+      this.isRangeEnabled = false;
     }
+  }
 
   protected handleRangeEnabledChange(event: Event): void {
     event.preventDefault();
     const target = event.target as HTMLInputElement;
     
-    if (!this.values['range']) {
-      this.values['range'] = {};
+    if (!this.values.range) {
+      this.values.range = {};
     }
     
     this.isRangeEnabled = target.checked;
-    this.values['range'].enabled = target.checked;
-    
+    const range = this.values.range as RangeConfig;
+    range.enabled = target.checked;
+
     if (target.checked) {
-      if (this.values['range'].lower === undefined) {
-        this.values['range'].lower = 0;
+      if (range.lower === undefined) {
+        range.lower = 0;
       }
-      if (this.values['range'].upper === undefined) {
-        this.values['range'].upper = 100;
+      if (range.upper === undefined) {
+        range.upper = 100;
       }
     }
     
@@ -127,14 +134,15 @@ export class ContentBlockEditorRangeSelector extends LitElement {
     event.preventDefault();
     const target = event.target as HTMLInputElement;
     
-    if (!this.values['range']) {
-      this.values['range'] = {};
+    if (!this.values.range) {
+      this.values.range = {};
     }
     
+    const range = this.values.range as RangeConfig;
     if (target.id === 'range_lower') {
-      this.values['range'].lower = parseInt(target.value);
+      range.lower = parseInt(target.value, 10);
     } else if (target.id === 'range_upper') {
-      this.values['range'].upper = parseInt(target.value);
+      range.upper = parseInt(target.value, 10);
     }
     
     this.dispatchUpdateEvent();
@@ -153,7 +161,7 @@ export class ContentBlockEditorRangeSelector extends LitElement {
     }));
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;

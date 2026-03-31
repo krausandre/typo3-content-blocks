@@ -6,9 +6,6 @@
 			<trans-unit id="content-blocks-gui">
 				<source>Content Blocks GUI</source>
 			</trans-unit>
-			<trans-unit id="make.add.button.ok">
-				<source>Add content block</source>
-			</trans-unit>
 			<trans-unit id="make.remove.button.close">
 				<source>Close</source>
 			</trans-unit>

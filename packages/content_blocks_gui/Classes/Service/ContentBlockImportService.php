@@ -23,7 +23,9 @@ use FriendsOfTYPO3\ContentBlocksGui\Domain\Model\Dto\ImportResult;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\DatabaseUtility;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsLoader;
 use TYPO3\CMS\ContentBlocks\Loader\ContentBlockLoader;
+use TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType;
 use TYPO3\CMS\ContentBlocks\Service\PackageResolver;
+use TYPO3\CMS\ContentBlocks\Utility\ContentBlockPathUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -113,7 +115,7 @@ final class ContentBlockImportService
         $availablePackages = $this->packageResolver->getAvailablePackages();
         $extensionPath = $availablePackages[$targetExtension]->getPackagePath();
         $typeSubdir = $this->getTypeSubdirectory($block->type);
-        $targetPath = $extensionPath . '/ContentBlocks/' . $typeSubdir . '/' . $block->directoryName;
+        $targetPath = $extensionPath . '/' . $typeSubdir . '/' . $block->directoryName;
 
         // Create target directory
         GeneralUtility::mkdir_deep($targetPath);
@@ -141,7 +143,7 @@ final class ContentBlockImportService
     {
         $availablePackages = $this->packageResolver->getAvailablePackages();
         $extensionPath = $availablePackages[$targetExtension]->getPackagePath();
-        $targetBasicsPath = $extensionPath . '/ContentBlocks/Basics/';
+        $targetBasicsPath = $extensionPath . '/' . ContentBlockPathUtility::getRelativeBasicsPath() . '/';
 
         GeneralUtility::mkdir_deep($targetBasicsPath);
 
@@ -163,14 +165,14 @@ final class ContentBlockImportService
 
         if ($block->type === 'BASIC') {
             // Delete existing Basic file
-            $targetFile = $extensionPath . '/ContentBlocks/Basics/' . $block->fileName;
+            $targetFile = $extensionPath . '/' . ContentBlockPathUtility::getRelativeBasicsPath() . '/' . $block->fileName;
             if (file_exists($targetFile)) {
                 unlink($targetFile);
             }
         } else {
             // Delete existing content block directory
             $typeSubdir = $this->getTypeSubdirectory($block->type);
-            $targetPath = $extensionPath . '/ContentBlocks/' . $typeSubdir . '/' . $block->directoryName;
+            $targetPath = $extensionPath . '/' . $typeSubdir . '/' . $block->directoryName;
             if (is_dir($targetPath)) {
                 GeneralUtility::rmdir($targetPath, true);
             }
@@ -182,12 +184,13 @@ final class ContentBlockImportService
      */
     private function getTypeSubdirectory(string $type): string
     {
-        return match($type) {
-            'CONTENT_ELEMENT' => 'ContentElements',
-            'PAGE_TYPE' => 'PageTypes',
-            'RECORD_TYPE' => 'RecordTypes',
-            'FILE_TYPE' => 'FileTypes',
+        $contentType = match($type) {
+            'CONTENT_ELEMENT' => ContentType::CONTENT_ELEMENT,
+            'PAGE_TYPE' => ContentType::PAGE_TYPE,
+            'RECORD_TYPE' => ContentType::RECORD_TYPE,
+            'FILE_TYPE' => ContentType::FILE_TYPE,
             default => throw new \RuntimeException('Unknown content type: ' . $type),
         };
+        return ContentBlockPathUtility::getRelativeContentTypePath($contentType);
     }
 }

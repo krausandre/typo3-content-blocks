@@ -1,10 +1,11 @@
 {
 	"name": "friendsoftypo3/content-blocks-gui",
 	"type": "typo3-cms-extension",
-	"description": "TYPO3 CMS Make - Content Blocks GUI.",
+	"description": "TYPO3 Content Blocks GUI.",
 	"homepage": "https://typo3.org",
 	"license": ["GPL-2.0-or-later"],
-    "version": "1.0.0",
+    "version": "0.1.0",
+    "minimum-stability": "alpha",
 	"authors": [{
 		"name": "TYPO3 Content Types Team",
 		"role": "Developer"
@@ -13,8 +14,12 @@
 		"sort-packages": true
 	},
 	"require": {
-		"typo3/cms-core": "^13.4",
-        "friendsoftypo3/content-blocks": "^1.3"
+		"typo3/cms-core": "^13.4.19",
+        "friendsoftypo3/content-blocks": "^1.3.17"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^11.0",
+		"typo3/testing-framework": "^9.0"
 	},
 	"conflict": {
 		"typo3/cms": "*"
@@ -27,6 +32,11 @@
 	"autoload": {
 		"psr-4": {
 			"FriendsOfTYPO3\\ContentBlocksGui\\": "Classes/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"FriendsOfTYPO3\\ContentBlocksGui\\Tests\\": "Tests/"
 		}
 	}
 }

@@ -1,13 +1,18 @@
 #!/bin/bash
 
-## Description: compiles ts to js
+## Description: compiles ts to js, runs linter with auto-fix, then recompiles
 ## Usage: javascript
 ## Example: ddev javascript
 
 
 cd Build
 
-node_modules/grunt/bin/grunt clear-build && node_modules/grunt/bin/grunt scripts --force
+echo "==> Running ESLint --fix on content-blocks-gui sources..."
+npx eslint --fix "Sources/TypeScript/friendsoftypo3/**/*.ts" 2>&1 || true
+
+echo ""
+echo "==> Compiling TypeScript..."
+node_modules/grunt/bin/grunt clear-build && node_modules/grunt/bin/grunt scripts
 
 cd ..
 

@@ -16,7 +16,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { html, LitElement } from 'lit';
+import { html, LitElement, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import '@typo3/backend/element/icon-element.js';
 import { live } from 'lit/directives/live.js';
@@ -24,6 +24,8 @@ import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/value-pi
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/range-selector.js';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/slider-selector.js';
 import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/allowed-types.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/allowed-custom-properties.js';
+import '@friendsoftypo3/content-blocks-gui/editor/right-pane-components/items.js';
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
@@ -51,6 +53,8 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
     }
     renderFormFieldset(fieldTypeProperty) {
         const fieldLabel = this.formatFieldLabel(fieldTypeProperty.name);
+        const showValidationBadge = ['identifier', 'type', 'useExistingField'].includes(fieldTypeProperty.name);
+        const showBaseFieldsHelper = fieldTypeProperty.name === 'identifier' && this.level === 0 && this.fieldMetadata;
         return html `
       <div class="form-section mb-2">
         <div class="form-section-content">
@@ -63,10 +67,20 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
             <label for="${fieldTypeProperty.name}" class="form-label">${fieldLabel}</label>
             ${this.renderFormField(fieldTypeProperty)}
           `}
+          ${showValidationBadge ? this.renderValidationBadge() : ''}
+          ${showBaseFieldsHelper ? this.renderBaseFieldsHelper() : ''}
         </div>
       </div>`;
     }
     renderFormField(fieldTypeProperty) {
+        // Special handling for "type" field - render as dropdown of available field types
+        if (fieldTypeProperty.name === 'type' && this.fieldTypeList) {
+            return this.renderTypeDropdown(fieldTypeProperty);
+        }
+        // Special handling for "identifier" field when type is "Basic" - render as dropdown of available Basics
+        if (fieldTypeProperty.name === 'identifier' && this.values.type === 'Basic' && this.availableBasics) {
+            return this.renderBasicIdentifierDropdown(fieldTypeProperty);
+        }
         // https://lit.dev/docs/templates/directives/#live
         switch (fieldTypeProperty.dataType) {
             case 'text':
@@ -74,13 +88,19 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
             case 'number':
                 return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default)}" class="form-control" />`;
             case 'select':
-                return html `<select @blur="${this.dispatchBlurEvent}" class="form-select" id="${fieldTypeProperty.name}" >
+                // Disable prefixType when prefixFields is false
+                const isPrefixTypeDisabled = fieldTypeProperty.name === 'prefixType' && !this.values.prefixFields;
+                return html `<select @change="${this.dispatchBlurEvent}" class="form-select" id="${fieldTypeProperty.name}" ?disabled="${isPrefixTypeDisabled}">
           <option value="">Choose...</option>
           ${fieldTypeProperty.items.map((option) => html `
             <option .value="${live(option.value)}" ?selected="${live(this.values[fieldTypeProperty.name] === option.value)}">${option.label}</option>`)}
         </select>`;
             case 'boolean':
-                return html `<input @blur="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default)} class="form-check-input" />`;
+                // Disable prefixFields checkbox for base fields with useExistingField
+                const isPrefixFieldsDisabled = fieldTypeProperty.name === 'prefixFields' && this.values._isBaseField;
+                // Force prefixFields to false for base fields
+                const checkboxValue = isPrefixFieldsDisabled ? false : (this.values[fieldTypeProperty.name] || fieldTypeProperty.default);
+                return html `<input @change="${this.dispatchBlurEvent}" type="checkbox" id="${fieldTypeProperty.name}" ?checked=${live(checkboxValue)} ?disabled="${isPrefixFieldsDisabled}" class="form-check-input" />`;
             case 'textarea':
                 return html `<textarea @blur="${this.dispatchBlurEvent}" id="${fieldTypeProperty.name}" class="form-control">${live(fieldTypeProperty.default)}</textarea>`;
             case 'array':
@@ -121,6 +141,24 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
                   .parent="${this.parent}"
                   @updateCbFieldData="${this.dispatchUpdateEvent}">
                 </content-block-editor-allowed-types>`;
+                    case 'allowedCustomProperties':
+                        return html `<content-block-editor-allowed-custom-properties
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-allowed-custom-properties>`;
+                    case 'items':
+                        return html `<content-block-editor-items
+                  .fieldTypeProperty="${fieldTypeProperty}"
+                  .values="${this.values}"
+                  .position="${this.position}"
+                  .level="${this.level}"
+                  .parent="${this.parent}"
+                  @updateCbFieldData="${this.dispatchUpdateEvent}">
+                </content-block-editor-items>`;
                     default:
                         return html `Array field type for property ${fieldTypeProperty.name} is not yet implemented.`;
                 }
@@ -161,6 +199,169 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
             },
         }));
     }
+    /**
+     * Render type field as dropdown populated from available field types
+     */
+    renderTypeDropdown(fieldTypeProperty) {
+        // Sort field types alphabetically
+        const sortedFieldTypes = [...this.fieldTypeList].sort((a, b) => a.type.localeCompare(b.type));
+        const currentValue = this.values[fieldTypeProperty.name] || '';
+        // Disable dropdown for base fields (type is auto-detected)
+        const isBaseField = this.values._isBaseField || false;
+        return html `
+      <select
+        @change="${this.handleTypeChange}"
+        class="form-select"
+        id="${fieldTypeProperty.name}"
+        ?disabled="${isBaseField}"
+      >
+        <option value="">Choose...</option>
+        ${sortedFieldTypes.map((fieldType) => html `
+          <option
+            value="${fieldType.type}"
+            ?selected="${currentValue === fieldType.type}"
+          >
+            ${fieldType.type}
+          </option>
+        `)}
+      </select>
+    `;
+    }
+    /**
+     * Handle type field change - update value and trigger schema change
+     */
+    handleTypeChange(event) {
+        event.preventDefault();
+        const target = event.target;
+        const newType = target.value;
+        // Update the value
+        this.values.type = newType;
+        // Dispatch event to update field data and trigger schema reload
+        this.dispatchEvent(new CustomEvent('updateCbFieldData', {
+            bubbles: true,
+            composed: true,
+            detail: {
+                position: this.position,
+                level: this.level,
+                parent: this.parent,
+                values: this.values,
+                typeChanged: true, // Flag to indicate type changed
+                newType: newType,
+            },
+        }));
+    }
+    /**
+     * Render validation badge based on field validation state
+     */
+    renderValidationBadge() {
+        const validation = this.values._validation;
+        if (!validation || !validation.message) {
+            return nothing;
+        }
+        const severityClasses = {
+            'success': 'alert-success',
+            'warning': 'alert-warning',
+            'error': 'alert-danger',
+            'info': 'alert-info'
+        };
+        const severityIcons = {
+            'success': 'actions-check',
+            'warning': 'actions-exclamation',
+            'error': 'actions-close',
+            'info': 'actions-info'
+        };
+        const alertClass = severityClasses[validation.severity] || 'alert-info';
+        const iconIdentifier = severityIcons[validation.severity] || 'actions-info';
+        return html `
+      <div class="alert ${alertClass} mt-2 mb-0 py-1 px-2 d-flex align-items-center" role="alert">
+        <typo3-backend-icon identifier="${iconIdentifier}" size="small" class="me-1"></typo3-backend-icon>
+        <small>${validation.message}</small>
+      </div>
+    `;
+    }
+    /**
+     * Render base fields helper dropdown for identifier field
+     */
+    renderBaseFieldsHelper() {
+        if (!this.fieldMetadata || !this.fieldMetadata.baseFields) {
+            return nothing;
+        }
+        // Sort base fields alphabetically
+        const baseFieldEntries = Object.entries(this.fieldMetadata.baseFields).sort(([a], [b]) => a.localeCompare(b));
+        return html `
+      <div class="mt-2">
+        <label class="form-label text-muted small">Or choose from existing base fields:</label>
+        <select
+          class="form-select form-select-sm"
+          @change="${this.handleBaseFieldSelection}"
+          .value="${''}">
+          <option value="">Select a base field...</option>
+          ${baseFieldEntries.map(([fieldName, fieldInfo]) => html `
+            <option value="${fieldName}">
+              ${fieldName} (${fieldInfo.type})
+            </option>
+          `)}
+        </select>
+        <small class="form-text text-muted">
+          Base fields are reusable TCA columns like header, bodytext, etc.
+        </small>
+      </div>
+    `;
+    }
+    /**
+     * Handle base field selection from dropdown
+     */
+    handleBaseFieldSelection(event) {
+        const target = event.target;
+        const selectedField = target.value;
+        if (selectedField) {
+            // Update the identifier field with the selected base field name
+            this.values.identifier = selectedField;
+            // Automatically enable useExistingField
+            this.values.useExistingField = true;
+            // Reset the dropdown
+            target.value = '';
+            // Dispatch update event
+            this.dispatchEvent(new CustomEvent('updateCbFieldData', {
+                bubbles: true,
+                composed: true,
+                detail: {
+                    position: this.position,
+                    level: this.level,
+                    parent: this.parent,
+                    values: this.values,
+                },
+            }));
+        }
+    }
+    /**
+     * Render identifier field for Basic type as dropdown of available Basics
+     */
+    renderBasicIdentifierDropdown(fieldTypeProperty) {
+        const currentValue = this.values[fieldTypeProperty.name] || '';
+        // Sort Basics by identifier
+        const sortedBasics = [...(this.availableBasics || [])].sort((a, b) => a.identifier.localeCompare(b.identifier));
+        return html `
+      <select
+        @change="${this.dispatchBlurEvent}"
+        class="form-select"
+        id="${fieldTypeProperty.name}"
+      >
+        <option value="">Choose a Basic...</option>
+        ${sortedBasics.map((basic) => html `
+          <option
+            value="${basic.identifier}"
+            ?selected="${currentValue === basic.identifier}"
+          >
+            ${basic.identifier} (${basic.fieldCount} fields)
+          </option>
+        `)}
+      </select>
+      <small class="form-text text-muted mt-1">
+        Select a pre-defined Basic (field mixin) to include in this Content Block.
+      </small>
+    `;
+    }
     createRenderRoot() {
         // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
         // const renderRoot = this.attachShadow({mode: 'open'});
@@ -174,14 +375,23 @@ __decorate([
     property()
 ], ContentBlockEditorRightPane.prototype, "schema", void 0);
 __decorate([
-    property()
+    property({ type: Number })
 ], ContentBlockEditorRightPane.prototype, "position", void 0);
 __decorate([
-    property()
+    property({ type: Number })
 ], ContentBlockEditorRightPane.prototype, "level", void 0);
 __decorate([
     property()
 ], ContentBlockEditorRightPane.prototype, "parent", void 0);
+__decorate([
+    property()
+], ContentBlockEditorRightPane.prototype, "fieldTypeList", void 0);
+__decorate([
+    property()
+], ContentBlockEditorRightPane.prototype, "fieldMetadata", void 0);
+__decorate([
+    property()
+], ContentBlockEditorRightPane.prototype, "availableBasics", void 0);
 ContentBlockEditorRightPane = __decorate([
     customElement('content-block-editor-right-pane')
 ], ContentBlockEditorRightPane);

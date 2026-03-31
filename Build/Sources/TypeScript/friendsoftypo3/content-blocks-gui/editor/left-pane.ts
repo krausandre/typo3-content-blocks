@@ -30,25 +30,25 @@ import type { ExtensionDefinition, GroupDefinition, ContentBlocksYaml, FieldType
 export class ContentBlockEditorLeftPane extends LitElement {
 
   @property()
-    activeTab: string = 'settings';
+  activeTab: string = 'settings';
   @property()
-    groups: Array<GroupDefinition>;
+  groups: Array<GroupDefinition>;
   @property()
-    extensions: Array<ExtensionDefinition>;
+  extensions: Array<ExtensionDefinition>;
   @property()
-    contentBlockYaml: ContentBlocksYaml;
+  contentBlockYaml: ContentBlocksYaml;
   @property()
-    fieldTypes: Array<FieldTypeSetting>;
+  fieldTypes: Array<FieldTypeSetting>;
   @property()
-    hostExtension: string;
+  hostExtension: string;
   @property()
-    mode?: string;
+  mode?: string;
   @property()
-    contenttype?: string;
+  contenttype?: string;
   @property()
-    availableBasics: Array<BasicMetadata> = [];
+  availableBasics: Array<BasicMetadata> = [];
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     // For Basic mode, hide the Basics tab (Basics can't have root-level basics)
     const isBasicMode = this.contenttype === 'basic';
 
@@ -170,7 +170,7 @@ export class ContentBlockEditorLeftPane extends LitElement {
     `;
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;

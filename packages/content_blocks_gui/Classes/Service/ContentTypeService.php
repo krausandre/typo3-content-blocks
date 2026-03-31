@@ -78,7 +78,7 @@ class ContentTypeService
             $data['contentBlock']['title'] = $contentBlockData['contentBlock']['title'] ?? '';
             $data['contentBlock']['vendorPrefix'] = $contentBlockData['contentBlock']['vendorPrefix'] ?? '';
         } else if($data['contentType'] === 'page-type') {
-            $typeName = $contentBlockData['contentBlock']['type'] ?? time();
+            $typeName = $contentBlockData['contentBlock']['type'] ?? random_int(10000, 99999);
             // Validate page type name using EXT:content_blocks validator
             PageTypeNameValidator::validate($typeName, $vendor . '/' . $name);
             $data['contentBlock']['type'] = (int)$typeName;
@@ -390,57 +390,28 @@ class ContentTypeService
      * Remove fields that match default values to keep config.yaml clean
      * Based on https://docs.typo3.org/p/friendsoftypo3/content-blocks/main/en-us/YamlReference/Root/Index.html#yaml_reference_common
      */
+    /**
+     * Remove values that match the ConfigBuilder defaults to keep config.yaml minimal.
+     * Uses ConfigBuilder to generate defaults dynamically so this stays in sync with the vendor package.
+     */
     protected function removeDefaultValues(array $yamlContent, ContentType $contentType): array
     {
-        switch ($contentType) {
-            case ContentType::CONTENT_ELEMENT:
-                // Default values for content elements
-                if (isset($yamlContent['group']) && $yamlContent['group'] === 'default') {
-                    unset($yamlContent['group']);
-                }
-                if (isset($yamlContent['prefixFields']) && $yamlContent['prefixFields'] === true) {
-                    unset($yamlContent['prefixFields']);
-                }
-                if (isset($yamlContent['prefixType']) && $yamlContent['prefixType'] === 'full') {
-                    unset($yamlContent['prefixType']);
-                }
-                if (isset($yamlContent['priority']) && $yamlContent['priority'] === 0) {
-                    unset($yamlContent['priority']);
-                }
-                break;
+        $name = $yamlContent['name'] ?? 'dummy/dummy';
+        $parts = explode('/', $name);
+        $vendor = $parts[0] ?? 'dummy';
+        $package = $parts[1] ?? 'dummy';
+        $typeName = $yamlContent['typeName'] ?? null;
 
-            case ContentType::PAGE_TYPE:
-                // Default values for page types
-                if (isset($yamlContent['prefixFields']) && $yamlContent['prefixFields'] === true) {
-                    unset($yamlContent['prefixFields']);
-                }
-                if (isset($yamlContent['prefixType']) && $yamlContent['prefixType'] === 'full') {
-                    unset($yamlContent['prefixType']);
-                }
-                break;
+        $defaults = $this->configBuilder->build($contentType, $vendor, $package, null, $typeName, []);
 
-            case ContentType::RECORD_TYPE:
-                // Default values for record types
-                if (isset($yamlContent['prefixFields']) && $yamlContent['prefixFields'] === false) {
-                    unset($yamlContent['prefixFields']);
-                }
-                if (isset($yamlContent['labelField']) && $yamlContent['labelField'] === 'title') {
-                    unset($yamlContent['labelField']);
-                }
-                // Remove default security settings
-                if (isset($yamlContent['security']) && is_array($yamlContent['security'])) {
-                    if (isset($yamlContent['security']['ignorePageTypeRestriction']) &&
-                        $yamlContent['security']['ignorePageTypeRestriction'] === true) {
-                        unset($yamlContent['security']['ignorePageTypeRestriction']);
-                    }
-                    // Remove empty security array
-                    if (empty($yamlContent['security'])) {
-                        unset($yamlContent['security']);
-                    }
-                }
-                break;
-            default:
-                break;
+        // Remove keys where value matches the generated default
+        foreach ($defaults as $key => $defaultValue) {
+            if ($key === 'name' || $key === 'fields' || $key === 'title' || $key === 'description' || $key === 'typeName') {
+                continue;
+            }
+            if (isset($yamlContent[$key]) && $yamlContent[$key] === $defaultValue) {
+                unset($yamlContent[$key]);
+            }
         }
 
         // Remove empty arrays and null values

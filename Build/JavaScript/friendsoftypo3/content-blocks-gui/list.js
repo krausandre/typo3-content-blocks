@@ -23,6 +23,7 @@ import Modal from '@typo3/backend/modal.js';
 import { lll } from '@typo3/core/lit-helper.js';
 import { SeverityEnum } from '@typo3/backend/enum/severity.js';
 import '@typo3/backend/element/icon-element.js';
+import './upload.js';
 /**
  * Content Block List Component
  *
@@ -40,7 +41,16 @@ let ContentBlockList = class ContentBlockList extends LitElement {
         this.sortField = 'name';
         this.sortDirection = 'asc';
         this.availableExtensions = [];
+        this.selectionMode = false;
+        this.selectedBlocks = new Set();
         this.debounceTimeout = null;
+        this.handleUploadButtonClick = (event) => {
+            const target = event.target;
+            if (target.closest('[data-action="upload-content-blocks"]')) {
+                event.preventDefault();
+                this.openUploadModal();
+            }
+        };
     }
     connectedCallback() {
         super.connectedCallback();
@@ -55,10 +65,16 @@ let ContentBlockList = class ContentBlockList extends LitElement {
                 this.availableExtensions = [];
             }
         }
+        // Listen for upload button clicks from button bar
+        document.addEventListener('click', this.handleUploadButtonClick);
         // Load initial state from URL
         this.loadStateFromUrl();
         // Load initial data
         this.loadContentBlocks(this.activeTab);
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        document.removeEventListener('click', this.handleUploadButtonClick);
     }
     createRenderRoot() {
         // Don't use Shadow DOM to allow Bootstrap CSS styling
@@ -122,17 +138,43 @@ let ContentBlockList = class ContentBlockList extends LitElement {
       </li>
     `;
     }
+    renderToolbar() {
+        return html `
+      <div class="btn-toolbar mb-3" role="toolbar">
+        <button
+          class="btn ${this.selectionMode ? 'btn-warning' : 'btn-default'}"
+          @click="${this.toggleSelectionMode}"
+          title="${this.selectionMode ? 'Cancel Selection' : 'Select Multiple for Download'}">
+          <typo3-backend-icon identifier="${this.selectionMode ? 'actions-close' : 'actions-check-square'}" size="small"></typo3-backend-icon>
+          ${this.selectionMode ? 'Cancel Selection' : 'Select Multiple'}
+        </button>
+
+        ${this.selectionMode ? html `
+          <button
+            class="btn btn-primary ms-2"
+            @click="${this.handleMultiDownload}"
+            ?disabled="${this.selectedBlocks.size === 0}"
+            title="Download ${this.selectedBlocks.size} selected block(s)">
+            <typo3-backend-icon identifier="actions-download" size="small"></typo3-backend-icon>
+            Download Selected (${this.selectedBlocks.size})
+          </button>
+        ` : ''}
+      </div>
+    `;
+    }
     renderContent() {
         const filteredItems = this.getFilteredAndSortedItems();
         if (filteredItems.length === 0) {
             return this.renderEmptyState();
         }
         return html `
+      ${this.renderToolbar()}
       <div class="list-table-container">
         <div class="table-fit">
           <table class="table table-striped table-hover">
             <thead>
               <tr>
+                ${this.selectionMode ? html `<th style="width: 40px;"><input type="checkbox" disabled /></th>` : ''}
                 <th></th>
                 <th class="sortable" @click="${() => this.handleSort('name')}" style="cursor: pointer;">
                   Content Block name
@@ -164,9 +206,30 @@ let ContentBlockList = class ContentBlockList extends LitElement {
       </div>
     `;
     }
+    getTypeName() {
+        const typeNames = {
+            'content-element': 'Content Element',
+            'page-type': 'Page Type',
+            'record-type': 'Record Type',
+            'basic': 'Basic'
+        };
+        return typeNames[this.activeTab] || 'Content Block';
+    }
     renderRow(item) {
+        const typeName = this.getTypeName();
+        const key = `${this.activeTab}:${item.name}`;
+        const isSelected = this.selectedBlocks.has(key);
         return html `
       <tr>
+        ${this.selectionMode ? html `
+          <td class="col-checkbox">
+            <input
+              type="checkbox"
+              ?checked="${isSelected}"
+              @change="${() => this.toggleBlockSelection(item.name, this.activeTab)}"
+            />
+          </td>
+        ` : ''}
         <td class="col-icon">
           ${item.icon ? html `
             <typo3-backend-icon identifier="${item.icon}" size="small"></typo3-backend-icon>
@@ -176,12 +239,12 @@ let ContentBlockList = class ContentBlockList extends LitElement {
         </td>
         <td class="col">
           ${item.editUrl ? html `
-            <a href="${item.editUrl}" title="Edit content block: ${item.name}">${item.name}</a>
+            <a href="${item.editUrl}" title="Edit ${typeName}: ${item.name}">${item.name}</a>
           ` : item.name}
         </td>
         <td class="col">
           ${item.editUrl ? html `
-            <a href="${item.editUrl}" title="Edit content block: ${item.name}">${item.label}</a>
+            <a href="${item.editUrl}" title="Edit ${typeName}: ${item.name}">${item.label}</a>
           ` : item.label}
         </td>
         <td><code>${item.extension}</code></td>
@@ -195,25 +258,25 @@ let ContentBlockList = class ContentBlockList extends LitElement {
         <td class="col-control">
           <div class="btn-group" role="group">
             ${item.editUrl ? html `
-              <a class="btn btn-default" href="${item.editUrl}" title="Edit this content block">
+              <a class="btn btn-default" href="${item.editUrl}" title="Edit this ${typeName}">
                 <typo3-backend-icon identifier="actions-open"></typo3-backend-icon>
               </a>
             ` : ''}
             ${item.duplicateUrl ? html `
               <button class="btn btn-default"
-                      title="Duplicate this content block"
+                      title="Duplicate this ${typeName}"
                       @click="${() => this.handleDuplicate(item)}">
                 <typo3-backend-icon identifier="actions-duplicate"></typo3-backend-icon>
               </button>
             ` : ''}
             <button class="btn btn-default"
-                    title="Download this content block"
+                    title="Download this ${typeName}"
                     @click="${() => this.handleDownload(item.name)}">
               <typo3-backend-icon identifier="actions-download"></typo3-backend-icon>
             </button>
             ${item.deleteUrl ? html `
               <button class="btn btn-default"
-                      title="Delete this content block"
+                      title="Delete this ${typeName}"
                       @click="${() => this.handleDelete(item.deleteUrl)}">
                 <typo3-backend-icon identifier="actions-delete"></typo3-backend-icon>
               </button>
@@ -337,8 +400,16 @@ let ContentBlockList = class ContentBlockList extends LitElement {
         }
     }
     handleDownload(name) {
-        new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_download_cb)
-            .post({ name: name }, {
+        // Determine which endpoint and payload to use based on type
+        const isBasic = this.activeTab === 'basic';
+        const ajaxUrl = isBasic
+            ? TYPO3.settings.ajaxUrls.content_blocks_gui_download_basic
+            : TYPO3.settings.ajaxUrls.content_blocks_gui_download_cb;
+        const payload = isBasic
+            ? { identifier: name }
+            : { name: name };
+        new AjaxRequest(ajaxUrl)
+            .post(payload, {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/zip'
@@ -384,12 +455,20 @@ let ContentBlockList = class ContentBlockList extends LitElement {
         modal.addEventListener('button.clicked', (e) => {
             const target = e.target;
             if (target.getAttribute('name') === 'delete') {
-                window.location.href = url;
+                // Append current tab to URL for redirect back
+                const urlWithTab = new URL(url, window.location.origin);
+                urlWithTab.searchParams.set('returnTab', this.activeTab);
+                window.location.href = urlWithTab.toString();
             }
             modal.hideModal();
         });
     }
     handleDuplicate(item) {
+        // Check if this is a Basic (handled differently)
+        if (this.activeTab === 'basic') {
+            this.handleDuplicateBasic(item);
+            return;
+        }
         // Parse source name to extract vendor and name
         const nameParts = item.name.split('/');
         const sourceVendor = nameParts[0] || '';
@@ -581,6 +660,116 @@ let ContentBlockList = class ContentBlockList extends LitElement {
         // Perform initial validation
         performValidation();
     }
+    handleDuplicateBasic(item) {
+        // Generate extension options
+        let extensionOptions = '';
+        this.availableExtensions.forEach((ext) => {
+            const selected = ext.extension === item.extension ? 'selected' : '';
+            extensionOptions += `<option value="${ext.extension}" ${selected}>${ext.package} (${ext.extension})</option>`;
+        });
+        // Create content as a DOM element
+        const content = document.createElement('div');
+        content.innerHTML = `
+      <form id="duplicate-basic-form">
+        <div class="alert alert-info mb-3">
+          <strong>Basic Duplication</strong><br>
+          Duplicating Basic: <code>${item.name}</code>
+        </div>
+        <div class="form-group mb-3">
+          <label for="duplicate-extension" class="form-label">Extension</label>
+          <select class="form-control form-select" id="duplicate-extension" name="extension" required>
+            ${extensionOptions}
+          </select>
+          <div class="form-text">The extension where the duplicated basic will be stored</div>
+        </div>
+        <div class="form-group mb-3">
+          <label for="duplicate-identifier" class="form-label">Basic Identifier</label>
+          <input type="text" class="form-control" id="duplicate-identifier" name="identifier" value="${item.name}-copy" required pattern="[a-z0-9\\-\\/]+">
+          <div class="form-text">Format: vendor/name (e.g., basic-99/basic-99-copy)</div>
+          <div id="duplicate-identifier-error" class="text-danger d-none">The new identifier must be different from the original</div>
+        </div>
+      </form>
+    `;
+        const modal = Modal.advanced({
+            title: 'Duplicate Basic',
+            content: content,
+            severity: SeverityEnum.info,
+            size: Modal.sizes.medium,
+            buttons: [
+                {
+                    text: 'Cancel',
+                    active: true,
+                    btnClass: 'btn-default',
+                    name: 'cancel',
+                    trigger: () => {
+                        modal.hideModal();
+                    }
+                },
+                {
+                    text: 'Duplicate',
+                    btnClass: 'btn-primary',
+                    name: 'duplicate',
+                    trigger: () => {
+                        if (this.validateAndSubmitDuplicateBasic(item.name, item.duplicateUrl, modal)) {
+                            modal.hideModal();
+                        }
+                    }
+                }
+            ]
+        });
+    }
+    validateAndSubmitDuplicateBasic(sourceIdentifier, duplicateUrl, modal) {
+        // Search within the modal element
+        const form = modal.querySelector('#duplicate-basic-form');
+        if (!form) {
+            return false;
+        }
+        const extension = modal.querySelector('#duplicate-extension');
+        const identifier = modal.querySelector('#duplicate-identifier');
+        const errorDiv = modal.querySelector('#duplicate-identifier-error');
+        const extensionValue = extension?.value;
+        const identifierValue = identifier?.value;
+        if (!extensionValue || !identifierValue) {
+            console.error('[ContentBlockList] Missing form values');
+            return false;
+        }
+        // Validate pattern
+        const pattern = /^[a-z0-9/-]+$/;
+        if (!pattern.test(identifierValue)) {
+            console.error('[ContentBlockList] Invalid pattern');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+            }
+            return false;
+        }
+        // Check if the new identifier is the same as the old identifier
+        if (identifierValue === sourceIdentifier) {
+            // Show error message
+            if (errorDiv) {
+                errorDiv.classList.remove('d-none');
+            }
+            if (identifier) {
+                identifier.classList.add('is-invalid');
+                identifier.focus();
+            }
+            return false;
+        }
+        // Hide error message if it was shown
+        if (errorDiv) {
+            errorDiv.classList.add('d-none');
+        }
+        if (identifier) {
+            identifier.classList.remove('is-invalid');
+        }
+        // Build URL with query parameters
+        const url = new URL(duplicateUrl, window.location.origin);
+        url.searchParams.append('targetExtension', extensionValue);
+        url.searchParams.append('targetIdentifier', identifierValue);
+        url.searchParams.append('returnTab', this.activeTab);
+        // Navigate to the backend route (PHP will handle redirect)
+        window.location.href = url.toString();
+        return true;
+    }
     validateAndSubmitDuplicate(item, sourceVendor, sourceBlockName, modal) {
         // Search within the modal element
         const form = modal.querySelector('#duplicate-content-block-form');
@@ -600,7 +789,7 @@ let ContentBlockList = class ContentBlockList extends LitElement {
             return false;
         }
         // Validate pattern
-        const pattern = /^[a-z0-9\-]+$/;
+        const pattern = /^[a-z0-9-]+$/;
         if (!pattern.test(vendorValue) || !pattern.test(nameValue)) {
             console.error('[ContentBlockList] Invalid pattern');
             if (!form.checkValidity()) {
@@ -651,9 +840,119 @@ let ContentBlockList = class ContentBlockList extends LitElement {
                 }
             }
         }
+        // Append current tab for redirect back
+        url.searchParams.append('returnTab', this.activeTab);
         // Navigate to the backend route (PHP will handle redirect)
         window.location.href = url.toString();
         return true;
+    }
+    /**
+     * Toggle selection mode on/off
+     */
+    toggleSelectionMode() {
+        this.selectionMode = !this.selectionMode;
+        if (!this.selectionMode) {
+            this.selectedBlocks.clear();
+        }
+    }
+    /**
+     * Toggle selection of a single block
+     */
+    toggleBlockSelection(identifier, type) {
+        const key = `${type}:${identifier}`;
+        if (this.selectedBlocks.has(key)) {
+            this.selectedBlocks.delete(key);
+        }
+        else {
+            this.selectedBlocks.add(key);
+        }
+        this.requestUpdate();
+    }
+    /**
+     * Handle multi-select download
+     */
+    async handleMultiDownload() {
+        if (this.selectedBlocks.size === 0) {
+            Modal.confirm('No Selection', 'Please select at least one content block or basic.', SeverityEnum.warning, [
+                {
+                    text: 'OK',
+                    active: true,
+                    btnClass: 'btn-default',
+                    trigger: () => {
+                        Modal.dismiss();
+                    }
+                }
+            ]);
+            return;
+        }
+        // Convert selected blocks to array
+        const selected = Array.from(this.selectedBlocks).map(key => {
+            const [type, identifier] = key.split(':', 2);
+            return { type, identifier };
+        });
+        try {
+            // Call AJAX endpoint
+            const response = await new AjaxRequest(TYPO3.settings.ajaxUrls.content_blocks_gui_multi_download)
+                .post({ blocks: selected });
+            // Get the response as blob for file download
+            const blob = await response.raw().blob();
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            // Extract filename from Content-Disposition header or use default
+            const disposition = response.raw().headers.get('Content-Disposition');
+            let filename = `${selected.length}-blocks_${Date.now()}.zip`;
+            if (disposition) {
+                const filenameMatch = disposition.match(/filename="?([^"]+)"?/);
+                if (filenameMatch) {
+                    filename = filenameMatch[1];
+                }
+            }
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            // Exit selection mode after successful download
+            this.toggleSelectionMode();
+        }
+        catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            Modal.confirm('Download Failed', `Error downloading content blocks: ${errorMessage}`, SeverityEnum.error, [
+                {
+                    text: 'OK',
+                    active: true,
+                    btnClass: 'btn-default',
+                    trigger: () => {
+                        Modal.dismiss();
+                    }
+                }
+            ]);
+        }
+    }
+    /**
+     * Open upload modal
+     */
+    openUploadModal() {
+        // Create container with upload component
+        const content = document.createElement('div');
+        const uploadComponent = document.createElement('content-block-upload');
+        content.appendChild(uploadComponent);
+        // Pass available extensions after component is connected
+        setTimeout(() => {
+            uploadComponent.availableExtensions = this.availableExtensions;
+        }, 0);
+        const modal = Modal.advanced({
+            title: 'Upload Content Block(s)',
+            content: content,
+            size: Modal.sizes.large,
+            buttons: []
+        });
+        // Listen for close event from upload component
+        uploadComponent.addEventListener('close', () => {
+            modal.hideModal();
+        });
     }
 };
 __decorate([
@@ -680,6 +979,12 @@ __decorate([
 __decorate([
     state()
 ], ContentBlockList.prototype, "availableExtensions", void 0);
+__decorate([
+    state()
+], ContentBlockList.prototype, "selectionMode", void 0);
+__decorate([
+    state()
+], ContentBlockList.prototype, "selectedBlocks", void 0);
 ContentBlockList = __decorate([
     customElement('content-block-list')
 ], ContentBlockList);

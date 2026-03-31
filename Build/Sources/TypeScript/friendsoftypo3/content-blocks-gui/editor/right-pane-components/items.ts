@@ -17,6 +17,11 @@ import { customElement, property } from 'lit/decorators.js';
 import { live } from 'lit/directives/live.js';
 import type { FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 
+interface ItemsConfig {
+  enabled?: boolean;
+  items?: FieldTypeItems[];
+}
+
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
@@ -27,26 +32,26 @@ import type { FieldTypeProperty, FieldTypeItems } from '@friendsoftypo3/content-
 export class ContentBlockEditorItems extends LitElement {
 
   @property()
-    fieldTypeProperty: FieldTypeProperty;
+  fieldTypeProperty: FieldTypeProperty;
 
   @property()
-    values: Record<string, unknown>;
+  values: Record<string, unknown>;
 
   @property()
-    position?: number;
+  position?: number;
 
   @property()
-    level?: number;
+  level?: number;
 
   @property()
-    parent?: number;
+  parent?: number;
 
   @property()
-    isItemsEnabled = false;
+  isItemsEnabled = false;
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     this.updateItemsEnabledState();
-    const itemsObject = this.values['items'] as { items: FieldTypeItems[]; enabled?: boolean } || {};
+    const itemsObject = (this.values.items as ItemsConfig) || {};
     const currentItems = itemsObject.items || [];
     
     return html`
@@ -154,11 +159,11 @@ export class ContentBlockEditorItems extends LitElement {
   }
 
   protected updateItemsEnabledState(): void {
-    const itemsObject = this.values['items'] as { items?: FieldTypeItems[]; enabled?: boolean };
-    
-    if (itemsObject?.hasOwnProperty('enabled')) {
+    const itemsObject = this.values.items as ItemsConfig | undefined;
+
+    if (itemsObject && Object.prototype.hasOwnProperty.call(itemsObject, 'enabled')) {
       // If enabled property is explicitly set, use that value
-      this.isItemsEnabled = itemsObject.enabled;
+      this.isItemsEnabled = !!itemsObject.enabled;
     } else if (itemsObject?.items && itemsObject.items.length > 0) {
       // If no enabled property but has items, consider it enabled on initial render
       this.isItemsEnabled = true;
@@ -172,19 +177,20 @@ export class ContentBlockEditorItems extends LitElement {
     event.preventDefault();
     const target = event.target as HTMLInputElement;
     
-    if (!this.values['items']) {
-      this.values['items'] = {};
+    if (!this.values.items) {
+      this.values.items = {};
     }
     
     this.isItemsEnabled = target.checked;
-    this.values['items'].enabled = target.checked;
-    
+    const items = this.values.items as ItemsConfig;
+    items.enabled = target.checked;
+
     if (target.checked) {
-      if (!this.values['items'].items) {
-        this.values['items'].items = [{ label: '', value: '' }];
+      if (!items.items) {
+        items.items = [{ label: '', value: '' }];
       }
     } else {
-      this.values['items'].items = [];
+      items.items = [];
     }
     
     this.dispatchUpdateEvent();
@@ -196,19 +202,20 @@ export class ContentBlockEditorItems extends LitElement {
     const index = parseInt(target.dataset.index!, 10);
     const field = target.dataset.field!;
     
-    if (!this.values['items']) {
-      this.values['items'] = { items: [], enabled: true };
+    if (!this.values.items) {
+      this.values.items = { items: [], enabled: true };
     }
-    if (!this.values['items'].items || !Array.isArray(this.values['items'].items)) {
-      this.values['items'].items = [];
+    const itemsCfg = this.values.items as ItemsConfig;
+    if (!itemsCfg.items || !Array.isArray(itemsCfg.items)) {
+      itemsCfg.items = [];
     }
-    
-    const currentItems = this.values['items'].items as FieldTypeItems[];
-    
+
+    const currentItems = itemsCfg.items;
+
     if (currentItems[index]) {
-      currentItems[index][field] = target.value;
+      (currentItems[index] as unknown as Record<string, unknown>)[field] = target.value;
     }
-    
+
     this.dispatchUpdateEvent();
   }
 
@@ -217,18 +224,19 @@ export class ContentBlockEditorItems extends LitElement {
     const target = event.target as HTMLInputElement;
     const index = parseInt(target.dataset.index!, 10);
     const field = target.dataset.field!;
-    
-    if (!this.values['items']) {
-      this.values['items'] = { items: [], enabled: true };
+
+    if (!this.values.items) {
+      this.values.items = { items: [], enabled: true };
     }
-    if (!this.values['items'].items || !Array.isArray(this.values['items'].items)) {
-      this.values['items'].items = [];
+    const itemsCfg = this.values.items as ItemsConfig;
+    if (!itemsCfg.items || !Array.isArray(itemsCfg.items)) {
+      itemsCfg.items = [];
     }
-    
-    const currentItems = this.values['items'].items as FieldTypeItems[];
-    
+
+    const currentItems = itemsCfg.items;
+
     if (currentItems[index]) {
-      currentItems[index][field] = target.checked;
+      (currentItems[index] as unknown as Record<string, unknown>)[field] = target.checked;
     }
     
     this.dispatchUpdateEvent();
@@ -237,15 +245,15 @@ export class ContentBlockEditorItems extends LitElement {
   protected handleAddItem(event: Event): void {
     event.preventDefault();
     
-    if (!this.values['items']) {
-      this.values['items'] = { items: [], enabled: true };
+    if (!this.values.items) {
+      this.values.items = { items: [], enabled: true };
     }
-    if (!this.values['items'].items || !Array.isArray(this.values['items'].items)) {
-      this.values['items'].items = [];
+    const itemsCfg = this.values.items as ItemsConfig;
+    if (!itemsCfg.items || !Array.isArray(itemsCfg.items)) {
+      itemsCfg.items = [];
     }
-    
-    const currentItems = this.values['items'].items as FieldTypeItems[];
-    currentItems.push({ label: '', value: '' });
+
+    itemsCfg.items.push({ label: '', value: '' });
     
     this.requestUpdate();
     this.dispatchUpdateEvent();
@@ -256,17 +264,17 @@ export class ContentBlockEditorItems extends LitElement {
     const target = event.target as HTMLButtonElement;
     const index = parseInt(target.dataset.index!, 10);
     
-    if (!this.values['items'] || !this.values['items'].items || !Array.isArray(this.values['items'].items)) {
+    const itemsCfg = this.values.items as ItemsConfig | undefined;
+    if (!itemsCfg || !itemsCfg.items || !Array.isArray(itemsCfg.items)) {
       return;
     }
-    
-    const currentItems = this.values['items'].items as FieldTypeItems[];
-    currentItems.splice(index, 1);
-    
+
+    itemsCfg.items.splice(index, 1);
+
     // If no items left, disable the feature
-    if (currentItems.length === 0) {
+    if (itemsCfg.items.length === 0) {
       this.isItemsEnabled = false;
-      this.values['items'].enabled = false;
+      itemsCfg.enabled = false;
     }
     
     this.requestUpdate();
@@ -286,7 +294,7 @@ export class ContentBlockEditorItems extends LitElement {
     }));
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;

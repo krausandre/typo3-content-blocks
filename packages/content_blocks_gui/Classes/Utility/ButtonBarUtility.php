@@ -39,7 +39,11 @@ class ButtonBarUtility
 
         $addRecordTypeButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
-            ->setHref('#')
+            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
+                'type' => 'new',
+                'name' => '',
+                'contentType' => 'record-type'
+            ]))
             ->setIcon($this->iconFactory->getIcon('actions-add'))
             ->setTitle('Add a new record type')
             ->setLabel('Add record type')
@@ -49,11 +53,16 @@ class ButtonBarUtility
 
         $addPageTypeButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
-            ->setHref('#')
+            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
+                'type' => 'new',
+                'name' => '',
+                'contentType' => 'page-type'
+            ]))
             ->setIcon($this->iconFactory->getIcon('actions-add'))
             ->setTitle('Add a new page type')
             ->setLabel('Add page type')
-            ->setShowLabelText(true);
+            ->setShowLabelText(true)
+            ->setAttributes(['data-action' => 'add-page-type']);
         $buttonBar->addButton($addPageTypeButton, ButtonBar::BUTTON_POSITION_LEFT, 1);
 
         $addBasicButton = GeneralUtility::makeInstance(GenericButton::class)

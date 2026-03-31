@@ -17,6 +17,11 @@ import { customElement, property } from 'lit/decorators.js';
 import { live } from 'lit/directives/live.js';
 import type { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 
+interface ValuePickerConfig {
+  enabled?: boolean;
+  items?: Array<[string, string]>;
+}
+
 /**
  * Module: @typo3/module/web/ContentBlocksGui
  *
@@ -27,26 +32,26 @@ import type { FieldTypeProperty } from '@friendsoftypo3/content-blocks-gui/inter
 export class ContentBlockEditorValuePicker extends LitElement {
 
   @property()
-    fieldTypeProperty: FieldTypeProperty;
+  fieldTypeProperty: FieldTypeProperty;
 
   @property()
-    values: Record<string, unknown>;
+  values: Record<string, unknown>;
 
   @property()
-    position?: number;
+  position?: number;
 
   @property()
-    level?: number;
+  level?: number;
 
   @property()
-    parent?: number;
+  parent?: number;
 
   @property()
-    isValuePickerEnabled = false;
+  isValuePickerEnabled = false;
 
-  protected render(): TemplateResult {
+  protected override render(): TemplateResult {
     this.updateValuePickerEnabledState();
-    const currentValue = this.values[this.fieldTypeProperty.name] as any || { items: [] };
+    const currentValue = (this.values[this.fieldTypeProperty.name] as ValuePickerConfig) || { items: [] };
     
     return html`
       <div class="component-container">
@@ -125,24 +130,24 @@ export class ContentBlockEditorValuePicker extends LitElement {
   protected updateValuePickerItem(event: Event): void {
     const target = event.target as HTMLInputElement;
     const fieldName = this.fieldTypeProperty.name;
-    const index = parseInt(target.dataset.index!);
+    const index = parseInt(target.dataset.index!, 10);
     const part = target.dataset.part!;
 
     if (!this.values[fieldName]) {
       this.values[fieldName] = { items: [], enabled: true };
     }
 
-    const currentValue = this.values[fieldName] as any;
+    const currentValue = this.values[fieldName] as ValuePickerConfig;
     if (!currentValue.items) {
       currentValue.items = [];
     }
-    
+
     if (!currentValue.items[index]) {
       currentValue.items[index] = ['', ''];
     }
-    
+
     currentValue.items[index][part === 'label' ? 0 : 1] = target.value;
-    
+
     this.values[fieldName] = currentValue;
     this.dispatchUpdateEvent();
   }
@@ -155,11 +160,11 @@ export class ContentBlockEditorValuePicker extends LitElement {
       this.values[fieldName] = { items: [], enabled: true };
     }
 
-    const currentValue = this.values[fieldName] as any;
+    const currentValue = this.values[fieldName] as ValuePickerConfig;
     if (!currentValue.items) {
       currentValue.items = [];
     }
-    
+
     currentValue.items.push(['', '']);
     this.values[fieldName] = currentValue;
     
@@ -171,13 +176,14 @@ export class ContentBlockEditorValuePicker extends LitElement {
     event.preventDefault();
     const target = event.target as HTMLButtonElement;
     const fieldName = this.fieldTypeProperty.name;
-    const index = parseInt(target.dataset.index!);
-    
-    if (!this.values[fieldName] || !this.values[fieldName].items) {
+    const index = parseInt(target.dataset.index!, 10);
+
+    const vp = this.values[fieldName] as ValuePickerConfig | undefined;
+    if (!vp || !vp.items) {
       return;
     }
 
-    const currentValue = this.values[fieldName] as any;
+    const currentValue = vp;
     currentValue.items.splice(index, 1);
     this.values[fieldName] = currentValue;
     
@@ -186,10 +192,10 @@ export class ContentBlockEditorValuePicker extends LitElement {
   }
 
   protected updateValuePickerEnabledState(): void {
-    const valuePicker = this.values[this.fieldTypeProperty.name];
-    
-    if (valuePicker?.hasOwnProperty('enabled')) {
-      this.isValuePickerEnabled = valuePicker.enabled;
+    const valuePicker = this.values[this.fieldTypeProperty.name] as ValuePickerConfig | undefined;
+
+    if (valuePicker && Object.prototype.hasOwnProperty.call(valuePicker, 'enabled')) {
+      this.isValuePickerEnabled = !!valuePicker.enabled;
     } else if (valuePicker?.items && Array.isArray(valuePicker.items) && valuePicker.items.length > 0) {
       this.isValuePickerEnabled = true;
     } else {
@@ -207,11 +213,12 @@ export class ContentBlockEditorValuePicker extends LitElement {
     }
 
     this.isValuePickerEnabled = target.checked;
-    this.values[fieldName].enabled = target.checked;
+    const vp = this.values[fieldName] as ValuePickerConfig;
+    vp.enabled = target.checked;
 
     if (target.checked) {
-      if (!this.values[fieldName].items) {
-        this.values[fieldName].items = [];
+      if (!vp.items) {
+        vp.items = [];
       }
     }
 
@@ -231,7 +238,7 @@ export class ContentBlockEditorValuePicker extends LitElement {
     }));
   }
 
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
+  protected override createRenderRoot(): HTMLElement | ShadowRoot {
     // @todo Switch to Shadow DOM once Bootstrap CSS style can be applied correctly
     // const renderRoot = this.attachShadow({mode: 'open'});
     return this;

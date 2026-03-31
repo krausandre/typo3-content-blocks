@@ -1,11 +1,35 @@
 name: test-123/test-12-bck
-group: default
-prefixFields: true
-prefixType: full
-title: Test 12 BCK
 fields:
   -
-    identifier: header
+    identifier: Text_1
     type: Text
-    title: Header
-#    useExistingField: true
+    label: Text0
+    default: 'collection text'
+    required: true
+  -
+    identifier: Number_1
+    type: Number
+    label: Number1
+    range:
+      lower: 2
+      upper: 100
+    required: true
+    slider:
+      step: 1
+      width: 100
+  -
+    identifier: Radio_3
+    type: Radio
+    label: Radio3
+    items: {  }
+  -
+    identifier: Collection_2
+    type: Collection
+    label: Collection2
+    fields:
+      -
+        identifier: Text_0
+        type: Text
+        label: Text0
+        default: 'collection text 79798'
+title: 'Test 12 BCK'

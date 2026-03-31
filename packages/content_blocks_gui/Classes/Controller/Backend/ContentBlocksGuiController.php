@@ -33,7 +33,6 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Core\Routing\BackendEntryPointResolver;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Service\FieldMetadataService;
@@ -57,7 +56,6 @@ final class ContentBlocksGuiController
         protected ButtonBarUtility $buttonBarUtility,
         protected readonly FlashMessageService $flashMessageService,
         protected readonly LoggerInterface $logger,
-        protected readonly BackendEntryPointResolver $backendEntryPointResolver,
         protected readonly FieldMetadataService $fieldMetadataService,
         protected readonly BasicsService $basicsService,
         protected readonly CacheManager $cacheManager,
@@ -108,17 +106,7 @@ final class ContentBlocksGuiController
             throw new RouteNotFoundException('Missing required content block data');
         }
         $this->contentBlocksUtility->deleteContentBlock($queryParams['name']);
-
-        // Preserve the active tab for better UX
-        $redirectParams = [];
-        if (!empty($queryParams['returnTab'])) {
-            $redirectParams['type'] = $queryParams['returnTab'];
-        }
-
-        return new RedirectResponse(
-            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
-            303
-        );
+        return $this->redirectToList($queryParams);
     }
 
     /**
@@ -133,43 +121,24 @@ final class ContentBlocksGuiController
 
         try {
             $this->contentBlocksUtility->deleteBasic($queryParams['identifier']);
-
-            // Add success message
-            $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
+            $this->addFlashMessage(
                 sprintf('Basic "%s" has been successfully deleted.', $queryParams['identifier']),
                 'Basic Deleted',
-                ContextualFeedbackSeverity::OK,
-                true
+                ContextualFeedbackSeverity::OK
             );
-            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
         } catch (\Exception $e) {
-            // Show error message
-            $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
+            $this->addFlashMessage(
                 sprintf('Failed to delete basic: %s', $e->getMessage()),
                 'Deletion Failed',
-                ContextualFeedbackSeverity::ERROR,
-                true
+                ContextualFeedbackSeverity::ERROR
             );
-            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
-
             $this->logger->error('Failed to delete basic', [
                 'identifier' => $queryParams['identifier'],
                 'error' => $e->getMessage(),
             ]);
         }
 
-        // Preserve the active tab for better UX
-        $redirectParams = [];
-        if (!empty($queryParams['returnTab'])) {
-            $redirectParams['type'] = $queryParams['returnTab'];
-        }
-
-        return new RedirectResponse(
-            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
-            303
-        );
+        return $this->redirectToList($queryParams);
     }
 
     /**
@@ -196,7 +165,6 @@ final class ContentBlocksGuiController
         $customTableName = $queryParams['customTableName'] ?? null;
 
         try {
-            // Duplicate the content block
             $this->contentBlocksUtility->duplicateContentBlock(
                 $sourceName,
                 $targetExtension,
@@ -206,84 +174,26 @@ final class ContentBlocksGuiController
                 $customTypeName,
                 $customTableName
             );
-
-            // Add success message
-            $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
-                sprintf(
-                    'Content block "%s/%s" has been successfully duplicated to "%s/%s".',
-                    explode('/', $sourceName)[0],
-                    explode('/', $sourceName)[1],
-                    $targetVendor,
-                    $targetName
-                ),
+            $this->addFlashMessage(
+                sprintf('Content block "%s" has been successfully duplicated to "%s/%s".', $sourceName, $targetVendor, $targetName),
                 'Content Block Duplicated',
-                ContextualFeedbackSeverity::OK,
-                true
-            );
-            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
-
-            // Preserve the active tab for better UX
-            $redirectParams = [];
-            if (!empty($queryParams['returnTab'])) {
-                $redirectParams['type'] = $queryParams['returnTab'];
-            }
-
-            // Redirect back to list view
-            return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
-                303
+                ContextualFeedbackSeverity::OK
             );
         } catch (\RuntimeException $e) {
-            // Show user-friendly error message
-            $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
-                $e->getMessage(),
-                'Duplication Failed',
-                ContextualFeedbackSeverity::ERROR,
-                true
-            );
-            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
-
-            // Preserve the active tab for better UX
-            $redirectParams = [];
-            if (!empty($queryParams['returnTab'])) {
-                $redirectParams['type'] = $queryParams['returnTab'];
-            }
-
-            // Redirect back to list view
-            return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
-                303
-            );
+            $this->addFlashMessage($e->getMessage(), 'Duplication Failed', ContextualFeedbackSeverity::ERROR);
         } catch (\Exception $e) {
-            // Unexpected error - show generic message and log details
             $this->logger->error('Unexpected error during content block duplication', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-
-            $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
+            $this->addFlashMessage(
                 'An unexpected error occurred during duplication. Please check the logs for details.',
                 'Duplication Failed',
-                ContextualFeedbackSeverity::ERROR,
-                true
-            );
-            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
-
-            // Preserve the active tab for better UX
-            $redirectParams = [];
-            if (!empty($queryParams['returnTab'])) {
-                $redirectParams['type'] = $queryParams['returnTab'];
-            }
-
-            // Redirect back to list view
-            return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
-                303
+                ContextualFeedbackSeverity::ERROR
             );
         }
+
+        return $this->redirectToList($queryParams);
     }
 
     /**
@@ -296,22 +206,26 @@ final class ContentBlocksGuiController
         if (!isset($queryParams['name'])) {
             throw new RouteNotFoundException('Missing required content block name');
         }
-        $mode = 'new';
-        $entryPoint = $this->backendEntryPointResolver->getPathFromRequest($request);
-        if($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/new') {
-            $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
-            $contentBlocksData = json_decode($skeletonJson, true);
-        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/edit') {
-            $mode = 'edit';
-//            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
-//            $contentBlocksData = json_decode($sampleJson, true);
-            $contentBlocksData = $this->contentBlocksUtility->getContentBlockByName($queryParams);
-        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/content-block/modify/duplicate') {
-            $mode = 'duplicate';
-            $sampleJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Test/Fixtures/editCbAction.json');
-            $contentBlocksData = json_decode($sampleJson, true);
-        } else {
-            throw new RouteNotFoundException('Invalid request');
+        $mode = basename($request->getUri()->getPath());
+        $contentType = $queryParams['contentType'] ?? 'content-element';
+        switch ($mode) {
+            case 'new':
+                $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
+                $contentBlocksData = json_decode($skeletonJson, true);
+                // Override table based on content type
+                if ($contentType === 'page-type') {
+                    $contentBlocksData['yaml']['table'] = 'pages';
+                    $contentBlocksData['yaml']['typeField'] = 'doktype';
+                }
+                break;
+            case 'edit':
+                $contentBlocksData = $this->contentBlocksUtility->getContentBlockByName($queryParams);
+                break;
+            case 'duplicate':
+                $contentBlocksData = $this->contentBlocksUtility->getContentBlockByName($queryParams);
+                break;
+            default:
+                throw new RouteNotFoundException('Invalid request mode: ' . $mode);
         }
         // Get table for field metadata
         $table = $contentBlocksData['yaml']['table'] ?? 'tt_content';
@@ -319,7 +233,7 @@ final class ContentBlocksGuiController
 
         $contentBlockEditorData = GeneralUtility::implodeAttributes([
             'mode' => $mode,
-            'contenttype' => 'contentBlock',
+            'contenttype' => $contentType,
             'data' => GeneralUtility::jsonEncodeForHtmlAttribute($contentBlocksData, false),
             'extensions' => GeneralUtility::jsonEncodeForHtmlAttribute($this->extensionUtility->findAvailableExtensions(), false),
             'groups' => GeneralUtility::jsonEncodeForHtmlAttribute($this->contentBlocksUtility->getGroupsList(), false),
@@ -361,88 +275,31 @@ final class ContentBlocksGuiController
         $targetIdentifier = $queryParams['targetIdentifier'];
 
         try {
-            // Duplicate the basic
             $this->contentBlocksUtility->duplicateBasic(
                 $sourceIdentifier,
                 $targetExtension,
                 $targetIdentifier
             );
-
-            // Add success message
-            $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
-                sprintf(
-                    'Basic "%s" has been successfully duplicated to "%s".',
-                    $sourceIdentifier,
-                    $targetIdentifier
-                ),
+            $this->addFlashMessage(
+                sprintf('Basic "%s" has been successfully duplicated to "%s".', $sourceIdentifier, $targetIdentifier),
                 'Basic Duplicated',
-                ContextualFeedbackSeverity::OK,
-                true
-            );
-            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
-
-            // Preserve the active tab for better UX
-            $redirectParams = [];
-            if (!empty($queryParams['returnTab'])) {
-                $redirectParams['type'] = $queryParams['returnTab'];
-            }
-
-            // Redirect back to list view
-            return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
-                303
+                ContextualFeedbackSeverity::OK
             );
         } catch (\RuntimeException $e) {
-            // Show user-friendly error message
-            $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
-                $e->getMessage(),
-                'Basic Duplication Failed',
-                ContextualFeedbackSeverity::ERROR,
-                true
-            );
-            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
-
-            // Preserve the active tab for better UX
-            $redirectParams = [];
-            if (!empty($queryParams['returnTab'])) {
-                $redirectParams['type'] = $queryParams['returnTab'];
-            }
-
-            // Redirect back to list view
-            return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
-                303
-            );
+            $this->addFlashMessage($e->getMessage(), 'Basic Duplication Failed', ContextualFeedbackSeverity::ERROR);
         } catch (\Exception $e) {
-            // Unexpected error - show generic message and log details
             $this->logger->error('Unexpected error during basic duplication', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-
-            $flashMessage = GeneralUtility::makeInstance(
-                FlashMessage::class,
+            $this->addFlashMessage(
                 'An unexpected error occurred during duplication. Please check the logs for details.',
                 'Basic Duplication Failed',
-                ContextualFeedbackSeverity::ERROR,
-                true
-            );
-            $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
-
-            // Preserve the active tab for better UX
-            $redirectParams = [];
-            if (!empty($queryParams['returnTab'])) {
-                $redirectParams['type'] = $queryParams['returnTab'];
-            }
-
-            // Redirect back to list view
-            return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
-                303
+                ContextualFeedbackSeverity::ERROR
             );
         }
+
+        return $this->redirectToList($queryParams);
     }
 
 
@@ -453,35 +310,31 @@ final class ContentBlocksGuiController
     {
         $this->pageRenderer->loadJavaScriptModule('@friendsoftypo3/content-blocks-gui/editor.js');
         $queryParams = $request->getQueryParams();
-        $entryPoint = $this->backendEntryPointResolver->getPathFromRequest($request);
-        $mode = 'new';
+        $mode = basename($request->getUri()->getPath());
 
-        if ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/basic/modify/new') {
-            // Create new Basic
-            $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/BasicSkeleton.json');
-            $contentBlocksData = json_decode($skeletonJson, true);
-        } elseif ($request->getUri()->getPath() === $entryPoint . 'content-block-gui/basic/modify/edit') {
-            // Edit existing Basic
-            $mode = 'edit';
-            if (empty($queryParams['identifier'])) {
-                throw new RouteNotFoundException('Missing required basic identifier');
-            }
-
-            try {
-                // Load Basic data via BasicsService
-                $basicData = $this->basicsService->loadBasicForEditor($queryParams['identifier']);
-
-                $contentBlocksData = [
-                    'name' => $basicData['identifier'],
-                    'yaml' => $basicData,
-                    'hostExtension' => $basicData['hostExtension'],
-                    'extPath' => ''
-                ];
-            } catch (\Exception $e) {
-                throw new RouteNotFoundException('Basic not found: ' . $queryParams['identifier'] . ' - ' . $e->getMessage());
-            }
-        } else {
-            throw new RouteNotFoundException('Invalid request');
+        switch ($mode) {
+            case 'new':
+                $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/BasicSkeleton.json');
+                $contentBlocksData = json_decode($skeletonJson, true);
+                break;
+            case 'edit':
+                if (empty($queryParams['identifier'])) {
+                    throw new RouteNotFoundException('Missing required basic identifier');
+                }
+                try {
+                    $basicData = $this->basicsService->loadBasicForEditor($queryParams['identifier']);
+                    $contentBlocksData = [
+                        'name' => $basicData['identifier'],
+                        'yaml' => $basicData,
+                        'hostExtension' => $basicData['hostExtension'],
+                        'extPath' => ''
+                    ];
+                } catch (\Exception $e) {
+                    throw new RouteNotFoundException('Basic not found: ' . $queryParams['identifier'] . ' - ' . $e->getMessage());
+                }
+                break;
+            default:
+                throw new RouteNotFoundException('Invalid request mode: ' . $mode);
         }
 
         // Basics don't have a table context, use tt_content as default for field metadata
@@ -622,8 +475,8 @@ final class ContentBlocksGuiController
                 );
                 $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
             } else {
-                // Flush system cache to reload Basics
                 $this->cacheManager->flushCachesInGroup('system');
+                $this->cacheManager->getCache('typoscript')->flush();
 
                 $flashMessage = GeneralUtility::makeInstance(
                     FlashMessage::class,
@@ -717,8 +570,8 @@ final class ContentBlocksGuiController
 
             // Check if save was successful
             if ($result->isSuccess()) {
-                // Flush system cache
                 $this->cacheManager->flushCachesInGroup('system');
+                $this->cacheManager->getCache('typoscript')->flush();
 
                 $flashMessage = GeneralUtility::makeInstance(
                     FlashMessage::class,
@@ -804,6 +657,36 @@ final class ContentBlocksGuiController
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Build a redirect response to the list view, preserving the active tab
+     */
+    private function redirectToList(array $queryParams, array $extraParams = []): RedirectResponse
+    {
+        $redirectParams = $extraParams;
+        if (!empty($queryParams['returnTab'])) {
+            $redirectParams['type'] = $queryParams['returnTab'];
+        }
+        return new RedirectResponse(
+            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
+            303
+        );
+    }
+
+    /**
+     * Add a flash message to the queue
+     */
+    private function addFlashMessage(string $message, string $title, ContextualFeedbackSeverity $severity): void
+    {
+        $flashMessage = GeneralUtility::makeInstance(
+            FlashMessage::class,
+            $message,
+            $title,
+            $severity,
+            true
+        );
+        $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
     }
 
     /**

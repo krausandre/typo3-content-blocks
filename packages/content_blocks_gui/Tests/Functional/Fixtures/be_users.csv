@@ -1,0 +1,3 @@
+"be_users"
+,"uid","username","password","admin","options","deleted","disable"
+,1,"admin","$2y$12$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",1,0,0,0

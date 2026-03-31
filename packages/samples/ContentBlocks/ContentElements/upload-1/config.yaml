@@ -1,0 +1,8 @@
+name: upload/upload-1
+group: common
+prefixFields: true
+prefixType: full
+fields:
+  -
+    identifier: header
+    useExistingField: true

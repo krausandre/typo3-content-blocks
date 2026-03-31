@@ -101,7 +101,7 @@ final class ContentBlockImportAnalyzer
                 errors: [],
                 tempDir: $tempDir
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Clean up on error
             GeneralUtility::rmdir($tempDir, true);
             throw $e;
@@ -330,7 +330,11 @@ final class ContentBlockImportAnalyzer
             }
 
             // Validate name format: vendor/name (both parts lowercase, alphanumeric, hyphens)
-            if (!ContentBlockNameValidator::isValid($yaml['name'])) {
+            $nameParts = explode('/', $yaml['name']);
+            if (count($nameParts) !== 2
+                || !ContentBlockNameValidator::isValid($nameParts[0])
+                || !ContentBlockNameValidator::isValid($nameParts[1])
+            ) {
                 throw new \RuntimeException(
                     'Invalid content block name format: "' . $yaml['name'] . '". ' .
                     'Expected format: vendor/name (lowercase, alphanumeric, hyphens)'
@@ -370,7 +374,7 @@ final class ContentBlockImportAnalyzer
         foreach ($blocks as $block) {
             if ($block->type === 'BASIC') {
                 // Conflict Type 1: Basic filename already exists in target extension
-                $targetBasicsPath = $extensionPath . '/ContentBlocks/Basics/';
+                $targetBasicsPath = $extensionPath . '/' . ContentBlockPathUtility::getRelativeBasicsPath() . '/';
                 $targetFilePath = $targetBasicsPath . $block->fileName;
 
                 if (file_exists($targetFilePath)) {
@@ -387,7 +391,7 @@ final class ContentBlockImportAnalyzer
             } else {
                 // Conflict Type 1: Directory already exists in target extension
                 $typeSubdir = $this->getTypeSubdirectory($block->type);
-                $targetPath = $extensionPath . '/ContentBlocks/' . $typeSubdir . '/' . $block->directoryName;
+                $targetPath = $extensionPath . '/' . $typeSubdir . '/' . $block->directoryName;
 
                 if (is_dir($targetPath)) {
                     $block->conflict = 'DIRECTORY_EXISTS';
@@ -410,12 +414,13 @@ final class ContentBlockImportAnalyzer
      */
     private function getTypeSubdirectory(string $type): string
     {
-        return match($type) {
-            'CONTENT_ELEMENT' => 'ContentElements',
-            'PAGE_TYPE' => 'PageTypes',
-            'RECORD_TYPE' => 'RecordTypes',
-            'FILE_TYPE' => 'FileTypes',
+        $contentType = match($type) {
+            'CONTENT_ELEMENT' => ContentType::CONTENT_ELEMENT,
+            'PAGE_TYPE' => ContentType::PAGE_TYPE,
+            'RECORD_TYPE' => ContentType::RECORD_TYPE,
+            'FILE_TYPE' => ContentType::FILE_TYPE,
             default => throw new \RuntimeException('Unknown content type: ' . $type),
         };
+        return ContentBlockPathUtility::getRelativeContentTypePath($contentType);
     }
 }

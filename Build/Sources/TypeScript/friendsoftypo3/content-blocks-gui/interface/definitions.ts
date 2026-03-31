@@ -1,168 +1,153 @@
+export type { FieldTypeItems, FieldTypeProperty, FieldTypeSetting } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
 import type { FieldTypeItems } from '@friendsoftypo3/content-blocks-gui/interface/field-type-setting';
-import type { ValuePicker, Range, AllowedCustomProperties } from '@friendsoftypo3/content-blocks-gui/interface/content-block-definition';
+
 export interface ExtensionDefinition {
-    vendor: string;
-    package: string;
-    extension: string;
-    icon: string;
-}
-
-// TODO: how to handle dynamic properties?
-export interface FieldTypeItems {
-    label: string;
-    value?: string;
-    labelChecked?: string;
-    labelUnchecked?: string;
-    invertStateDisplay?: boolean;
-    lower?: number;
-    upper?: number;
-    step?: number;
-    width?: number;
-}
-
-export interface FieldTypeProperty {
-    name: string;
-    dataType: string;
-    required?: boolean;
-    default?: string;
-    items?: Array<FieldTypeItems>;
-}
-
-export interface FieldTypeSetting {
-    icon: string;
-    type: string;
-    properties: Array<FieldTypeProperty>;
+  vendor: string;
+  package: string;
+  extension: string;
+  icon: string;
 }
 
 export interface GroupDefinition {
-    key: string;
-    label: string
+  key: string;
+  label: string
+}
+
+export interface ValuePicker {
+  items: Array<[string, string]>;
+  enabled?: boolean;
+}
+
+export interface Range {
+  lower: number;
+  upper: number;
+  enabled?: boolean;
+}
+
+export interface Slider {
+  step: number;
+  width: number;
+  enabled?: boolean;
+}
+
+export interface AllowedTypes {
+  types: Array<'page' | 'url' | 'file' | 'folder' | 'email' | 'telephone' | 'record' | '*'>;
+  enabled?: boolean;
+}
+
+export interface AllowedCustomProperties {
+  itemProcFunc: string;
+  enabled?: boolean;
+}
+
+export interface Items {
+  items: Array<FieldTypeItems>;
+  enabled?: boolean;
 }
 
 export interface ContentBlockField {
-    identifier: string;
-    type: string;
-    label: string;
-    description?: string;
-    useExistingField?: boolean;
-    prefixFields?: boolean;
-    prefixType?: string;
-    displayCond?: string;
-    onChange?: string;
-    default?: string;
-    placeholder?: string;
-    required?: boolean;
-    enableRichtext?: boolean;
-    richtextConfiguration?: string;
-    rows?: number;
-    relationship?: string;
-    maxitems?: number;
-    minitems?: number;
-    items?: Array<FieldTypeItems>;
-    renderType?: string;
-    allowedCustomProperties?: AllowedCustomProperties;
-    format?: string;
-    range?: Range;
-    slider?: Array<FieldTypeItems>;
-    size?: number;
-    valuePicker?: ValuePicker;
-    allowedTypes?: Array<FieldTypeItems>;
-    ignoreIfNotInPalette?: boolean;
-    fields?: Array<ContentBlockField>;
+  identifier: string;
+  type: string;
+  label: string;
+  description?: string;
+  useExistingField?: boolean;
+  prefixFields?: boolean;
+  prefixType?: string;
+  displayCond?: string;
+  onChange?: string;
+  default?: string;
+  placeholder?: string;
+  required?: boolean;
+  enableRichtext?: boolean;
+  richtextConfiguration?: string;
+  rows?: number;
+  relationship?: string;
+  maxitems?: number;
+  minitems?: number;
+  items?: Items;
+  renderType?: string;
+  allowedCustomProperties?: AllowedCustomProperties;
+  format?: string;
+  range?: Range;
+  slider?: Slider;
+  size?: number;
+  valuePicker?: ValuePicker;
+  allowedTypes?: Array<string>;
+  ignoreIfNotInPalette?: boolean;
+  fields?: Array<ContentBlockField>;
 
-    // Internal tracking properties (not saved to YAML)
-    _typeInjected?: boolean;  // Type was auto-detected and injected
-    _isBaseField?: boolean;   // Field is a base TCA field
-    _validation?: ValidationResult;  // Validation state
+  // Internal tracking properties (not saved to YAML)
+  _typeInjected?: boolean; // Type was auto-detected and injected
+  _isBaseField?: boolean; // Field is a base TCA field
+  _validation?: ValidationResult; // Validation state
 }
 
 export interface FieldMetadata {
-    baseFields: Record<string, BaseFieldInfo>;
-    systemReservedFields: string[];
-    currentTable: string;
+  baseFields: Record<string, BaseFieldInfo>;
+  systemReservedFields: string[];
+  currentTable: string;
 }
 
 export interface BaseFieldInfo {
-    type: string;
-    tcaType: string;
-    label: string;
-    description: string;
+  type: string;
+  tcaType: string;
+  label: string;
+  description: string;
 }
 
 export interface ValidationResult {
-    valid: boolean;
-    severity?: 'success' | 'warning' | 'error' | 'info';
-    message?: string;
-    detectedType?: string;
+  valid: boolean;
+  severity?: 'success' | 'warning' | 'error' | 'info';
+  message?: string;
+  detectedType?: string;
 }
 
 export interface BasicMetadata {
-    identifier: string;
-    vendor: string;
-    name: string;
-    fieldCount: number;
-    path: string;
-    extension: string;
+  identifier: string;
+  vendor: string;
+  name: string;
+  fieldCount: number;
+  path: string;
+  extension: string;
 }
 
-/*interface ContentBlockNumberField extends ContentBlockField {
-  type: 'number';
-  min: number;
-  max: number;
-}*/
-/*
-const fields: Array<ContentBlockField> = [];
-fields.map(async (field) => {
-  console.log(field.min);
-
-  const fieldHandlerModule = fields.typeImplementations[field.type];
-  const fieldHanlder = (await import(fieldHandlerModule)).default;
-  if (field.type === 'number') {
-    const numberField = field as ContentBlockNumberField;
-    console.log(numberField.min);
-  }
-  return field;
-});
-*/
 export interface ContentBlocksYaml {
-    fields: Array<ContentBlockField>;
-    //typeImplementations: Record<string, string>;
-    group: string;
-    name: string;
-    prefixFields: boolean;
-    prefixType: string;
-    table: string;
-    typeField: string;
-    typeName: string;
-    title?: string;
-    vendorPrefix?: string;
-    priority?: number;
-    basics?: Array<string>;
-
+  fields: Array<ContentBlockField>;
+  group: string;
+  name: string;
+  vendor?: string;
+  prefixFields: boolean;
+  prefixType: string;
+  table: string;
+  typeField: string;
+  typeName: string;
+  title?: string;
+  vendorPrefix?: string;
+  priority?: number;
+  basics?: Array<string>;
 }
 
 export interface ContentBlocksIcon {
-    iconPath: string;
-    iconProvider: string;
-    iconIdentifier: string;
+  iconPath: string;
+  iconProvider: string;
+  iconIdentifier: string;
 }
 
 export interface ContentBlockDefinition {
-    extPath: string;
-    hostExtension: string;
-    icon: ContentBlocksIcon;
-    iconHideInMenu: ContentBlocksIcon;
-    name: string;
-    yaml: ContentBlocksYaml;
+  extPath: string;
+  hostExtension: string;
+  icon: ContentBlocksIcon;
+  iconHideInMenu: ContentBlocksIcon;
+  name: string;
+  yaml: ContentBlocksYaml;
 }
 
 export interface DropField {
-    data: {
-        identifier: string,
-        type: string
-    },
-    position: number,
-    level: number,
-    parent?: ContentBlockField
+  data: {
+    identifier: string,
+    type: string
+  },
+  position: number,
+  level: number,
+  parent?: ContentBlockField
 }
-

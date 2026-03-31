@@ -40,62 +40,29 @@ final class BasicsService
     /**
      * List all available Basics from all extensions
      *
-     * @return array<int, array{identifier: string, vendor: string, name: string, fieldCount: int, path: string, extension: string}>
+     * @return array<int, array{identifier: string, vendor: string, name: string, fieldCount: int, extension: string}>
      */
     public function listBasics(): array
     {
+        $registry = $this->basicsLoader->loadUncached();
         $basics = [];
-        $activePackages = $this->packageManager->getActivePackages();
 
-        foreach ($activePackages as $package) {
-            $basicsPath = $package->getPackagePath() . 'ContentBlocks/Basics';
-
-            if (!is_dir($basicsPath)) {
+        foreach ($registry->getAllBasics() as $loadedBasic) {
+            $identifier = $loadedBasic->getIdentifier();
+            $parts = explode('/', $identifier);
+            if (count($parts) !== 2) {
                 continue;
             }
 
-            // Recursively find all YAML files
-            $yamlFiles = $this->findYamlFilesRecursive($basicsPath);
-
-            foreach ($yamlFiles as $yamlFile) {
-                try {
-                    $content = file_get_contents($yamlFile);
-                    if ($content === false) {
-                        continue;
-                    }
-
-                    $basic = Yaml::parse($content);
-
-                    if (!is_array($basic) || !isset($basic['identifier'])) {
-                        continue;
-                    }
-
-                    $identifier = $basic['identifier'];
-                    $parts = explode('/', $identifier);
-
-                    if (count($parts) !== 2) {
-                        // Invalid identifier format, skip
-                        continue;
-                    }
-
-                    [$vendor, $name] = $parts;
-
-                    $basics[] = [
-                        'identifier' => $identifier,
-                        'vendor' => $vendor,
-                        'name' => $name,
-                        'fieldCount' => count($basic['fields'] ?? []),
-                        'path' => $yamlFile,
-                        'extension' => $package->getPackageKey(),
-                    ];
-                } catch (\Exception $e) {
-                    // Skip invalid Basics
-                    continue;
-                }
-            }
+            $basics[] = [
+                'identifier' => $identifier,
+                'vendor' => $parts[0],
+                'name' => $parts[1],
+                'fieldCount' => count($loadedBasic->getFields()),
+                'extension' => $loadedBasic->getHostExtension(),
+            ];
         }
 
-        // Sort by identifier
         usort($basics, fn($a, $b) => strcmp($a['identifier'], $b['identifier']));
 
         return $basics;
@@ -105,47 +72,20 @@ final class BasicsService
      * Load a specific Basic by identifier
      *
      * @param string $identifier Format: Vendor/Name
-     * @return array{identifier: string, fields: array}
+     * @return array{identifier: string, fields: array, hostExtension: string}
      * @throws \RuntimeException if Basic not found
      */
     public function loadBasic(string $identifier): array
     {
-        [$vendor, $name] = $this->parseIdentifier($identifier);
-        $basicPath = $this->findBasicPath($vendor, $name);
-
-        if ($basicPath === null) {
+        $registry = $this->basicsLoader->loadUncached();
+        if (!$registry->hasBasic($identifier)) {
             throw new \RuntimeException(
                 sprintf('Basic "%s" not found', $identifier),
                 1734000001
             );
         }
 
-        $content = file_get_contents($basicPath);
-        if ($content === false) {
-            throw new \RuntimeException(
-                sprintf('Failed to read Basic "%s"', $identifier),
-                1734000002
-            );
-        }
-
-        $basic = Yaml::parse($content);
-
-        if (!is_array($basic)) {
-            throw new \RuntimeException(
-                sprintf('Invalid Basic YAML in "%s"', $basicPath),
-                1734000003
-            );
-        }
-
-        // Validate required properties
-        if (!isset($basic['identifier']) || !isset($basic['fields'])) {
-            throw new \RuntimeException(
-                sprintf('Basic "%s" must have identifier and fields properties', $identifier),
-                1734000004
-            );
-        }
-
-        return $basic;
+        return $registry->getBasic($identifier)->toArray();
     }
 
     /**

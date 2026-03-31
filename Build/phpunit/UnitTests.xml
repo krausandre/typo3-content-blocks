@@ -32,6 +32,9 @@
         <testsuite name="Core tests">
             <directory>../../typo3/sysext/*/Tests/Unit/</directory>
         </testsuite>
+        <testsuite name="Content Blocks GUI Unit Tests">
+            <directory>../../packages/content_blocks_gui/Tests/Unit/</directory>
+        </testsuite>
     </testsuites>
     <php>
         <ini name="display_errors" value="1"/>

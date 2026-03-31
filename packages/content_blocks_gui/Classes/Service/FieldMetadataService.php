@@ -139,6 +139,15 @@ final class FieldMetadataService
             't3ver_wsid',
             't3ver_state',
             't3ver_stage',
+            'cache_tags',
+            'cache_timeout',
+            'l18n_cfg',
+            'module',
+            'mount_pid',
+            'mount_pid_ol',
+            'php_tree_stop',
+            'TSconfig',
+            'tsconfig_includes',
         ];
 
         // Get table-specific enable columns from TCA ctrl section
