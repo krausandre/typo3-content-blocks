@@ -1,0 +1,45 @@
+#!/bin/bash
+
+## Description: Sync extension code from public repo back to dev repo (e.g. after PR)
+## Usage: pull-from-public
+## Example: ddev pull-from-public
+
+DEV_EXT="packages/content_blocks_gui"
+PUBLIC_REPO="../content-blocks-gui-public"
+
+if [ ! -d "$PUBLIC_REPO/.git" ]; then
+  echo "Error: Public repo '$PUBLIC_REPO' not found or not a git repository."
+  exit 1
+fi
+
+if [ ! -d "$DEV_EXT" ]; then
+  echo "Error: Extension directory '$DEV_EXT' not found."
+  exit 1
+fi
+
+# Check for uncommitted changes in dev extension
+if [ -n "$(git diff --name-only -- "$DEV_EXT")" ]; then
+  echo "Warning: Dev extension has uncommitted changes."
+  read -p "Continue anyway? (y/N) " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 1
+  fi
+fi
+
+echo "Syncing $PUBLIC_REPO -> $DEV_EXT ..."
+
+rsync -av --delete \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  --exclude='Tests/Playwright/node_modules' \
+  --exclude='Tests/Playwright/.env' \
+  --exclude='Tests/Playwright/auth.json' \
+  --exclude='Tests/Playwright/test-results' \
+  --exclude='Resources/Public/dist' \
+  "$PUBLIC_REPO/" "$DEV_EXT/"
+
+echo ""
+echo "Done. Review changes in dev repo:"
+echo "  git diff --stat -- $DEV_EXT"

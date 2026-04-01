@@ -1,0 +1,45 @@
+#!/bin/bash
+
+## Description: Sync extension code from dev repo to public repo for release
+## Usage: push-to-public
+## Example: ddev push-to-public
+
+DEV_EXT="packages/content_blocks_gui"
+PUBLIC_REPO="../content-blocks-gui-public"
+
+if [ ! -d "$DEV_EXT" ]; then
+  echo "Error: Extension directory '$DEV_EXT' not found."
+  exit 1
+fi
+
+if [ ! -d "$PUBLIC_REPO/.git" ]; then
+  echo "Error: Public repo '$PUBLIC_REPO' not found or not a git repository."
+  exit 1
+fi
+
+# Check for uncommitted changes in public repo
+if [ -n "$(cd "$PUBLIC_REPO" && git status --porcelain)" ]; then
+  echo "Warning: Public repo has uncommitted changes."
+  read -p "Continue anyway? (y/N) " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 1
+  fi
+fi
+
+echo "Syncing $DEV_EXT -> $PUBLIC_REPO ..."
+
+rsync -av --delete \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  --exclude='Tests/Playwright/node_modules' \
+  --exclude='Tests/Playwright/.env' \
+  --exclude='Tests/Playwright/auth.json' \
+  --exclude='Tests/Playwright/test-results' \
+  --exclude='Resources/Public/dist' \
+  "$DEV_EXT/" "$PUBLIC_REPO/"
+
+echo ""
+echo "Done. Review changes in public repo:"
+echo "  cd $PUBLIC_REPO && git status"
