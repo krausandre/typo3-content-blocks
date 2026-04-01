@@ -211,7 +211,7 @@ final class ContentBlocksGuiController
         $contentType = $queryParams['contentType'] ?? 'content-element';
         switch ($mode) {
             case 'new':
-                $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
+                $skeletonJson = file_get_contents(ExtensionManagementUtility::extPath('content_blocks_gui') . 'Configuration/ContentBlocks/Skeleton.json');
                 $contentBlocksData = json_decode($skeletonJson, true);
                 // Override table based on content type
                 if ($contentType === 'page-type') {
@@ -315,7 +315,7 @@ final class ContentBlocksGuiController
 
         switch ($mode) {
             case 'new':
-                $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/BasicSkeleton.json');
+                $skeletonJson = file_get_contents(ExtensionManagementUtility::extPath('content_blocks_gui') . 'Configuration/ContentBlocks/BasicSkeleton.json');
                 $contentBlocksData = json_decode($skeletonJson, true);
                 break;
             case 'edit':
