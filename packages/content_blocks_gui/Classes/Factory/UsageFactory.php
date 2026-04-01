@@ -20,7 +20,8 @@ class UsageFactory
         return match ($contentType->name) {
             'PAGE_TYPE' => $this->pageTypeRepository->countUsages($name, $contentType, $tableName),
             'RECORD_TYPE' => $this->recordTypeRepository->countUsages($name, $contentType, $tableName),
-            'CONTENT_ELEMENT' => $this->contentElementRepository->countUsages($name, $contentType, $tableName)
+            'CONTENT_ELEMENT' => $this->contentElementRepository->countUsages($name, $contentType, $tableName),
+            default => 0,
         };
     }
 }
