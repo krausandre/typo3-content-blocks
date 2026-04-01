@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace FriendsOfTYPO3\ContentBlocksGui\Service;
 
+use FriendsOfTYPO3\ContentBlocksGui\Utility\ContentBlocksUtility;
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsLoader;
@@ -31,6 +32,16 @@ use Symfony\Component\Yaml\Yaml;
  */
 final class BasicsService
 {
+    /**
+     * Field properties that must be saved as boolean values
+     */
+    private const BOOLEAN_FIELD_PROPERTIES = [
+        'useExistingField',
+        'prefixFields',
+        'required',
+        'readOnly',
+        'nullable',
+    ];
     public function __construct(
         protected readonly PackageManager $packageManager,
         protected BasicsRegistry $basicsRegistry,
@@ -221,16 +232,16 @@ final class BasicsService
     }
 
     /**
-     * Find existing Basic file path
+     * Find existing Basic file path by scanning recursively for the matching identifier.
      *
-     * Searches in root Basics/ and subdirectories (ContentElements, PageTypes, RecordTypes)
+     * Basics can live in any subdirectory under ContentBlocks/Basics/,
+     * and the filename does not need to match the identifier.
      *
      * @param string $identifier Full identifier (Vendor/Name)
      * @return string|null Absolute file path or null if not found
      */
     protected function findBasicPath(string $identifier): ?string
     {
-        // Load registry to get Basic
         if (!$this->basicsRegistry->hasBasic($identifier)) {
             return null;
         }
@@ -240,24 +251,7 @@ final class BasicsService
         $package = $this->packageManager->getPackage($extension);
         $basicsDir = $package->getPackagePath() . 'ContentBlocks/Basics';
 
-        $filename = str_replace('/', '-', $identifier) . '.yaml';
-
-        // Check possible locations
-        // @todo: if we search recursively, this is not needed since the Path in Basics can be anything
-        $possiblePaths = [
-            $basicsDir . '/' . $filename,  // Root
-            $basicsDir . '/ContentElements/' . $filename,
-            $basicsDir . '/PageTypes/' . $filename,
-            $basicsDir . '/RecordTypes/' . $filename,
-        ];
-
-        foreach ($possiblePaths as $path) {
-            if (file_exists($path)) {
-                return $path;
-            }
-        }
-
-        return null;
+        return ContentBlocksUtility::findBasicFilePath($basicsDir, $identifier);
     }
 
     /**
@@ -305,7 +299,12 @@ final class BasicsService
             $cleaned = [];
             foreach ($data as $key => $value) {
                 // Skip UI-only properties
-                if ($key === '_validation' || $key === '_isBaseField') {
+                if ($key === '_validation' || $key === '_isBaseField' || $key === '_typeInjected') {
+                    continue;
+                }
+                // Cast known boolean properties to actual booleans
+                if (in_array($key, self::BOOLEAN_FIELD_PROPERTIES, true)) {
+                    $cleaned[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
                     continue;
                 }
                 // Recursively clean nested structures

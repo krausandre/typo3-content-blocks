@@ -400,7 +400,7 @@ class ContentBlocksUtility
             $absoluteBasicsPath = ExtensionManagementUtility::resolvePackagePath($basicsPath);
 
             // Find the file with matching identifier
-            $absoluteFilePath = $this->findBasicFilePath($absoluteBasicsPath, $identifier);
+            $absoluteFilePath = self::findBasicFilePath($absoluteBasicsPath, $identifier);
 
             if ($absoluteFilePath === null) {
                 throw new \RuntimeException('Could not find YAML file with identifier: ' . $identifier);
@@ -477,7 +477,7 @@ class ContentBlocksUtility
             $absoluteBasicsPath = ExtensionManagementUtility::resolvePackagePath($basicsPath);
 
             // Find the file with matching identifier
-            $fileToDelete = $this->findBasicFilePath($absoluteBasicsPath, $identifier);
+            $fileToDelete = self::findBasicFilePath($absoluteBasicsPath, $identifier);
 
             if ($fileToDelete === null) {
                 throw new \RuntimeException('Could not find YAML file with identifier: ' . $identifier);
@@ -694,7 +694,7 @@ class ContentBlocksUtility
      * @param string $identifier The Basic identifier to search for
      * @return string|null The absolute file path if found, null otherwise
      */
-    private function findBasicFilePath(string $absoluteBasicsPath, string $identifier): ?string
+    public static function findBasicFilePath(string $absoluteBasicsPath, string $identifier): ?string
     {
         if (!is_dir($absoluteBasicsPath)) {
             return null;
@@ -924,7 +924,7 @@ class ContentBlocksUtility
         $basicsPath = 'EXT:' . $hostExtension . '/ContentBlocks/Basics/';
         $absoluteBasicsPath = ExtensionManagementUtility::resolvePackagePath($basicsPath);
 
-        $absoluteFilePath = $this->findBasicFilePath($absoluteBasicsPath, $identifier);
+        $absoluteFilePath = self::findBasicFilePath($absoluteBasicsPath, $identifier);
 
         if ($absoluteFilePath === null) {
             throw new \RuntimeException('Could not find YAML file with identifier: ' . $identifier);
