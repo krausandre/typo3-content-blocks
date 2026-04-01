@@ -42,6 +42,14 @@ final class BasicsService
         'readOnly',
         'nullable',
     ];
+
+    /**
+     * Field properties that should be omitted when empty string
+     */
+    private const OMIT_WHEN_EMPTY_PROPERTIES = [
+        'prefixType',
+        'renderType',
+    ];
     public function __construct(
         protected readonly PackageManager $packageManager,
         protected BasicsRegistry $basicsRegistry,
@@ -300,6 +308,10 @@ final class BasicsService
             foreach ($data as $key => $value) {
                 // Skip UI-only properties
                 if ($key === '_validation' || $key === '_isBaseField' || $key === '_typeInjected' || $key === 'enabled') {
+                    continue;
+                }
+                // Omit properties that should not be saved as empty string
+                if (in_array($key, self::OMIT_WHEN_EMPTY_PROPERTIES, true) && $value === '') {
                     continue;
                 }
                 // Cast known boolean properties to actual booleans

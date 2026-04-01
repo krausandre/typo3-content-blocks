@@ -373,7 +373,12 @@ class ContentTypeService
         $contentType = $contentBlock->getContentType();
         $yamlContent = $contentBlock->getYaml();
 
-        // Remove fields that match default values
+        // Clean field-level properties (boolean casting, empty string removal, UI wrapper unwrap)
+        if (isset($yamlContent['fields']) && is_array($yamlContent['fields'])) {
+            $yamlContent['fields'] = $this->cleanFieldProperties($yamlContent['fields']);
+        }
+
+        // Remove root-level properties that match default values
         $yamlContent = $this->removeDefaultValues($yamlContent, $contentType);
 
         if ($contentType !== ContentType::RECORD_TYPE) {
@@ -384,6 +389,61 @@ class ContentTypeService
             $basePath . '/' . ContentBlockPathUtility::getContentBlockDefinitionFileName(),
             Yaml::dump($yamlContent, 10, 2)
         );
+    }
+
+    private const BOOLEAN_FIELD_PROPERTIES = [
+        'useExistingField',
+        'prefixFields',
+        'required',
+        'readOnly',
+        'nullable',
+    ];
+
+    private const OMIT_WHEN_EMPTY_PROPERTIES = [
+        'prefixType',
+        'renderType',
+    ];
+
+    /**
+     * Recursively clean field properties for YAML output:
+     * - Cast boolean properties to actual booleans
+     * - Remove properties that should not be saved as empty string
+     * - Strip UI-only properties
+     * - Unwrap UI wrapper objects { enabled, items: [...] } to flat arrays
+     */
+    protected function cleanFieldProperties(array $data): array
+    {
+        $cleaned = [];
+        foreach ($data as $key => $value) {
+            // Skip UI-only properties
+            if (in_array($key, ['_validation', '_isBaseField', '_typeInjected', 'enabled'], true)) {
+                continue;
+            }
+            // Omit properties that should not be saved as empty string
+            if (in_array($key, self::OMIT_WHEN_EMPTY_PROPERTIES, true) && $value === '') {
+                continue;
+            }
+            // Cast known boolean properties
+            if (in_array($key, self::BOOLEAN_FIELD_PROPERTIES, true)) {
+                $cleaned[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                continue;
+            }
+            // Unwrap UI wrapper: { enabled, items: [...] } -> [...]
+            if (is_array($value) && array_key_exists('items', $value) && is_array($value['items'])) {
+                $otherKeys = array_diff(array_keys($value), ['items', 'enabled']);
+                if (empty($otherKeys)) {
+                    $cleaned[$key] = $this->cleanFieldProperties($value['items']);
+                    continue;
+                }
+            }
+            // Recursively clean nested arrays
+            if (is_array($value)) {
+                $cleaned[$key] = $this->cleanFieldProperties($value);
+            } else {
+                $cleaned[$key] = $value;
+            }
+        }
+        return $cleaned;
     }
 
     /**
