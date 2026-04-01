@@ -83,7 +83,7 @@ let ContentBlockEditor = class ContentBlockEditor extends LitElement {
             >
             </content-block-editor-middle-pane>
           </div>
-          <div class="col-4 properties-pane p-4 bg-light">
+          <div class="col-4 properties-pane p-4">
             <content-block-editor-right-pane
               .schema="${this.rightPaneActiveSchema}"
               .values="${this.fieldSettingsValues}"

@@ -52,7 +52,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
       <style>
         .content-block-field-builder {
           min-height: 400px;
-          background: #f8f9fa;
+          background: var(--typo3-surface-container-low);
           border-radius: 4px;
           padding: 1rem;
           margin-top: 17px;
@@ -73,7 +73,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         }
 
         .field-item {
-          background: transparant;
+          background: transparent;
         }
 
         .collection-container {
@@ -82,15 +82,15 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         }
 
         .collection-field {
-          border-left: 2px solid #007fff;
+          border-left: 2px solid var(--typo3-surface-primary);
           border-radius: 5px;
-          background: #fff;
+          background: var(--typo3-surface-bright);
           margin-bottom: 0.5rem;
         }
 
         .collection-header {
-          background: #f8f9fa;
-          border-bottom: 1px solid #dee2e6;
+          background: var(--typo3-surface-container-low);
+          border-bottom: 1px solid var(--typo3-component-border-color);
           border-radius: 4px 4px 0 0;
         }
 
@@ -113,7 +113,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         }
 
         .collection-field-item .collection-field {
-          border-left: 2px solid #28a745;
+          border-left: 2px solid var(--typo3-surface-success);
           margin-left: 0.5rem;
         }
 
@@ -138,7 +138,7 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         }
 
         .empty-state-content {
-          color: #6c757d;
+          color: var(--typo3-text-color-variant);
         }
 
         .empty-state-content h4 {
@@ -170,12 +170,12 @@ export class ContentBlockEditorMiddlePane extends LitElement {
         }
 
         .field-active .draggable-field-type {
-          border-color: #007cba !important;
-          background-color: #e6f3ff !important;
+          border-color: var(--typo3-component-focus-border-color) !important;
+          background-color: var(--typo3-component-focus-bg) !important;
         }
 
         .field-active .draggable-field-type:hover {
-          background-color: #d4e8ff !important;
+          background-color: var(--typo3-component-hover-bg) !important;
         }
       </style>
       <div class="content-block-field-builder">

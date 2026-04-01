@@ -36,19 +36,19 @@ let DropzoneField = class DropzoneField extends LitElement {
         return html `
         <style>
             .cb-drop-zone {
-                border: 1px dashed #ccc;
+                border: 1px dashed var(--typo3-component-border-color);
                 height: 20px;
                 margin: 10px;
-                background-color: #f9f9f9;
+                background-color: var(--typo3-surface-container-lowest);
                 transition: all 0.2s ease;
 
                 &:focus {
-                    background-color: #cbffdb;
+                    background-color: var(--typo3-surface-container-success);
                 }
 
                 &.drag-over {
-                    background-color: #78C0E6;
-                    border-color: #007cba;
+                    background-color: var(--typo3-surface-container-primary);
+                    border-color: var(--typo3-surface-primary);
                     border-width: 2px;
                 }
             }
