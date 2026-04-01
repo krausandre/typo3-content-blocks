@@ -34,6 +34,7 @@ use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Service\FieldMetadataService;
 use FriendsOfTYPO3\ContentBlocksGui\Service\BasicsService;
