@@ -92,8 +92,8 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
             case 'number':
                 return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default)}" class="form-control" />`;
             case 'select':
-                // Disable prefixType when prefixFields is false
-                const isPrefixTypeDisabled = fieldTypeProperty.name === 'prefixType' && !this.values.prefixFields;
+                // Disable prefixType only when prefixFields is explicitly false
+                const isPrefixTypeDisabled = fieldTypeProperty.name === 'prefixType' && this.values.prefixFields === false;
                 return html `<select @change="${this.dispatchBlurEvent}" class="form-select" id="${fieldTypeProperty.name}" ?disabled="${isPrefixTypeDisabled}">
           <option value="">Choose...</option>
           ${fieldTypeProperty.items.map((option) => html `

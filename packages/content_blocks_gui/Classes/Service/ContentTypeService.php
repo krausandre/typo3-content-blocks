@@ -23,6 +23,8 @@ use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
 
 class ContentTypeService
 {
+    use FieldCleanupTrait;
+
     public function __construct(
         protected readonly ContentBlockRegistry $contentBlockRegistry,
         protected readonly PackageResolver $packageResolver,
@@ -373,7 +375,12 @@ class ContentTypeService
         $contentType = $contentBlock->getContentType();
         $yamlContent = $contentBlock->getYaml();
 
-        // Remove fields that match default values
+        // Clean field-level properties (boolean casting, empty string removal, UI wrapper unwrap)
+        if (isset($yamlContent['fields']) && is_array($yamlContent['fields'])) {
+            $yamlContent['fields'] = $this->cleanFieldsForSave($yamlContent['fields']);
+        }
+
+        // Remove root-level properties that match default values
         $yamlContent = $this->removeDefaultValues($yamlContent, $contentType);
 
         if ($contentType !== ContentType::RECORD_TYPE) {

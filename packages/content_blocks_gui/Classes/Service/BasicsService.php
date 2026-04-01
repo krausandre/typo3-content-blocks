@@ -32,16 +32,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 final class BasicsService
 {
-    /**
-     * Field properties that must be saved as boolean values
-     */
-    private const BOOLEAN_FIELD_PROPERTIES = [
-        'useExistingField',
-        'prefixFields',
-        'required',
-        'readOnly',
-        'nullable',
-    ];
+    use FieldCleanupTrait;
+
     public function __construct(
         protected readonly PackageManager $packageManager,
         protected BasicsRegistry $basicsRegistry,
@@ -286,44 +278,7 @@ final class BasicsService
         }
     }
 
-    /**
-     * Recursively clean UI-only properties from fields
-     * Removes properties that are only used in the frontend and should not be saved
-     *
-     * @param mixed $data Field data (array, nested arrays, or scalar)
-     * @return mixed Cleaned data
-     */
-    protected function cleanFieldsForSave($data)
-    {
-        if (is_array($data)) {
-            $cleaned = [];
-            foreach ($data as $key => $value) {
-                // Skip UI-only properties
-                if ($key === '_validation' || $key === '_isBaseField' || $key === '_typeInjected' || $key === 'enabled') {
-                    continue;
-                }
-                // Cast known boolean properties to actual booleans
-                if (in_array($key, self::BOOLEAN_FIELD_PROPERTIES, true)) {
-                    $cleaned[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-                    continue;
-                }
-                // Unwrap UI wrapper objects: { enabled: bool, items: [...] } -> [...]
-                // Only unwrap when the object has 'items' + optionally 'enabled' and nothing else
-                if (is_array($value) && array_key_exists('items', $value) && is_array($value['items'])) {
-                    $otherKeys = array_diff(array_keys($value), ['items', 'enabled']);
-                    if (empty($otherKeys)) {
-                        $cleaned[$key] = $this->cleanFieldsForSave($value['items']);
-                        continue;
-                    }
-                }
-                // Recursively clean nested structures
-                $cleaned[$key] = $this->cleanFieldsForSave($value);
-            }
-            return $cleaned;
-        }
 
-        return $data;
-    }
 
     /**
      * Save a Basic to disk (legacy method - kept for compatibility)
