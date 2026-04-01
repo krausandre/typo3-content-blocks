@@ -54,7 +54,11 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
     renderFormFieldset(fieldTypeProperty) {
         const fieldLabel = this.formatFieldLabel(fieldTypeProperty.name);
         const showValidationBadge = ['identifier', 'type', 'useExistingField'].includes(fieldTypeProperty.name);
-        const showBaseFieldsHelper = fieldTypeProperty.name === 'identifier' && this.level === 0 && this.fieldMetadata;
+        // Show base fields helper for content elements, page types, and basics — not for record types
+        const showBaseFieldsHelper = fieldTypeProperty.name === 'identifier'
+            && this.level === 0
+            && this.fieldMetadata
+            && this.contenttype !== 'record-type';
         return html `
       <div class="form-section mb-2">
         <div class="form-section-content">
@@ -88,8 +92,8 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
             case 'number':
                 return html `<input @blur="${this.dispatchBlurEvent}" type="number" id="${fieldTypeProperty.name}" .value="${live(this.values[fieldTypeProperty.name] || fieldTypeProperty.default)}" class="form-control" />`;
             case 'select':
-                // Disable prefixType when prefixFields is false
-                const isPrefixTypeDisabled = fieldTypeProperty.name === 'prefixType' && !this.values.prefixFields;
+                // Disable prefixType only when prefixFields is explicitly false
+                const isPrefixTypeDisabled = fieldTypeProperty.name === 'prefixType' && this.values.prefixFields === false;
                 return html `<select @change="${this.dispatchBlurEvent}" class="form-select" id="${fieldTypeProperty.name}" ?disabled="${isPrefixTypeDisabled}">
           <option value="">Choose...</option>
           ${fieldTypeProperty.items.map((option) => html `
@@ -286,8 +290,12 @@ let ContentBlockEditorRightPane = class ContentBlockEditorRightPane extends LitE
         if (!this.fieldMetadata || !this.fieldMetadata.baseFields) {
             return nothing;
         }
-        // Sort base fields alphabetically
-        const baseFieldEntries = Object.entries(this.fieldMetadata.baseFields).sort(([a], [b]) => a.localeCompare(b));
+        // Filter out system reserved fields and sort alphabetically
+        const reserved = this.fieldMetadata.systemReservedFields || [];
+        const reservedFields = Array.isArray(reserved) ? reserved : Object.values(reserved);
+        const baseFieldEntries = Object.entries(this.fieldMetadata.baseFields)
+            .filter(([fieldName]) => !reservedFields.includes(fieldName))
+            .sort(([a], [b]) => a.localeCompare(b));
         return html `
       <div class="mt-2">
         <label class="form-label text-muted small">Or choose from existing base fields:</label>
@@ -392,6 +400,9 @@ __decorate([
 __decorate([
     property()
 ], ContentBlockEditorRightPane.prototype, "availableBasics", void 0);
+__decorate([
+    property()
+], ContentBlockEditorRightPane.prototype, "contenttype", void 0);
 ContentBlockEditorRightPane = __decorate([
     customElement('content-block-editor-right-pane')
 ], ContentBlockEditorRightPane);
