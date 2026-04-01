@@ -32,6 +32,9 @@ echo "Syncing $DEV_EXT -> $PUBLIC_REPO ..."
 
 rsync -av --delete \
   --exclude='.git' \
+  --exclude='.idea' \
+  --exclude='.vscode' \
+  --exclude='.DS_Store' \
   --exclude='node_modules' \
   --exclude='Tests/Playwright/node_modules' \
   --exclude='Tests/Playwright/.env' \
