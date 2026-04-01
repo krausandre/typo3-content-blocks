@@ -34,6 +34,7 @@ use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Service\FieldMetadataService;
 use FriendsOfTYPO3\ContentBlocksGui\Service\BasicsService;
@@ -210,7 +211,7 @@ final class ContentBlocksGuiController
         $contentType = $queryParams['contentType'] ?? 'content-element';
         switch ($mode) {
             case 'new':
-                $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/Skeleton.json');
+                $skeletonJson = file_get_contents(ExtensionManagementUtility::extPath('content_blocks_gui') . 'Configuration/ContentBlocks/Skeleton.json');
                 $contentBlocksData = json_decode($skeletonJson, true);
                 // Override table based on content type
                 if ($contentType === 'page-type') {
@@ -314,7 +315,7 @@ final class ContentBlocksGuiController
 
         switch ($mode) {
             case 'new':
-                $skeletonJson = file_get_contents(Environment::getProjectPath() . '/packages/content_blocks_gui/Configuration/ContentBlocks/BasicSkeleton.json');
+                $skeletonJson = file_get_contents(ExtensionManagementUtility::extPath('content_blocks_gui') . 'Configuration/ContentBlocks/BasicSkeleton.json');
                 $contentBlocksData = json_decode($skeletonJson, true);
                 break;
             case 'edit':
