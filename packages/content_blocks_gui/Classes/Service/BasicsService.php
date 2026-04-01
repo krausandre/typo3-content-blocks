@@ -299,13 +299,22 @@ final class BasicsService
             $cleaned = [];
             foreach ($data as $key => $value) {
                 // Skip UI-only properties
-                if ($key === '_validation' || $key === '_isBaseField' || $key === '_typeInjected') {
+                if ($key === '_validation' || $key === '_isBaseField' || $key === '_typeInjected' || $key === 'enabled') {
                     continue;
                 }
                 // Cast known boolean properties to actual booleans
                 if (in_array($key, self::BOOLEAN_FIELD_PROPERTIES, true)) {
                     $cleaned[$key] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
                     continue;
+                }
+                // Unwrap UI wrapper objects: { enabled: bool, items: [...] } -> [...]
+                // Only unwrap when the object has 'items' + optionally 'enabled' and nothing else
+                if (is_array($value) && array_key_exists('items', $value) && is_array($value['items'])) {
+                    $otherKeys = array_diff(array_keys($value), ['items', 'enabled']);
+                    if (empty($otherKeys)) {
+                        $cleaned[$key] = $this->cleanFieldsForSave($value['items']);
+                        continue;
+                    }
                 }
                 // Recursively clean nested structures
                 $cleaned[$key] = $this->cleanFieldsForSave($value);

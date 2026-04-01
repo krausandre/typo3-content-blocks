@@ -569,6 +569,18 @@ let ContentBlockEditor = class ContentBlockEditor extends LitElement {
             // Recursively clean nested objects
             for (const key in cleaned) {
                 if (Object.prototype.hasOwnProperty.call(cleaned, key)) {
+                    const value = cleaned[key];
+                    // Unwrap UI wrapper: { enabled: bool, items: [...] } -> [...]
+                    // The items editor component wraps items in this format internally,
+                    // but Content Blocks expects a flat array. Only unwrap objects that
+                    // have 'items' + optionally 'enabled' and nothing else.
+                    if (value && typeof value === 'object' && !Array.isArray(value) && Array.isArray(value.items)) {
+                        const keys = Object.keys(value).filter(k => k !== 'enabled');
+                        if (keys.length === 1 && keys[0] === 'items') {
+                            cleaned[key] = this.removeEnabledProperties(value.items);
+                            continue;
+                        }
+                    }
                     cleaned[key] = this.removeEnabledProperties(cleaned[key]);
                 }
             }

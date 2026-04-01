@@ -50,6 +50,7 @@ export class ContentBlockEditorItems extends LitElement {
   isItemsEnabled = false;
 
   protected override render(): TemplateResult {
+    this.normalizeItems();
     this.updateItemsEnabledState();
     const itemsObject = (this.values.items as ItemsConfig) || {};
     const currentItems = itemsObject.items || [];
@@ -156,6 +157,16 @@ export class ContentBlockEditorItems extends LitElement {
           </div>
         ` : ''}
       </div>`;
+  }
+
+  /**
+   * Normalize items from flat array (YAML) to internal wrapper format.
+   * YAML stores items as a flat array, but the UI uses { enabled, items: [...] }.
+   */
+  protected normalizeItems(): void {
+    if (Array.isArray(this.values.items)) {
+      this.values.items = { enabled: true, items: this.values.items as FieldTypeItems[] };
+    }
   }
 
   protected updateItemsEnabledState(): void {
