@@ -23,4 +23,5 @@ interface AnswerInterface
 {
     public function getResponse(): JsonResponse;
     public function addToBody(string $index, mixed $data): void;
+    public function isSuccess(): bool;
 }

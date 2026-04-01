@@ -90,7 +90,8 @@ class ContentBlocksUtility
                 'content-element' => $this->contentTypeService->handleContentElement($data),
                 'page-type' => $this->contentTypeService->handlePageType($data),
                 'record-type' => $this->contentTypeService->handleRecordType($data),
-                'basic' => $this->contentTypeService->handleBasic($data)
+                'basic' => $this->contentTypeService->handleBasic($data),
+                default => throw new \RuntimeException('Unknown content type: ' . $parsedBody['contentType']),
             };
         } catch(\RuntimeException $e) {
             $this->logger->error($e->getMessage());
@@ -811,7 +812,6 @@ class ContentBlocksUtility
      *
      * @param ContentType $contentType
      * @return string Directory name (e.g., 'ContentElements', 'PageTypes')
-     * @throws \RuntimeException
      */
     private function getTypeDirectory(ContentType $contentType): string
     {
@@ -820,7 +820,6 @@ class ContentBlocksUtility
             'PAGE_TYPE' => 'PageTypes',
             'RECORD_TYPE' => 'RecordTypes',
             'FILE_TYPE' => 'FileTypes',
-            default => throw new \RuntimeException('Unsupported content type: ' . $contentType->name)
         };
     }
 
@@ -938,9 +937,13 @@ class ContentBlocksUtility
 
     public function getAvailableContentBlocks(): array // AnswerInterface
     {
+        $supportedTypes = ['CONTENT_ELEMENT', 'PAGE_TYPE', 'RECORD_TYPE']; // @todo: add FILE_TYPE support
         $resultList = [];
         foreach ($this->contentBlockRegistry->getAll() as $contentBlock) {
             $contentType = $contentBlock->getContentType();
+            if (!in_array($contentType->name, $supportedTypes, true)) {
+                continue;
+            }
             $resultList[$contentType->name][$contentBlock->getName()] = $this->loadedContentBlockToArray($contentBlock);
         }
         $resultList['BASICS'] = $this->getLoadedBasicForList();
@@ -1054,7 +1057,7 @@ class ContentBlocksUtility
     {
         $resultList = [];
         foreach ($this->tableDefinitionCollection as $tableDefinition) {
-            foreach ($tableDefinition->getContentTypeDefinitionCollection() ?? [] as $typeDefinition) {
+            foreach ($tableDefinition->contentTypeDefinitionCollection as $typeDefinition) {
                 $resultList[$typeDefinition->getName()] = $typeDefinition->getTypeIcon()->toArray()['iconIdentifier'];
             }
         }

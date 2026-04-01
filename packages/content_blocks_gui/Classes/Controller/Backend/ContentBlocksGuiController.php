@@ -469,7 +469,7 @@ final class ContentBlocksGuiController
             if (!$result['success']) {
                 $flashMessage = GeneralUtility::makeInstance(
                     FlashMessage::class,
-                    $result['message'] ?? 'Failed to save Basic',
+                    $result['message'] ?? 'Failed to save Basic', // @phpstan-ignore nullCoalesce.offset
                     'Error',
                     ContextualFeedbackSeverity::ERROR,
                     true
@@ -481,7 +481,7 @@ final class ContentBlocksGuiController
 
                 $flashMessage = GeneralUtility::makeInstance(
                     FlashMessage::class,
-                    $result['message'] ?? 'Basic saved successfully',
+                    $result['message'] ?? 'Basic saved successfully', // @phpstan-ignore nullCoalesce.offset
                     'Success',
                     ContextualFeedbackSeverity::OK,
                     true

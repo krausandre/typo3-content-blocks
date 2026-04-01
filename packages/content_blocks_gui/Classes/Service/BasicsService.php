@@ -352,7 +352,7 @@ final class BasicsService
             );
         }
 
-        $basicPath = $this->findBasicPath($vendor, $name);
+        $basicPath = $this->findBasicPath($identifier);
         if ($basicPath === null) {
             throw new \RuntimeException(
                 sprintf('Basic "%s" not found', $identifier),
@@ -428,7 +428,7 @@ final class BasicsService
                     // Recursively check the referenced Basic
                     if ($this->detectCircularReference(
                         $referencedBasicId,
-                        $referencedBasic['fields'] ?? [],
+                        $referencedBasic['fields'],
                         $chain
                     )) {
                         return true;

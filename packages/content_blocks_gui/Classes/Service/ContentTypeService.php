@@ -405,7 +405,7 @@ class ContentTypeService
     {
         $name = $yamlContent['name'] ?? 'dummy/dummy';
         $parts = explode('/', $name);
-        $vendor = $parts[0] ?? 'dummy';
+        $vendor = $parts[0];
         $package = $parts[1] ?? 'dummy';
         $typeName = $yamlContent['typeName'] ?? null;
 
