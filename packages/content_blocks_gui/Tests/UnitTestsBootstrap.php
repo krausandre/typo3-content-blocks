@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * Bootstrap for Content Blocks GUI unit tests.
  * Based on TYPO3 Core UnitTestsBootstrap.php.
@@ -32,7 +34,7 @@
 
     $cache = new \TYPO3\CMS\Core\Cache\Frontend\PhpFrontend(
         'core',
-        new \TYPO3\CMS\Core\Cache\Backend\NullBackend('production', [])
+        new \TYPO3\CMS\Core\Cache\Backend\NullBackend('production', []),
     );
     $packageManager = \TYPO3\CMS\Core\Core\Bootstrap::createPackageManager(\TYPO3\CMS\Core\Package\UnitTestPackageManager::class, \TYPO3\CMS\Core\Core\Bootstrap::createPackageCache($cache));
 

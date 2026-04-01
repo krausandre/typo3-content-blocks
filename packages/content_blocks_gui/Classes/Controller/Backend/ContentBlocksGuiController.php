@@ -17,17 +17,21 @@ declare(strict_types=1);
 
 namespace FriendsOfTYPO3\ContentBlocksGui\Controller\Backend;
 
-use Psr\Http\Message\ServerRequestInterface;
+use FriendsOfTYPO3\ContentBlocksGui\Service\BasicsService;
+use FriendsOfTYPO3\ContentBlocksGui\Service\FieldMetadataService;
+use FriendsOfTYPO3\ContentBlocksGui\Utility\ButtonBarUtility;
+use FriendsOfTYPO3\ContentBlocksGui\Utility\ContentBlocksUtility;
+use FriendsOfTYPO3\ContentBlocksGui\Utility\ExtensionUtility;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Backend\Attribute\AsController;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
@@ -36,11 +40,6 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use FriendsOfTYPO3\ContentBlocksGui\Service\FieldMetadataService;
-use FriendsOfTYPO3\ContentBlocksGui\Service\BasicsService;
-use FriendsOfTYPO3\ContentBlocksGui\Utility\ButtonBarUtility;
-use FriendsOfTYPO3\ContentBlocksGui\Utility\ContentBlocksUtility;
-use FriendsOfTYPO3\ContentBlocksGui\Utility\ExtensionUtility;
 
 #[AsController]
 final class ContentBlocksGuiController
@@ -60,8 +59,7 @@ final class ContentBlocksGuiController
         protected readonly FieldMetadataService $fieldMetadataService,
         protected readonly BasicsService $basicsService,
         protected readonly CacheManager $cacheManager,
-    ) {
-    }
+    ) {}
 
     /**
      * @throws RouteNotFoundException
@@ -125,13 +123,13 @@ final class ContentBlocksGuiController
             $this->addFlashMessage(
                 sprintf('Basic "%s" has been successfully deleted.', $queryParams['identifier']),
                 'Basic Deleted',
-                ContextualFeedbackSeverity::OK
+                ContextualFeedbackSeverity::OK,
             );
         } catch (\Exception $e) {
             $this->addFlashMessage(
                 sprintf('Failed to delete basic: %s', $e->getMessage()),
                 'Deletion Failed',
-                ContextualFeedbackSeverity::ERROR
+                ContextualFeedbackSeverity::ERROR,
             );
             $this->logger->error('Failed to delete basic', [
                 'identifier' => $queryParams['identifier'],
@@ -173,12 +171,12 @@ final class ContentBlocksGuiController
                 $targetName,
                 $duplicationStrategy,
                 $customTypeName,
-                $customTableName
+                $customTableName,
             );
             $this->addFlashMessage(
                 sprintf('Content block "%s" has been successfully duplicated to "%s/%s".', $sourceName, $targetVendor, $targetName),
                 'Content Block Duplicated',
-                ContextualFeedbackSeverity::OK
+                ContextualFeedbackSeverity::OK,
             );
         } catch (\RuntimeException $e) {
             $this->addFlashMessage($e->getMessage(), 'Duplication Failed', ContextualFeedbackSeverity::ERROR);
@@ -190,7 +188,7 @@ final class ContentBlocksGuiController
             $this->addFlashMessage(
                 'An unexpected error occurred during duplication. Please check the logs for details.',
                 'Duplication Failed',
-                ContextualFeedbackSeverity::ERROR
+                ContextualFeedbackSeverity::ERROR,
             );
         }
 
@@ -279,12 +277,12 @@ final class ContentBlocksGuiController
             $this->contentBlocksUtility->duplicateBasic(
                 $sourceIdentifier,
                 $targetExtension,
-                $targetIdentifier
+                $targetIdentifier,
             );
             $this->addFlashMessage(
                 sprintf('Basic "%s" has been successfully duplicated to "%s".', $sourceIdentifier, $targetIdentifier),
                 'Basic Duplicated',
-                ContextualFeedbackSeverity::OK
+                ContextualFeedbackSeverity::OK,
             );
         } catch (\RuntimeException $e) {
             $this->addFlashMessage($e->getMessage(), 'Basic Duplication Failed', ContextualFeedbackSeverity::ERROR);
@@ -296,13 +294,12 @@ final class ContentBlocksGuiController
             $this->addFlashMessage(
                 'An unexpected error occurred during duplication. Please check the logs for details.',
                 'Basic Duplication Failed',
-                ContextualFeedbackSeverity::ERROR
+                ContextualFeedbackSeverity::ERROR,
             );
         }
 
         return $this->redirectToList($queryParams);
     }
-
 
     /**
      * @throws RouteNotFoundException
@@ -328,7 +325,7 @@ final class ContentBlocksGuiController
                         'name' => $basicData['identifier'],
                         'yaml' => $basicData,
                         'hostExtension' => $basicData['hostExtension'],
-                        'extPath' => ''
+                        'extPath' => '',
                     ];
                 } catch (\Exception $e) {
                     throw new RouteNotFoundException('Basic not found: ' . $queryParams['identifier'] . ' - ' . $e->getMessage());
@@ -450,13 +447,13 @@ final class ContentBlocksGuiController
                 'Missing required parameters: extension, vendor, or name',
                 'Validation Error',
                 ContextualFeedbackSeverity::ERROR,
-                true
+                true,
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'basic']),
-                303
+                (string) $this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'basic']),
+                303,
             );
         }
 
@@ -472,7 +469,7 @@ final class ContentBlocksGuiController
                     $result['message'] ?? 'Failed to save Basic', // @phpstan-ignore nullCoalesce.offset
                     'Error',
                     ContextualFeedbackSeverity::ERROR,
-                    true
+                    true,
                 );
                 $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
             } else {
@@ -484,15 +481,15 @@ final class ContentBlocksGuiController
                     $result['message'] ?? 'Basic saved successfully', // @phpstan-ignore nullCoalesce.offset
                     'Success',
                     ContextualFeedbackSeverity::OK,
-                    true
+                    true,
                 );
                 $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
             }
 
             // Redirect to list view with basics tab active
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'basic']),
-                303
+                (string) $this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'basic']),
+                303,
             );
         } catch (\Exception $e) {
             $this->logger->error('Failed to save basic', [
@@ -507,13 +504,13 @@ final class ContentBlocksGuiController
                 $e->getMessage(),
                 'Error',
                 ContextualFeedbackSeverity::ERROR,
-                true
+                true,
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'basic']),
-                303
+                (string) $this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'basic']),
+                303,
             );
         }
     }
@@ -546,13 +543,13 @@ final class ContentBlocksGuiController
                 'Missing required parameters: extension or name',
                 'Validation Error',
                 ContextualFeedbackSeverity::ERROR,
-                true
+                true,
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'content-element']),
-                303
+                (string) $this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'content-element']),
+                303,
             );
         }
 
@@ -579,7 +576,7 @@ final class ContentBlocksGuiController
                     'Content Block saved successfully',
                     'Success',
                     ContextualFeedbackSeverity::OK,
-                    true
+                    true,
                 );
                 $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
             } else {
@@ -588,15 +585,15 @@ final class ContentBlocksGuiController
                     'Failed to save Content Block',
                     'Error',
                     ContextualFeedbackSeverity::ERROR,
-                    true
+                    true,
                 );
                 $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
             }
 
             // Redirect to list view with content-element tab active
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'content-element']),
-                303
+                (string) $this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'content-element']),
+                303,
             );
         } catch (\Exception $e) {
             $this->logger->error('Failed to save content block', [
@@ -611,13 +608,13 @@ final class ContentBlocksGuiController
                 $e->getMessage(),
                 'Error',
                 ContextualFeedbackSeverity::ERROR,
-                true
+                true,
             );
             $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
 
             return new RedirectResponse(
-                (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'content-element']),
-                303
+                (string) $this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', ['type' => 'content-element']),
+                303,
             );
         }
     }
@@ -670,8 +667,8 @@ final class ContentBlocksGuiController
             $redirectParams['type'] = $queryParams['returnTab'];
         }
         return new RedirectResponse(
-            (string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
-            303
+            (string) $this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui', $redirectParams),
+            303,
         );
     }
 
@@ -685,7 +682,7 @@ final class ContentBlocksGuiController
             $message,
             $title,
             $severity,
-            true
+            true,
         );
         $this->flashMessageService->getMessageQueueByIdentifier()->enqueue($flashMessage);
     }
@@ -730,4 +727,3 @@ final class ContentBlocksGuiController
         }
     }
 }
-

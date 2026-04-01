@@ -48,8 +48,7 @@ final class ContentBlockImportAnalyzer
 
     public function __construct(
         protected readonly PackageResolver $packageResolver,
-    ) {
-    }
+    ) {}
 
     /**
      * Analyze uploaded ZIP file
@@ -99,7 +98,7 @@ final class ContentBlockImportAnalyzer
                 blocks: $blocks,
                 valid: true,
                 errors: [],
-                tempDir: $tempDir
+                tempDir: $tempDir,
             );
         } catch (\Throwable $e) {
             // Clean up on error
@@ -134,7 +133,7 @@ final class ContentBlockImportAnalyzer
     private function validateZipContents(string $extractPath): void
     {
         $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($extractPath, \RecursiveDirectoryIterator::SKIP_DOTS)
+            new \RecursiveDirectoryIterator($extractPath, \RecursiveDirectoryIterator::SKIP_DOTS),
         );
 
         $fileCount = 0;
@@ -206,7 +205,7 @@ final class ContentBlockImportAnalyzer
                 $detectedType = ContentType::getByTable($yaml['table'])->name;
                 if ($detectedType !== $expectedType) {
                     throw new \RuntimeException(
-                        "Type mismatch: {$dirName} is in {$expectedType} directory but config.yaml indicates {$detectedType}"
+                        "Type mismatch: {$dirName} is in {$expectedType} directory but config.yaml indicates {$detectedType}",
                     );
                 }
             }
@@ -231,7 +230,7 @@ final class ContentBlockImportAnalyzer
                 directoryName: $dirName,
                 fileName: '',
                 files: $files,
-                yaml: $yaml
+                yaml: $yaml,
             );
         }
 
@@ -274,7 +273,7 @@ final class ContentBlockImportAnalyzer
                 directoryName: '',
                 fileName: $fileName,
                 files: [$fileName],
-                yaml: $yaml
+                yaml: $yaml,
             );
         }
 
@@ -288,7 +287,7 @@ final class ContentBlockImportAnalyzer
     {
         $files = [];
         $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($basePath, \RecursiveDirectoryIterator::SKIP_DOTS)
+            new \RecursiveDirectoryIterator($basePath, \RecursiveDirectoryIterator::SKIP_DOTS),
         );
 
         foreach ($iterator as $file) {
@@ -337,11 +336,11 @@ final class ContentBlockImportAnalyzer
             ) {
                 throw new \RuntimeException(
                     'Invalid content block name format: "' . $yaml['name'] . '". ' .
-                    'Expected format: vendor/name (lowercase, alphanumeric, hyphens)'
+                    'Expected format: vendor/name (lowercase, alphanumeric, hyphens)',
                 );
             }
 
-            if ($block->type ==='PAGE_TYPE') {
+            if ($block->type === 'PAGE_TYPE') {
                 PageTypeNameValidator::validate($yaml["typeName"], $yaml['name']);
             }
         } else {
@@ -384,7 +383,7 @@ final class ContentBlockImportAnalyzer
                 // Conflict Type 2: Duplicate Basic filename within this upload
                 if (in_array($block->fileName, $uploadedBasicFiles, true)) {
                     throw new \RuntimeException(
-                        "Duplicate Basic file in upload: {$block->fileName}"
+                        "Duplicate Basic file in upload: {$block->fileName}",
                     );
                 }
                 $uploadedBasicFiles[] = $block->fileName;
@@ -401,7 +400,7 @@ final class ContentBlockImportAnalyzer
                 $key = $typeSubdir . '/' . $block->directoryName;
                 if (in_array($key, $uploadedDirectories, true)) {
                     throw new \RuntimeException(
-                        "Duplicate content block directory in upload: {$block->directoryName} in {$typeSubdir}/"
+                        "Duplicate content block directory in upload: {$block->directoryName} in {$typeSubdir}/",
                     );
                 }
                 $uploadedDirectories[] = $key;
@@ -414,7 +413,7 @@ final class ContentBlockImportAnalyzer
      */
     private function getTypeSubdirectory(string $type): string
     {
-        $contentType = match($type) {
+        $contentType = match ($type) {
             'CONTENT_ELEMENT' => ContentType::CONTENT_ELEMENT,
             'PAGE_TYPE' => ContentType::PAGE_TYPE,
             'RECORD_TYPE' => ContentType::RECORD_TYPE,

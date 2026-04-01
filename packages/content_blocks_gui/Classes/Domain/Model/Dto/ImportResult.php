@@ -30,9 +30,8 @@ final class ImportResult
     public function __construct(
         public readonly array $imported,        // Successfully imported
         public readonly array $skipped,         // Skipped due to conflicts
-        public readonly array $errors           // Failed imports
-    ) {
-    }
+        public readonly array $errors,           // Failed imports
+    ) {}
 
     public function toArray(): array
     {

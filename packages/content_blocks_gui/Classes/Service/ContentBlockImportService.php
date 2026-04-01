@@ -22,8 +22,8 @@ use FriendsOfTYPO3\ContentBlocksGui\Domain\Model\Dto\ImportAnalysis;
 use FriendsOfTYPO3\ContentBlocksGui\Domain\Model\Dto\ImportResult;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\DatabaseUtility;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsLoader;
-use TYPO3\CMS\ContentBlocks\Loader\ContentBlockLoader;
 use TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType;
+use TYPO3\CMS\ContentBlocks\Loader\ContentBlockLoader;
 use TYPO3\CMS\ContentBlocks\Service\PackageResolver;
 use TYPO3\CMS\ContentBlocks\Utility\ContentBlockPathUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
@@ -40,8 +40,7 @@ final class ContentBlockImportService
         protected readonly CacheManager $cacheManager,
         protected readonly ContentBlockLoader $contentBlockLoader,
         protected readonly BasicsLoader $basicsLoader,
-    ) {
-    }
+    ) {}
 
     /**
      * Import content blocks from analyzed ZIP
@@ -51,7 +50,7 @@ final class ContentBlockImportService
     public function importContentBlocks(
         ImportAnalysis $analysis,
         string $targetExtension,
-        array $conflictResolutions
+        array $conflictResolutions,
     ): ImportResult {
         $imported = [];
         $skipped = [];
@@ -103,7 +102,7 @@ final class ContentBlockImportService
         return new ImportResult(
             imported: $imported,
             skipped: $skipped,
-            errors: $errors
+            errors: $errors,
         );
     }
 
@@ -184,7 +183,7 @@ final class ContentBlockImportService
      */
     private function getTypeSubdirectory(string $type): string
     {
-        $contentType = match($type) {
+        $contentType = match ($type) {
             'CONTENT_ELEMENT' => ContentType::CONTENT_ELEMENT,
             'PAGE_TYPE' => ContentType::PAGE_TYPE,
             'RECORD_TYPE' => ContentType::RECORD_TYPE,

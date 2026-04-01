@@ -30,9 +30,8 @@ final class ImportAnalysis
         public readonly array $blocks,
         public readonly bool $valid,
         public readonly array $errors,
-        public readonly string $tempDir
-    ) {
-    }
+        public readonly string $tempDir,
+    ) {}
 
     public function toArray(): array
     {
@@ -48,9 +47,9 @@ final class ImportAnalysis
     {
         return new self(
             blocks: array_map(fn($blockData) => ContentBlockInfo::fromArray($blockData), $data['blocks']),
-            valid: (bool)$data['valid'],
+            valid: (bool) $data['valid'],
             errors: $data['errors'] ?? [],
-            tempDir: $data['tempDir']
+            tempDir: $data['tempDir'],
         );
     }
 }

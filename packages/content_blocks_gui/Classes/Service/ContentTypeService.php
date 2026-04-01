@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FriendsOfTYPO3\ContentBlocksGui\Service;
 
+use FriendsOfTYPO3\ContentBlocksGui\Answer\AnswerInterface;
+use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\ContentBlocks\Builder\ConfigBuilder;
 use TYPO3\CMS\ContentBlocks\Builder\ContentBlockBuilder;
 use TYPO3\CMS\ContentBlocks\Builder\DefaultsLoader;
-use TYPO3\CMS\ContentBlocks\Generator\LanguageFileGenerator;
 use TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType;
 use TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentTypeIcon;
+use TYPO3\CMS\ContentBlocks\Generator\LanguageFileGenerator;
 use TYPO3\CMS\ContentBlocks\Loader\ContentBlockLoader;
 use TYPO3\CMS\ContentBlocks\Loader\LoadedContentBlock;
 use TYPO3\CMS\ContentBlocks\Registry\ContentBlockRegistry;
@@ -18,8 +22,6 @@ use TYPO3\CMS\ContentBlocks\Validation\ContentBlockNameValidator;
 use TYPO3\CMS\ContentBlocks\Validation\PageTypeNameValidator;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\AnswerInterface;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
 
 class ContentTypeService
 {
@@ -34,8 +36,7 @@ class ContentTypeService
         protected readonly DefaultsLoader $defaultsLoader,
         protected readonly CacheManager $cacheManager,
         protected readonly LanguageFileGenerator $languageFileGenerator,
-    ) {
-    }
+    ) {}
 
     public function getContentTypeData(array $contentBlockData): array
     {
@@ -57,17 +58,17 @@ class ContentTypeService
             'extension' => $contentBlockData['extension'],
             'mode' => $contentBlockData['mode'],
             'contentBlock' => [
-                'name' => $vendor . '/' . $name
-            ]
+                'name' => $vendor . '/' . $name,
+            ],
         ];
 
-        if($contentBlockData['mode'] === 'copy') {
+        if ($contentBlockData['mode'] === 'copy') {
             $data['contentBlock']['initialVendor'] = $contentBlockData['initialVendor'];
             $data['contentBlock']['initialName'] = $contentBlockData['initialName'];
         }
 
         // TODO: Maybe extract title, priority, etc out of the if statement, as this is used for all three content types
-        if($data['contentType'] === 'content-element') {
+        if ($data['contentType'] === 'content-element') {
             $data['contentBlock']['fields'] = $contentBlockData['contentBlock']['fields'] ?? [];
             $data['contentBlock']['basics'] = $contentBlockData['contentBlock']['basics'] ?? [];
             $data['contentBlock']['group'] = $contentBlockData['contentBlock']['group'] ?? 'common';
@@ -79,18 +80,18 @@ class ContentTypeService
             $data['contentBlock']['priority'] = $contentBlockData['contentBlock']['priority'] ?? 0;
             $data['contentBlock']['title'] = $contentBlockData['contentBlock']['title'] ?? '';
             $data['contentBlock']['vendorPrefix'] = $contentBlockData['contentBlock']['vendorPrefix'] ?? '';
-        } else if($data['contentType'] === 'page-type') {
+        } elseif ($data['contentType'] === 'page-type') {
             $typeName = $contentBlockData['contentBlock']['type'] ?? random_int(10000, 99999);
             // Validate page type name using EXT:content_blocks validator
             PageTypeNameValidator::validate($typeName, $vendor . '/' . $name);
-            $data['contentBlock']['type'] = (int)$typeName;
+            $data['contentBlock']['type'] = (int) $typeName;
             $data['contentBlock']['prefixFields'] = $contentBlockData['contentBlock']['prefixFields'] ?? true;
             $data['contentBlock']['prefixType'] = $contentBlockData['contentBlock']['prefixType'] ?? 'full';
-        } else if($data['contentType'] === 'record-type') {
+        } elseif ($data['contentType'] === 'record-type') {
             $data['contentBlock']['typeName'] = $contentBlockData['contentBlock']['typeName'] ?? '';
             $data['contentBlock']['fields'] = $contentBlockData['contentBlock']['fields'] ?? [];
             $data['contentBlock']['title'] = $contentBlockData['contentBlock']['title'] ?? '';
-        } else if($data['contentType'] === 'basic') {
+        } elseif ($data['contentType'] === 'basic') {
             $data['contentBlock']['fields'] = $contentBlockData['contentBlock']['fields'];
         }
 
@@ -112,7 +113,7 @@ class ContentTypeService
             icon: new ContentTypeIcon(),
             hostExtension: $data['extension'],
             extPath: $extPath,
-            contentType: ContentType::CONTENT_ELEMENT
+            contentType: ContentType::CONTENT_ELEMENT,
         );
 
         $this->handleContentType(
@@ -126,8 +127,8 @@ class ContentTypeService
             'contentType',
             [
                 'type' => 'content-element',
-                'name' => $data['contentBlock']['name']
-            ]
+                'name' => $data['contentBlock']['name'],
+            ],
         );
     }
     public function handlePageType(array $data): AnswerInterface
@@ -147,7 +148,7 @@ class ContentTypeService
             $data['contentBlock']['name'],
             $data['contentBlock']['title'] ?? $contentTypeName,
             $data['contentBlock']['type'], // Page type needs the type number
-            $data['contentBlock'] // Pass additional config
+            $data['contentBlock'], // Pass additional config
         );
 
         // Create properly configured LoadedContentBlock for page type
@@ -159,7 +160,7 @@ class ContentTypeService
             icon: new ContentTypeIcon(),
             hostExtension: $data['extension'],
             extPath: $extPath,
-            contentType: ContentType::PAGE_TYPE
+            contentType: ContentType::PAGE_TYPE,
         );
 
         $this->handleContentType(
@@ -173,8 +174,8 @@ class ContentTypeService
             'contentType',
             [
                 'type' => 'page-type',
-                'name' => $contentTypeName
-            ]
+                'name' => $contentTypeName,
+            ],
         );
     }
 
@@ -195,7 +196,7 @@ class ContentTypeService
             $data['contentBlock']['name'],
             $data['contentBlock']['title'] ?? $contentTypeName,
             $data['contentBlock']['typeName'] ?? null,
-            $data['contentBlock'] // Pass additional config
+            $data['contentBlock'], // Pass additional config
         );
 
         // Create properly configured LoadedContentBlock for record type
@@ -207,7 +208,7 @@ class ContentTypeService
             icon: new ContentTypeIcon(),
             hostExtension: $data['extension'],
             extPath: $extPath,
-            contentType: ContentType::RECORD_TYPE
+            contentType: ContentType::RECORD_TYPE,
         );
 
         $this->handleContentType(
@@ -221,8 +222,8 @@ class ContentTypeService
             'contentType',
             [
                 'type' => 'record-type',
-                'name' => $contentTypeName
-            ]
+                'name' => $contentTypeName,
+            ],
         );
     }
 
@@ -233,7 +234,7 @@ class ContentTypeService
         // Build YAML configuration for basics
         $yamlConfiguration = [
             'identifier' => $identifier,
-            'fields' => $data['contentBlock']['fields']
+            'fields' => $data['contentBlock']['fields'],
         ];
 
         // Use PackageResolver from EXT:content_blocks to get proper paths
@@ -242,22 +243,22 @@ class ContentTypeService
         $basicsFileName = ucfirst($data['contentBlock']['name']) . '.yaml';
 
         // Ensure directory exists using EXT:content_blocks patterns
-        if(!is_dir($basePath)) {
+        if (!is_dir($basePath)) {
             GeneralUtility::mkdir_deep($basePath);
         }
 
         // Write the basics file
         file_put_contents(
             $basePath . '/' . $basicsFileName,
-            Yaml::dump($yamlConfiguration, 10, 2)
+            Yaml::dump($yamlConfiguration, 10, 2),
         );
 
         return new DataAnswer(
             'contentType',
             [
                 'type' => 'basic',
-                'identifier' => $identifier
-            ]
+                'identifier' => $identifier,
+            ],
         );
     }
 
@@ -272,20 +273,20 @@ class ContentTypeService
     ): void {
         $contentBlockName = $contentBlock->getName();
 
-        if($this->contentBlockRegistry->hasContentBlock($contentBlockName) && $mode === 'create') {
+        if ($this->contentBlockRegistry->hasContentBlock($contentBlockName) && $mode === 'create') {
             throw new \RuntimeException('A content block with the name "' . $contentBlockName . '" already exists.');
-        } else if($this->contentBlockRegistry->hasContentBlock($contentBlockName) && $mode === 'edit') {
+        } elseif ($this->contentBlockRegistry->hasContentBlock($contentBlockName) && $mode === 'edit') {
             $this->updateContentBlock($contentBlock);
 
             // Flush caches like ContentBlockBuilder does
             $this->cacheManager->flushCachesInGroup('system');
             $this->cacheManager->getCache('typoscript')->flush();
-        } else if($mode === 'copy') {
-            if($this->contentBlockRegistry->hasContentBlock($contentBlockName)) {
+        } elseif ($mode === 'copy') {
+            if ($this->contentBlockRegistry->hasContentBlock($contentBlockName)) {
                 throw new \RuntimeException('A content block with the name "' . $contentBlockName . '" already exists.');
             }
             $initialContentBlockName = $initialVendor . '/' . $initialName;
-            if(!$this->contentBlockRegistry->hasContentBlock($initialContentBlockName)) {
+            if (!$this->contentBlockRegistry->hasContentBlock($initialContentBlockName)) {
                 throw new \RuntimeException('The initial content block with the name "' . $initialContentBlockName . '" doesn\'t exist.');
             }
             $this->copyContentType($contentBlock, $initialContentBlockName);
@@ -304,7 +305,7 @@ class ContentTypeService
 
     protected function copyContentType(
         LoadedContentBlock $contentBlock,
-        string $initialContentBlockName
+        string $initialContentBlockName,
     ): void {
         // First create the new content block using ContentBlockBuilder
         $this->contentBlockBuilder->create($contentBlock);
@@ -315,7 +316,7 @@ class ContentTypeService
         // Copy files and folders from initial content block using EXT:content_blocks paths
         $this->copyContentBlockFilesAndFolders(
             GeneralUtility::getFileAbsFileName($initialContentBlock->getExtPath()),
-            GeneralUtility::getFileAbsFileName($contentBlock->getExtPath())
+            GeneralUtility::getFileAbsFileName($contentBlock->getExtPath()),
         );
     }
 
@@ -389,7 +390,7 @@ class ContentTypeService
         }
         GeneralUtility::writeFile(
             $basePath . '/' . ContentBlockPathUtility::getContentBlockDefinitionFileName(),
-            Yaml::dump($yamlContent, 10, 2)
+            Yaml::dump($yamlContent, 10, 2),
         );
     }
 
@@ -422,7 +423,7 @@ class ContentTypeService
         }
 
         // Remove empty arrays and null values
-        return array_filter($yamlContent, function($value) {
+        return array_filter($yamlContent, function ($value) {
             return $value !== null && $value !== [] && $value !== '';
         });
     }
@@ -435,7 +436,7 @@ class ContentTypeService
         $xliffContent = $this->languageFileGenerator->generate($contentBlock);
         GeneralUtility::writeFile(
             $basePath . '/' . ContentBlockPathUtility::getLanguageFilePath(),
-            $xliffContent
+            $xliffContent,
         );
     }
 }

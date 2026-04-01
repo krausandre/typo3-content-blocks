@@ -18,11 +18,11 @@ declare(strict_types=1);
 namespace FriendsOfTYPO3\ContentBlocksGui\Service;
 
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ContentBlocksUtility;
-use TYPO3\CMS\Core\Package\PackageManager;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsLoader;
 use TYPO3\CMS\ContentBlocks\Basics\BasicsRegistry;
-use Symfony\Component\Yaml\Yaml;
+use TYPO3\CMS\Core\Package\PackageManager;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Service to manage Basics (field mixins/partials)
@@ -84,7 +84,7 @@ final class BasicsService
         if (!$registry->hasBasic($identifier)) {
             throw new \RuntimeException(
                 sprintf('Basic "%s" not found', $identifier),
-                1734000001
+                1734000001,
             );
         }
 
@@ -110,7 +110,7 @@ final class BasicsService
         if (!$this->basicsRegistry->hasBasic($identifier)) {
             throw new \RuntimeException(
                 sprintf('Basic "%s" not found', $identifier),
-                1734100001
+                1734100001,
             );
         }
 
@@ -152,7 +152,7 @@ final class BasicsService
                 if ($this->basicsRegistry->hasBasic($identifier)) {
                     return [
                         'success' => false,
-                        'message' => sprintf('Basic "%s" already exists. Please use a different identifier.', $identifier)
+                        'message' => sprintf('Basic "%s" already exists. Please use a different identifier.', $identifier),
                     ];
                 }
 
@@ -161,7 +161,7 @@ final class BasicsService
                 if (file_exists($basicsPath)) {
                     return [
                         'success' => false,
-                        'message' => sprintf('Basic file already exists at "%s". Please use a different identifier.', $basicsPath)
+                        'message' => sprintf('Basic file already exists at "%s". Please use a different identifier.', $basicsPath),
                     ];
                 }
 
@@ -180,8 +180,8 @@ final class BasicsService
                         'success' => true,
                         'message' => sprintf(
                             'Warning: Basic "%s" was not found and has been recreated. Please verify this is intended.',
-                            $identifier
-                        )
+                            $identifier,
+                        ),
                     ];
                 }
 
@@ -191,12 +191,12 @@ final class BasicsService
 
             return [
                 'success' => true,
-                'message' => sprintf('Basic "%s" saved successfully.', $identifier)
+                'message' => sprintf('Basic "%s" saved successfully.', $identifier),
             ];
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => sprintf('Failed to save Basic: %s', $e->getMessage())
+                'message' => sprintf('Failed to save Basic: %s', $e->getMessage()),
             ];
         }
     }
@@ -273,12 +273,10 @@ final class BasicsService
         if ($result === false) {
             throw new \RuntimeException(
                 sprintf('Failed to write Basic YAML file to "%s"', $filePath),
-                1734100002
+                1734100002,
             );
         }
     }
-
-
 
     /**
      * Save a Basic to disk (legacy method - kept for compatibility)
@@ -300,7 +298,7 @@ final class BasicsService
         if (!$validationResult['valid']) {
             throw new \RuntimeException(
                 $validationResult['error'] ?? 'Validation failed',
-                1734000005
+                1734000005,
             );
         }
 
@@ -328,7 +326,7 @@ final class BasicsService
         if ($result === false) {
             throw new \RuntimeException(
                 sprintf('Failed to write Basic "%s"', $identifier),
-                1734000006
+                1734000006,
             );
         }
     }
@@ -348,7 +346,7 @@ final class BasicsService
         if ($vendor === 'TYPO3') {
             throw new \RuntimeException(
                 sprintf('Cannot delete core Basic "%s"', $identifier),
-                1734000007
+                1734000007,
             );
         }
 
@@ -356,7 +354,7 @@ final class BasicsService
         if ($basicPath === null) {
             throw new \RuntimeException(
                 sprintf('Basic "%s" not found', $identifier),
-                1734000008
+                1734000008,
             );
         }
 
@@ -364,7 +362,7 @@ final class BasicsService
         if (!$result) {
             throw new \RuntimeException(
                 sprintf('Failed to delete Basic "%s"', $identifier),
-                1734000009
+                1734000009,
             );
         }
     }
@@ -386,7 +384,7 @@ final class BasicsService
                 'valid' => false,
                 'error' => sprintf(
                     'Circular reference detected in Basic "%s"',
-                    $identifier
+                    $identifier,
                 ),
             ];
         }
@@ -429,7 +427,7 @@ final class BasicsService
                     if ($this->detectCircularReference(
                         $referencedBasicId,
                         $referencedBasic['fields'],
-                        $chain
+                        $chain,
                     )) {
                         return true;
                     }
@@ -519,7 +517,7 @@ final class BasicsService
         if (count($parts) !== 2) {
             throw new \InvalidArgumentException(
                 sprintf('Invalid Basic identifier format: "%s". Expected "Vendor/Name"', $identifier),
-                1734000010
+                1734000010,
             );
         }
 

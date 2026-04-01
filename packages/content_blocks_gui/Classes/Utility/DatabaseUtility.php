@@ -55,7 +55,7 @@ readonly class DatabaseUtility
             // Get all SQL statements including from Content Blocks via PSR-14 events
             // The SqlReader dispatches AlterTableDefinitionStatementsEvent which Content Blocks listens to
             $sqlStatements = $this->sqlReader->getCreateTableStatementArray(
-                $this->sqlReader->getTablesDefinitionString()
+                $this->sqlReader->getTablesDefinitionString(),
             );
 
             $this->logger->debug('DatabaseUtility: Retrieved SQL statements', [
@@ -100,7 +100,7 @@ readonly class DatabaseUtility
                 return [
                     'success' => sprintf(
                         'Database schema updated successfully. %d statement(s) executed.',
-                        $executedStatements
+                        $executedStatements,
                     ),
                 ];
             }
@@ -117,7 +117,7 @@ readonly class DatabaseUtility
             return [
                 'error' => sprintf(
                     'Failed to update database schema: %s',
-                    $e->getMessage()
+                    $e->getMessage(),
                 ),
             ];
         }
@@ -149,7 +149,7 @@ readonly class DatabaseUtility
         try {
             // Get all SQL statements via PSR-14 events
             $sqlStatements = $this->sqlReader->getCreateTableStatementArray(
-                $this->sqlReader->getTablesDefinitionString()
+                $this->sqlReader->getTablesDefinitionString(),
             );
 
             // Filter statements for specific table

@@ -17,20 +17,20 @@ declare(strict_types=1);
 
 namespace FriendsOfTYPO3\ContentBlocksGui\Controller\Backend;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Attribute\Controller;
-use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
-use TYPO3\CMS\Core\Http\JsonResponse;
-use TYPO3\CMS\Core\Page\PageRenderer;
 use FriendsOfTYPO3\ContentBlocksGui\Domain\Model\Dto\ImportAnalysis;
 use FriendsOfTYPO3\ContentBlocksGui\Service\BasicsService;
 use FriendsOfTYPO3\ContentBlocksGui\Service\ContentBlockImportAnalyzer;
 use FriendsOfTYPO3\ContentBlocksGui\Service\ContentBlockImportService;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ContentBlocksUtility;
 use FriendsOfTYPO3\ContentBlocksGui\Utility\ExtensionUtility;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use TYPO3\CMS\Backend\Attribute\Controller;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Http\JsonResponse;
+use TYPO3\CMS\Core\Page\PageRenderer;
 
 #[Controller]
 final class AjaxController
@@ -45,13 +45,12 @@ final class AjaxController
         protected readonly BasicsService $basicsService,
         protected readonly CacheManager $cacheManager,
         protected readonly LoggerInterface $logger,
-    ) {
-    }
+    ) {}
 
     public function saveContentTypeAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->contentBlocksUtility->saveContentType(
-            $request->getParsedBody()
+            $request->getParsedBody(),
         )->getResponse();
     }
     public function downloadCbAction(ServerRequestInterface $request): ResponseInterface
@@ -92,7 +91,7 @@ final class AjaxController
         if (empty($extension) || empty($vendor) || empty($name)) {
             return new JsonResponse([
                 'success' => false,
-                'message' => 'Missing required parameters: extension, vendor, or name'
+                'message' => 'Missing required parameters: extension, vendor, or name',
             ], 400);
         }
 
@@ -118,7 +117,7 @@ final class AjaxController
 
             return new JsonResponse([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -136,21 +135,21 @@ final class AjaxController
     public function getBasicAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->contentBlocksUtility->getBasicByName(
-            $request->getParsedBody()
+            $request->getParsedBody(),
         )->getResponse();
     }
 
     public function getTranslationAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->contentBlocksUtility->getTranslationsByContentBlockName(
-            $request->getParsedBody()
+            $request->getParsedBody(),
         )->getResponse();
     }
 
     public function saveTranslationAction(ServerRequestInterface $request): ResponseInterface
     {
         return $this->contentBlocksUtility->saveTranslationFile(
-            $request->getParsedBody()
+            $request->getParsedBody(),
         )->getResponse();
     }
 
@@ -173,12 +172,12 @@ final class AjaxController
         ];
 
         // Get items for requested type
-        $items = match($type) {
+        $items = match ($type) {
             'content-element' => $allContentBlocks['CONTENT_ELEMENT'] ?? [],
             'page-type' => $allContentBlocks['PAGE_TYPE'] ?? [],
             'record-type' => $allContentBlocks['RECORD_TYPE'] ?? [],
             'basic' => $allContentBlocks['BASICS'] ?? [],
-            default => []
+            default => [],
         };
 
         // Convert associative array to indexed array for frontend
@@ -188,7 +187,7 @@ final class AjaxController
             'type' => $type,
             'items' => $itemsList,
             'counts' => $counts,
-            'total' => count($itemsList)
+            'total' => count($itemsList),
         ]);
     }
 
@@ -199,7 +198,7 @@ final class AjaxController
     {
         $parsedBody = $request->getParsedBody();
         return $this->contentBlocksUtility->saveContentType(
-            $parsedBody
+            $parsedBody,
         )->getResponse();
     }
 
@@ -215,7 +214,7 @@ final class AjaxController
             $queryParams['sourceName'] ?? '',
             $queryParams['duplicationStrategy'] ?? '',
             $queryParams['typeName'] ?? null,
-            $queryParams['tableName'] ?? null
+            $queryParams['tableName'] ?? null,
         );
 
         return new JsonResponse($validation);
@@ -248,7 +247,7 @@ final class AjaxController
             $response = new \TYPO3\CMS\Core\Http\Response();
             $response = $response
                 ->withHeader('Content-Type', 'application/zip')
-                ->withHeader('Content-Length', (string)$fileSize)
+                ->withHeader('Content-Length', (string) $fileSize)
                 ->withHeader('Content-Disposition', 'attachment; filename="' . basename($fileName) . '"');
 
             $response->getBody()->write($fileContent);
@@ -290,12 +289,12 @@ final class AjaxController
 
             return new JsonResponse([
                 'success' => true,
-                'analysis' => $analysis->toArray()
+                'analysis' => $analysis->toArray(),
             ]);
         } catch (\Exception $e) {
             return new JsonResponse([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 400);
         }
     }
@@ -320,17 +319,17 @@ final class AjaxController
             $result = $this->importService->importContentBlocks(
                 $analysis,
                 $targetExtension,
-                $conflictResolutions
+                $conflictResolutions,
             );
 
             return new JsonResponse([
                 'success' => true,
-                'result' => $result->toArray()
+                'result' => $result->toArray(),
             ]);
         } catch (\Exception $e) {
             return new JsonResponse([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -366,4 +365,3 @@ final class AjaxController
     }
 
 }
-

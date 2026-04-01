@@ -48,7 +48,7 @@ final class AjaxControllerTest extends FunctionalTestCase
 
         self::assertSame(400, $response->getStatusCode());
 
-        $body = json_decode((string)$response->getBody(), true);
+        $body = json_decode((string) $response->getBody(), true);
         self::assertFalse($body['success']);
     }
 
@@ -67,7 +67,7 @@ final class AjaxControllerTest extends FunctionalTestCase
 
         self::assertSame(400, $response->getStatusCode());
 
-        $responseBody = json_decode((string)$response->getBody(), true);
+        $responseBody = json_decode((string) $response->getBody(), true);
         self::assertArrayHasKey('error', $responseBody);
         self::assertSame('Missing identifier parameter', $responseBody['error']);
     }

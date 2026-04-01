@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FriendsOfTYPO3\ContentBlocksGui\Utility;
 
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
@@ -14,9 +16,8 @@ class ButtonBarUtility
 {
     public function __construct(
         protected readonly UriBuilder $backendUriBuilder,
-        protected IconFactory $iconFactory
-    ){
-    }
+        protected IconFactory $iconFactory,
+    ) {}
 
     /**
      * @throws RouteNotFoundException
@@ -26,9 +27,9 @@ class ButtonBarUtility
         $buttonBar = $moduleTemplate->getDocHeaderComponent()->getButtonBar();
         $addContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
-            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
+            ->setHref((string) $this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
                 'type' => 'new',
-                'name' => ''
+                'name' => '',
             ]))
             ->setIcon($this->iconFactory->getIcon('actions-add'))
             ->setTitle('Add a new content element')
@@ -39,10 +40,10 @@ class ButtonBarUtility
 
         $addRecordTypeButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
-            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
+            ->setHref((string) $this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
                 'type' => 'new',
                 'name' => '',
-                'contentType' => 'record-type'
+                'contentType' => 'record-type',
             ]))
             ->setIcon($this->iconFactory->getIcon('actions-add'))
             ->setTitle('Add a new record type')
@@ -53,10 +54,10 @@ class ButtonBarUtility
 
         $addPageTypeButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
-            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
+            ->setHref((string) $this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
                 'type' => 'new',
                 'name' => '',
-                'contentType' => 'page-type'
+                'contentType' => 'page-type',
             ]))
             ->setIcon($this->iconFactory->getIcon('actions-add'))
             ->setTitle('Add a new page type')
@@ -67,9 +68,9 @@ class ButtonBarUtility
 
         $addBasicButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
-            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_modify', [
+            ->setHref((string) $this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_modify', [
                 'type' => 'new',
-                'identifier' => ''
+                'identifier' => '',
             ]))
             ->setIcon($this->iconFactory->getIcon('actions-add'))
             ->setTitle('Add a new basic')
@@ -89,7 +90,7 @@ class ButtonBarUtility
 
         $reloadListButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
-            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
+            ->setHref((string) $this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
             ->setIcon($this->iconFactory->getIcon('actions-refresh'))
             ->setTitle('Reload list')
             ->setLabel('Reload')
@@ -107,7 +108,7 @@ class ButtonBarUtility
         // Go back button
         $addContentElementButton = GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('a')
-            ->setHref((string)$this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
+            ->setHref((string) $this->backendUriBuilder->buildUriFromRoute('web_ContentBlocksGui'))
             ->setTitle('Go back to the list')
             ->setLabel('Go back')
             ->setIcon($this->iconFactory->getIcon('actions-arrow-down-left'))

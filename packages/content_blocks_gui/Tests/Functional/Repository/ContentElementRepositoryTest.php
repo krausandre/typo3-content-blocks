@@ -43,7 +43,7 @@ final class ContentElementRepositoryTest extends FunctionalTestCase
         $count = $repository->countUsages(
             'testvendor_testelement',
             ContentType::CONTENT_ELEMENT,
-            'tt_content'
+            'tt_content',
         );
 
         self::assertSame(2, $count);
@@ -57,7 +57,7 @@ final class ContentElementRepositoryTest extends FunctionalTestCase
         $count = $repository->countUsages(
             'nonexistent_type',
             ContentType::CONTENT_ELEMENT,
-            'tt_content'
+            'tt_content',
         );
 
         self::assertSame(0, $count);
@@ -72,7 +72,7 @@ final class ContentElementRepositoryTest extends FunctionalTestCase
         $count = $repository->countUsages(
             'testvendor_testelement',
             ContentType::CONTENT_ELEMENT,
-            'tt_content'
+            'tt_content',
         );
 
         // If hidden records were excluded, count would be 1 (only uid 1)

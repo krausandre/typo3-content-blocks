@@ -43,7 +43,7 @@ final class ContentBlockImportAnalyzerTest extends UnitTestCase
         $result = $reflection->invoke($this->subject, 'CONTENT_ELEMENT');
 
         $expected = ContentBlockPathUtility::getRelativeContentTypePath(
-            \TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType::CONTENT_ELEMENT
+            \TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType::CONTENT_ELEMENT,
         );
         self::assertSame($expected, $result);
     }
@@ -56,7 +56,7 @@ final class ContentBlockImportAnalyzerTest extends UnitTestCase
         $result = $reflection->invoke($this->subject, 'PAGE_TYPE');
 
         $expected = ContentBlockPathUtility::getRelativeContentTypePath(
-            \TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType::PAGE_TYPE
+            \TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType::PAGE_TYPE,
         );
         self::assertSame($expected, $result);
     }
@@ -69,7 +69,7 @@ final class ContentBlockImportAnalyzerTest extends UnitTestCase
         $result = $reflection->invoke($this->subject, 'RECORD_TYPE');
 
         $expected = ContentBlockPathUtility::getRelativeContentTypePath(
-            \TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType::RECORD_TYPE
+            \TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType::RECORD_TYPE,
         );
         self::assertSame($expected, $result);
     }

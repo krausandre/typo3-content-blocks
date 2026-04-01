@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FriendsOfTYPO3\ContentBlocksGui\Domain\Repository;
 
 use TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType;
@@ -12,9 +14,8 @@ abstract class AbstractRepository implements UsageInterface
     protected QueryBuilder $queryBuilder;
 
     public function __construct(
-        protected readonly ConnectionPool $connectionPool
-    ) {
-    }
+        protected readonly ConnectionPool $connectionPool,
+    ) {}
 
     public function countUsages(string|int $name, ContentType $contentType, string $tableName): int
     {
@@ -28,7 +29,7 @@ abstract class AbstractRepository implements UsageInterface
         $typeField = $contentType->getTypeField();
         if ($typeField !== null && $typeField !== '') {
             $this->queryBuilder->where(
-                $this->queryBuilder->expr()->eq($typeField, $this->queryBuilder->createNamedParameter($name))
+                $this->queryBuilder->expr()->eq($typeField, $this->queryBuilder->createNamedParameter($name)),
             );
         }
 

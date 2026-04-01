@@ -30,7 +30,7 @@ use TYPO3\CMS\ContentBlocks\Schema\SimpleTcaSchemaFactory;
 final class FieldMetadataService
 {
     public function __construct(
-        protected readonly SimpleTcaSchemaFactory $simpleTcaSchemaFactory
+        protected readonly SimpleTcaSchemaFactory $simpleTcaSchemaFactory,
     ) {}
 
     /**
@@ -78,7 +78,7 @@ final class FieldMetadataService
                     'type' => $fieldType->getName(),        // Content Blocks type (e.g., "Text")
                     'tcaType' => $fieldType->getTcaType(),  // TCA type (e.g., "input")
                     'label' => $columnConfig['label'] ?? $fieldName,
-                    'description' => $columnConfig['description'] ?? ''
+                    'description' => $columnConfig['description'] ?? '',
                 ];
             }
         }

@@ -20,7 +20,6 @@ namespace FriendsOfTYPO3\ContentBlocksGui\Tests\Unit\Answer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorContentBlockNotFoundAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorMissingBasicIdentifierAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorMissingContentBlockNameAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorSaveContentTypeAnswer;
 use FriendsOfTYPO3\ContentBlocksGui\Answer\SuccessAnswer;
 use PHPUnit\Framework\Attributes\Test;
@@ -46,7 +45,7 @@ final class AnswerClassesTest extends UnitTestCase
             $response->getBody()->getContents(),
             true,
             512,
-            JSON_THROW_ON_ERROR
+            JSON_THROW_ON_ERROR,
         );
 
         self::assertTrue($decoded['success']);
@@ -62,7 +61,7 @@ final class AnswerClassesTest extends UnitTestCase
             $response->getBody()->getContents(),
             true,
             512,
-            JSON_THROW_ON_ERROR
+            JSON_THROW_ON_ERROR,
         );
 
         self::assertStringContainsString('vendor/my-block', $decoded['message']);
@@ -86,7 +85,7 @@ final class AnswerClassesTest extends UnitTestCase
             $response->getBody()->getContents(),
             true,
             512,
-            JSON_THROW_ON_ERROR
+            JSON_THROW_ON_ERROR,
         );
 
         self::assertSame('No Basic identifier given.', $decoded['message']);
@@ -103,7 +102,7 @@ final class AnswerClassesTest extends UnitTestCase
             $response->getBody()->getContents(),
             true,
             512,
-            JSON_THROW_ON_ERROR
+            JSON_THROW_ON_ERROR,
         );
 
         self::assertSame($data, $decoded['body']['contentBlocks']);
@@ -127,7 +126,7 @@ final class AnswerClassesTest extends UnitTestCase
             $response->getBody()->getContents(),
             true,
             512,
-            JSON_THROW_ON_ERROR
+            JSON_THROW_ON_ERROR,
         );
 
         self::assertStringContainsString('YAML syntax error', $decoded['message']);
@@ -145,7 +144,7 @@ final class AnswerClassesTest extends UnitTestCase
             $response->getBody()->getContents(),
             true,
             512,
-            JSON_THROW_ON_ERROR
+            JSON_THROW_ON_ERROR,
         );
 
         self::assertSame(['a' => 1], $decoded['body']['first']);

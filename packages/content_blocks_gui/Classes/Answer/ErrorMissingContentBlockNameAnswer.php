@@ -17,9 +17,6 @@ declare(strict_types=1);
 
 namespace FriendsOfTYPO3\ContentBlocksGui\Answer;
 
-use FriendsOfTYPO3\ContentBlocksGui\Answer\AbstractAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\AnswerInterface;
-
 class ErrorMissingContentBlockNameAnswer extends AbstractAnswer implements AnswerInterface
 {
     public function __construct()

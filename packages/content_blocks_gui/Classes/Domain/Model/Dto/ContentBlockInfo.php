@@ -32,9 +32,8 @@ final class ContentBlockInfo
         public readonly string $fileName,       // File name for Basics (e.g., "address.yaml"), empty string for content blocks
         public readonly array $files,           // List of files (relative paths)
         public readonly array $yaml,            // Parsed config.yaml/basic.yaml
-        public string $conflict = ''            // Conflict type if detected: 'DIRECTORY_EXISTS', 'BASIC_FILE_EXISTS', or empty string for no conflict
-    ) {
-    }
+        public string $conflict = '',            // Conflict type if detected: 'DIRECTORY_EXISTS', 'BASIC_FILE_EXISTS', or empty string for no conflict
+    ) {}
 
     public function toArray(): array
     {
@@ -64,7 +63,7 @@ final class ContentBlockInfo
             fileName: $data['fileName'] ?? '',
             files: $data['files'],
             yaml: $data['yaml'],
-            conflict: $data['conflict'] ?? ''
+            conflict: $data['conflict'] ?? '',
         );
     }
 }

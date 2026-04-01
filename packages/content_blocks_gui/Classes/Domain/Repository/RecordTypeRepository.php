@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FriendsOfTYPO3\ContentBlocksGui\Domain\Repository;
 
 use TYPO3\CMS\ContentBlocks\Definition\ContentType\ContentType;
@@ -22,7 +24,7 @@ class RecordTypeRepository extends AbstractRepository
         $typeField = $contentType->getTypeField();
         if ($typeField !== null && $typeField !== '') {
             $this->queryBuilder->where(
-                $this->queryBuilder->expr()->eq($typeField, $this->queryBuilder->createNamedParameter($name))
+                $this->queryBuilder->expr()->eq($typeField, $this->queryBuilder->createNamedParameter($name)),
             );
         }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * Bootstrap for Content Blocks GUI functional tests.
  * Based on TYPO3 Core FunctionalTestsBootstrap.php.

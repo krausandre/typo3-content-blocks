@@ -23,9 +23,8 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 class ExtensionUtility
 {
     public function __construct(
-        protected PackageResolver $packageResolver
-    ) {
-    }
+        protected PackageResolver $packageResolver,
+    ) {}
 
     /**
      * Get available extensions for content blocks.
@@ -70,7 +69,7 @@ class ExtensionUtility
 
             // Convert stdClass to array if needed
             if (is_object($requiredPackages)) {
-                $requiredPackages = (array)$requiredPackages;
+                $requiredPackages = (array) $requiredPackages;
             }
 
             // Check if friendsoftypo3/content-blocks is in the dependencies

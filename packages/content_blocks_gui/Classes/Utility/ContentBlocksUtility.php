@@ -17,6 +17,18 @@ declare(strict_types=1);
 
 namespace FriendsOfTYPO3\ContentBlocksGui\Utility;
 
+use FriendsOfTYPO3\ContentBlocksGui\Answer\AnswerInterface;
+use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
+use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorBasicNotFoundAnswer;
+use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorContentBlockNotFoundAnswer;
+use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorDownloadContentTypeAnswer;
+use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorMissingBasicIdentifierAnswer;
+use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorMissingContentBlockNameAnswer;
+use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorNoBasicsAvailableAnswer;
+use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorSaveContentTypeAnswer;
+use FriendsOfTYPO3\ContentBlocksGui\Answer\SuccessAnswer;
+use FriendsOfTYPO3\ContentBlocksGui\Factory\UsageFactory;
+use FriendsOfTYPO3\ContentBlocksGui\Service\ContentTypeService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Finder;
@@ -44,18 +56,6 @@ use TYPO3\CMS\Core\Package\Exception;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\AnswerInterface;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\DataAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorBasicNotFoundAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorContentBlockNotFoundAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorDownloadContentTypeAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorMissingBasicIdentifierAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorMissingContentBlockNameAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorNoBasicsAvailableAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\ErrorSaveContentTypeAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Answer\SuccessAnswer;
-use FriendsOfTYPO3\ContentBlocksGui\Factory\UsageFactory;
-use FriendsOfTYPO3\ContentBlocksGui\Service\ContentTypeService;
 
 class ContentBlocksUtility
 {
@@ -93,7 +93,7 @@ class ContentBlocksUtility
                 'basic' => $this->contentTypeService->handleBasic($data),
                 default => throw new \RuntimeException('Unknown content type: ' . $parsedBody['contentType']),
             };
-        } catch(\RuntimeException $e) {
+        } catch (\RuntimeException $e) {
             $this->logger->error($e->getMessage());
             return new ErrorSaveContentTypeAnswer($e->getMessage());
         }
@@ -102,7 +102,7 @@ class ContentBlocksUtility
     public function downloadContentBlock(object|array|null $getParsedBody): ResponseInterface
     {
         try {
-            if(!isset($getParsedBody['name'])) {
+            if (!isset($getParsedBody['name'])) {
                 $errorAnswer = new ErrorContentBlockNotFoundAnswer('Missing required parameter "name"');
                 return $errorAnswer->getResponse();
             }
@@ -110,7 +110,7 @@ class ContentBlocksUtility
             $response = $this->responseFactory
                 ->createResponse()
                 ->withAddedHeader('Content-Type', 'application/zip')
-                ->withAddedHeader('Content-Length', (string)(filesize($fileName) ?: ''))
+                ->withAddedHeader('Content-Length', (string) (filesize($fileName) ?: ''))
                 ->withAddedHeader('Content-Disposition', 'attachment; filename="' . PathUtility::basename($fileName) . '"')
                 ->withBody($this->streamFactory->createStreamFromFile($fileName));
 
@@ -127,17 +127,17 @@ class ContentBlocksUtility
     public function deleteContentBlock(string $name): array
     {
         try {
-             $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath(
-                 $this->contentBlockRegistry->getContentBlockExtPath($name)
-             );
+            $absoluteContentBlockPath = ExtensionManagementUtility::resolvePackagePath(
+                $this->contentBlockRegistry->getContentBlockExtPath($name),
+            );
             return $this->deleteDirectoryRecursively($absoluteContentBlockPath);
-//                return new DataAnswer(
-//                    'list',
-//                    $notDeletedFilePaths
-//                );
+            //                return new DataAnswer(
+            //                    'list',
+            //                    $notDeletedFilePaths
+            //                );
         } catch (Exception $e) {
             $this->logger->error($e->getMessage());
-//            TODO: get user notified
+            //            TODO: get user notified
             //return new ErrorUnknownContentBlockPathAnswer($parsedBody['name']);
             return [];
         }
@@ -162,7 +162,7 @@ class ContentBlocksUtility
         string $targetName,
         string $duplicationStrategy = 'auto',
         ?string $customTypeName = null,
-        ?string $customTableName = null
+        ?string $customTableName = null,
     ): void {
         // Check if source content block exists
         if (!$this->contentBlockRegistry->hasContentBlock($sourceName)) {
@@ -190,7 +190,7 @@ class ContentBlocksUtility
             'CONTENT_ELEMENT' => 'ContentElements',
             'PAGE_TYPE' => 'PageTypes',
             'RECORD_TYPE' => 'RecordTypes',
-            default => throw new \RuntimeException('Unsupported content type: ' . $contentType->name)
+            default => throw new \RuntimeException('Unsupported content type: ' . $contentType->name),
         };
 
         $targetExtPath = 'EXT:' . $targetExtension . '/ContentBlocks/' . $contentTypeFolder . '/' . $targetName . '/';
@@ -204,8 +204,8 @@ class ContentBlocksUtility
                     'A content block with the name "%s" already exists in extension "%s".',
                     $targetAbsolutePath,
                     $targetName,
-                    $targetExtension
-                )
+                    $targetExtension,
+                ),
             );
         }
 
@@ -302,7 +302,7 @@ class ContentBlocksUtility
     public function duplicateBasic(
         string $sourceIdentifier,
         string $targetExtension,
-        string $targetIdentifier
+        string $targetIdentifier,
     ): void {
         // Load basics to ensure registry is populated
         $this->basicsRegistry = $this->basicsLoader->loadUncached();
@@ -317,8 +317,8 @@ class ContentBlocksUtility
             throw new \RuntimeException(
                 sprintf(
                     'Cannot duplicate basic: A basic with identifier "%s" already exists in the system.',
-                    $targetIdentifier
-                )
+                    $targetIdentifier,
+                ),
             );
         }
 
@@ -348,8 +348,8 @@ class ContentBlocksUtility
                     'A basic with the file name "%s" already exists in extension "%s".',
                     $targetFilePath,
                     $targetFileName,
-                    $targetExtension
-                )
+                    $targetExtension,
+                ),
             );
         }
 
@@ -430,7 +430,7 @@ class ContentBlocksUtility
             $response = $this->responseFactory
                 ->createResponse()
                 ->withAddedHeader('Content-Type', 'application/zip')
-                ->withAddedHeader('Content-Length', (string)(filesize($zipFileName) ?: ''))
+                ->withAddedHeader('Content-Length', (string) (filesize($zipFileName) ?: ''))
                 ->withAddedHeader('Content-Disposition', 'attachment; filename="' . PathUtility::basename($zipFileName) . '"')
                 ->withBody($this->streamFactory->createStreamFromFile($zipFileName));
 
@@ -521,7 +521,7 @@ class ContentBlocksUtility
         string $sourceName,
         string $duplicationStrategy,
         ?string $typeName = null,
-        ?string $tableName = null
+        ?string $tableName = null,
     ): array {
         $errors = [];
 
@@ -564,7 +564,7 @@ class ContentBlocksUtility
                         'Type name "%s" already exists in table "%s". Existing types: %s. Please choose a different type name.',
                         $typeName,
                         $sourceTable,
-                        implode(', ', $existingTypeNames)
+                        implode(', ', $existingTypeNames),
                     );
                 }
             }
@@ -584,7 +584,7 @@ class ContentBlocksUtility
                 if ($this->tableExists($tableName)) {
                     $errors[] = sprintf(
                         'Table "%s" already exists. Please choose a different table name.',
-                        $tableName
+                        $tableName,
                     );
                 }
 
@@ -783,7 +783,7 @@ class ContentBlocksUtility
             $absoluteContentBlockPath . '/',
             '',
             true,
-            PHP_INT_MAX
+            PHP_INT_MAX,
         );
 
         // Make paths relative to content block directory
@@ -815,7 +815,7 @@ class ContentBlocksUtility
      */
     private function getTypeDirectory(ContentType $contentType): string
     {
-        return match($contentType->name) {
+        return match ($contentType->name) {
             'CONTENT_ELEMENT' => 'ContentElements',
             'PAGE_TYPE' => 'PageTypes',
             'RECORD_TYPE' => 'RecordTypes',
@@ -883,7 +883,7 @@ class ContentBlocksUtility
             $absoluteContentBlockPath . '/',
             '',
             true,
-            PHP_INT_MAX
+            PHP_INT_MAX,
         );
 
         // Make paths relative
@@ -950,13 +950,13 @@ class ContentBlocksUtility
         return $resultList;
 
         // @todo: cleanup
-//        if (empty($resultList)) {
-//            return new ErrorNoContentBlocksAvailableAnswer();
-//        }
-//        return new DataAnswer(
-//            'list',
-//            $resultList
-//        );
+        //        if (empty($resultList)) {
+        //            return new ErrorNoContentBlocksAvailableAnswer();
+        //        }
+        //        return new DataAnswer(
+        //            'list',
+        //            $resultList
+        //        );
     }
 
     protected function loadedContentBlockToArray(LoadedContentBlock $contentBlock): array
@@ -988,15 +988,15 @@ class ContentBlocksUtility
         }
 
         if ($this->extensionUtility->isEditable($contentBlock->getHostExtension())) {
-            $result['editUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
+            $result['editUrl'] = (string) $this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_modify', [
                 'type' => 'edit',
-                'name' => $contentBlock->getName()
+                'name' => $contentBlock->getName(),
             ]);
-            $result['deleteUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_delete', [
-                'name' => $contentBlock->getName()
+            $result['deleteUrl'] = (string) $this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_delete', [
+                'name' => $contentBlock->getName(),
             ]);
-            $result['duplicateUrl'] = (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_duplicate', [
-                'sourceName' => $contentBlock->getName()
+            $result['duplicateUrl'] = (string) $this->backendUriBuilder->buildUriFromRoute('content_block_gui_content_block_duplicate', [
+                'sourceName' => $contentBlock->getName(),
             ]);
         }
 
@@ -1018,15 +1018,15 @@ class ContentBlocksUtility
                 'extension' => $basic->getHostExtension(),
                 'editable' => $isEditable, // TODO: if host extension is content_blocks, disable edit
                 'deletable' => $isEditable, // TODO: if host extension is content_blocks, disable delete
-                'editUrl' => $isEditable ? (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_modify', [
+                'editUrl' => $isEditable ? (string) $this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_modify', [
                     'type' => 'edit',
-                    'identifier' => $basic->getIdentifier()
+                    'identifier' => $basic->getIdentifier(),
                 ]) : null,
-                'deleteUrl' => $isEditable ? (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_delete', [
-                    'identifier' => $basic->getIdentifier()
+                'deleteUrl' => $isEditable ? (string) $this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_delete', [
+                    'identifier' => $basic->getIdentifier(),
                 ]) : null,
-                'duplicateUrl' => $isEditable ? (string)$this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_duplicate', [
-                    'sourceIdentifier' => $basic->getIdentifier()
+                'duplicateUrl' => $isEditable ? (string) $this->backendUriBuilder->buildUriFromRoute('content_block_gui_basic_duplicate', [
+                    'sourceIdentifier' => $basic->getIdentifier(),
                 ]) : null,
             ];
 
@@ -1063,7 +1063,7 @@ class ContentBlocksUtility
         }
         return new DataAnswer(
             'iconList',
-            $resultList
+            $resultList,
         );
     }
 
@@ -1075,7 +1075,7 @@ class ContentBlocksUtility
         foreach ($contentWizardGroups as $key => $value) {
             $contentWizardGroups[] =  [
                 'key' => $key,
-                'label' => $languageService->sL($value)
+                'label' => $languageService->sL($value),
             ];
             unset($contentWizardGroups[$key]);
         }
@@ -1100,7 +1100,7 @@ class ContentBlocksUtility
         }
         return new DataAnswer(
             'basicList',
-            $resultList
+            $resultList,
         );
     }
 
@@ -1111,7 +1111,7 @@ class ContentBlocksUtility
             if ($this->basicsRegistry->hasBasic($parsedBody['identifier'])) {
                 return new DataAnswer(
                     'basicList',
-                    $this->basicsRegistry->getBasic($parsedBody['identifier'])->toArray()
+                    $this->basicsRegistry->getBasic($parsedBody['identifier'])->toArray(),
                 );
             }
             return new ErrorBasicNotFoundAnswer($parsedBody['identifier']);
@@ -1125,7 +1125,7 @@ class ContentBlocksUtility
             if ($this->contentBlockRegistry->hasContentBlock($parsedBody['name'])) {
                 return new DataAnswer(
                     'translations',
-                    $this->languageFileRegistry->getLanguageFile($parsedBody['name'])
+                    $this->languageFileRegistry->getLanguageFile($parsedBody['name']),
                 );
             }
             return new ErrorContentBlockNotFoundAnswer($parsedBody['name']);
@@ -1183,7 +1183,6 @@ class ContentBlocksUtility
                         }
                         $nextItemIndex++;
                     }
-
 
                     $newTranslation->asXML($destinationFile);
                     return new SuccessAnswer();
