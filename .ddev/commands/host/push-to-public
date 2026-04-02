@@ -41,6 +41,8 @@ rsync -av --delete \
   --exclude='Tests/Playwright/auth.json' \
   --exclude='Tests/Playwright/test-results' \
   --exclude='Resources/Public/dist' \
+  --exclude='.php-cs-fixer.php' \
+  --exclude='phpstan.neon' \
   "$DEV_EXT/" "$PUBLIC_REPO/"
 
 echo ""
