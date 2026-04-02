@@ -73,11 +73,16 @@ This extension requires the Content Blocks extension:
 Require this package via Composer:
 
 ```
-composer require friendsoftypo3/content-blocks-gui
+composer require --dev friendsoftypo3/content-blocks-gui
 ```
 
 Or install it via the Extension Manager in the TYPO3 backend. The extension key
 is `content_blocks_gui`.
+
+**Important:** The GUI looks for extensions that require `friendsoftypo3/content-blocks`
+in their `composer.json` to use as storage destination for new Content Blocks. Make sure
+your sitepackage or target extension has this dependency, then run `composer update` to
+refresh the package metadata. Otherwise the extension dropdown in the editor will be empty.
 
 After installation, the module is available in the TYPO3 backend under
 **Web > Content Blocks**.
