@@ -43,8 +43,7 @@ let ContentBlockEditorLeftPane = class ContentBlockEditorLeftPane extends LitEle
         return html `
       <style>
         #tabs-content-elements {
-          background: #fff;
-          border-bottom: 1px solid #dee2e6;
+          border-bottom: 1px solid var(--typo3-component-border-color);
           margin-bottom: 1rem;
           padding: 0;
           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -58,7 +57,7 @@ let ContentBlockEditorLeftPane = class ContentBlockEditorLeftPane extends LitEle
         #tabs-content-elements .t3js-tabmenu-item a {
           display: block;
           padding: 0.75rem 1.25rem;
-          color: #495057;
+          color: var(--typo3-text-color-base);
           text-decoration: none;
           background: transparent;
           border: 1px solid transparent;
@@ -68,15 +67,14 @@ let ContentBlockEditorLeftPane = class ContentBlockEditorLeftPane extends LitEle
         }
 
         #tabs-content-elements .t3js-tabmenu-item a:hover {
-          background: #f8f9fa;
-          color: #007fff;
-          border-color: #dee2e6 #dee2e6 transparent;
+          background: var(--typo3-surface-container-low);
+          color: var(--typo3-text-color-primary);
+          border-color: var(--typo3-component-border-color) var(--typo3-component-border-color) transparent;
         }
 
         #tabs-content-elements .t3js-tabmenu-item a.active {
-          background: #fff;
-          color: #007fff;
-          border-color: #dee2e6 #dee2e6 #fff;
+          color: var(--typo3-text-color-primary);
+          border-color: var(--typo3-component-border-color) var(--typo3-component-border-color) var(--typo3-surface-bright);
           position: relative;
         }
 
@@ -87,11 +85,10 @@ let ContentBlockEditorLeftPane = class ContentBlockEditorLeftPane extends LitEle
           left: 0;
           right: 0;
           height: 2px;
-          background: #007fff;
+          background: var(--typo3-surface-primary);
         }
 
         .tab-content {
-          background: #fff;
           border-radius: 0 0 4px 4px;
           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
