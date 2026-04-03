@@ -47,7 +47,7 @@ let EditorLeftPaneBasics = class EditorLeftPaneBasics extends LitElement {
         .basics-section-title {
           font-size: 0.875rem;
           font-weight: 600;
-          color: #495057;
+          color: var(--typo3-text-color-base);
           margin-bottom: 0.75rem;
           text-transform: uppercase;
           letter-spacing: 0.5px;
@@ -64,16 +64,16 @@ let EditorLeftPaneBasics = class EditorLeftPaneBasics extends LitElement {
           align-items: center;
           padding: 0.5rem 0.75rem;
           margin-bottom: 0.25rem;
-          background: #f8f9fa;
-          border: 1px solid #dee2e6;
+          background: var(--typo3-surface-container-low);
+          border: 1px solid var(--typo3-component-border-color);
           border-radius: 4px;
           cursor: pointer;
           transition: all 0.2s ease;
         }
 
         .basic-item:hover {
-          background: #e9ecef;
-          border-color: #adb5bd;
+          background: var(--typo3-component-hover-bg);
+          border-color: var(--typo3-component-hover-border-color);
         }
 
         .basic-item.draggable {
@@ -85,14 +85,14 @@ let EditorLeftPaneBasics = class EditorLeftPaneBasics extends LitElement {
         }
 
         .basic-item.drag-over {
-          border-top: 2px solid #007fff;
+          border-top: 2px solid var(--typo3-surface-primary);
         }
 
         .basic-item-add {
           margin-left: 0.5rem;
           padding: 0.25rem 0.5rem;
-          background: #28a745;
-          color: white;
+          background: var(--typo3-surface-success);
+          color: var(--typo3-surface-success-text);
           border: none;
           border-radius: 3px;
           cursor: pointer;
@@ -104,12 +104,13 @@ let EditorLeftPaneBasics = class EditorLeftPaneBasics extends LitElement {
         }
 
         .basic-item-add:hover {
-          background: #218838;
+          background: var(--typo3-surface-success);
+          filter: brightness(0.9);
         }
 
         .basic-item-drag-handle {
           margin-right: 0.75rem;
-          color: #6c757d;
+          color: var(--typo3-text-color-variant);
           cursor: move;
         }
 
@@ -119,7 +120,7 @@ let EditorLeftPaneBasics = class EditorLeftPaneBasics extends LitElement {
 
         .basic-item-identifier {
           font-weight: 500;
-          color: #212529;
+          color: var(--typo3-text-color-base);
         }
 
         .basic-item-badge {
@@ -127,16 +128,16 @@ let EditorLeftPaneBasics = class EditorLeftPaneBasics extends LitElement {
           padding: 0.25rem 0.5rem;
           margin-left: 0.5rem;
           font-size: 0.75rem;
-          color: #fff;
-          background: #6c757d;
+          color: var(--typo3-surface-secondary-text);
+          background: var(--typo3-surface-secondary);
           border-radius: 10px;
         }
 
         .basic-item-remove {
           margin-left: 0.5rem;
           padding: 0.25rem 0.5rem;
-          background: #dc3545;
-          color: white;
+          background: var(--typo3-surface-danger);
+          color: var(--typo3-surface-danger-text);
           border: none;
           border-radius: 3px;
           cursor: pointer;
@@ -144,16 +145,17 @@ let EditorLeftPaneBasics = class EditorLeftPaneBasics extends LitElement {
         }
 
         .basic-item-remove:hover {
-          background: #c82333;
+          background: var(--typo3-surface-danger);
+          filter: brightness(0.9);
         }
 
         .empty-state {
           padding: 1rem;
           text-align: center;
-          color: #6c757d;
+          color: var(--typo3-text-color-variant);
           font-size: 0.875rem;
-          background: #f8f9fa;
-          border: 1px dashed #dee2e6;
+          background: var(--typo3-surface-container-low);
+          border: 1px dashed var(--typo3-component-border-color);
           border-radius: 4px;
         }
       </style>

@@ -33,7 +33,7 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
       <style>
         .content-block-field-builder {
           min-height: 400px;
-          background: #f8f9fa;
+          background: var(--typo3-surface-container-low);
           border-radius: 4px;
           padding: 1rem;
           margin-top: 17px;
@@ -54,7 +54,7 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
         }
 
         .field-item {
-          background: transparant;
+          background: transparent;
         }
 
         .collection-container {
@@ -63,15 +63,15 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
         }
 
         .collection-field {
-          border-left: 2px solid #007fff;
+          border-left: 2px solid var(--typo3-surface-primary);
           border-radius: 5px;
-          background: #fff;
+          background: var(--typo3-surface-bright);
           margin-bottom: 0.5rem;
         }
 
         .collection-header {
-          background: #f8f9fa;
-          border-bottom: 1px solid #dee2e6;
+          background: var(--typo3-surface-container-low);
+          border-bottom: 1px solid var(--typo3-component-border-color);
           border-radius: 4px 4px 0 0;
         }
 
@@ -94,7 +94,19 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
         }
 
         .collection-field-item .collection-field {
-          border-left: 2px solid #28a745;
+          border-left: 2px solid var(--typo3-surface-success);
+          margin-left: 0.5rem;
+        }
+
+        .palette-field {
+          border-left: 2px solid var(--typo3-surface-warning);
+          border-radius: 5px;
+          background: var(--typo3-surface-bright);
+          margin-bottom: 0.5rem;
+        }
+
+        .collection-field-item .palette-field {
+          border-left: 2px solid var(--typo3-surface-warning);
           margin-left: 0.5rem;
         }
 
@@ -119,7 +131,7 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
         }
 
         .empty-state-content {
-          color: #6c757d;
+          color: var(--typo3-text-color-variant);
         }
 
         .empty-state-content h4 {
@@ -151,12 +163,12 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
         }
 
         .field-active .draggable-field-type {
-          border-color: #007cba !important;
-          background-color: #e6f3ff !important;
+          border-color: var(--typo3-component-focus-border-color) !important;
+          background-color: var(--typo3-component-focus-bg) !important;
         }
 
         .field-active .draggable-field-type:hover {
-          background-color: #d4e8ff !important;
+          background-color: var(--typo3-component-hover-bg) !important;
         }
       </style>
       <div class="content-block-field-builder">
@@ -168,7 +180,7 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
             ${this.fieldList?.map((item, index) => {
             const isActive = this.isFieldActive(index + 1, 0, null);
             return html `
-                <div class=${classMap({ 'field-item': true, 'collection-type': item.type === 'Collection', 'field-active': isActive })} data-field-index="${index}">
+                <div class=${classMap({ 'field-item': true, 'collection-type': item.type === 'Collection' || item.type === 'Palette', 'field-active': isActive })} data-field-index="${index}">
                   ${this.renderFieldArea(item, index + 1, 0, null)}
                 </div>
               `;
@@ -194,12 +206,13 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
     }
     renderFieldArea(cbField, position, level, parent) {
         const fieldType = this.fieldTypes?.filter((fieldType) => fieldType.type === cbField.type)[0];
-        if (cbField.type === 'Collection') {
+        if (cbField.type === 'Collection' || cbField.type === 'Palette') {
+            const containerClass = cbField.type === 'Palette' ? 'palette-field' : 'collection-field';
             return html `
         <div class="collection-container" data-level="${level}">
-          <div class="collection-field">
+          <div class="${containerClass}">
             <div class="collection-header">
-              ${this.renderDraggableFieldType(fieldType, cbField, position, level, cbField, true, false)}
+              ${this.renderDraggableFieldType(fieldType, cbField, position, level, parent, true, false)}
             </div>
             <div class="collection-body">
               <div class="collection-fields">
@@ -210,7 +223,7 @@ let ContentBlockEditorMiddlePane = class ContentBlockEditorMiddlePane extends Li
                 const isActive = this.isFieldActive(index + 1, level + 1, cbField);
                 return html `
                     <div class=${classMap({ 'collection-field-item': true, 'field-active': isActive })} data-field-index="${index}">
-                      <div class=${classMap({ 'field-item': true, 'collection-type': field.type === 'Collection' })} data-field-index="${index}">
+                      <div class=${classMap({ 'field-item': true, 'collection-type': field.type === 'Collection' || field.type === 'Palette' })} data-field-index="${index}">
                         ${this.renderFieldArea(field, index + 1, level + 1, cbField)}
                       </div>
                     </div>
